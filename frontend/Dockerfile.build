@@ -1,0 +1,31 @@
+FROM node:20-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Configure build-time environment
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL:-https://sims.alshifalab.pk/api}
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies needed for build)
+RUN npm ci
+
+# Copy project files
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Output stage - just keep the built files
+FROM alpine:latest
+
+WORKDIR /output
+
+# Copy built files from builder
+COPY --from=builder /app/dist /output
+
+# Default command - files are already in /output, just verify
+CMD ["sh", "-c", "echo 'Build files in /output:' && ls -la /output"]

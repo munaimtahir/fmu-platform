@@ -1,0 +1,50 @@
+# Core Django
+Django==5.1.4
+djangorestframework==3.15.2
+
+# Database
+psycopg2-binary==2.9.10
+
+# Authentication & Security
+djangorestframework-simplejwt==5.3.1
+django-cors-headers==4.6.0
+
+# Environment & Configuration
+python-decouple==3.8
+
+# Filtering & Pagination
+django-filter==24.3
+
+# API Schema & Documentation
+drf-spectacular==0.27.2
+
+# Audit & History
+django-simple-history==3.7.0
+
+# PDF Generation
+reportlab==4.2.5
+qrcode==8.0
+Pillow==11.0.0
+
+# Background Jobs
+rq==1.16.2
+django-rq==2.10.2
+redis==5.2.1
+
+# Testing
+pytest==8.3.4
+pytest-django==4.9.0
+pytest-cov==6.0.0
+faker==33.1.0
+
+# Code Quality
+ruff==0.8.4
+mypy==1.13.0
+django-stubs==5.1.1
+
+# Other utilities
+python-dateutil==2.9.0.post0
+
+# Admin Theme & Static Files
+django-jazzmin==3.0.1
+whitenoise==6.8.2

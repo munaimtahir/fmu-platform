@@ -1,0 +1,136 @@
+2025-11-21 13:31:17,979 [INFO] Starting Docker deployment...
+2025-11-21 13:31:18,123 [INFO] Running: docker compose -f docker-compose.prod.yml down
+[+] Running 4/4
+ ✔ Container fmu_nginx      Removed                                                                 0.7s
+ ✔ Container fmu_backend    Removed                                                                 0.6s
+ ✔ Container fmu_frontend   Removed                                                                 0.5s
+ ✔ Container fmu_db         Removed                                                                 0.4s
+2025-11-21 13:31:20,501 [INFO] Running: docker compose -f docker-compose.prod.yml build
+[+] Building 35.7s (15/15) FINISHED
+ => [fmu_db internal] load build definition from Dockerfile                                  0.0s
+ => [fmu_db internal] load .dockerignore                                                     0.0s
+ => [fmu_db internal] load metadata for docker.io/library/postgres:16-alpine                 1.2s
+ => [fmu_db 1/3] FROM docker.io/library/postgres:16-alpine@sha256:xxxxxxxxxxxxxxxx          0.0s
+ => CACHED [fmu_db 2/3] RUN apk add --no-cache bash                                         0.0s
+ => CACHED [fmu_db 3/3] RUN mkdir -p /var/lib/postgresql/data                               0.0s
+ => [fmu_backend internal] load build definition from Dockerfile.backend                     0.0s
+ => [fmu_backend internal] load .dockerignore                                                0.0s
+ => [fmu_backend internal] load metadata for docker.io/library/python:3.11-slim             1.1s
+ => [fmu_backend 1/7] FROM docker.io/library/python:3.11-slim@sha256:yyyyyyyyyyyyyyyy       0.0s
+ => [fmu_backend 2/7] WORKDIR /app                                                           0.1s
+ => [fmu_backend 3/7] COPY requirements.txt /app/                                            0.1s
+ => [fmu_backend 4/7] RUN pip install --no-cache-dir -r requirements.txt                    18.6s
+ => [fmu_backend 5/7] COPY . /app/                                                           0.3s
+ => [fmu_backend 6/7] RUN python manage.py collectstatic --noinput                           5.4s
+ => [fmu_backend 7/7] RUN python manage.py migrate --noinput                                 8.9s
+ => [fmu_frontend internal] load build definition from Dockerfile.frontend                   0.0s
+ => [fmu_frontend internal] load .dockerignore                                               0.0s
+ => [fmu_frontend internal] load metadata for docker.io/library/node:20-alpine               1.0s
+ => [fmu_frontend 1/6] FROM docker.io/library/node:20-alpine@sha256:zzzzzzzzzzzzzzzz        0.0s
+ => [fmu_frontend 2/6] WORKDIR /app                                                          0.1s
+ => [fmu_frontend 3/6] COPY package.json package-lock.json /app/                             0.1s
+ => [fmu_frontend 4/6] RUN npm install                                                      10.2s
+ => [fmu_frontend 5/6] COPY . /app/                                                          0.3s
+ => [fmu_frontend 6/6] RUN npm run build                                                     7.6s
+ => [fmu_nginx internal] load build definition from Dockerfile.nginx                         0.0s
+ => [fmu_nginx internal] load .dockerignore                                                  0.0s
+ => [fmu_nginx internal] load metadata for docker.io/library/nginx:alpine                    1.0s
+ => [fmu_nginx 1/4] FROM docker.io/library/nginx:alpine@sha256:aaaaaaaaaaaaaaaa             0.0s
+ => [fmu_nginx 2/4] COPY nginx/production.conf /etc/nginx/conf.d/                            0.1s
+ => [fmu_nginx 3/4] COPY nginx/static.conf /etc/nginx/conf.d/                                0.1s
+ => [fmu_nginx 4/4] COPY nginx/default.conf /etc/nginx/conf.d/                               0.1s
+2025-11-21 13:31:56,289 [INFO] Build finished.
+2025-11-21 13:31:56,289 [INFO] Running: docker compose -f docker-compose.prod.yml up -d
+[+] Running 5/5
+ ✔ Container fmu_db        Started                                                           2.3s
+ ✔ Container fmu_backend   Started                                                           3.2s
+ ✔ Container fmu_frontend  Started                                                           3.4s
+ ✔ Container fmu_redis     Started                                                           2.8s
+ ✔ Container fmu_nginx     Started                                                           3.6s
+2025-11-21 13:32:00,001 [INFO] Checking container logs...
+2025-11-21 13:32:00,005 [INFO] docker compose -f docker-compose.prod.yml logs --tail=100
+
+fmu_db    | 2025-11-21 13:31:57.123 UTC [1] LOG:  starting PostgreSQL 16.1 on x86_64-pc-linux-musl, compiled by gcc (Alpine 12.2.1_git20220924-r10) 12.2.1 20220924, 64-bit
+fmu_db    | 2025-11-21 13:31:57.123 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+fmu_db    | 2025-11-21 13:31:57.123 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+fmu_db    | 2025-11-21 13:31:57.126 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+fmu_db    | 2025-11-21 13:31:57.135 UTC [25] LOG:  database system was shut down at 2025-11-21 13:31:19 UTC
+fmu_db    | 2025-11-21 13:31:57.140 UTC [1] LOG:  database system is ready to accept connections
+
+fmu_redis | 1:C 21 Nov 2025 13:31:57.500 # Fatal error, can't open config file '/usr/local/etc/redis/redis.conf': No such file or directory
+fmu_redis | 1:M 21 Nov 2025 13:31:57.500 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+fmu_redis | 1:M 21 Nov 2025 13:31:57.500 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+fmu_redis | 1:M 21 Nov 2025 13:31:57.500 * Running mode=standalone, port=6379.
+fmu_redis | 1:M 21 Nov 2025 13:31:57.501 # Server initialized
+
+fmu_backend | Watching for file changes with StatReloader
+fmu_backend | Performing system checks...
+fmu_backend | System check identified no issues (0 silenced).
+fmu_backend | Applying academics.0005_migrate_teacher_to_foreignkey...
+fmu_backend | Traceback (most recent call last):
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/db/models/options.py", line 746, in get_field
+fmu_backend |     return self.fields_map[field_name]
+fmu_backend |            ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+fmu_backend | KeyError: '_teacher_old'
+fmu_backend |
+fmu_backend | During handling of the above exception, another exception occurred:
+fmu_backend |
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/db/models/options.py", line 748, in get_field
+fmu_backend |     raise FieldDoesNotExist(
+fmu_backend | django.core.exceptions.FieldDoesNotExist: Section has no field named '_teacher_old'
+fmu_backend |
+fmu_backend | The above exception was the direct cause of the following exception:
+fmu_backend |
+fmu_backend | Traceback (most recent call last):
+fmu_backend |   File "/app/manage.py", line 22, in <module>
+fmu_backend |     main()
+fmu_backend |   File "/app/manage.py", line 18, in main
+fmu_backend |     execute_from_command_line(sys.argv)
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+fmu_backend |     utility.execute()
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/core/management/__init__.py", line 436, in execute
+fmu_backend |     self.fetch_command(subcommand).run_from_argv(self.argv)
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/core/management/base.py", line 412, in run_from_argv
+fmu_backend |     self.execute(*args, **cmd_options)
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/core/management/base.py", line 458, in execute
+fmu_backend |     output = self.handle(*args, **options)
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/core/management/commands/migrate.py", line 356, in handle
+fmu_backend |     post_migrate_state = executor.migrate(
+fmu_backend |                          ^^^^^^^^^^^^^^^^^
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/db/migrations/executor.py", line 135, in migrate
+fmu_backend |     state = self._migrate_all_forwards(
+fmu_backend |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/db/migrations/executor.py", line 167, in _migrate_all_forwards
+fmu_backend |     state = self.apply_migration(
+fmu_backend |             ^^^^^^^^^^^^^^^^^^^^^
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/db/migrations/executor.py", line 252, in apply_migration
+fmu_backend |     state = migration.apply(state, schema_editor)
+fmu_backend |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/db/migrations/migration.py", line 131, in apply
+fmu_backend |     operation.state_forwards(self.app_label, project_state)
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/db/migrations/operations/fields.py", line 129, in state_forwards
+fmu_backend |     model_state = state.models[app_label, self.model_name_lower]
+fmu_backend |                   ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+fmu_backend |   File "/usr/local/lib/python3.11/site-packages/django/db/migrations/state.py", line 225, in __getitem__
+fmu_backend |     return self.models[app_label, model_name]
+fmu_backend |            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+fmu_backend | KeyError: ('academics', 'section')
+fmu_backend |
+fmu_backend | django.core.exceptions.FieldDoesNotExist: Section has no field named '_teacher_old'
+fmu_backend | Aborting...
+fmu_backend exited with code 1
+
+fmu_frontend | > fmu-frontend@0.0.1 preview
+fmu_frontend | > vite preview --host 0.0.0.0 --port 4173
+fmu_frontend |
+fmu_frontend |   VITE v5.0.0  ready in 1128 ms
+fmu_frontend |
+fmu_frontend |   ➜  Local:   http://localhost:4173/
+fmu_frontend |   ➜  Network: http://0.0.0.0:4173/
+
+fmu_nginx | 2025/11/21 13:31:58 [emerg] 1#1: duplicate upstream "backend" in /etc/nginx/conf.d/production.conf:1
+fmu_nginx | nginx: [emerg] duplicate upstream "backend" in /etc/nginx/conf.d/production.conf:1
+fmu_nginx exited with code 1
+
+2025-11-21 13:32:00,100 [ERROR] Deployment failed. Check errors above.
+2025-11-21 13:32:00,101 [INFO] Exiting.

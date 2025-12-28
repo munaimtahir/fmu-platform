@@ -1,0 +1,7 @@
+
+    [
+      { "reg_no": "STU-0001", "name": "Aisha Khan", "program": "BSc CS", "status": "active" },
+      { "reg_no": "STU-0002", "name": "John Kim",   "program": "BBA",    "status": "active" },
+      { "reg_no": "STU-0003", "name": "Liu Wei",    "program": "BA Eng", "status": "inactive" }
+    ]
+    

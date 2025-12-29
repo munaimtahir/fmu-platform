@@ -48,3 +48,6 @@ python-dateutil==2.9.0.post0
 # Admin Theme & Static Files
 django-jazzmin==3.0.1
 whitenoise==6.8.2
+
+# WSGI Server
+gunicorn==21.2.0

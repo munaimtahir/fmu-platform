@@ -17,7 +17,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -30,14 +29,60 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 
+# -------------------------------------------------------------------
+# Host / Origin configuration (Domains + IP fallback)
+# -------------------------------------------------------------------
+DEFAULT_ALLOWED_HOSTS = (
+    "sims.alshifalab.pk,"
+    "sims.pmc.edu.pk,"
+    "34.124.150.231,"
+    "localhost,"
+    "127.0.0.1"
+)
+
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv(
-        "DJANGO_ALLOWED_HOSTS",
-        "172.235.33.181,104.64.0.164,172.237.71.40,139.162.9.224,localhost,127.0.0.1",
-    ).split(",")
+    for host in os.getenv("DJANGO_ALLOWED_HOSTS", DEFAULT_ALLOWED_HOSTS).split(",")
+    if host.strip()
 ]
 
+# CORS Settings
+# Note: include scheme (http/https) for origins
+DEFAULT_CORS_ALLOWED_ORIGINS = (
+    "https://sims.alshifalab.pk,"
+    "https://sims.pmc.edu.pk,"
+    "http://34.124.150.231,"
+    "http://localhost,"
+    "http://127.0.0.1"
+)
+
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", DEFAULT_CORS_ALLOWED_ORIGINS).split(
+        ","
+    )
+    if origin.strip()
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# CSRF Settings
+# Must include scheme. For IP access we allow http://IP as fallback.
+DEFAULT_CSRF_TRUSTED_ORIGINS = (
+    "https://sims.alshifalab.pk,"
+    "https://sims.pmc.edu.pk,"
+    "http://34.124.150.231,"
+    "http://localhost,"
+    "http://127.0.0.1"
+)
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CSRF_TRUSTED_ORIGINS", DEFAULT_CSRF_TRUSTED_ORIGINS
+    ).split(",")
+    if origin.strip()
+]
 
 # Application definition
 
@@ -106,10 +151,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "sims_backend.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
@@ -121,10 +164,8 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -140,10 +181,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -152,21 +191,18 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.getenv("MEDIA_ROOT", BASE_DIR / "media")
+MEDIA_ROOT = os.getenv("MEDIA_ROOT", str(BASE_DIR / "media"))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # REST Framework Settings
@@ -206,26 +242,6 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-# CORS Settings
-CORS_ALLOWED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv(
-        "CORS_ALLOWED_ORIGINS",
-        "http://172.235.33.181,http://172.235.33.181:81,http://104.64.0.164,http://104.64.0.164:81,http://172.237.71.40,http://172.237.71.40:81,http://139.162.9.224,http://139.162.9.224:81,http://localhost,http://localhost:81,http://127.0.0.1,http://127.0.0.1:81",
-    ).split(",")
-]
-
-CORS_ALLOW_CREDENTIALS = True
-
-# CSRF Settings
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv(
-        "CSRF_TRUSTED_ORIGINS",
-        "http://172.235.33.181,http://172.235.33.181:81,http://104.64.0.164,http://104.64.0.164:81,http://172.237.71.40,http://172.237.71.40:81,http://139.162.9.224,http://139.162.9.224:81,http://localhost,http://localhost:81,http://127.0.0.1,http://127.0.0.1:81",
-    ).split(",")
-]
-
 # Redis/RQ Settings
 RQ_QUEUES = {
     "default": {
@@ -253,13 +269,15 @@ DEFAULT_FROM_EMAIL = os.getenv(
 # Django-jazzmin automatically discovers these settings from this module
 from core.jazzmin import JAZZMIN_SETTINGS, JAZZMIN_UI_TWEAKS  # noqa: E402, F401
 
-# Production Security Settings
+# -------------------------------------------------------------------
+# Production Security Settings (behind Caddy reverse proxy)
 # These settings are only active when DEBUG=False (production mode)
-# Configured for deployment behind Caddy reverse proxy (TLS terminates at Caddy)if not DEBUG:
+# -------------------------------------------------------------------
 if not DEBUG:
     # HTTPS Enforcement
     SECURE_SSL_REDIRECT = True
-    # Trust proxy headers from Caddy reverse proxy
+
+    # Trust proxy headers from Caddy reverse proxy (TLS terminates at Caddy)
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     USE_X_FORWARDED_HOST = True
 

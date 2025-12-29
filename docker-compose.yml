@@ -1,69 +1,39 @@
 services:
-  postgres:
-    image: postgres:14-alpine
-    container_name: sims_postgres
+  db:
+    image: postgres:16-alpine
+    container_name: fmu_db
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-sims_db}
-      POSTGRES_USER: ${POSTGRES_USER:-sims_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sims_password}
+      POSTGRES_DB: fmu_platform
+      POSTGRES_USER: fmu_platform
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sims_user} -d ${POSTGRES_DB:-sims_db}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    container_name: sims_redis
-    ports:
-      - "127.0.0.1:6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - fmu_db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: sims_backend
-    command: gunicorn sims_backend.wsgi:application --bind 0.0.0.0:8000
+    container_name: fmu_backend
     env_file:
       - .env
-    volumes:
-      - static_volume:/app/static
-      - media_volume:/app/media
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - db
+    volumes:
+      - ./backend/staticfiles:/app/staticfiles
+      - ./backend/media:/app/media
     ports:
-      - "127.0.0.1:8010:8000"   # 🔑 Pattern A: THIS is the only exposed port
+      - "127.0.0.1:8010:8000"
     restart: unless-stopped
 
-  frontend-builder:
+  frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.build
-      args:
-        VITE_API_URL: ${VITE_API_URL:-https://sims.alshifalab.pk/api}
+      dockerfile: Dockerfile.prod
+    container_name: fmu_frontend
     volumes:
-      - ./frontend/dist:/output
-    environment:
-      - VITE_API_URL=${VITE_API_URL:-https://sims.alshifalab.pk/api}
-    profiles:
-      - build
+      - ./frontend/dist:/usr/share/nginx/html
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
-  redis_data:
-  static_volume:
-  media_volume:
+  fmu_db_data:

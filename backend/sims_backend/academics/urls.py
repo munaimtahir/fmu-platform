@@ -1,12 +1,19 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import CourseViewSet, ProgramViewSet, SectionViewSet, TermViewSet
+from .views import (
+    ProgramViewSet,
+    BatchViewSet,
+    AcademicPeriodViewSet,
+    GroupViewSet,
+    DepartmentViewSet,
+)
 
 router = DefaultRouter()
-router.register(r"terms", TermViewSet, basename="term")
 router.register(r"programs", ProgramViewSet, basename="program")
-router.register(r"courses", CourseViewSet, basename="course")
-router.register(r"sections", SectionViewSet, basename="section")
+router.register(r"batches", BatchViewSet, basename="batch")
+router.register(r"academic-periods", AcademicPeriodViewSet, basename="academic-period")
+router.register(r"groups", GroupViewSet, basename="group")
+router.register(r"departments", DepartmentViewSet, basename="department")
 
-urlpatterns = [path("api/", include(router.urls))]
+urlpatterns = [path("api/academics/", include(router.urls))]

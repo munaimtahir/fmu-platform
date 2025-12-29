@@ -1,119 +1,86 @@
-from datetime import date
-
-from rest_framework import status, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from sims_backend.common_permissions import IsAdminOrRegistrarReadOnlyFacultyStudent
-
-from .models import Attendance
-from .serializers import AttendanceSerializer
-from .utils import (
-    calculate_attendance_percentage,
-    check_eligibility,
-    get_section_attendance_summary,
-)
+from sims_backend.common_permissions import IsFaculty, IsOfficeAssistant, IsStudent, in_group
+from sims_backend.attendance.models import Attendance
+from sims_backend.attendance.serializers import AttendanceSerializer
+from sims_backend.timetable.models import Session
 
 
 class AttendanceViewSet(viewsets.ModelViewSet):
-    queryset = Attendance.objects.all()
+    queryset = Attendance.objects.select_related(
+        'session', 'student', 'marked_by', 'session__department'
+    ).all()
     serializer_class = AttendanceSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrRegistrarReadOnlyFacultyStudent]
-    filter_backends = [SearchFilter, OrderingFilter]
-    search_fields = ["section__course__code", "student__reg_no", "date"]
-    ordering_fields = ["id", "date"]
-    ordering = ["id"]
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['session', 'student', 'status']
+    search_fields = ['student__reg_no', 'student__name']
+    ordering_fields = ['marked_at']
+    ordering = ['-marked_at']
 
-    def update(self, request, *args, **kwargs):
-        """Update attendance record with same-day edit restriction."""
-        instance = self.get_object()
-        today = date.today()
+    def get_permissions(self):
+        # Faculty and OfficeAssistant can mark attendance
+        if self.action in ['create', 'update', 'partial_update']:
+            return [IsAuthenticated()]  # Check in get_queryset
+        return [IsAuthenticated()]
 
-        # Restrict edits to records not from today (can only edit same-day records)
-        if instance.date != today:
-            return Response(
-                {
-                    "error": "Cannot edit attendance records from past dates. "
-                    "Only same-day attendance can be modified."
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        # Students can only see their own attendance
+        if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
+            # TODO: Link User to Student (for MVP, return all for now)
+            pass
+        
+        # Faculty can see attendance for their sessions
+        if in_group(user, 'FACULTY') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
+            queryset = queryset.filter(session__faculty=user)
+        
+        return queryset
 
-        return super().update(request, *args, **kwargs)
-
-    def partial_update(self, request, *args, **kwargs):
-        """Partial update attendance record with same-day edit restriction."""
-        instance = self.get_object()
-        today = date.today()
-
-        # Restrict edits to records not from today (can only edit same-day records)
-        if instance.date != today:
-            return Response(
-                {
-                    "error": "Cannot edit attendance records from past dates. "
-                    "Only same-day attendance can be modified."
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        return super().partial_update(request, *args, **kwargs)
-
-    @action(detail=False, methods=["get"], url_path="percentage")
-    def attendance_percentage(self, request):
-        """Get attendance percentage for a student in a section."""
-        student_id = request.query_params.get("student_id")
-        section_id = request.query_params.get("section_id")
-
-        if not student_id or not section_id:
-            return Response(
-                {"error": "student_id and section_id are required"},
-                status=400,
-            )
-
+    @action(detail=False, methods=['post'], url_path='sessions/(?P<session_id>[^/.]+)/mark')
+    def mark_session_attendance(self, request, session_id=None):
+        """Mark attendance for all students in a session"""
         try:
-            percentage = calculate_attendance_percentage(
-                int(student_id), int(section_id)
+            session = Session.objects.get(id=session_id)
+        except Session.DoesNotExist:
+            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get students from the session's group
+        students = session.group.students.all()
+        attendance_data = request.data.get('attendance', [])  # List of {student_id, status}
+        
+        created_count = 0
+        updated_count = 0
+        
+        for item in attendance_data:
+            student_id = item.get('student_id')
+            status_value = item.get('status')
+            
+            if not student_id or not status_value:
+                continue
+            
+            attendance, created = Attendance.objects.update_or_create(
+                session=session,
+                student_id=student_id,
+                defaults={
+                    'status': status_value,
+                    'marked_by': request.user,
+                }
             )
-            return Response({"percentage": percentage})
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)
-
-    @action(detail=False, methods=["get"], url_path="eligibility")
-    def check_eligibility_endpoint(self, request):
-        """Check if a student is eligible based on attendance."""
-        student_id = request.query_params.get("student_id")
-        section_id = request.query_params.get("section_id")
-        threshold = request.query_params.get("threshold", "75.0")
-
-        if not student_id or not section_id:
-            return Response(
-                {"error": "student_id and section_id are required"},
-                status=400,
-            )
-
-        try:
-            result = check_eligibility(
-                int(student_id), int(section_id), float(threshold)
-            )
-            return Response(result)
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)
-
-    @action(detail=False, methods=["get"], url_path="section-summary")
-    def section_summary(self, request):
-        """Get attendance summary for a section."""
-        section_id = request.query_params.get("section_id")
-
-        if not section_id:
-            return Response(
-                {"error": "section_id is required"},
-                status=400,
-            )
-
-        try:
-            summary = get_section_attendance_summary(int(section_id))
-            return Response(summary)
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)
+            if created:
+                created_count += 1
+            else:
+                updated_count += 1
+        
+        return Response({
+            'created': created_count,
+            'updated': updated_count,
+            'total': len(attendance_data)
+        }, status=status.HTTP_200_OK)

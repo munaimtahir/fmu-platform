@@ -1,47 +1,129 @@
 from django.db import models
+from django.core.validators import MinValueValidator
+
+from core.models import TimeStampedModel
 
 
-class Result(models.Model):
-    """Student result with state management"""
+class ResultHeader(TimeStampedModel):
+    """Result header for a student in an exam"""
 
-    STATE_CHOICES = [
-        ("draft", "Draft"),
-        ("published", "Published"),
-        ("frozen", "Frozen"),
+    OUTCOME_PASS = "PASS"
+    OUTCOME_FAIL = "FAIL"
+    OUTCOME_PENDING = "PENDING"
+
+    OUTCOME_CHOICES = [
+        (OUTCOME_PASS, "Pass"),
+        (OUTCOME_FAIL, "Fail"),
+        (OUTCOME_PENDING, "Pending"),
     ]
 
+    STATUS_DRAFT = "DRAFT"
+    STATUS_VERIFIED = "VERIFIED"
+    STATUS_PUBLISHED = "PUBLISHED"
+
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, "Draft"),
+        (STATUS_VERIFIED, "Verified"),
+        (STATUS_PUBLISHED, "Published"),
+    ]
+
+    exam = models.ForeignKey(
+        "exams.Exam",
+        on_delete=models.PROTECT,
+        related_name="result_headers",
+        help_text="Exam this result is for",
+    )
     student = models.ForeignKey(
-        "admissions.Student", on_delete=models.CASCADE, related_name="results"
+        "students.Student",
+        on_delete=models.CASCADE,
+        related_name="result_headers",
+        help_text="Student this result is for",
     )
-    section = models.ForeignKey(
-        "academics.Section", on_delete=models.CASCADE, related_name="results"
+    total_obtained = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text="Total marks obtained",
     )
-    final_grade = models.CharField(max_length=8, blank=True, default="")
-    state = models.CharField(max_length=16, choices=STATE_CHOICES, default="draft")
-    is_published = models.BooleanField(default=False)
-    published_at = models.DateTimeField(null=True, blank=True)
-    published_by = models.CharField(max_length=128, blank=True, default="")
-    frozen_at = models.DateTimeField(null=True, blank=True)
-    frozen_by = models.CharField(max_length=128, blank=True, default="")
+    total_max = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text="Total maximum marks",
+    )
+    final_outcome = models.CharField(
+        max_length=16,
+        choices=OUTCOME_CHOICES,
+        default=OUTCOME_PENDING,
+        help_text="Final pass/fail outcome (computed)",
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_DRAFT,
+        help_text="Workflow status",
+    )
 
     class Meta:
-        unique_together = ("student", "section")
+        unique_together = [("exam", "student")]
+        ordering = ["exam", "student"]
+        indexes = [
+            models.Index(fields=["exam", "student"]),
+            models.Index(fields=["status"]),
+            models.Index(fields=["final_outcome"]),
+        ]
+
+    def __str__(self):
+        return f"{self.student.reg_no} - {self.exam.title} ({self.get_status_display()})"
 
 
-class PendingChange(models.Model):
-    STATUS_CHOICES = [
-        ("pending", "Pending"),
-        ("approved", "Approved"),
-        ("rejected", "Rejected"),
+class ResultComponentEntry(TimeStampedModel):
+    """Individual component entry within a result header"""
+
+    OUTCOME_PASS = "PASS"
+    OUTCOME_FAIL = "FAIL"
+    OUTCOME_NA = "NA"
+
+    OUTCOME_CHOICES = [
+        (OUTCOME_PASS, "Pass"),
+        (OUTCOME_FAIL, "Fail"),
+        (OUTCOME_NA, "Not Applicable"),
     ]
 
-    result = models.ForeignKey(
-        Result, on_delete=models.CASCADE, related_name="pending_changes"
+    result_header = models.ForeignKey(
+        ResultHeader,
+        on_delete=models.CASCADE,
+        related_name="component_entries",
+        help_text="Result header this entry belongs to",
     )
-    requested_by = models.CharField(max_length=128)
-    approved_by = models.CharField(max_length=128, blank=True, default="")
-    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default="pending")
-    new_grade = models.CharField(max_length=8)
-    reason = models.TextField(blank=True, default="")
-    requested_at = models.DateTimeField(auto_now_add=True)
-    resolved_at = models.DateTimeField(null=True, blank=True)
+    exam_component = models.ForeignKey(
+        "exams.ExamComponent",
+        on_delete=models.PROTECT,
+        related_name="result_entries",
+        help_text="Exam component this entry is for",
+    )
+    marks_obtained = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text="Marks obtained in this component",
+    )
+    component_outcome = models.CharField(
+        max_length=16,
+        choices=OUTCOME_CHOICES,
+        default=OUTCOME_NA,
+        help_text="Pass/fail outcome for this component (computed)",
+    )
+
+    class Meta:
+        unique_together = [("result_header", "exam_component")]
+        ordering = ["result_header", "exam_component__sequence"]
+        indexes = [
+            models.Index(fields=["result_header", "exam_component"]),
+        ]
+
+    def __str__(self):
+        return f"{self.result_header} - {self.exam_component.name} ({self.marks_obtained})"

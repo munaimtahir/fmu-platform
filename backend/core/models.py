@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.conf import settings
 from django.db import models
 
 
@@ -39,3 +40,53 @@ class TimeStampedModel(models.Model):
             self.save(using=using, update_fields=list(update_fields))
         else:
             self.save(using=using)
+
+
+class Profile(TimeStampedModel):
+    """User profile extension with basic personal information"""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile",
+        help_text="Associated user account",
+    )
+    phone = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text="Contact phone number",
+    )
+    date_of_birth = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Date of birth",
+    )
+
+    def __str__(self) -> str:
+        return f"Profile for {self.user.username}"
+
+
+class FacultyProfile(TimeStampedModel):
+    """Faculty-specific profile with department assignment"""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="faculty_profile",
+        help_text="Associated faculty user account",
+    )
+    department = models.ForeignKey(
+        "academics.Department",
+        on_delete=models.PROTECT,
+        related_name="faculty_profiles",
+        null=True,
+        blank=True,
+        help_text="Department this faculty member belongs to",
+    )
+
+    class Meta:
+        verbose_name_plural = "Faculty profiles"
+
+    def __str__(self) -> str:
+        dept_name = self.department.name if self.department else "No department"
+        return f"Faculty profile for {self.user.username} ({dept_name})"

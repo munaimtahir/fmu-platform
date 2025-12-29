@@ -106,15 +106,20 @@ INSTALLED_APPS = [
     # Core app (shared models and utilities)
     "core",
     # SIMS domain apps (must be these module paths)
-    "sims_backend.admissions",
     "sims_backend.academics",
-    "sims_backend.enrollment",
+    "sims_backend.students",
+    "sims_backend.timetable",
     "sims_backend.attendance",
-    "sims_backend.assessments",
+    "sims_backend.exams",
     "sims_backend.results",
+    "sims_backend.finance",
+    "sims_backend.audit",
+    # Legacy apps (to be removed after migration)
+    "sims_backend.admissions",
+    "sims_backend.enrollment",
+    "sims_backend.assessments",
     "sims_backend.requests",
     "sims_backend.transcripts",
-    "sims_backend.audit",
 ]
 
 MIDDLEWARE = [

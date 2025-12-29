@@ -120,26 +120,54 @@ make docker-down # Stop Docker services
 
 ## 📋 Overview
 
-SIMS is a production-ready academic digitization system designed to manage:
-- Universities, Colleges, Departments, Programs
-- Student admissions, enrollments, and records
-- Course management and term scheduling
-- Attendance tracking and eligibility computation
-- Assessment schemes and results management
-- Transcript generation with QR code verification
-- Document management and verification
-- Request ticket system (bonafide certificates, transcripts, etc.)
+FMU Platform MVP is a Student & Academics Management System with Finance module. This MVP implements:
+
+### Core Features
+- **Academic Structure**: Programs, Batches, Groups, AcademicPeriods (hierarchical), Departments
+- **Student Management**: Student records with Program/Batch/Group assignment
+- **Timetable**: Session management linking academic periods, groups, faculty, and departments
+- **Attendance**: Attendance tracking per session with status (PRESENT/ABSENT/LATE/LEAVE)
+- **Exams & Results**: Component-based exam system with flexible passing logic (TOTAL_ONLY, COMPONENT_WISE, HYBRID)
+- **Results Workflow**: DRAFT → VERIFIED → PUBLISHED state management
+- **Finance Module**: Charge templates, charges, student ledger, challans, and payment logging
+- **Audit Trail**: Complete audit logging for all critical actions
+
+### Roles
+- **ADMIN**: Full system access
+- **COORDINATOR**: Academic setup, student placement, exam/results management, workflow transitions
+- **FACULTY**: Manage own sessions, mark attendance, enter marks (DRAFT only)
+- **FINANCE**: Full access to finance module (charges, challans, ledger, payments)
+- **STUDENT**: Read-only access to own records (attendance, published results, ledger)
+- **OFFICE_ASSISTANT**: Data-entry role with restricted permissions (see below)
 
 ## ✨ Features
 
-- **Role-Based Access Control:** Pre-configured roles for Admin, Registrar, Faculty, and Student, each with a tailored dashboard and permissions.
-- **Academic Structure:** Manage programs, courses, terms, and sections with ease.
-- **Student Lifecycle Management:** A comprehensive system for admissions, enrollments, and maintaining student records.
-- **Attendance Tracking:** Record and monitor student attendance, with automatic eligibility calculations.
-- **Assessment and Results:** Flexible assessment schemes and automated result generation.
-- **Transcript Generation:** Create and manage student transcripts with QR code verification for authenticity.
-- **Demo Data Seeding:** A powerful seeding script to quickly populate the system with realistic demo data for testing and demonstration.
-- **Production-Ready:** Built with best practices for security, performance, and scalability, ready for deployment.
+- **Role-Based Access Control:** Six roles (ADMIN, COORDINATOR, FACULTY, FINANCE, STUDENT, OFFICE_ASSISTANT) with granular permissions
+- **Academic Structure:** Programs → Batches → Groups hierarchy with AcademicPeriods (YEAR/BLOCK/MODULE)
+- **Student Management:** Student records with Program/Batch/Group placement (placement edits Admin-only)
+- **Timetable Management:** Session scheduling linking academic periods, groups, faculty, and departments
+- **Attendance Tracking:** Per-session attendance with status tracking and audit trail
+- **Exam System:** Component-based exams with flexible passing logic (TOTAL_ONLY, COMPONENT_WISE, HYBRID)
+- **Results Workflow:** State management (DRAFT → VERIFIED → PUBLISHED) with role-based transitions
+- **Finance Module:** Charge templates, charges, student ledger, challans, and manual payment logging
+- **Audit Trail:** Complete audit logging for all critical actions with request data capture
+- **OFFICE_ASSISTANT Role:** Data-entry role with restrictions (can enter data in DRAFT only, cannot access finance, cannot modify academic policy)
+
+### OFFICE_ASSISTANT Permissions
+
+**Granted:**
+- Create/edit timetable sessions
+- Create/edit exam records (basic fields only)
+- Mark/edit attendance
+- Enter/update marks in results (DRAFT status only)
+- View-only access to academic structure, students, departments
+
+**Restricted:**
+- Cannot transition workflow states (DRAFT → VERIFIED/PUBLISHED)
+- Cannot modify academic policy fields (passing logic, component rules)
+- Cannot access finance module (403 Forbidden)
+- Cannot edit student placement (Admin only)
+- All actions fully audit-logged
 
 ## Tech Stack
 

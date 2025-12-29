@@ -39,6 +39,32 @@ class WriteAuditMiddleware:
         object_id = self._resolve_object_id(resolver_match, response)
         summary = self._build_summary(method, model_label, object_id, request.path)
 
+        # Capture request data (excluding sensitive fields)
+        request_data = {}
+        try:
+            if hasattr(request, 'data'):
+                # DRF request
+                request_data = dict(request.data)
+            elif hasattr(request, 'POST'):
+                # Django request
+                request_data = dict(request.POST)
+            elif hasattr(request, 'body'):
+                # Try to parse JSON body
+                import json
+                try:
+                    if request.body:
+                        request_data = json.loads(request.body)
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    pass
+            
+            # Remove sensitive fields
+            sensitive_fields = ['password', 'token', 'secret', 'key']
+            for field in sensitive_fields:
+                request_data.pop(field, None)
+                request_data.pop(f'{field}_confirmation', None)
+        except Exception:
+            request_data = {}
+        
         AuditLog.objects.create(
             actor=(
                 request.user
@@ -51,6 +77,7 @@ class WriteAuditMiddleware:
             model=model_label,
             object_id=object_id,
             summary=summary,
+            request_data=request_data,
             timestamp=timezone.now(),
         )
 

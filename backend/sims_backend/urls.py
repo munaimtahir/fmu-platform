@@ -78,15 +78,21 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="api-schema"),
         name="redoc",
     ),
-    path("", include("sims_backend.admissions.urls")),
+    # MVP apps
     path("", include("sims_backend.academics.urls")),
-    path("", include("sims_backend.enrollment.urls")),
+    path("", include("sims_backend.students.urls")),
+    path("", include("sims_backend.timetable.urls")),
     path("", include("sims_backend.attendance.urls")),
-    path("", include("sims_backend.assessments.urls")),
+    path("", include("sims_backend.exams.urls")),
     path("", include("sims_backend.results.urls")),
+    path("", include("sims_backend.finance.urls")),
+    path("", include("sims_backend.audit.urls")),
+    # Legacy apps (to be removed)
+    path("", include("sims_backend.admissions.urls")),
+    path("", include("sims_backend.enrollment.urls")),
+    path("", include("sims_backend.assessments.urls")),
     path("", include("sims_backend.requests.urls")),
     path("", include("sims_backend.transcripts.urls")),
-    path("", include("sims_backend.audit.urls")),
 ]
 
 # Static files in DEBUG mode

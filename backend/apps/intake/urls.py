@@ -3,6 +3,7 @@ URL configuration for intake app.
 """
 
 from django.urls import path
+
 from . import views
 
 app_name = 'intake'

@@ -1,14 +1,23 @@
+# Development Docker Compose Configuration
+# Redis is optional - system will work without it but background jobs will be disabled
+
 services:
   db:
     image: postgres:16-alpine
     container_name: fmu_db
     environment:
-      POSTGRES_DB: fmu_platform
-      POSTGRES_USER: fmu_platform
+      POSTGRES_DB: ${POSTGRES_DB:-fmu_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-fmu_platform}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - fmu_db_data:/var/lib/postgresql/data
     restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: fmu_redis
+    restart: unless-stopped
+    # Redis is optional - comment out if not needed
 
   backend:
     build:

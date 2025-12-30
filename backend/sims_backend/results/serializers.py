@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
-from sims_backend.results.models import ResultHeader, ResultComponentEntry
-from sims_backend.common_permissions import in_group
 from sims_backend.common.workflow import validate_workflow_transition
+from sims_backend.common_permissions import in_group
+from sims_backend.results.models import ResultComponentEntry, ResultHeader
 
 
 class ResultComponentEntrySerializer(serializers.ModelSerializer):
@@ -36,7 +36,7 @@ class ResultHeaderSerializer(serializers.ModelSerializer):
 
     def validate_status(self, value):
         user = self.context['request'].user
-        
+
         if self.instance:  # Update
             current_status = self.instance.status
             if current_status != value:
@@ -47,12 +47,12 @@ class ResultHeaderSerializer(serializers.ModelSerializer):
             if in_group(user, 'OFFICE_ASSISTANT'):
                 if value != 'DRAFT':
                     raise serializers.ValidationError("Office Assistant can only create results in DRAFT status")
-        
+
         return value
 
     def validate(self, data):
         user = self.context['request'].user
-        
+
         # OfficeAssistant restrictions
         if in_group(user, 'OFFICE_ASSISTANT'):
             if self.instance:
@@ -60,5 +60,5 @@ class ResultHeaderSerializer(serializers.ModelSerializer):
                 if self.instance.status != 'DRAFT':
                     if 'status' in data and data['status'] != self.instance.status:
                         raise serializers.ValidationError("Cannot change status from non-DRAFT state")
-        
+
         return data

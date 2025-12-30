@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from sims_backend.finance.models import ChargeTemplate, Charge, StudentLedgerItem, Challan, PaymentLog
+from sims_backend.finance.models import Challan, Charge, ChargeTemplate, PaymentLog, StudentLedgerItem
 
 
 @admin.register(ChargeTemplate)

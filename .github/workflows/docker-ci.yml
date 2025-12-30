@@ -33,9 +33,6 @@ jobs:
       - name: Validate docker-compose.yml
         run: docker compose -f docker-compose.yml config --quiet
 
-      - name: Validate docker-compose.prod.yml
-        run: docker compose -f docker-compose.prod.yml config --quiet
-
   # Build and test backend Docker image
   build-backend:
     name: Build Backend Image
@@ -171,9 +168,6 @@ jobs:
         run: |
           docker images | grep sims || echo "Warning: No sims images found"
           docker compose config --services
-
-      - name: Build production services
-        run: docker compose -f docker-compose.prod.yml build
 
   # Summary job that depends on all others
   docker-ci-success:

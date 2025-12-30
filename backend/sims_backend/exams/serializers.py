@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from sims_backend.exams.models import Exam, ExamComponent
 from sims_backend.common_permissions import in_group
+from sims_backend.exams.models import Exam, ExamComponent
 
 
 class ExamComponentSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class ExamComponentSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         user = self.context['request'].user
-        
+
         # OfficeAssistant cannot modify academic policy fields
         if in_group(user, 'OFFICE_ASSISTANT'):
             if self.instance:  # Update
@@ -28,7 +28,7 @@ class ExamComponentSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError("Cannot modify pass_marks (academic policy field)")
                 if 'pass_percent' in data and data['pass_percent'] != self.instance.pass_percent:
                     raise serializers.ValidationError("Cannot modify pass_percent (academic policy field)")
-        
+
         return data
 
 
@@ -49,7 +49,7 @@ class ExamSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         user = self.context['request'].user
-        
+
         # OfficeAssistant cannot modify passing logic fields
         if in_group(user, 'OFFICE_ASSISTANT'):
             if self.instance:  # Update
@@ -57,6 +57,6 @@ class ExamSerializer(serializers.ModelSerializer):
                 for field in restricted_fields:
                     if field in data and data[field] != getattr(self.instance, field):
                         raise serializers.ValidationError(f"Cannot modify {field} (academic policy field)")
-        
+
         return data
 

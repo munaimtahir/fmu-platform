@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from core.models import Profile, FacultyProfile
+from core.models import FacultyProfile, Profile
 
 
 @admin.register(Profile)

@@ -1,10 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (
-    ChargeTemplateViewSet, ChargeViewSet, StudentLedgerItemViewSet,
-    ChallanViewSet, PaymentLogViewSet
-)
+from .views import ChallanViewSet, ChargeTemplateViewSet, ChargeViewSet, PaymentLogViewSet, StudentLedgerItemViewSet
 
 router = DefaultRouter()
 router.register(r"charge-templates", ChargeTemplateViewSet, basename="charge-template")

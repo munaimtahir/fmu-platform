@@ -1,13 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from sims_backend.common_permissions import IsAdminOrCoordinator, IsOfficeAssistant, in_group
+from sims_backend.common_permissions import IsAdminOrCoordinator
 from sims_backend.exams.models import Exam, ExamComponent
-from sims_backend.exams.serializers import ExamSerializer, ExamComponentSerializer
+from sims_backend.exams.serializers import ExamComponentSerializer, ExamSerializer
 
 
 class ExamViewSet(viewsets.ModelViewSet):

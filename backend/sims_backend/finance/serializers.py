@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from sims_backend.finance.models import ChargeTemplate, Charge, StudentLedgerItem, Challan, PaymentLog
+from sims_backend.finance.models import Challan, Charge, ChargeTemplate, PaymentLog, StudentLedgerItem
 
 
 class ChargeTemplateSerializer(serializers.ModelSerializer):

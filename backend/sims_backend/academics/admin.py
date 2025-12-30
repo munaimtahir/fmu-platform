@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from sims_backend.academics.models import Program, Batch, AcademicPeriod, Group, Department
+from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group, Program
 
 
 @admin.register(Program)

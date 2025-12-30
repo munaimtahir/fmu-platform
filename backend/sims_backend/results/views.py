@@ -1,15 +1,15 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from sims_backend.common_permissions import IsAdminOrCoordinator, IsStudent, in_group
-from sims_backend.results.models import ResultHeader, ResultComponentEntry
-from sims_backend.results.serializers import ResultHeaderSerializer, ResultComponentEntrySerializer
-from sims_backend.exams.services import compute_result_passing_status
 from sims_backend.common.workflow import validate_workflow_transition
+from sims_backend.common_permissions import IsAdminOrCoordinator, in_group
+from sims_backend.exams.services import compute_result_passing_status
+from sims_backend.results.models import ResultComponentEntry, ResultHeader
+from sims_backend.results.serializers import ResultComponentEntrySerializer, ResultHeaderSerializer
 
 
 class ResultHeaderViewSet(viewsets.ModelViewSet):
@@ -32,12 +32,12 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         user = self.request.user
-        
+
         # Students can only see published results
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             queryset = queryset.filter(status='PUBLISHED')
             # TODO: Filter to own student record
-        
+
         return queryset
 
     def perform_create(self, serializer):

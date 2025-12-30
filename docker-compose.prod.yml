@@ -1,0 +1,65 @@
+# Production Docker Compose Configuration
+# This configuration is designed for production deployment with external Caddy reverse proxy
+# Backend binds to 127.0.0.1 as per production requirements
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fmu_db_prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fmu_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-fmu_platform}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - fmu_db_data_prod:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - fmu_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: fmu_redis_prod
+    restart: unless-stopped
+    networks:
+      - fmu_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fmu_backend_prod
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - ./backend/staticfiles:/app/staticfiles
+      - ./backend/media:/app/media
+    ports:
+      # Production: bind to 127.0.0.1 for Caddy reverse proxy
+      - "127.0.0.1:8010:8000"
+    restart: unless-stopped
+    networks:
+      - fmu_network
+    command: ["gunicorn", "sims_backend.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    container_name: fmu_frontend_prod
+    ports:
+      # Production: bind to 127.0.0.1 for Caddy reverse proxy
+      - "127.0.0.1:8080:80"
+    restart: unless-stopped
+    networks:
+      - fmu_network
+
+networks:
+  fmu_network:
+    driver: bridge
+
+volumes:
+  fmu_db_data_prod:

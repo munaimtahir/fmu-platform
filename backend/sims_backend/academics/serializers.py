@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from sims_backend.academics.models import Program, Batch, AcademicPeriod, Group, Department
+from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group, Program
 
 
 class ProgramSerializer(serializers.ModelSerializer):

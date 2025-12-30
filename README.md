@@ -4,7 +4,17 @@ A comprehensive digital system for managing inter-departmental patient consultat
 
 ## 🏥 Overview
 
-The Hospital Consult System is a paperless, digital application that streamlines communication between primary treating teams and specialty departments, ensuring timely patient reviews and reducing medical errors. This repository contains the complete codebase for the project, with a Django backend and a React frontend.
+## 📋 Latest Audit Status (2025-12-30)
+
+✅ **PASSED** - Definition-of-Done Audit Complete
+
+The repository has been audited and certified as production-ready. See:
+- 📊 [Audit Complete Summary](AUDIT_COMPLETE_SUMMARY.md) - Quick overview
+- 📖 [Detailed Verification Report](REPO_VERIFICATION_REPORT.md) - Full audit findings
+- 📚 [Operations Runbook](RUNBOOK.md) - Deployment & operational guide
+- ✔️ [Verification Script](scripts/verify.sh) - Run `./scripts/verify.sh` to validate setup
+
+## 🚀 Quick Start
 
 ## 🎯 MVP Features
 

@@ -9,6 +9,16 @@
 
 A comprehensive, production-ready Student Information Management System built with Django REST Framework and React.
 
+## 📋 Latest Audit Status (2025-12-30)
+
+✅ **PASSED** - Definition-of-Done Audit Complete
+
+The repository has been audited and certified as production-ready. See:
+- 📊 [Audit Complete Summary](AUDIT_COMPLETE_SUMMARY.md) - Quick overview
+- 📖 [Detailed Verification Report](REPO_VERIFICATION_REPORT.md) - Full audit findings
+- 📚 [Operations Runbook](RUNBOOK.md) - Deployment & operational guide
+- ✔️ [Verification Script](scripts/verify.sh) - Run `./scripts/verify.sh` to validate setup
+
 ## 🚀 Quick Start
 
 ### One-Command Demo Setup (Recommended)

@@ -1,13 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from sims_backend.common_permissions import IsAdmin, IsAdminOrCoordinator, IsStudent, in_group
+from sims_backend.common_permissions import IsAdmin, IsAdminOrCoordinator, in_group
 from sims_backend.students.models import Student
-from sims_backend.students.serializers import StudentSerializer, StudentPlacementSerializer
+from sims_backend.students.serializers import StudentPlacementSerializer, StudentSerializer
 
 
 class StudentViewSet(viewsets.ModelViewSet):
@@ -30,7 +30,7 @@ class StudentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         user = self.request.user
-        
+
         # Students can only see their own record
         if in_group(user, 'STUDENT'):
             # Assuming student reg_no matches username or there's a user-student link
@@ -45,11 +45,11 @@ class StudentViewSet(viewsets.ModelViewSet):
         student = self.get_object()
         serializer = StudentPlacementSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         student.program = serializer.validated_data['program']
         student.batch = serializer.validated_data['batch']
         student.group = serializer.validated_data['group']
         student.save()
-        
+
         return Response(StudentSerializer(student).data, status=status.HTTP_200_OK)
 

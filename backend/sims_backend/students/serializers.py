@@ -22,7 +22,7 @@ class StudentPlacementSerializer(serializers.Serializer):
     """Serializer for updating student placement (Program/Batch/Group)"""
     # Import here to avoid circular imports at module level
     def __init__(self, *args, **kwargs):
-        from sims_backend.academics.models import Program, Batch, Group
+        from sims_backend.academics.models import Batch, Group, Program
         super().__init__(*args, **kwargs)
         self.fields['program'] = serializers.PrimaryKeyRelatedField(queryset=Program.objects.all())
         self.fields['batch'] = serializers.PrimaryKeyRelatedField(queryset=Batch.objects.all())

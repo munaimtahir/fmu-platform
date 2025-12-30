@@ -2,7 +2,6 @@
 
 import logging
 
-from django.db.models import Count, ExpressionWrapper, F, FloatField, Q
 from rest_framework import status
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.decorators import api_view, permission_classes
@@ -12,14 +11,14 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from sims_backend.academics.models import Program, Batch, Group, Department
-from sims_backend.students.models import Student
+from sims_backend.academics.models import Batch, Group, Program
 from sims_backend.attendance.models import Attendance
 from sims_backend.common_permissions import in_group
-from sims_backend.timetable.models import Session
 from sims_backend.exams.models import Exam
+from sims_backend.finance.models import Challan, Charge, StudentLedgerItem
 from sims_backend.results.models import ResultHeader
-from sims_backend.finance.models import Charge, StudentLedgerItem, Challan
+from sims_backend.students.models import Student
+from sims_backend.timetable.models import Session
 
 from .serializers import (
     AUTH_ERROR_CODES,
@@ -231,10 +230,10 @@ def dashboard_stats(request):
         # Faculty sees only their own sessions and students
         faculty_sessions = Session.objects.filter(faculty=user)
         session_ids = faculty_sessions.values_list('id', flat=True)
-        
+
         # Count unique students from faculty's sessions via attendance
         student_ids = Attendance.objects.filter(session_id__in=session_ids).values_list('student_id', flat=True).distinct()
-        
+
         stats = {
             "my_sessions": faculty_sessions.count(),
             "my_students": student_ids.count() if student_ids else 0,

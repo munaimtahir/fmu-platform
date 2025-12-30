@@ -16,7 +16,7 @@ const studentSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   program: z.number().min(1, 'Program is required'),
   batch_year: z.number().min(2000).max(2100),
-  current_year: z.number().min(1).max(10).default(1),
+  current_year: z.number().min(1).max(10),
   status: z.enum(['active', 'inactive', 'graduated', 'suspended']),
 })
 

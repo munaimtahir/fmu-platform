@@ -52,8 +52,6 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         except Session.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Get students from the session's group
-        session.group.students.all()
         attendance_data = request.data.get('attendance', [])  # List of {student_id, status}
 
         created_count = 0

@@ -20,17 +20,13 @@ class StudentSerializer(serializers.ModelSerializer):
 
 class StudentPlacementSerializer(serializers.Serializer):
     """Serializer for updating student placement (Program/Batch/Group)"""
-    program = serializers.PrimaryKeyRelatedField(queryset=None)  # Set in __init__
-    batch = serializers.PrimaryKeyRelatedField(queryset=None)
-    group = serializers.PrimaryKeyRelatedField(queryset=None)
-
+    # Import here to avoid circular imports at module level
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Import here to avoid circular imports
         from sims_backend.academics.models import Program, Batch, Group
-        self.fields['program'].queryset = Program.objects.all()
-        self.fields['batch'].queryset = Batch.objects.all()
-        self.fields['group'].queryset = Group.objects.all()
+        super().__init__(*args, **kwargs)
+        self.fields['program'] = serializers.PrimaryKeyRelatedField(queryset=Program.objects.all())
+        self.fields['batch'] = serializers.PrimaryKeyRelatedField(queryset=Batch.objects.all())
+        self.fields['group'] = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all())
 
     def validate(self, data):
         # Ensure batch belongs to program

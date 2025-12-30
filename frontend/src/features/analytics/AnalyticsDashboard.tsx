@@ -41,7 +41,7 @@ export function AnalyticsDashboard() {
   // Calculate statistics
   const stats = {
     totalStudents: studentsData?.count || 0,
-    activeStudents: studentsData?.results.filter(s => s.status === 'Active').length || 0,
+    activeStudents: studentsData?.results.filter(s => s.status === 'active').length || 0,
     totalCourses: coursesData?.count || 0,
     totalSections: sectionsData?.count || 0,
     totalEnrollments: enrollmentsData?.count || 0,
@@ -57,10 +57,10 @@ export function AnalyticsDashboard() {
 
   // Student status breakdown
   const studentsByStatus = {
-    Active: studentsData?.results.filter(s => s.status === 'Active').length || 0,
-    Inactive: studentsData?.results.filter(s => s.status === 'Inactive').length || 0,
-    Graduated: studentsData?.results.filter(s => s.status === 'Graduated').length || 0,
-    Suspended: studentsData?.results.filter(s => s.status === 'Suspended').length || 0,
+    Active: studentsData?.results.filter(s => s.status === 'active').length || 0,
+    Inactive: studentsData?.results.filter(s => s.status === 'inactive').length || 0,
+    Graduated: studentsData?.results.filter(s => s.status === 'graduated').length || 0,
+    Suspended: studentsData?.results.filter(s => s.status === 'suspended').length || 0,
   }
 
   // Enrollment trends (mock - could be enhanced with date-based queries)

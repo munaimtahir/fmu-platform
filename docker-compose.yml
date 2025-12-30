@@ -6,8 +6,8 @@ services:
     image: postgres:16-alpine
     container_name: fmu_db
     environment:
-      POSTGRES_DB: fmu_platform
-      POSTGRES_USER: fmu_platform
+      POSTGRES_DB: ${POSTGRES_DB:-fmu_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-fmu_platform}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - fmu_db_data:/var/lib/postgresql/data

@@ -28,7 +28,6 @@ services:
       - .env
     depends_on:
       - db
-      - redis
     volumes:
       - ./backend/staticfiles:/app/staticfiles
       - ./backend/media:/app/media

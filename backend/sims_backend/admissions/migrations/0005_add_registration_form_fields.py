@@ -8,7 +8,8 @@ import django.core.files.storage
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("admissions", "0004_alter_student_created_at_alter_student_updated_at"),
+        ("admissions", "0004_5_create_studentapplication"),
+        ("academics", "0001_initial"),
     ]
 
     operations = [
@@ -204,8 +205,12 @@ class Migration(migrations.Migration):
             field=models.DecimalField(decimal_places=2, default=0.0, help_text="SSC/Matric percentage", max_digits=5, validators=[django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(100.0)]),
             preserve_default=False,
         ),
-        # Make program optional
-        migrations.AlterField(
+        # Change program from CharField to ForeignKey
+        migrations.RemoveField(
+            model_name="studentapplication",
+            name="program",
+        ),
+        migrations.AddField(
             model_name="studentapplication",
             name="program",
             field=models.ForeignKey(blank=True, help_text="Program applied for (defaults to MBBS)", null=True, on_delete=models.PROTECT, related_name="applications", to="academics.program"),

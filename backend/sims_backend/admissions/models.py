@@ -30,7 +30,7 @@ class Student(TimeStampedModel):
     program = models.ForeignKey(
         "academics.Program",
         on_delete=models.PROTECT,
-        related_name="students",
+        related_name="admission_students",  # Changed to avoid conflict with students.Student
         help_text="Program the student is enrolled in",
     )
     batch_year = models.PositiveSmallIntegerField(

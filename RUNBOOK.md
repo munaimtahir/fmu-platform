@@ -378,8 +378,8 @@ docker compose exec backend python manage.py shell
 # Docker PostgreSQL backup
 docker compose exec db pg_dump -U fmu_platform fmu_platform > backup_$(date +%Y%m%d).sql
 
-# Restore from backup
-cat backup_20231225.sql | docker compose exec -T db psql -U fmu_platform fmu_platform
+# Restore from backup (replace YYYYMMDD with the actual date in the filename)
+cat backup_YYYYMMDD.sql | docker compose exec -T db psql -U fmu_platform fmu_platform
 ```
 
 ### Viewing Logs

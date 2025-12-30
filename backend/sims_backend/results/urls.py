@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import ResultHeaderViewSet, ResultComponentEntryViewSet
+from .views import ResultComponentEntryViewSet, ResultHeaderViewSet
 
 router = DefaultRouter()
 router.register(r"results", ResultHeaderViewSet, basename="result-header")

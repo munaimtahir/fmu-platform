@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 
-from sims_backend.common_permissions import IsAdminOrCoordinator, IsFaculty, IsOfficeAssistant, in_group
+from sims_backend.common_permissions import in_group
 from sims_backend.timetable.models import Session
 from sims_backend.timetable.serializers import SessionSerializer
 
@@ -30,10 +30,10 @@ class SessionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         user = self.request.user
-        
+
         # Faculty can see their own sessions
         if in_group(user, 'FACULTY') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             queryset = queryset.filter(faculty=user)
-        
+
         return queryset
 

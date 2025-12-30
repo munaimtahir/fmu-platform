@@ -1,18 +1,21 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
 
-from sims_backend.common_permissions import IsFinance, IsStudent, IsAdminOrCoordinator, in_group
-from sims_backend.finance.models import ChargeTemplate, Charge, StudentLedgerItem, Challan, PaymentLog
+from sims_backend.common_permissions import IsFinance, in_group
+from sims_backend.finance.models import Challan, Charge, ChargeTemplate, PaymentLog, StudentLedgerItem
 from sims_backend.finance.serializers import (
-    ChargeTemplateSerializer, ChargeSerializer, StudentLedgerItemSerializer,
-    ChallanSerializer, PaymentLogSerializer
+    ChallanSerializer,
+    ChargeSerializer,
+    ChargeTemplateSerializer,
+    PaymentLogSerializer,
+    StudentLedgerItemSerializer,
 )
-from sims_backend.finance.services import generate_ledger_items_from_charge, generate_challan_number
+from sims_backend.finance.services import generate_challan_number, generate_ledger_items_from_charge
 from sims_backend.students.models import Student
 
 
@@ -58,13 +61,13 @@ class ChargeViewSet(FinancePermissionMixin, viewsets.ModelViewSet):
         """Generate ledger items for students from this charge"""
         charge = self.get_object()
         student_ids = request.data.get('student_ids', [])
-        
+
         if not student_ids:
             return Response({'error': 'student_ids required'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         students = Student.objects.filter(id__in=student_ids)
         ledger_items = generate_ledger_items_from_charge(charge, list(students))
-        
+
         serializer = StudentLedgerItemSerializer(ledger_items, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -82,12 +85,12 @@ class StudentLedgerItemViewSet(FinancePermissionMixin, viewsets.ReadOnlyModelVie
     def get_queryset(self):
         queryset = super().get_queryset()
         user = self.request.user
-        
+
         # Students can only see their own ledger items
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             # TODO: Filter to student's own records
             pass
-        
+
         return queryset
 
 
@@ -116,28 +119,28 @@ class ChallanViewSet(FinancePermissionMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         user = self.request.user
-        
+
         # Students can only see their own challans
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             # TODO: Filter to student's own records
             pass
-        
+
         return queryset
 
     @action(detail=True, methods=['get', 'post'], url_path='payments')
     def payments(self, request, pk=None):
         """List or create payments for a challan"""
         challan = self.get_object()
-        
+
         if request.method == 'GET':
             payments = challan.payment_logs.all()
             serializer = PaymentLogSerializer(payments, many=True)
             return Response(serializer.data)
-        
+
         # POST - create payment
         if not in_group(request.user, 'FINANCE') and not (in_group(request.user, 'ADMIN') or in_group(request.user, 'COORDINATOR')):
             raise PermissionDenied("Only Finance can log payments")
-        
+
         serializer = PaymentLogSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save(challan=challan)

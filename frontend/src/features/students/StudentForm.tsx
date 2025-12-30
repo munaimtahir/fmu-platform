@@ -14,8 +14,10 @@ import { Student } from '@/types'
 const studentSchema = z.object({
   reg_no: z.string().min(1, 'Registration number is required'),
   name: z.string().min(1, 'Name is required'),
-  program: z.string().min(1, 'Program is required'),
-  status: z.enum(['Active', 'Inactive', 'Graduated', 'Suspended']),
+  program: z.number().min(1, 'Program is required'),
+  batch_year: z.number().min(2000).max(2100),
+  current_year: z.number().min(1).max(10).default(1),
+  status: z.enum(['active', 'inactive', 'graduated', 'suspended']),
 })
 
 type StudentFormData = z.infer<typeof studentSchema>
@@ -36,8 +38,10 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
     defaultValues: student || {
       reg_no: '',
       name: '',
-      program: '',
-      status: 'Active',
+      program: 0,
+      batch_year: new Date().getFullYear(),
+      current_year: 1,
+      status: 'active',
     },
   })
 
@@ -116,7 +120,8 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
             </label>
             <Input 
               id="program"
-              {...register('program')} 
+              type="number"
+              {...register('program', { valueAsNumber: true })} 
               error={errors.program?.message}
               aria-required="true"
               aria-invalid={!!errors.program}
@@ -125,6 +130,46 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
             {errors.program && (
               <p id="program-error" className="mt-1 text-sm text-red-600" role="alert">
                 {errors.program.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="batch_year" className="block text-sm font-medium mb-1">
+              Batch Year <span className="text-red-500" aria-label="required">*</span>
+            </label>
+            <Input 
+              id="batch_year"
+              type="number"
+              {...register('batch_year', { valueAsNumber: true })} 
+              error={errors.batch_year?.message}
+              aria-required="true"
+              aria-invalid={!!errors.batch_year}
+              aria-describedby={errors.batch_year ? 'batch-year-error' : undefined}
+            />
+            {errors.batch_year && (
+              <p id="batch-year-error" className="mt-1 text-sm text-red-600" role="alert">
+                {errors.batch_year.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="current_year" className="block text-sm font-medium mb-1">
+              Current Year <span className="text-red-500" aria-label="required">*</span>
+            </label>
+            <Input 
+              id="current_year"
+              type="number"
+              {...register('current_year', { valueAsNumber: true })} 
+              error={errors.current_year?.message}
+              aria-required="true"
+              aria-invalid={!!errors.current_year}
+              aria-describedby={errors.current_year ? 'current-year-error' : undefined}
+            />
+            {errors.current_year && (
+              <p id="current-year-error" className="mt-1 text-sm text-red-600" role="alert">
+                {errors.current_year.message}
               </p>
             )}
           </div>
@@ -141,10 +186,10 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
               aria-invalid={!!errors.status}
               aria-describedby={errors.status ? 'status-error' : undefined}
             >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-              <option value="Graduated">Graduated</option>
-              <option value="Suspended">Suspended</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="graduated">Graduated</option>
+              <option value="suspended">Suspended</option>
             </select>
             {errors.status && (
               <p id="status-error" className="mt-1 text-sm text-red-600" role="alert">

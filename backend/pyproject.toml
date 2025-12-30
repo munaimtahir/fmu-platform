@@ -13,6 +13,12 @@ warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
 plugins = ["mypy_django_plugin.main"]
+exclude = [
+    "^config/",
+    "^tests_disabled/",
+    "^venv/",
+    "^.*migrations/.*$",
+]
 
 [tool.django-stubs]
 django_settings_module = "sims_backend.settings"

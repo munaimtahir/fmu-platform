@@ -1,13 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from sims_backend.common_permissions import IsFaculty, IsOfficeAssistant, IsStudent, in_group
 from sims_backend.attendance.models import Attendance
 from sims_backend.attendance.serializers import AttendanceSerializer
+from sims_backend.common_permissions import in_group
 from sims_backend.timetable.models import Session
 
 
@@ -32,16 +32,16 @@ class AttendanceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         user = self.request.user
-        
+
         # Students can only see their own attendance
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             # TODO: Link User to Student (for MVP, return all for now)
             pass
-        
+
         # Faculty can see attendance for their sessions
         if in_group(user, 'FACULTY') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             queryset = queryset.filter(session__faculty=user)
-        
+
         return queryset
 
     @action(detail=False, methods=['post'], url_path='sessions/(?P<session_id>[^/.]+)/mark')
@@ -51,21 +51,21 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             session = Session.objects.get(id=session_id)
         except Session.DoesNotExist:
             return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+
         # Get students from the session's group
-        students = session.group.students.all()
+        session.group.students.all()
         attendance_data = request.data.get('attendance', [])  # List of {student_id, status}
-        
+
         created_count = 0
         updated_count = 0
-        
+
         for item in attendance_data:
             student_id = item.get('student_id')
             status_value = item.get('status')
-            
+
             if not student_id or not status_value:
                 continue
-            
+
             attendance, created = Attendance.objects.update_or_create(
                 session=session,
                 student_id=student_id,
@@ -78,7 +78,7 @@ class AttendanceViewSet(viewsets.ModelViewSet):
                 created_count += 1
             else:
                 updated_count += 1
-        
+
         return Response({
             'created': created_count,
             'updated': updated_count,

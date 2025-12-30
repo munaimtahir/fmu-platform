@@ -56,7 +56,7 @@ class WriteAuditMiddleware:
                         request_data = json.loads(request.body)
                 except (json.JSONDecodeError, UnicodeDecodeError):
                     pass
-            
+
             # Remove sensitive fields
             sensitive_fields = ['password', 'token', 'secret', 'key']
             for field in sensitive_fields:
@@ -64,7 +64,7 @@ class WriteAuditMiddleware:
                 request_data.pop(f'{field}_confirmation', None)
         except Exception:
             request_data = {}
-        
+
         AuditLog.objects.create(
             actor=(
                 request.user

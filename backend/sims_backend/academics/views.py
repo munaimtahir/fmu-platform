@@ -3,15 +3,15 @@ from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 
-from sims_backend.common_permissions import IsAdminOrCoordinator, in_group
+from sims_backend.common_permissions import IsAdminOrCoordinator
 
-from .models import Program, Batch, AcademicPeriod, Group, Department
+from .models import AcademicPeriod, Batch, Department, Group, Program
 from .serializers import (
-    ProgramSerializer,
-    BatchSerializer,
     AcademicPeriodSerializer,
-    GroupSerializer,
+    BatchSerializer,
     DepartmentSerializer,
+    GroupSerializer,
+    ProgramSerializer,
 )
 
 

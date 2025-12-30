@@ -1,5 +1,4 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
-from rest_framework.exceptions import PermissionDenied
 
 
 def in_group(user, group_name: str) -> bool:
@@ -110,10 +109,10 @@ def can_transition_workflow_state(user, from_state: str, to_state: str) -> bool:
             ("VERIFIED", "VERIFIED"),  # Stay in verified
         ]
         return (from_state, to_state) in valid_transitions
-    
+
     if in_group(user, "OFFICE_ASSISTANT"):
         # Office Assistant can only keep records in DRAFT
         return from_state == "DRAFT" and to_state == "DRAFT"
-    
+
     # Other roles cannot transition states
     return False

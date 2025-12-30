@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from sims_backend.results.models import ResultHeader, ResultComponentEntry
+from sims_backend.results.models import ResultComponentEntry, ResultHeader
 
 
 class ResultComponentEntryInline(admin.TabularInline):

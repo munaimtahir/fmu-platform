@@ -17,8 +17,7 @@ const applicationSchema = z.object({
   full_name: z.string().min(2, 'Full name must be at least 2 characters'),
   date_of_birth: z.date({
     message: 'Date of birth is required',
-    invalid_type_error: 'Please select a valid date',
-  }).refine((date) => date !== undefined, { message: 'Date of birth is required' }),
+  }),
   email: z.string().email('Please enter a valid email address'),
   phone: z
     .string()

@@ -15,10 +15,7 @@ import { Program } from '@/types'
 // Form validation schema
 const applicationSchema = z.object({
   full_name: z.string().min(2, 'Full name must be at least 2 characters'),
-  date_of_birth: z.date({ 
-    required_error: 'Date of birth is required',
-    invalid_type_error: 'Please select a valid date'
-  }),
+  date_of_birth: z.string().min(1, 'Date of birth is required'),
   email: z.string().email('Please enter a valid email address'),
   phone: z
     .string()
@@ -129,7 +126,7 @@ export const StudentApplicationPage = () => {
 
       const applicationData = {
         full_name: data.full_name,
-        date_of_birth: data.date_of_birth.toISOString().split('T')[0],
+        date_of_birth: data.date_of_birth, // Already in YYYY-MM-DD format
         email: data.email,
         phone: data.phone,
         address: data.address || '',
@@ -234,10 +231,10 @@ export const StudentApplicationPage = () => {
 
                 <DatePicker
                   label="Date of Birth"
-                  value={dateOfBirth || null}
+                  value={dateOfBirth ? new Date(dateOfBirth) : null}
                   onChange={(date) => {
                     if (date) {
-                      setValue('date_of_birth', date, { shouldValidate: true })
+                      setValue('date_of_birth', date.toISOString().split('T')[0], { shouldValidate: true })
                     }
                   }}
                   error={errors.date_of_birth?.message}

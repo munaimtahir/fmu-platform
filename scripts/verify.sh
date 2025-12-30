@@ -2,7 +2,7 @@
 # FMU Platform Verification Script
 # This script runs basic health checks on the repository
 
-set -e  # Exit on error
+# Note: Do not use 'set -e' here; individual checks handle failures via print_status.
 
 # Colors for output
 RED='\033[0;31m'

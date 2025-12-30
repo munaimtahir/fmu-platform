@@ -14,9 +14,9 @@ import { Student } from '@/types'
 const studentSchema = z.object({
   reg_no: z.string().min(1, 'Registration number is required'),
   name: z.string().min(1, 'Name is required'),
-  program: z.number().min(1, 'Program is required'),
-  batch_year: z.number().min(2000).max(2100),
-  current_year: z.number().min(1).max(10),
+  program: z.number().int().min(1, 'Program is required'),
+  batch_year: z.number().int().min(2000).max(new Date().getFullYear() + 10),
+  current_year: z.number().int().min(1).max(10),
   status: z.enum(['active', 'inactive', 'graduated', 'suspended']),
 })
 

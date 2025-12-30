@@ -115,7 +115,7 @@ INSTALLED_APPS = [
     "sims_backend.finance",
     "sims_backend.audit",
     # Legacy apps (to be removed after migration) - commented out for MVP migration
-    # "sims_backend.admissions",
+    "sims_backend.admissions",  # Temporarily enabled to run migration 0005_add_registration_form_fields
     # "sims_backend.enrollment",
     # "sims_backend.assessments",
     # "sims_backend.requests",

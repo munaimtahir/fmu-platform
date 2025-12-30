@@ -21,12 +21,8 @@ const applicationSchema = z.object({
   first_name: z.string().min(2, 'First name must be at least 2 characters'),
   last_name: z.string().min(2, 'Last name must be at least 2 characters'),
   father_name: z.string().min(2, 'Father name is required'),
-  gender: z.enum(['M', 'F', 'O'], {
-    required_error: 'Please select gender',
-  }),
-  date_of_birth: z.date({
-    required_error: 'Date of birth is required',
-  }),
+  gender: z.enum(['M', 'F', 'O']),
+  date_of_birth: z.date(),
   cnic: z.string().regex(cnicRegex, 'CNIC must be in format 12345-123456-1'),
   email: z.string().email('Please enter a valid email address'),
   phone: z
@@ -51,9 +47,7 @@ const applicationSchema = z.object({
   mailing_country: z.string().optional(),
   // Guardian Information
   guardian_name: z.string().min(2, 'Guardian name is required'),
-  guardian_relation: z.enum(['FATHER', 'MOTHER', 'GUARDIAN', 'OTHER'], {
-    required_error: 'Please select guardian relation',
-  }),
+  guardian_relation: z.enum(['FATHER', 'MOTHER', 'GUARDIAN', 'OTHER']),
   guardian_phone: z
     .string()
     .min(10, 'Guardian phone number is required')
@@ -149,7 +143,7 @@ const formatCNIC = (value: string): string => {
 }
 
 export const StudentApplicationPage = () => {
-  const [programs, setPrograms] = useState<Program[]>([])
+  const [, setPrograms] = useState<Program[]>([])
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
@@ -163,7 +157,8 @@ export const StudentApplicationPage = () => {
     setValue,
     watch,
   } = useForm<ApplicationFormData>({
-    resolver: zodResolver(applicationSchema),
+    resolver: zodResolver(applicationSchema) as any,
+    mode: 'onChange',
     defaultValues: {
       mailing_address_same: true,
       address_country: 'Pakistan',
@@ -172,7 +167,7 @@ export const StudentApplicationPage = () => {
     },
   })
 
-  const selectedProgramId = watch('program')
+  watch('program') // Track program selection
   const dateOfBirth = watch('date_of_birth')
   const mailingAddressSame = watch('mailing_address_same')
   const guardianRelation = watch('guardian_relation')
@@ -369,7 +364,7 @@ export const StudentApplicationPage = () => {
 
         {/* Form Card */}
         <div className="bg-white rounded-3xl shadow-xl p-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">
             {/* Personal Information Section */}
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
@@ -717,7 +712,9 @@ export const StudentApplicationPage = () => {
                   accept=".pdf,.jpg,.jpeg,.png"
                   maxSize={3 * 1024 * 1024} // 3MB
                   onChange={(files) => {
-                    setValue('father_id_card', files || undefined, { shouldValidate: true })
+                    if (files) {
+                      setValue('father_id_card', files, { shouldValidate: true })
+                    }
                   }}
                   error={errors.father_id_card?.message as string}
                   required
@@ -741,7 +738,9 @@ export const StudentApplicationPage = () => {
                   accept=".pdf,.jpg,.jpeg,.png"
                   maxSize={3 * 1024 * 1024} // 3MB
                   onChange={(files) => {
-                    setValue('domicile', files || undefined, { shouldValidate: true })
+                    if (files) {
+                      setValue('domicile', files, { shouldValidate: true })
+                    }
                   }}
                   error={errors.domicile?.message as string}
                   required
@@ -752,7 +751,9 @@ export const StudentApplicationPage = () => {
                   accept=".pdf,.jpg,.jpeg,.png"
                   maxSize={3 * 1024 * 1024} // 3MB
                   onChange={(files) => {
-                    setValue('ssc_certificate', files || undefined, { shouldValidate: true })
+                    if (files) {
+                      setValue('ssc_certificate', files, { shouldValidate: true })
+                    }
                   }}
                   error={errors.ssc_certificate?.message as string}
                   required
@@ -763,7 +764,9 @@ export const StudentApplicationPage = () => {
                   accept=".pdf,.jpg,.jpeg,.png"
                   maxSize={3 * 1024 * 1024} // 3MB
                   onChange={(files) => {
-                    setValue('hssc_certificate', files || undefined, { shouldValidate: true })
+                    if (files) {
+                      setValue('hssc_certificate', files, { shouldValidate: true })
+                    }
                   }}
                   error={errors.hssc_certificate?.message as string}
                   required
@@ -774,7 +777,9 @@ export const StudentApplicationPage = () => {
                   accept=".pdf,.jpg,.jpeg,.png"
                   maxSize={3 * 1024 * 1024} // 3MB
                   onChange={(files) => {
-                    setValue('mdcat_result', files || undefined, { shouldValidate: true })
+                    if (files) {
+                      setValue('mdcat_result', files, { shouldValidate: true })
+                    }
                   }}
                   error={errors.mdcat_result?.message as string}
                   required

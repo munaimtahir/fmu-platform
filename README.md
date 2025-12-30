@@ -1,13 +1,8 @@
-# FMU - Student Information Management System (SIMS)
+# Hospital Consult System
 
-[![Backend CI](https://github.com/munaimtahir/Fmu/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/munaimtahir/Fmu/actions/workflows/backend-ci.yml)
-[![Frontend CI](https://github.com/munaimtahir/Fmu/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/munaimtahir/Fmu/actions/workflows/frontend-ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
-[![React 19](https://img.shields.io/badge/react-19-61dafb.svg)](https://reactjs.org/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+A comprehensive digital system for managing inter-departmental patient consultations at Pakistan Medical Commission (PMC).
 
-A comprehensive, production-ready Student Information Management System built with Django REST Framework and React.
+## 🏥 Overview
 
 ## 📋 Latest Audit Status (2025-12-30)
 
@@ -21,501 +16,338 @@ The repository has been audited and certified as production-ready. See:
 
 ## 🚀 Quick Start
 
-### One-Command Demo Setup (Recommended)
+## 🎯 MVP Features
 
-```bash
-# Clone, setup, and run with demo data in one command
-git clone https://github.com/munaimtahir/Fmu.git && cd Fmu && \
-cp .env.example .env && \
-docker compose up -d && \
-sleep 10 && \
-docker compose exec backend python manage.py migrate && \
-docker compose exec backend python manage.py seed_demo --students 30
-```
+- **Authentication**: JWT-based authentication with email login
+- **Real-time Notifications**: WebSocket-based live updates for consult requests
+- **Role-Based Access**: Doctor, Department User, HOD, and Admin roles
+- **Patient Management**: Create and search patients
+- **Consult Workflow**: Full lifecycle from creation to completion
+- **Dashboard**: Statistics and quick actions for consult management
+- **Admin Panel**: User management, department configuration, SLA setup
+- **Email Notifications**: Configurable SMTP for alerts
+- **Student Intake Form**: Public form for student application submissions (Phase 1 - No Placement, No Accounts)
 
-**Access the application:**
-- 🌐 Frontend: http://localhost:5173
-- 🔌 Backend API: http://localhost:8000
-- 👨‍💼 Admin Panel: http://localhost:8000/admin
+## 🔐 Demo Credentials
 
-### Demo Accounts
+The system includes pre-seeded demo data. Use these credentials to explore:
 
-After running `seed_demo`, use these credentials to log in:
+| Role | Email | Password |
+|------|-------|----------|
+| **Superuser** | admin@pmc.edu.pk | adminpassword123 |
+| **System Admin** | sysadmin@pmc.edu.pk | password123 |
+| **Cardiology HOD** | cardio.hod@pmc.edu.pk | password123 |
+| **Cardiology Doctor** | cardio.doc@pmc.edu.pk | password123 |
+| **Neurology HOD** | neuro.hod@pmc.edu.pk | password123 |
+| **Neurology Doctor** | neuro.doc@pmc.edu.pk | password123 |
+| **Orthopedics HOD** | ortho.hod@pmc.edu.pk | password123 |
+| **ER Doctor** | er.doc@pmc.edu.pk | password123 |
+| **Medicine HOD** | med.hod@pmc.edu.pk | password123 |
 
-| Role | Username | Password | Access Level |
-|------|----------|----------|--------------|
-| **Admin** | admin | admin123 | Full system access |
-| **Registrar** | registrar | registrar123 | Enrollment & records management |
-| **Faculty** | faculty | faculty123 | Own sections & students |
-| **Student** | student | student123 | Own records & transcripts |
+> **Note:** All department users follow the pattern `{dept}.{role}@pmc.edu.pk` with password `password123`
 
-Additional faculty accounts: `faculty1`, `faculty2`, `faculty3` (all with password: `faculty123`)
-
-### Production Deployment
-
-For production deployment with static frontend:
-
-```bash
-# Use production docker-compose
-docker compose -f docker-compose.prod.yml up -d --build
-
-# Run migrations and collect static files
-docker compose -f docker-compose.prod.yml exec backend python manage.py migrate
-docker compose -f docker-compose.prod.yml exec backend python manage.py collectstatic --noinput
-
-# Seed demo data (optional)
-docker compose -f docker-compose.prod.yml exec backend python manage.py seed_demo --students 50
-
-# Access via: http://localhost
-```
-
-**See [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md) for production configuration.**
-
-### Using Docker (Step by Step)
-```bash
-# 1. Clone and setup environment
-git clone https://github.com/munaimtahir/Fmu.git
-cd Fmu
-cp .env.example .env
-# Edit .env if needed for custom configuration
-
-# 2. Start all services
-docker compose up -d
-
-# 3. Wait for services to be ready (about 10 seconds)
-sleep 10
-
-# 4. Run migrations
-docker compose exec backend python manage.py migrate
-
-# 5. Seed demo data
-docker compose exec backend python manage.py seed_demo --students 30
-
-# 6. Access the application
-# Frontend: http://localhost:5173
-# Backend API: http://localhost:8000
-# Admin Panel: http://localhost:8000/admin
-```
-
-### Using Makefile
-```bash
-make demo        # Complete setup with demo data
-make test        # Run all tests
-make lint        # Run all linters
-make docker-up   # Start Docker services
-make docker-down # Stop Docker services
-```
-
-## 📊 Status & Metrics
-
-### Current Version
-- **Production:** v1.0.0-prod ✅
-- **Stable:** v1.1.0-stable ✅
-- **Status:** ✅ Production-ready
-- **Last Verified:** October 23, 2025
-
-### Test Coverage
-| Component | Tests | Coverage | Status |
-|-----------|-------|----------|--------|
-| Backend | 220 | 91% | ✅ PASS |
-| Frontend | 26 | 100% | ✅ PASS |
-
-### Quality Metrics
-- ✅ All linters passing (ruff, mypy, eslint, tsc)
-- ✅ All tests passing (220 backend, 26 frontend)
-- ✅ CI/CD green
-- ✅ Docker build successful
-- ✅ Security scanning clean (CodeQL)
-- ✅ Production deployment ready
-
-## 📋 Overview
-
-FMU Platform MVP is a Student & Academics Management System with Finance module. This MVP implements:
-
-### Core Features
-- **Academic Structure**: Programs, Batches, Groups, AcademicPeriods (hierarchical), Departments
-- **Student Management**: Student records with Program/Batch/Group assignment
-- **Timetable**: Session management linking academic periods, groups, faculty, and departments
-- **Attendance**: Attendance tracking per session with status (PRESENT/ABSENT/LATE/LEAVE)
-- **Exams & Results**: Component-based exam system with flexible passing logic (TOTAL_ONLY, COMPONENT_WISE, HYBRID)
-- **Results Workflow**: DRAFT → VERIFIED → PUBLISHED state management
-- **Finance Module**: Charge templates, charges, student ledger, challans, and payment logging
-- **Audit Trail**: Complete audit logging for all critical actions
-
-### Roles
-- **ADMIN**: Full system access
-- **COORDINATOR**: Academic setup, student placement, exam/results management, workflow transitions
-- **FACULTY**: Manage own sessions, mark attendance, enter marks (DRAFT only)
-- **FINANCE**: Full access to finance module (charges, challans, ledger, payments)
-- **STUDENT**: Read-only access to own records (attendance, published results, ledger)
-- **OFFICE_ASSISTANT**: Data-entry role with restricted permissions (see below)
-
-## ✨ Features
-
-- **Role-Based Access Control:** Six roles (ADMIN, COORDINATOR, FACULTY, FINANCE, STUDENT, OFFICE_ASSISTANT) with granular permissions
-- **Academic Structure:** Programs → Batches → Groups hierarchy with AcademicPeriods (YEAR/BLOCK/MODULE)
-- **Student Management:** Student records with Program/Batch/Group placement (placement edits Admin-only)
-- **Timetable Management:** Session scheduling linking academic periods, groups, faculty, and departments
-- **Attendance Tracking:** Per-session attendance with status tracking and audit trail
-- **Exam System:** Component-based exams with flexible passing logic (TOTAL_ONLY, COMPONENT_WISE, HYBRID)
-- **Results Workflow:** State management (DRAFT → VERIFIED → PUBLISHED) with role-based transitions
-- **Finance Module:** Charge templates, charges, student ledger, challans, and manual payment logging
-- **Audit Trail:** Complete audit logging for all critical actions with request data capture
-- **OFFICE_ASSISTANT Role:** Data-entry role with restrictions (can enter data in DRAFT only, cannot access finance, cannot modify academic policy)
-
-### OFFICE_ASSISTANT Permissions
-
-**Granted:**
-- Create/edit timetable sessions
-- Create/edit exam records (basic fields only)
-- Mark/edit attendance
-- Enter/update marks in results (DRAFT status only)
-- View-only access to academic structure, students, departments
-
-**Restricted:**
-- Cannot transition workflow states (DRAFT → VERIFIED/PUBLISHED)
-- Cannot modify academic policy fields (passing logic, component rules)
-- Cannot access finance module (403 Forbidden)
-- Cannot edit student placement (Admin only)
-- All actions fully audit-logged
-
-## Tech Stack
+## 🛠️ Technology Stack
 
 ### Backend
-- Python 3.12
-- Django 5.1.4 + Django REST Framework
-- PostgreSQL 14+
-- Redis (for background jobs)
-- JWT Authentication
+- **Framework**: Django 5.x
+- **API**: Django REST Framework
+- **Database**: PostgreSQL (Production), SQLite (Development)
+- **Authentication**: JWT via djangorestframework-simplejwt
+- **Real-time**: Django Channels (WebSockets)
+- **Email**: SMTP (configurable)
 
 ### Frontend
-- React 18
-- Vite (build tool)
-- Modern ES6+ JavaScript
+- **Framework**: React 19 (Vite)
+- **State Management**: TanStack Query (React Query)
+- **Routing**: React Router v7
+- **HTTP Client**: Axios
+- **Styling**: Tailwind CSS
 
-### Infrastructure
-- Docker & Docker Compose
-- Nginx (reverse proxy)
-- GitHub Actions (CI/CD)
+## 📁 Project Structure
 
-## Prerequisites
-
-- Docker & Docker Compose
-- Python 3.12+ (for local development)
-- Node.js 20+ (for local development)
-
-## Quick Start with Docker
-
-1. Clone the repository:
-```bash
-git clone https://github.com/munaimtahir/Fmu.git
-cd Fmu
+```
+consult/
+├── backend/              # Django project
+│   ├── apps/             # Django apps (accounts, consults, patients, etc.)
+│   ├── config/           # Django settings and configuration
+│   └── templates/        # Email templates
+├── frontend/             # React project
+│   ├── src/
+│   │   ├── api/          # API client and services
+│   │   ├── components/   # Reusable React components
+│   │   ├── context/      # React context providers
+│   │   ├── hooks/        # Custom React hooks
+│   │   ├── pages/        # Page components
+│   │   └── router/       # Route configuration
+├── nginx/                # Nginx configuration for Docker
+├── docker-compose.yml    # Docker Compose configuration
+└── README.md
 ```
 
-2. Create environment file:
-```bash
-cp .env.example .env
-# Edit .env with your configuration (optional for development)
-```
+## 🚀 Getting Started
 
-3. Start all services:
+### Prerequisites
+
+- Python 3.11+
+- Node.js 18+
+- PostgreSQL 14+ (for production)
+- Redis (for WebSockets)
+- **JDK 17+** (for Android mobile development and VS Code Java Language Server)
+  - See [JAVA_SETUP.md](./JAVA_SETUP.md) for installation and configuration instructions
+
+### Quick Start with Docker
+
+The easiest way to run the full stack:
+
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd consult
+
+# Start all services
 docker compose up --build
+
+# Access the application
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8000/api/v1
+# Admin: http://localhost:8000/admin
 ```
 
-4. Run initial migrations (in a new terminal):
-```bash
-docker exec -it sims_backend python manage.py migrate
-```
+The database will be automatically seeded with demo data on first run.
 
-5. Create a superuser:
-```bash
-docker exec -it sims_backend python manage.py createsuperuser
-```
+### Local Development Setup
 
-6. Access the application:
-- Frontend UI: http://localhost:5173
-- Backend API: http://localhost:8000
-- Django Admin: http://localhost:8000/admin
-- API Authentication: http://localhost:8000/api/auth/token/
-- Full stack via Nginx: http://localhost
+#### Backend Setup
 
-## Local Development Setup
-
-### Backend
-
-1. Navigate to backend directory:
 ```bash
 cd backend
-```
 
-2. Create and activate virtual environment:
-```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-3. Install dependencies:
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-4. Run migrations:
-```bash
+# Create logs directory
+mkdir -p logs
+
+# Run migrations
 python manage.py migrate
-```
 
-5. Start development server:
-```bash
+# Seed demo data
+python manage.py seed_data
+
+# Run development server
 python manage.py runserver
 ```
 
-### Frontend
+#### Frontend Setup
 
-1. Navigate to frontend directory:
 ```bash
 cd frontend
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 npm install
-```
 
-3. Configure environment variables (optional):
-```bash
-cp .env.example .env  # or create frontend/.env manually
-```
+# Create environment file
+echo "VITE_API_URL=http://localhost:8000/api/v1" > .env
+echo "VITE_WS_URL=ws://localhost:8000/ws" >> .env
 
-4. Start development server:
-```bash
+# Run development server
 npm run dev
 ```
 
-## Project Structure
+### Access Points
 
-```
-Fmu/
-├── backend/                    # Django backend
-│   ├── sims_backend/          # Django project settings
-│   ├── core/                  # Core app
-│   ├── tests/                 # Backend tests
-│   ├── manage.py              # Django management script
-│   ├── requirements.txt       # Python dependencies
-│   ├── Dockerfile             # Backend Docker config
-│   └── pytest.ini             # Test configuration
-├── frontend/                   # React frontend
-│   ├── src/                   # Source files
-│   ├── public/                # Static files
-│   ├── package.json           # Node dependencies
-│   ├── vite.config.js         # Vite configuration
-│   └── Dockerfile             # Frontend Docker config
-├── nginx/                      # Nginx configuration
-│   ├── nginx.conf             # Main config
-│   └── conf.d/                # Site configs
-├── docs/                       # Documentation
-│   ├── ARCHITECTURE.md        # System architecture
-│   ├── API.md                 # API reference
-│   ├── DATAMODEL.md           # Data models
-│   ├── SETUP.md               # Setup guide
-│   ├── CI-CD.md               # CI/CD documentation
-│   ├── SECURITY_DEPLOYMENT.md # Production security
-│   ├── archive/               # Historical reports
-│   └── adr/                   # Architecture Decision Records
-├── scripts/                    # Utility scripts
-│   ├── validate_release.sh    # Release validation
-│   ├── test_*.sh              # Testing scripts
-│   └── quick-start.sh         # Quick setup
-├── archive/                    # Historical/legacy files
-│   ├── reports/               # Old completion reports
-│   ├── diagnostics/           # Historical diagnostics
-│   └── logs/                  # Old log files
-├── docker-compose.yml          # Development services
-├── docker-compose.prod.yml    # Production services
-├── .env.example               # Environment template
-├── Makefile                   # Build commands
-├── README.md                  # This file
-└── CONTRIBUTING.md            # Contribution guide
-```
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8000/api/v1 |
+| Django Admin | http://localhost:8000/admin |
 
-## Testing
+## 📚 Documentation
+
+The codebase is thoroughly documented with docstrings (Python) and JSDoc comments (JavaScript).
+
+### Key Documents
+
+- **[DEMO_SCRIPT.md](DEMO_SCRIPT.md)**: Step-by-step demo presentation guide
+- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)**: High-level project overview
+- **[CURRENT_STATUS.md](CURRENT_STATUS.md)**: Latest development progress
+- **[ADMIN_PANEL.md](ADMIN_PANEL.md)**: Admin panel features and usage
+- **[VISION.md](./VISION.md)**: Project vision and goals
+- **[WORKFLOW.md](./WORKFLOW.md)**: Consult workflow documentation
+- **[DATA_MODEL.md](./DATA_MODEL.md)**: Database schema
+- **[TECHNICAL_PLAN.md](./TECHNICAL_PLAN.md)**: Complete technical architecture
+
+## 🧪 Testing
 
 ### Backend Tests
 ```bash
 cd backend
-pytest
+python manage.py test
 ```
 
-With coverage:
-```bash
-pytest --cov=. --cov-report=html
-```
-
-### Frontend Tests
+### Frontend Linting
 ```bash
 cd frontend
-npm test
-```
-
-## Code Quality
-
-### Backend
-```bash
-cd backend
-
-# Lint with ruff
-ruff check .
-
-# Type check with mypy
-mypy .
-```
-
-### Frontend
-```bash
-cd frontend
-
-# Lint with ESLint
 npm run lint
 ```
 
-### Comprehensive Validation
+### Frontend Build
 ```bash
-# Run full release validation check
-./validate_release.sh
+cd frontend
+npm run build
 ```
 
-This script validates:
-- Backend tests and coverage (≥80%)
-- Frontend tests and coverage (≥70%)
-- Code quality (linters, type checking)
-- Docker configuration
-- Security configuration
-- CI/CD workflows
-- Documentation completeness
+## 🚢 Deployment
 
-## API Documentation
+### Multi-App Deployment Configuration
 
-Once the backend is running, API documentation is available at:
-- Swagger UI: http://localhost:8000/api/docs/
-- ReDoc: http://localhost:8000/api/redoc/
-- OpenAPI schema: http://localhost:8000/api/schema/
-- JWT token obtain/refresh endpoints live under http://localhost:8000/api/auth/.
+This project is configured for **multi-app deployment**, allowing multiple applications to run on the same server using path-based routing through Nginx. See [MULTI_APP_DEPLOYMENT_PLAN.md](./MULTI_APP_DEPLOYMENT_PLAN.md) for the complete plan.
 
-## Environment Variables
+**Key Features:**
+- ✅ Path-based routing for multiple apps
+- ✅ Health checks for all services
+- ✅ Resource limits and isolation
+- ✅ Easy to add new apps
+- ✅ Centralized Nginx reverse proxy
 
-Key environment variables (see `.env.example` for full list):
-
-**Core Settings:**
-- `DJANGO_SECRET_KEY`: Django secret key (**MUST change in production!**)
-- `DJANGO_DEBUG`: Debug mode (`True` for development, `False` for production)
-- `DJANGO_ALLOWED_HOSTS`: Comma-separated list of allowed hosts (set to your domain in production)
-
-**Database:**
-- `DB_NAME`, `DB_USER`, `DB_PASSWORD`: Database credentials
-- `DB_HOST`, `DB_PORT`: Database connection details
-
-**Security:**
-- `CORS_ALLOWED_ORIGINS`: Allowed frontend origins for CORS
-- `JWT_ACCESS_TOKEN_LIFETIME`: JWT access token lifetime in minutes (default: 60)
-- `JWT_REFRESH_TOKEN_LIFETIME`: JWT refresh token lifetime in minutes (default: 1440)
-
-**Email (Optional):**
-- `EMAIL_BACKEND`: Email backend (console for dev, smtp for production)
-- `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`
-
-**See:**
-- [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md) for production security
-- [docs/EMAIL_CONFIG.md](docs/EMAIL_CONFIG.md) for email configuration
-
-## Deployment
-
-### Quick Production Deployment
-
+**Quick Commands:**
 ```bash
-# 1. Clone and configure
-git clone https://github.com/munaimtahir/Fmu.git && cd Fmu
-cp .env.example .env
-# Edit .env with production values (see docs/SECURITY_DEPLOYMENT.md)
+# List all apps
+bash scripts/manage-apps.sh list
 
-# 2. Deploy with production configuration
-docker compose -f docker-compose.prod.yml up -d --build
+# Check health of all apps
+bash scripts/manage-apps.sh health
 
-# 3. Initialize database
-docker compose -f docker-compose.prod.yml exec backend python manage.py migrate
-docker compose -f docker-compose.prod.yml exec backend python manage.py collectstatic --noinput
+# Start/stop specific app
+bash scripts/manage-apps.sh start backend
+bash scripts/manage-apps.sh stop frontend
 
-# 4. Create admin user
-docker compose -f docker-compose.prod.yml exec backend python manage.py createsuperuser
-
-# Access at: http://your-domain (configure nginx with your domain)
+# View logs
+bash scripts/manage-apps.sh logs backend
 ```
 
-**Important:**
-- Set `DJANGO_DEBUG=False` in production
-- Use strong `DJANGO_SECRET_KEY`
-- Configure `DJANGO_ALLOWED_HOSTS` with your domain
-- Enable HTTPS (see [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md))
+**Adding a New App:**
+See [docs/ADD_NEW_APP_GUIDE.md](./docs/ADD_NEW_APP_GUIDE.md) for detailed instructions.
 
-**Complete guides:**
-- [docs/SETUP.md](docs/SETUP.md) - Detailed deployment instructions
-- [docs/SECURITY_DEPLOYMENT.md](docs/SECURITY_DEPLOYMENT.md) - Production security
-- [docs/CI-CD.md](docs/CI-CD.md) - CI/CD pipeline documentation
+### Docker Deployment (Recommended)
 
-## 📄 Documentation
+```bash
+# Production deployment
+docker-compose up -d
 
-Complete documentation is available in the [docs/](docs/) directory:
+# View logs
+docker-compose logs -f backend
 
-- **[Repository Structure](docs/REPO_STRUCTURE.md)** - Directory organization guide
-- **[Architecture](docs/ARCHITECTURE.md)** - System design and components
-- **[API Reference](docs/API.md)** - Complete endpoint documentation  
-- **[Data Model](docs/DATAMODEL.md)** - Database schema and ERD
-- **[Setup Guide](docs/SETUP.md)** - Deployment and configuration
-- **[Security & Deployment](docs/SECURITY_DEPLOYMENT.md)** - Production security guide
-- **[Email Configuration](docs/EMAIL_CONFIG.md)** - Email setup guide
-- **[Contributing](CONTRIBUTING.md)** - Contribution guidelines
-- **[Changelog](docs/CHANGELOG.md)** - Version history
-- **[Tests](docs/TESTS.md)** - Testing documentation
-- **[CI/CD](docs/CI-CD.md)** - Pipeline configuration
-- **[Roles & Permissions](docs/ROLES.md)** - User roles and access control
+# Restart services
+docker-compose restart
+```
 
-## 🎯 Demo Credentials
+### Environment Variables
 
-After running `seed_demo`, use these credentials to explore different user roles:
+#### Backend (.env)
 
-| Role | Username | Password | Description |
-|------|----------|----------|-------------|
-| **Admin** | admin | admin123 | Full system access, user management |
-| **Registrar** | registrar | registrar123 | Enrollment management, records |
-| **Faculty** | faculty | faculty123 | View/manage own sections and students |
-| **Student** | student | student123 | View own records, attendance, results |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SECRET_KEY` | Django secret key | (required in production) |
+| `DEBUG` | Enable debug mode | `True` |
+| `ALLOWED_HOSTS` | Comma-separated allowed hosts | `localhost,127.0.0.1` |
+| `DATABASE` | Database type | `postgres` |
+| `DB_NAME` | Database name | `consult_db` |
+| `DB_USER` | Database user | `consult_user` |
+| `DB_PASSWORD` | Database password | (required) |
+| `DB_HOST` | Database host | `localhost` |
+| `REDIS_URL` | Redis URL for channels | `redis://localhost:6379/0` |
+| `CORS_ALLOWED_ORIGINS` | CORS origins | `http://localhost:3000` |
 
-**Additional accounts:**
-- Faculty: `faculty1`, `faculty2`, `faculty3` (password: `faculty123`)
-- Each role demonstrates different permission levels per [docs/ROLES.md](docs/ROLES.md)
+#### Frontend (.env)
 
-## Contributing
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API URL | `http://localhost:8000/api/v1` |
+| `VITE_WS_URL` | WebSocket URL | `ws://localhost:8000/ws` |
 
-Please read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for contribution guidelines.
+## 📝 Development Status
 
-We welcome contributions! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+### Completed (MVP)
+- ✅ User authentication (JWT)
+- ✅ Department management with SLA configuration
+- ✅ Patient creation and search
+- ✅ Consult creation and workflow
+- ✅ Status transitions (Pending → Acknowledged → In Progress → Completed)
+- ✅ Notes and final note completion
+- ✅ Permission controls
+- ✅ Dashboard with statistics
+- ✅ Admin Panel (user management, department management)
+- ✅ Real-time WebSocket notifications
+- ✅ CI/CD pipelines (GitHub Actions)
+- ✅ Docker deployment
+- ✅ Comprehensive demo data
 
-## Support
+### Future Enhancements
+- Google Workspace SSO integration
+- SLA monitoring and escalation
+- Analytics dashboard
+- CSV user import
+- Email notifications (templates ready)
 
-For issues, questions, or contributions:
+## 📋 Student Intake – Phase 1 (No Placement, No Accounts)
 
-- 📖 [Complete Documentation](docs/)
-- 🐛 [Issue Tracker](https://github.com/munaimtahir/Fmu/issues)
-- 📧 Contact: munaimtahir@users.noreply.github.com
+The Student Intake system allows newly joining students to submit their application data through a public form. This is **Phase 1** implementation with the following characteristics:
 
-## License
+### Features
+- ✅ **Public Form**: Accessible at `/apply/student-intake/` without login
+- ✅ **Comprehensive Data Collection**: Personal info, guardian info, merit details, academic background, and documents
+- ✅ **Mandatory Fields**: Email, mobile, guardian WhatsApp, and passport-size photo are required
+- ✅ **File Upload Validation**: Enforced file size limits and format validation
+- ✅ **Anti-Spam Protection**: Honeypot field and session-based cooldown (60 seconds)
+- ✅ **Verification Queue**: All submissions stored as PENDING for staff review
+- ✅ **Admin Approval**: Staff can approve submissions and create Student records
+- ✅ **Duplicate Detection**: Checks for duplicates based on CNIC, Mobile, Email, and MDCAT Roll Number
+- ✅ **Audit Log Safety**: Sensitive fields (CNIC, mobile, email) are redacted from audit logs
 
-See LICENSE file for details.
+### What's NOT Included (Phase 1)
+- ❌ **No User Accounts**: Students do NOT get user accounts, usernames, or passwords
+- ❌ **No Academic Placement**: Students are NOT assigned to Program/Batch/Group
+- ❌ **No Direct Student Creation**: Submissions must be approved by staff first
 
-## Support
+### Access Points
+- **Public Form**: `http://localhost:8000/apply/student-intake/`
+- **Success Page**: `http://localhost:8000/apply/student-intake/success/<submission_id>/`
+- **Admin Queue**: `http://localhost:8000/admin/intake/studentintakesubmission/`
 
-For issues and questions, please use the GitHub issue tracker.
+### Admin Actions
+Staff with roles ADMIN, COORDINATOR, or OFFICE_ASSISTANT can:
+1. View all submissions in the verification queue
+2. Filter by status, search by submission ID, name, CNIC, mobile, email, or MDCAT roll number
+3. Review duplicate check results
+4. Use "Approve & Create Student" action to:
+   - Check for duplicates (CNIC, Mobile, Email, MDCAT Roll Number)
+   - Create Student record if no duplicates (or if force_approve is enabled)
+   - Link submission to created Student
+   - Set approval status and timestamps
+
+### Data Fields Collected
+- **Personal**: Full name, father's name, gender, DOB, CNIC/B-Form, mobile, email, address
+- **Guardian**: Name, relation, WhatsApp number
+- **Merit**: MDCAT roll number, merit number, merit percentage
+- **Academic**: Last qualification, institute, board/university, passing year, marks/grades, subjects
+- **Documents**: Passport photo (required), CNIC front/back, domicile, certificates, other documents (optional)
+
+### Security & Privacy
+- All file uploads stored under `media/intake/<submission_id>/`
+- Sensitive fields redacted in admin display
+- Session-based cooldown prevents spam
+- Honeypot field blocks automated submissions
+- Upload validation enforces file size and format limits
+
+## 📄 License
+
+Proprietary - Pakistan Medical Commission
+
+---
+
+**Built with ❤️ for Pakistan Medical Commission**

@@ -120,6 +120,7 @@ INSTALLED_APPS = [
     # "sims_backend.assessments",
     # "sims_backend.requests",
     # "sims_backend.transcripts",
+    "apps.intake",
 ]
 
 MIDDLEWARE = [

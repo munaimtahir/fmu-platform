@@ -252,7 +252,6 @@ export const StudentApplicationPage = () => {
       
       // Prepare data for draft save
       const draftData: any = {
-        email,
         ...formData,
       }
       
@@ -350,7 +349,7 @@ export const StudentApplicationPage = () => {
       
       try {
         // Try to submit draft first
-        const draftResponse = await studentApplicationsService.submitDraft(email)
+        await studentApplicationsService.submitDraft(email)
         setSubmitSuccess(true)
         return
       } catch (draftError: any) {
@@ -943,7 +942,7 @@ export const StudentApplicationPage = () => {
               <div className="flex gap-3">
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="ghost"
                   onClick={onSaveDraft}
                   isLoading={isSavingDraft}
                   disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
@@ -952,7 +951,7 @@ export const StudentApplicationPage = () => {
                 </Button>
                 <Button
                   type="button"
-                  variant="secondary"
+                  variant="ghost"
                   onClick={() => setShowLoadDraftModal(true)}
                   disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
                 >
@@ -1009,7 +1008,7 @@ export const StudentApplicationPage = () => {
             <div className="flex justify-end gap-3">
               <Button
                 type="button"
-                variant="secondary"
+                variant="ghost"
                 onClick={() => {
                   setShowLoadDraftModal(false)
                   setLoadDraftEmail('')

@@ -37,6 +37,7 @@ class Student(TimeStampedModel):
     batch_year = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(2000), MaxValueValidator(2100)],
         help_text="Graduating year (batch year). For example, for MBBS 5-year program, if admitted in 2024, batch_year would be 2029",
+        default=2029,
     )
     current_year = models.PositiveSmallIntegerField(
         default=1,
@@ -124,7 +125,7 @@ class StudentApplication(TimeStampedModel):
         choices=GENDER_CHOICES,
         help_text="Gender",
     )
-    date_of_birth = models.DateField(help_text="Date of birth")
+    date_of_birth = models.DateField(help_text="Date of birth", default="2000-01-01")
     cnic = models.CharField(
         max_length=15,
         help_text="CNIC number in format 12345-123456-1",

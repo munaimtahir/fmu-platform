@@ -149,6 +149,11 @@ export const StudentApplicationPage = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isLoadingPrograms, setIsLoadingPrograms] = useState(true)
+  const [isSavingDraft, setIsSavingDraft] = useState(false)
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false)
+  const [showLoadDraftModal, setShowLoadDraftModal] = useState(false)
+  const [loadDraftEmail, setLoadDraftEmail] = useState('')
+  const [draftMessage, setDraftMessage] = useState<string | null>(null)
 
   const {
     register,
@@ -231,11 +236,133 @@ export const StudentApplicationPage = () => {
     }
   }, [dateOfBirth, selectedProgram, setValue])
 
+  const onSaveDraft = async () => {
+    try {
+      const formData = watch()
+      const email = formData.email
+      
+      if (!email) {
+        setDraftMessage('Please enter your email address to save a draft')
+        return
+      }
+      
+      setIsSavingDraft(true)
+      setDraftMessage(null)
+      setSubmitError(null)
+      
+      // Prepare data for draft save
+      const draftData: any = {
+        email,
+        ...formData,
+      }
+      
+      // Convert date to string if present
+      if (draftData.date_of_birth instanceof Date) {
+        draftData.date_of_birth = draftData.date_of_birth.toISOString().split('T')[0]
+      }
+      
+      // Convert program to string if present
+      if (draftData.program) {
+        draftData.program = draftData.program.toString()
+      }
+      
+      await studentApplicationsService.saveDraft(draftData)
+      setDraftMessage('Draft saved successfully')
+      setTimeout(() => setDraftMessage(null), 3000)
+    } catch (error: any) {
+      console.error('Error saving draft:', error)
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.detail ||
+        error.message ||
+        'Failed to save draft. Please try again.'
+      setDraftMessage(errorMessage)
+    } finally {
+      setIsSavingDraft(false)
+    }
+  }
+
+  const onLoadDraft = async () => {
+    if (!loadDraftEmail.trim()) {
+      setDraftMessage('Please enter your email address')
+      return
+    }
+    
+    try {
+      setIsLoadingDraft(true)
+      setDraftMessage(null)
+      setSubmitError(null)
+      
+      const response = await studentApplicationsService.loadDraft(loadDraftEmail.trim())
+      const draft = response.draft
+      
+      // Populate form with draft data
+      if (draft.form_data) {
+        const formData = draft.form_data
+        
+        // Set all text/number fields
+        Object.keys(formData).forEach((key) => {
+          const value = formData[key]
+          if (value !== null && value !== undefined && value !== '') {
+            // Handle date fields
+            if (key === 'date_of_birth' && typeof value === 'string') {
+              setValue(key as any, new Date(value))
+            } else {
+              setValue(key as any, value)
+            }
+          }
+        })
+      }
+      
+      // Handle file URLs - show existing files
+      if (response.file_urls) {
+        // Note: We can't directly set FileList, but we can show the user that files are already uploaded
+        // In a real implementation, you might want to fetch and display these files
+        console.log('Existing files:', response.file_urls)
+      }
+      
+      setDraftMessage('Draft loaded successfully')
+      setShowLoadDraftModal(false)
+      setLoadDraftEmail('')
+      setTimeout(() => setDraftMessage(null), 3000)
+    } catch (error: any) {
+      console.error('Error loading draft:', error)
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.detail ||
+        error.message ||
+        'Failed to load draft. Please try again.'
+      setDraftMessage(errorMessage)
+    } finally {
+      setIsLoadingDraft(false)
+    }
+  }
+
   const onSubmit = async (data: ApplicationFormData) => {
     try {
       setIsSubmitting(true)
       setSubmitError(null)
+      setDraftMessage(null)
 
+      // Check if there's a draft for this email - if so, submit the draft
+      // Otherwise, create a new application directly
+      const email = data.email.trim().toLowerCase()
+      
+      try {
+        // Try to submit draft first
+        const draftResponse = await studentApplicationsService.submitDraft(email)
+        setSubmitSuccess(true)
+        return
+      } catch (draftError: any) {
+        // If draft doesn't exist or is already submitted, create new application
+        if (draftError.response?.status === 404 || draftError.response?.status === 400) {
+          // No draft found or already submitted, proceed with regular submission
+        } else {
+          // Some other error, try regular submission anyway
+        }
+      }
+
+      // Regular submission (no draft or draft submission failed)
       const applicationData = {
         first_name: data.first_name,
         last_name: data.last_name,
@@ -286,6 +413,7 @@ export const StudentApplicationPage = () => {
     } catch (error: any) {
       console.error('Error submitting application:', error)
       const errorMessage =
+        error.response?.data?.error ||
         error.response?.data?.detail ||
         error.response?.data?.message ||
         error.message ||
@@ -795,16 +923,50 @@ export const StudentApplicationPage = () => {
               </div>
             )}
 
-            {/* Submit Button */}
-            <div className="flex justify-end pt-4">
+            {/* Draft Message */}
+            {draftMessage && (
+              <div className={`border rounded-2xl p-4 ${
+                draftMessage.includes('successfully') || draftMessage.includes('loaded')
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-yellow-50 border-yellow-200'
+              }`}>
+                <p className={`text-sm ${
+                  draftMessage.includes('successfully') || draftMessage.includes('loaded')
+                    ? 'text-green-600'
+                    : 'text-yellow-600'
+                }`}>{draftMessage}</p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center pt-4 gap-4">
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={onSaveDraft}
+                  isLoading={isSavingDraft}
+                  disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
+                >
+                  {isSavingDraft ? 'Saving...' : 'Save Draft'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowLoadDraftModal(true)}
+                  disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
+                >
+                  Load Draft
+                </Button>
+              </div>
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
                 isLoading={isSubmitting}
-                disabled={isSubmitting || isLoadingPrograms}
+                disabled={isSubmitting || isLoadingPrograms || isSavingDraft || isLoadingDraft}
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Registration'}
+                {isSubmitting ? 'Submitting...' : 'Submit Final'}
               </Button>
             </div>
           </form>
@@ -818,6 +980,58 @@ export const StudentApplicationPage = () => {
           </p>
         </div>
       </div>
+
+      {/* Load Draft Modal */}
+      {showLoadDraftModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Load Saved Draft</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Enter your email address to load your saved application draft.
+            </p>
+            <Input
+              label="Email Address"
+              type="email"
+              value={loadDraftEmail}
+              onChange={(e) => setLoadDraftEmail(e.target.value)}
+              placeholder="your.email@example.com"
+              className="mb-4"
+            />
+            {draftMessage && (
+              <div className={`mb-4 p-3 rounded-lg ${
+                draftMessage.includes('successfully') || draftMessage.includes('loaded')
+                  ? 'bg-green-50 text-green-600'
+                  : 'bg-red-50 text-red-600'
+              }`}>
+                <p className="text-sm">{draftMessage}</p>
+              </div>
+            )}
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setShowLoadDraftModal(false)
+                  setLoadDraftEmail('')
+                  setDraftMessage(null)
+                }}
+                disabled={isLoadingDraft}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                onClick={onLoadDraft}
+                isLoading={isLoadingDraft}
+                disabled={isLoadingDraft || !loadDraftEmail.trim()}
+              >
+                {isLoadingDraft ? 'Loading...' : 'Load Draft'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

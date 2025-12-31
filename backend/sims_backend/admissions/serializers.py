@@ -1,7 +1,7 @@
 import re
 from rest_framework import serializers
 
-from .models import Student, StudentApplication
+from .models import Student, StudentApplication, ApplicationDraft
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -276,4 +276,62 @@ class StudentApplicationPublicSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f"Batch year must be between {current_year} and {current_year + 10}"
             )
+        return value
+
+
+class ApplicationDraftSerializer(serializers.ModelSerializer):
+    """Serializer for application drafts"""
+    
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    
+    class Meta:
+        model = ApplicationDraft
+        fields = [
+            "id",
+            "email",
+            "status",
+            "status_display",
+            "form_data",
+            "uploaded_files",
+            "created_at",
+            "last_saved_at",
+            "submitted_at",
+        ]
+        read_only_fields = [
+            "id",
+            "status",
+            "created_at",
+            "last_saved_at",
+            "submitted_at",
+        ]
+    
+    def validate_email(self, value):
+        """Normalize email to lowercase"""
+        if value:
+            return value.strip().lower()
+        return value
+
+
+class ApplicationDraftSaveSerializer(serializers.Serializer):
+    """Serializer for saving a draft - accepts form data and files"""
+    
+    email = serializers.EmailField(required=True, help_text="Email address (normalized to lowercase)")
+    form_data = serializers.JSONField(required=True, help_text="All form field data")
+    
+    def validate_email(self, value):
+        """Normalize email"""
+        if value:
+            return value.strip().lower()
+        return value
+
+
+class ApplicationDraftLoadSerializer(serializers.Serializer):
+    """Serializer for loading a draft by email"""
+    
+    email = serializers.EmailField(required=True, help_text="Email address to load draft for")
+    
+    def validate_email(self, value):
+        """Normalize email"""
+        if value:
+            return value.strip().lower()
         return value

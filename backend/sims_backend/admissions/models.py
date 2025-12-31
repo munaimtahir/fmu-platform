@@ -1,3 +1,4 @@
+import uuid
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -370,3 +371,90 @@ class StudentApplication(TimeStampedModel):
         if reason:
             self.notes = f"{self.notes}\nRejection reason: {reason}".strip()
         self.save()
+
+
+class ApplicationDraft(TimeStampedModel):
+    """Draft application form data - allows students to save progress and return later"""
+    
+    STATUS_DRAFT = "DRAFT"
+    STATUS_SUBMITTED = "SUBMITTED"
+    
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, "Draft"),
+        (STATUS_SUBMITTED, "Submitted"),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(
+        db_index=True,
+        help_text="Email address (normalized to lowercase, used as identifier)"
+    )
+    status = models.CharField(
+        max_length=32,
+        choices=STATUS_CHOICES,
+        default=STATUS_DRAFT,
+        help_text="Draft status - DRAFT allows edits, SUBMITTED is locked"
+    )
+    form_data = models.JSONField(
+        default=dict,
+        help_text="All form field data (text/number fields) stored as JSON"
+    )
+    uploaded_files = models.JSONField(
+        default=dict,
+        help_text="File metadata and storage paths for uploaded documents"
+    )
+    last_saved_at = models.DateTimeField(
+        auto_now=True,
+        help_text="Last time the draft was saved"
+    )
+    submitted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the draft was submitted (locked)"
+    )
+    
+    class Meta:
+        ordering = ["-last_saved_at"]
+        indexes = [
+            models.Index(fields=["email", "status"]),
+            models.Index(fields=["status"]),
+        ]
+        verbose_name = "Application Draft"
+        verbose_name_plural = "Application Drafts"
+    
+    def __str__(self) -> str:
+        return f"Draft for {self.email} ({self.get_status_display()})"
+    
+    def save(self, *args, **kwargs):
+        """Normalize email to lowercase and ensure only one DRAFT per email"""
+        # Normalize email
+        if self.email:
+            self.email = self.email.strip().lower()
+        
+        # If this is a new DRAFT, delete any existing DRAFT for this email
+        if self.status == self.STATUS_DRAFT:
+            ApplicationDraft.objects.filter(
+                email=self.email,
+                status=self.STATUS_DRAFT
+            ).exclude(pk=self.pk).delete()
+        
+        # Set submitted_at when status changes to SUBMITTED
+        if self.status == self.STATUS_SUBMITTED and not self.submitted_at:
+            self.submitted_at = timezone.now()
+        
+        super().save(*args, **kwargs)
+    
+    def can_edit(self):
+        """Check if draft can be edited"""
+        return self.status == self.STATUS_DRAFT
+    
+    @classmethod
+    def get_draft_for_email(cls, email):
+        """Get the active DRAFT for an email, or None if not found"""
+        if not email:
+            return None
+        normalized_email = email.strip().lower()
+        return cls.objects.filter(
+            email=normalized_email,
+            status=cls.STATUS_DRAFT
+        ).first()

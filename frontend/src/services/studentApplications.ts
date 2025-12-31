@@ -144,5 +144,85 @@ export const studentApplicationsService = {
     )
     return response.data
   },
+
+  /**
+   * Save a draft application (public, no auth required)
+   */
+  async saveDraft(data: Partial<StudentApplicationCreate> & { email: string }): Promise<{ message: string; draft: any }> {
+    const formData = new FormData()
+    
+    // Email is required
+    formData.append('email', data.email)
+    
+    // Add all form fields (except files)
+    const formFields = [
+      'first_name', 'last_name', 'father_name', 'gender', 'date_of_birth',
+      'cnic', 'phone', 'address_city', 'address_district', 'address_state',
+      'address_country', 'mailing_address_same', 'mailing_address',
+      'mailing_city', 'mailing_district', 'mailing_state', 'mailing_country',
+      'guardian_name', 'guardian_relation', 'guardian_phone', 'guardian_email',
+      'guardian_mailing_address', 'mdcat_roll_number', 'merit_number',
+      'merit_percentage', 'hssc_year', 'hssc_board', 'hssc_marks',
+      'hssc_percentage', 'ssc_year', 'ssc_board', 'ssc_marks',
+      'ssc_percentage', 'program', 'batch_year'
+    ]
+    
+    for (const field of formFields) {
+      const value = (data as any)[field]
+      if (value !== undefined && value !== null && value !== '') {
+        if (typeof value === 'boolean') {
+          formData.append(field, value.toString())
+        } else if (typeof value === 'object' && value instanceof Date) {
+          formData.append(field, value.toISOString().split('T')[0])
+        } else {
+          formData.append(field, value.toString())
+        }
+      }
+    }
+    
+    // Add files if present
+    const fileFields = ['father_id_card', 'guardian_id_card', 'domicile', 'ssc_certificate', 'hssc_certificate', 'mdcat_result']
+    for (const field of fileFields) {
+      const file = (data as any)[field]
+      if (file instanceof File) {
+        formData.append(field, file)
+      } else if (file && file.length > 0 && file[0] instanceof File) {
+        formData.append(field, file[0])
+      }
+    }
+    
+    const response = await api.post(
+      '/api/application-drafts/save/',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    return response.data
+  },
+
+  /**
+   * Load a draft by email (public, no auth required)
+   */
+  async loadDraft(email: string): Promise<{ message: string; draft: any; file_urls: Record<string, string> }> {
+    const response = await api.post(
+      '/api/application-drafts/load/',
+      { email }
+    )
+    return response.data
+  },
+
+  /**
+   * Submit a draft as final application (public, no auth required)
+   */
+  async submitDraft(email: string): Promise<{ message: string; application_id: number; draft_id: string }> {
+    const response = await api.post(
+      '/api/application-drafts/submit/',
+      { email }
+    )
+    return response.data
+  },
 }
 

@@ -30,7 +30,14 @@ def verify_tables():
     app_tables = {}
     for table in sorted(table_names):
         if table.startswith('sims_backend_'):
-            app = table.split('_')[1]
+            # Extract app name after the 'sims_backend_' prefix, e.g.
+            # 'sims_backend_admissions_student' -> 'admissions'.
+            remainder = table[len('sims_backend_'):]
+            if remainder:
+                app = remainder.split('_', 1)[0]
+            else:
+                # Unexpected format: no app name after prefix; group under 'other'.
+                app = 'other'
             if app not in app_tables:
                 app_tables[app] = []
             app_tables[app].append(table)

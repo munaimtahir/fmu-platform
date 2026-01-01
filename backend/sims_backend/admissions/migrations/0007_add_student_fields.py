@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
             model_name="student",
             name="batch_year",
             field=models.PositiveSmallIntegerField(
-                default=2029,  # Reasonable default for existing records (5 years from 2024)
+                default=2029,  # Default graduating year for existing records
                 validators=[
                     django.core.validators.MinValueValidator(2000),
                     django.core.validators.MaxValueValidator(2100),

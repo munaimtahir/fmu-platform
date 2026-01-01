@@ -3,7 +3,7 @@ Management command to seed demo data for SIMS
 Creates sample Programs, Batches, Groups, Departments, Academic Periods, Students, and Sessions
 """
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -556,8 +556,8 @@ class Command(BaseCommand):
         for idx, group in enumerate(groups[:3]):  # First 3 groups
             for day_offset in range(0, 10, 2):  # 5 sessions over 10 days
                 session_date = current_date + timedelta(days=day_offset)
-                start_time = timezone.make_aware(datetime.combine(session_date, datetime.min.time().replace(hour=9, minute=0)))
-                end_time = timezone.make_aware(datetime.combine(session_date, datetime.min.time().replace(hour=11, minute=0)))
+                start_time = timezone.make_aware(datetime.combine(session_date, time(hour=9, minute=0)))
+                end_time = timezone.make_aware(datetime.combine(session_date, time(hour=11, minute=0)))
 
                 # Assign faculty and department in round-robin
                 faculty = faculty_users[(idx + day_offset) % len(faculty_users)]

@@ -5,21 +5,18 @@ This guide explains how to seed the SIMS database with demo data for demonstrati
 ## Overview
 
 The seed data system creates:
-- **Academic Structure**: Programs, Batches, Groups, Courses, Terms, Sections
+- **Academic Structure**: Programs, Batches, Groups, Departments, Academic Periods
 - **Users**: Admin, Registrar, Faculty (4 users), and Student users
 - **Students**: Student records linked to user accounts
-- **Enrollments**: Students enrolled in various course sections
-- **Attendance**: Attendance records for enrolled students
-- **Assessments**: Assessment types and scores
-- **Results**: Final grades based on assessment scores
+- **Timetable**: Sessions linking academic periods, groups, faculty, and departments
 
 ## Usage
 
 ### Seed Demo Data
 
 ```bash
-# From the backend directory or using docker compose
-cd /home/munaim/srv/apps/fmu-platform/backend
+# From the backend directory
+cd backend
 
 # Run with default settings (20 students)
 python manage.py seed_demo
@@ -35,7 +32,7 @@ python manage.py seed_demo --clear
 
 ```bash
 # From the project root
-cd /home/munaim/srv/apps/fmu-platform
+cd /home/runner/work/fmu-platform/fmu-platform
 
 # Run seed command
 docker compose exec backend python manage.py seed_demo --students 30
@@ -73,55 +70,42 @@ Each student gets a unique user account:
 - Password: `student123`
 
 **Other Students**
-- Username format: `student{reg_no}` (e.g., `student2024cs001`)
+- Username format: `student{reg_no}` (e.g., `student2026mbbs101`)
 - Email format: `student{reg_no}@sims.edu`
-- Password format: `student{year}` where year is the batch year (e.g., `student2024`)
-
-### Generate Credentials Document
-
-After seeding, generate a markdown document with all login credentials:
-
-```bash
-python manage.py generate_login_credentials
-
-# Or with custom output file
-python manage.py generate_login_credentials --output DEMO_CREDENTIALS.md
-```
-
-Using Docker:
-```bash
-docker compose exec backend python manage.py generate_login_credentials
-```
+- Password format: `student{year}` where year is the batch year (e.g., `student2026`)
 
 ## Data Structure
 
 ### Academic Structure
 
 **Programs:**
-- Bachelor of Science in Computer Science
-- Bachelor of Science in Electrical Engineering
-- Master of Business Administration
+- MBBS (Bachelor of Medicine, Bachelor of Surgery)
+- BDS (Bachelor of Dental Surgery)
+- Doctor of Pharmacy (Pharm.D)
 
 **Batches:**
 - Created for each program
 - Current year and previous year batches
-- Example: "2024 Batch", "2025 Batch"
+- Example: "2026 Batch", "2025 Batch"
 
 **Groups:**
 - Group A and Group B for each batch
 
-**Courses:**
-- CS courses: CS101, CS201, CS301, CS401
-- EE courses: EE101, EE201
-- MBA courses: MBA501, MBA601
+**Departments:**
+- Anatomy (ANAT)
+- Physiology (PHYS)
+- Biochemistry (BIOCHEM)
+- Medicine (MED)
+- Surgery (SURG)
+- Pediatrics (PED)
 
-**Terms:**
-- Fall {current_year}
-- Spring {next_year}
+**Academic Periods:**
+- Hierarchical structure: Year → Block → Module
+- Example: "Year 1" → "Block 1" → "Module A"
 
-**Sections:**
-- 2 sections per course for the current term
-- Assigned to faculty members
+**Sessions:**
+- Timetable sessions linking academic periods, groups, faculty, and departments
+- 5 sessions per group over 10 days
 
 ### Student Data
 
@@ -130,10 +114,7 @@ Each student has:
 - Name, email, phone, date of birth
 - Assigned to a Program, Batch, and Group
 - Linked user account for login
-- Enrollment in 4-5 course sections
-- Attendance records (10 per enrollment, ~80% attendance rate)
-- Assessment scores (midterm, final, quiz, assignment)
-- Final grades calculated from assessment scores
+- Timetable sessions assigned to their groups
 
 ## Example Workflow
 
@@ -142,15 +123,13 @@ Each student has:
    docker compose exec backend python manage.py seed_demo --students 30 --clear
    ```
 
-2. **Generate credentials document:**
-   ```bash
-   docker compose exec backend python manage.py generate_login_credentials
-   ```
-
-3. **Access the application:**
+2. **Access the application:**
    - Frontend: https://sims.alshifalab.pk or https://sims.pmc.edu.pk
    - Login with any of the generated credentials
    - Test different user roles (Admin, Faculty, Student)
+   
+3. **Check the seeded data:**
+   The command will display login credentials for all users after completion.
 
 ## Testing Student Login
 
@@ -161,16 +140,15 @@ To test student login in the frontend:
    - Password: `student123`
 
 2. Or use any generated student account:
-   - Username: `student2024cs001` (format: student{reg_no})
-   - Email: `student2024cs001@sims.edu`
-   - Password: `student2024` (format: student{year})
+   - Username: `student2026mbbs101` (format: student{reg_no})
+   - Email: `student2026mbbs101@sims.edu`
+   - Password: `student2026` (format: student{year})
 
 3. Students can view:
-   - Their enrollment information
-   - Attendance records
-   - Assessment scores
-   - Final grades and results
-   - Academic progress
+   - Their student profile and information
+   - Academic program and batch details
+   - Group assignments
+   - Timetable sessions
 
 ## Notes
 
@@ -201,6 +179,9 @@ docker compose exec backend python manage.py shell -c "from django.contrib.auth 
 
 # Check students
 docker compose exec backend python manage.py shell -c "from sims_backend.students.models import Student; print(f'Students: {Student.objects.count()}')"
+
+# Check programs
+docker compose exec backend python manage.py shell -c "from sims_backend.academics.models import Program; print(f'Programs: {Program.objects.count()}')"
 ```
 
 ### Common Issues

@@ -40,21 +40,68 @@ export interface Student {
 // Student Application model
 export interface StudentApplication {
   id: number
-  full_name: string
+  // Personal Information
+  first_name?: string
+  last_name?: string
+  full_name?: string
+  father_name?: string
+  gender?: 'M' | 'F' | 'O'
   date_of_birth: string
+  cnic?: string
   email: string
   phone: string
+  // Address
   address?: string
-  program: number
+  address_city?: string
+  address_district?: string
+  address_state?: string
+  address_country?: string
+  // Mailing Address
+  mailing_address_same?: boolean
+  mailing_address?: string
+  mailing_city?: string
+  mailing_district?: string
+  mailing_state?: string
+  mailing_country?: string
+  // Guardian Information
+  guardian_name?: string
+  guardian_relation?: 'FATHER' | 'MOTHER' | 'GUARDIAN' | 'OTHER'
+  guardian_phone?: string
+  guardian_email?: string
+  guardian_mailing_address?: string
+  // Admission/Merit Details
+  mdcat_roll_number?: string
+  merit_number?: number
+  merit_percentage?: number
+  // Qualifications
+  hssc_year?: number
+  hssc_board?: string
+  hssc_marks?: number
+  hssc_percentage?: number
+  ssc_year?: number
+  ssc_board?: string
+  ssc_marks?: number
+  ssc_percentage?: number
+  // Academic Information
+  program?: number
   program_name?: string
   program_full_name?: string
   batch_year: number
   previous_qualification?: string
   previous_institution?: string
+  // Application Status
   status: 'pending' | 'approved' | 'rejected'
   status_display?: string
   notes?: string
+  // Documents
   documents?: string
+  father_id_card?: string
+  guardian_id_card?: string
+  domicile?: string
+  ssc_certificate?: string
+  hssc_certificate?: string
+  mdcat_result?: string
+  // Admin tracking
   reviewed_by?: number
   reviewed_by_name?: string
   reviewed_at?: string
@@ -64,16 +111,56 @@ export interface StudentApplication {
 
 // Student Application Create (for public submission)
 export interface StudentApplicationCreate {
-  full_name: string
+  // Personal Information
+  first_name: string
+  last_name: string
+  father_name: string
+  gender: 'M' | 'F' | 'O'
   date_of_birth: string
+  cnic: string
   email: string
   phone: string
-  address?: string
-  program: number
+  // Address
+  address_city: string
+  address_district: string
+  address_state: string
+  address_country: string
+  // Mailing Address
+  mailing_address_same: boolean
+  mailing_address?: string
+  mailing_city?: string
+  mailing_district?: string
+  mailing_state?: string
+  mailing_country?: string
+  // Guardian Information
+  guardian_name: string
+  guardian_relation: 'FATHER' | 'MOTHER' | 'GUARDIAN' | 'OTHER'
+  guardian_phone: string
+  guardian_email: string
+  guardian_mailing_address: string
+  // Admission/Merit Details
+  mdcat_roll_number: string
+  merit_number: number
+  merit_percentage: number
+  // Qualifications
+  hssc_year: number
+  hssc_board: string
+  hssc_marks: number
+  hssc_percentage: number
+  ssc_year: number
+  ssc_board: string
+  ssc_marks: number
+  ssc_percentage: number
+  // Academic Information
+  program?: number
   batch_year: number
-  previous_qualification?: string
-  previous_institution?: string
-  documents?: File
+  // Documents
+  father_id_card: File
+  guardian_id_card?: File
+  domicile: File
+  ssc_certificate: File
+  hssc_certificate: File
+  mdcat_result: File
 }
 
 // Course model

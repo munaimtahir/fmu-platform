@@ -1,5 +1,3 @@
-<<<<<<< Current (Your changes)
-=======
 """
 URL configuration for config project.
 
@@ -25,4 +23,3 @@ urlpatterns = [
     path("api/v1/", include("apps.core.urls")),
     path("", include("apps.intake.urls")),
 ]
->>>>>>> Incoming (Background Agent changes)

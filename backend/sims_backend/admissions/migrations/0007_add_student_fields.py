@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.core.validators
+import datetime
 
 
 class Migration(migrations.Migration):
@@ -27,11 +28,13 @@ class Migration(migrations.Migration):
         ),
         
         # Add new fields to Student model
+        # Note: default values are only used for existing rows during migration
+        # preserve_default=False ensures the default is not kept in the schema
         migrations.AddField(
             model_name="student",
             name="batch_year",
             field=models.PositiveSmallIntegerField(
-                default=2024,
+                default=2029,  # Reasonable default for existing records (5 years from 2024)
                 validators=[
                     django.core.validators.MinValueValidator(2000),
                     django.core.validators.MaxValueValidator(2100),
@@ -84,7 +87,7 @@ class Migration(migrations.Migration):
             model_name="studentapplication",
             name="date_of_birth",
             field=models.DateField(
-                default="2000-01-01",
+                default=datetime.date(2000, 1, 1),  # Reasonable default for existing records
                 help_text="Date of birth",
             ),
             preserve_default=False,

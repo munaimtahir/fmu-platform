@@ -15,10 +15,10 @@ cp .env.example .env
 # 2. Build and Start
 docker compose up -d --build
 
-# 3. Access
+# 3. Access (Docker environment)
 # Frontend: http://localhost:8080
-# Backend Admin: http://localhost:8010/admin/
-# API Health: http://localhost:8010/api/health/
+# Backend Admin (Docker): http://localhost:8010/admin/
+# API Health (Docker): http://localhost:8010/api/health/
 ```
 
 ### Running Manually (Development)

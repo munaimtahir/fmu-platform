@@ -35,11 +35,15 @@ class AttendanceViewSet(viewsets.ModelViewSet):
 
         # Students can only see their own attendance
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
-            # TODO: Link User to Student (for MVP, return all for now)
-            pass
+            # Filter to student's own records via user link
+            if hasattr(user, 'student') and user.student:
+                queryset = queryset.filter(student=user.student)
+            else:
+                # No student record linked, return empty queryset
+                queryset = queryset.none()
 
         # Faculty can see attendance for their sessions
-        if in_group(user, 'FACULTY') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
+        elif in_group(user, 'FACULTY') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             queryset = queryset.filter(session__faculty=user)
 
         return queryset

@@ -1,4 +1,5 @@
 import uuid
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -22,6 +23,14 @@ class Student(TimeStampedModel):
         (STATUS_SUSPENDED, "Suspended"),
     ]
 
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="admissions_student",
+        help_text="Linked user account (optional until account is created)",
+    )
     reg_no = models.CharField(
         max_length=32,
         unique=True,
@@ -325,6 +334,10 @@ class StudentApplication(TimeStampedModel):
         if self.status != self.STATUS_PENDING:
             raise ValueError("Only pending applications can be approved")
 
+        # Check if already created a student (idempotency)
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
         # Generate registration number (you may want to customize this logic)
         year_prefix = str(self.batch_year)[-2:]
         program = self.program
@@ -346,6 +359,14 @@ class StudentApplication(TimeStampedModel):
         # Use first_name + last_name if available, otherwise fall back to full_name
         student_name = f"{self.first_name} {self.last_name}".strip() if (self.first_name and self.last_name) else self.full_name
         
+        # Try to find matching user by email
+        linked_user = None
+        if self.email:
+            try:
+                linked_user = User.objects.get(email__iexact=self.email.strip())
+            except User.DoesNotExist:
+                pass  # User will be linked later when account is created
+        
         student = Student.objects.create(
             reg_no=reg_no,
             name=student_name,
@@ -356,6 +377,7 @@ class StudentApplication(TimeStampedModel):
             email=self.email,
             phone=self.phone,
             date_of_birth=self.date_of_birth,
+            user=linked_user,  # Link user if found
         )
 
         # Update application status

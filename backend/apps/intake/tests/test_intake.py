@@ -2,31 +2,30 @@
 Tests for Student Intake submissions.
 """
 
-from django.test import TestCase, Client
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
-from django.utils import timezone
-from apps.intake.models import StudentIntakeSubmission
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase
+
 from apps.intake.forms import StudentIntakeForm
-import io
+from apps.intake.models import StudentIntakeSubmission
 
 User = get_user_model()
 
 
 class StudentIntakeSubmissionTest(TestCase):
     """Test cases for Student Intake submissions."""
-    
+
     def setUp(self):
         """Set up test data."""
         self.client = Client()
-        
+
         # Create a test image file
         self.test_image = SimpleUploadedFile(
             "test_photo.jpg",
             b"fake image content",
             content_type="image/jpeg"
         )
-        
+
         # Create form data
         self.form_data = {
             'full_name': 'Test Student',
@@ -52,38 +51,38 @@ class StudentIntakeSubmissionTest(TestCase):
             'subjects': 'Physics, Chemistry, Biology',
             'website': '',  # Honeypot field (must be empty)
         }
-    
+
     def test_submission_fails_without_passport_photo(self):
         """Test that submission fails without passport photo."""
         form = StudentIntakeForm(data=self.form_data, files={})
         self.assertFalse(form.is_valid())
         self.assertIn('passport_size_photo', form.errors)
-    
+
     def test_public_submission_creates_pending_record(self):
         """Test that public submission creates a PENDING record."""
         files = {
             'passport_size_photo': self.test_image
         }
-        
+
         response = self.client.post('/apply/student-intake/', {
             **self.form_data,
             **files
         })
-        
+
         # Should redirect to success page
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/apply/student-intake/success/'))
-        
+
         # Check that submission was created with PENDING status
         submission = StudentIntakeSubmission.objects.get(email='test@example.com')
         self.assertEqual(submission.status, 'PENDING')
         self.assertIsNotNone(submission.submission_id)
         self.assertTrue(submission.submission_id.startswith('STU-'))
-    
+
     def test_duplicate_mdcat_roll_number_blocks_approval(self):
         """Test that duplicate MDCAT roll number blocks approval."""
         # Create first submission
-        submission1 = StudentIntakeSubmission.objects.create(
+        StudentIntakeSubmission.objects.create(
             submission_id='STU-20240101-0001',
             status='PENDING',
             full_name='Student One',
@@ -109,7 +108,7 @@ class StudentIntakeSubmissionTest(TestCase):
             subjects='Physics, Chemistry, Biology',
             passport_size_photo=self.test_image,
         )
-        
+
         # Create second submission with same MDCAT roll number
         submission2 = StudentIntakeSubmission.objects.create(
             submission_id='STU-20240101-0002',
@@ -137,11 +136,11 @@ class StudentIntakeSubmissionTest(TestCase):
             subjects='Physics, Chemistry, Biology',
             passport_size_photo=self.test_image,
         )
-        
+
         # Check for duplicates
         duplicates = submission2.check_duplicates()
         self.assertIn('MDCAT123', [s for s in duplicates['mdcat'] if 'STU-20240101-0001' in s or 'STU-20240101-0001' == s])
-    
+
     def test_approval_creates_student(self):
         """Test that approval creates Student record (if Student model exists)."""
         # Create a submission
@@ -171,38 +170,38 @@ class StudentIntakeSubmissionTest(TestCase):
             subjects='Physics, Chemistry, Biology',
             passport_size_photo=self.test_image,
         )
-        
+
         # Create admin user
-        admin_user = User.objects.create_user(
+        User.objects.create_user(
             email='admin@pmc.edu.pk',
             password='testpass123',
             role='ADMIN',
             is_staff=True,
         )
-        
+
         # Try to approve (will fail if Student model doesn't exist, which is expected)
         # This test verifies the approval logic works, even if Student model doesn't exist yet
         duplicates = submission.check_duplicates()
         has_duplicates = any(duplicates.values())
-        
+
         self.assertFalse(has_duplicates, "No duplicates should be found for a new submission")
-        
+
         # If Student model exists, we would test creation here
         # For now, we just verify the duplicate check works
-    
+
     def test_honeypot_field_blocks_spam(self):
         """Test that honeypot field blocks spam submissions."""
         files = {
             'passport_size_photo': self.test_image
         }
-        
+
         # Submit with honeypot field filled (spam)
         form_data_spam = {**self.form_data, 'website': 'http://spam.com'}
         form = StudentIntakeForm(data=form_data_spam, files=files)
-        
+
         self.assertFalse(form.is_valid())
         self.assertIn('website', form.errors)
-    
+
     def test_cnic_normalization(self):
         """Test that CNIC is normalized (dashes removed)."""
         submission = StudentIntakeSubmission(
@@ -230,10 +229,10 @@ class StudentIntakeSubmissionTest(TestCase):
             passport_size_photo=self.test_image,
         )
         submission.save()
-        
+
         # CNIC should be normalized (no dashes)
         self.assertEqual(submission.cnic_or_bform, '1234512345671')
-    
+
     def test_submission_id_generation(self):
         """Test that submission_id is auto-generated."""
         submission = StudentIntakeSubmission.objects.create(
@@ -261,7 +260,7 @@ class StudentIntakeSubmissionTest(TestCase):
             subjects='Physics, Chemistry, Biology',
             passport_size_photo=self.test_image,
         )
-        
+
         # Submission ID should be auto-generated
         self.assertIsNotNone(submission.submission_id)
         self.assertTrue(submission.submission_id.startswith('STU-'))

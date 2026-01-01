@@ -159,6 +159,46 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
           </div>
 
           <div>
+            <label htmlFor="batch_year" className="block text-sm font-medium mb-1">
+              Batch Year <span className="text-red-500" aria-label="required">*</span>
+            </label>
+            <Input 
+              id="batch_year"
+              type="number"
+              {...register('batch_year', { valueAsNumber: true })} 
+              error={errors.batch_year?.message}
+              aria-required="true"
+              aria-invalid={!!errors.batch_year}
+              aria-describedby={errors.batch_year ? 'batch-year-error' : undefined}
+            />
+            {errors.batch_year && (
+              <p id="batch-year-error" className="mt-1 text-sm text-red-600" role="alert">
+                {errors.batch_year.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="current_year" className="block text-sm font-medium mb-1">
+              Current Year <span className="text-red-500" aria-label="required">*</span>
+            </label>
+            <Input 
+              id="current_year"
+              type="number"
+              {...register('current_year', { valueAsNumber: true })} 
+              error={errors.current_year?.message}
+              aria-required="true"
+              aria-invalid={!!errors.current_year}
+              aria-describedby={errors.current_year ? 'current-year-error' : undefined}
+            />
+            {errors.current_year && (
+              <p id="current-year-error" className="mt-1 text-sm text-red-600" role="alert">
+                {errors.current_year.message}
+              </p>
+            )}
+          </div>
+
+          <div>
             <label htmlFor="status" className="block text-sm font-medium mb-1">
               Status <span className="text-red-500" aria-label="required">*</span>
             </label>

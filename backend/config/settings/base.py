@@ -1,11 +1,11 @@
-<<<<<<< Current (Your changes)
-=======
 """
 Django settings for Hospital Consult System.
 Base settings shared across all environments.
 """
 
+from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project
@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    
+
     # Third-party apps
     'rest_framework',
     'rest_framework.authtoken',
@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'channels',
-    
+
     # Local apps
     'apps.accounts',
     'apps.departments',
@@ -174,7 +174,6 @@ REST_FRAMEWORK = {
 }
 
 # JWT Configuration
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -275,4 +274,3 @@ LOGGING = {
         },
     },
 }
->>>>>>> Incoming (Background Agent changes)

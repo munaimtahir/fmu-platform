@@ -1,0 +1,378 @@
+# Generated manually to add new fields to Student model
+
+from django.conf import settings
+from django.db import migrations, models
+import django.core.validators
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ("admissions", "0006_add_application_draft"),
+        ("academics", "0001_initial"),
+    ]
+
+    operations = [
+        # Rename indexes on ApplicationDraft
+        migrations.RenameIndex(
+            model_name="applicationdraft",
+            old_name="admissions_a_email_8a3b2d_idx",
+            new_name="admissions__email_ad3c8c_idx",
+        ),
+        migrations.RenameIndex(
+            model_name="applicationdraft",
+            old_name="admissions_a_status_9c4e5f_idx",
+            new_name="admissions__status_292cc2_idx",
+        ),
+        
+        # Add new fields to Student model
+        migrations.AddField(
+            model_name="student",
+            name="batch_year",
+            field=models.PositiveSmallIntegerField(
+                default=2024,
+                validators=[
+                    django.core.validators.MinValueValidator(2000),
+                    django.core.validators.MaxValueValidator(2100),
+                ],
+                help_text="Graduating year (batch year). For example, for MBBS 5-year program, if admitted in 2024, batch_year would be 2029",
+            ),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name="student",
+            name="current_year",
+            field=models.PositiveSmallIntegerField(
+                default=1,
+                validators=[
+                    django.core.validators.MinValueValidator(1),
+                    django.core.validators.MaxValueValidator(10),
+                ],
+                help_text="Current academic year in the program (1-10)",
+            ),
+        ),
+        migrations.AddField(
+            model_name="student",
+            name="email",
+            field=models.EmailField(
+                blank=True,
+                help_text="Student email address",
+            ),
+        ),
+        migrations.AddField(
+            model_name="student",
+            name="phone",
+            field=models.CharField(
+                blank=True,
+                max_length=20,
+                help_text="Student phone number",
+            ),
+        ),
+        migrations.AddField(
+            model_name="student",
+            name="date_of_birth",
+            field=models.DateField(
+                null=True,
+                blank=True,
+                help_text="Student date of birth",
+            ),
+        ),
+        
+        # Add new fields to StudentApplication
+        migrations.AddField(
+            model_name="studentapplication",
+            name="date_of_birth",
+            field=models.DateField(
+                default="2000-01-01",
+                help_text="Date of birth",
+            ),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name="studentapplication",
+            name="reviewed_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=models.SET_NULL,
+                related_name="reviewed_applications",
+                to=settings.AUTH_USER_MODEL,
+                help_text="Admin user who reviewed this application",
+            ),
+        ),
+        migrations.AddField(
+            model_name="studentapplication",
+            name="reviewed_at",
+            field=models.DateTimeField(
+                blank=True,
+                null=True,
+                help_text="When the application was reviewed",
+            ),
+        ),
+        
+        # Update existing fields (these are AlterField operations)
+        migrations.AlterField(
+            model_name="student",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                help_text="The timestamp when the record was created.",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="student",
+            name="name",
+            field=models.CharField(
+                max_length=255,
+                help_text="Full name of the student",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="student",
+            name="program",
+            field=models.ForeignKey(
+                on_delete=models.PROTECT,
+                related_name="admission_students",
+                to="academics.program",
+                help_text="Program the student is enrolled in",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="student",
+            name="reg_no",
+            field=models.CharField(
+                max_length=32,
+                unique=True,
+                help_text="Student registration number",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="student",
+            name="status",
+            field=models.CharField(
+                max_length=32,
+                choices=[
+                    ("active", "Active"),
+                    ("inactive", "Inactive"),
+                    ("graduated", "Graduated"),
+                    ("suspended", "Suspended"),
+                ],
+                default="active",
+                help_text="Current status of the student",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="student",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True,
+                help_text="The timestamp when the record was last updated.",
+            ),
+        ),
+        
+        # AlterFields for StudentApplication
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="address",
+            field=models.TextField(
+                blank=True,
+                help_text="Full address (legacy field)",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="batch_year",
+            field=models.PositiveSmallIntegerField(
+                validators=[
+                    django.core.validators.MinValueValidator(2000),
+                    django.core.validators.MaxValueValidator(2100),
+                ],
+                help_text="Expected graduating year (batch year)",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                help_text="The timestamp when the record was created.",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="documents",
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to="student_applications/documents/%Y/%m/%d/",
+                help_text="Uploaded documents (legacy field)",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="domicile",
+            field=models.FileField(
+                upload_to="student_applications/documents/%Y/%m/%d/",
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        allowed_extensions=["pdf", "jpg", "jpeg", "png"]
+                    )
+                ],
+                help_text="Domicile certificate",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="father_id_card",
+            field=models.FileField(
+                upload_to="student_applications/documents/%Y/%m/%d/",
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        allowed_extensions=["pdf", "jpg", "jpeg", "png"]
+                    )
+                ],
+                help_text="Father ID card",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="guardian_id_card",
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to="student_applications/documents/%Y/%m/%d/",
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        allowed_extensions=["pdf", "jpg", "jpeg", "png"]
+                    )
+                ],
+                help_text="Guardian ID card (required if guardian is not father)",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="hssc_certificate",
+            field=models.FileField(
+                upload_to="student_applications/documents/%Y/%m/%d/",
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        allowed_extensions=["pdf", "jpg", "jpeg", "png"]
+                    )
+                ],
+                help_text="HSSC/FSC certificate",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="mdcat_result",
+            field=models.FileField(
+                upload_to="student_applications/documents/%Y/%m/%d/",
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        allowed_extensions=["pdf", "jpg", "jpeg", "png"]
+                    )
+                ],
+                help_text="MDCAT result/screenshot",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="notes",
+            field=models.TextField(
+                blank=True,
+                help_text="Admin notes about the application",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="phone",
+            field=models.CharField(
+                max_length=20,
+                help_text="Phone number",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="previous_institution",
+            field=models.CharField(
+                blank=True,
+                max_length=255,
+                help_text="Previous institution name (legacy field)",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="previous_qualification",
+            field=models.CharField(
+                blank=True,
+                max_length=255,
+                help_text="Previous educational qualification (legacy field)",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="ssc_certificate",
+            field=models.FileField(
+                upload_to="student_applications/documents/%Y/%m/%d/",
+                validators=[
+                    django.core.validators.FileExtensionValidator(
+                        allowed_extensions=["pdf", "jpg", "jpeg", "png"]
+                    )
+                ],
+                help_text="SSC/Matric certificate",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="status",
+            field=models.CharField(
+                max_length=32,
+                choices=[
+                    ("pending", "Pending"),
+                    ("approved", "Approved"),
+                    ("rejected", "Rejected"),
+                ],
+                default="pending",
+                help_text="Application status",
+            ),
+        ),
+        migrations.AlterField(
+            model_name="studentapplication",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True,
+                help_text="The timestamp when the record was last updated.",
+            ),
+        ),
+        
+        # Add indexes
+        migrations.AddIndex(
+            model_name="student",
+            index=models.Index(
+                fields=["program", "batch_year"],
+                name="admissions__program_787757_idx",
+            ),
+        ),
+        migrations.AddIndex(
+            model_name="student",
+            index=models.Index(
+                fields=["status"],
+                name="admissions__status_32fe57_idx",
+            ),
+        ),
+        migrations.AddIndex(
+            model_name="studentapplication",
+            index=models.Index(
+                fields=["status"],
+                name="admissions__status_e024df_idx",
+            ),
+        ),
+        migrations.AddIndex(
+            model_name="studentapplication",
+            index=models.Index(
+                fields=["program", "batch_year"],
+                name="admissions__program_adb184_idx",
+            ),
+        ),
+    ]

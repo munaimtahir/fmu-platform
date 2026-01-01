@@ -1,5 +1,3 @@
-<<<<<<< Current (Your changes)
-=======
 """
 Django settings for Hospital Consult System.
 Base settings shared across all environments.
@@ -275,4 +273,3 @@ LOGGING = {
         },
     },
 }
->>>>>>> Incoming (Background Agent changes)

@@ -36,7 +36,12 @@ class Student(TimeStampedModel):
     )
     batch_year = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(2000), MaxValueValidator(2100)],
-        help_text="Graduating year (batch year). For example, for MBBS 5-year program, if admitted in 2024, batch_year would be 2029",
+        help_text=(
+            "Graduating year (batch year). For example, for an MBBS 5-year program, "
+            "if admitted in 2024, batch_year would be 2029. The default value of 2029 "
+            "is used for legacy data corresponding to this initial cohort and should "
+            "normally be overridden by application logic when creating new students."
+        ),
         default=2029,
     )
     current_year = models.PositiveSmallIntegerField(

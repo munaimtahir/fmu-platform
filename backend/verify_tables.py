@@ -8,7 +8,14 @@ import sys
 import django
 
 # Setup Django settings
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sims_backend.settings')
+settings_module = os.environ.get('DJANGO_SETTINGS_MODULE')
+if not settings_module:
+    print(
+        "Error: DJANGO_SETTINGS_MODULE environment variable is not set. "
+        "Please set it to your Django settings module (for example, "
+        "'sims_backend.settings') before running this script."
+    )
+    sys.exit(1)
 django.setup()
 
 from django.db import connection

@@ -1,21 +1,19 @@
 """
 Management command to seed demo data for SIMS
-Creates sample Programs, Courses, Terms, Sections, Students, Enrollment, Attendance, Assessments, and Results
+Creates sample Programs, Batches, Groups, Departments, Academic Periods, Students, and Sessions
 """
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 from faker import Faker
 
-from sims_backend.academics.models import Batch, Course, Group, Program, Section, Term
-from sims_backend.assessments.models import Assessment, AssessmentScore
-from sims_backend.attendance.models import Attendance
-from sims_backend.enrollment.models import Enrollment
-from sims_backend.results.models import Result
+from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group, Program
 from sims_backend.students.models import Student
+from sims_backend.timetable.models import Session
 
 User = get_user_model()
 fake = Faker()
@@ -30,7 +28,7 @@ class Command(BaseCommand):
     demonstration of the SIMS application.
     """
     help = (
-        "Seed demo data for SIMS (Programs, Courses, Terms, Sections, Students, etc.)"
+        "Seed demo data for SIMS (Programs, Batches, Groups, Departments, Students, etc.)"
     )
 
     def add_arguments(self, parser):
@@ -80,34 +78,25 @@ class Command(BaseCommand):
         # Create academic structure
         programs = self._create_programs()
         batches, groups = self._create_batches_and_groups(programs)
-        courses = self._create_courses(programs)
-        terms = self._create_terms()
-        sections = self._create_sections(courses, terms, users)
+        departments = self._create_departments()
+        academic_periods = self._create_academic_periods()
 
-        # Create students and enroll them
+        # Create students with user accounts
         students, student_logins = self._create_students(
             programs, batches, groups, num_students, users
         )
-        enrollments = self._enroll_students(students, sections)
 
-        # Create attendance records
-        self._create_attendance(enrollments)
-
-        # Create assessments and scores
-        self._create_assessments(sections)
-
-        # Create results
-        self._create_results(enrollments)
+        # Create timetable sessions
+        sessions = self._create_sessions(academic_periods, groups, departments, users)
 
         self.stdout.write(self.style.SUCCESS("\n✅ Demo data seeded successfully!"))
         self.stdout.write(f"  - Programs: {len(programs)}")
         self.stdout.write(f"  - Batches: {len(batches)}")
         self.stdout.write(f"  - Groups: {len(groups)}")
-        self.stdout.write(f"  - Courses: {len(courses)}")
-        self.stdout.write(f"  - Terms: {len(terms)}")
-        self.stdout.write(f"  - Sections: {len(sections)}")
+        self.stdout.write(f"  - Departments: {len(departments)}")
+        self.stdout.write(f"  - Academic Periods: {len(academic_periods)}")
         self.stdout.write(f"  - Students: {len(students)}")
-        self.stdout.write(f"  - Enrollments: {len(enrollments)}")
+        self.stdout.write(f"  - Sessions: {len(sessions)}")
         
         # Write login credentials
         self._print_login_credentials(student_logins)
@@ -120,17 +109,12 @@ class Command(BaseCommand):
         by this seeding script, ensuring a clean slate before new data is
         inserted.
         """
-        Result.objects.all().delete()
-        AssessmentScore.objects.all().delete()
-        Assessment.objects.all().delete()
-        Attendance.objects.all().delete()
-        Enrollment.objects.all().delete()
+        Session.objects.all().delete()
         Student.objects.all().delete()
         Group.objects.all().delete()
         Batch.objects.all().delete()
-        Section.objects.all().delete()
-        Term.objects.all().delete()
-        Course.objects.all().delete()
+        AcademicPeriod.objects.all().delete()
+        Department.objects.all().delete()
         Program.objects.all().delete()
         User.objects.filter(is_superuser=False).delete()
         self.stdout.write(self.style.SUCCESS("  ✓ Existing data cleared"))
@@ -238,9 +222,9 @@ class Command(BaseCommand):
             list: A list of the created `Program` objects.
         """
         programs_data = [
-            "Bachelor of Science in Computer Science",
-            "Bachelor of Science in Electrical Engineering",
-            "Master of Business Administration",
+            "MBBS (Bachelor of Medicine, Bachelor of Surgery)",
+            "BDS (Bachelor of Dental Surgery)",
+            "Doctor of Pharmacy (Pharm.D)",
         ]
 
         programs = []
@@ -293,124 +277,79 @@ class Command(BaseCommand):
         )
         return batches, groups
 
-    def _create_courses(self, programs):
+    def _create_departments(self):
         """
-        Creates a set of courses for the given programs.
-
-        Args:
-            programs (list): A list of `Program` objects to which the courses
-                             will be assigned.
+        Creates a set of departments.
 
         Returns:
-            list: A list of the created `Course` objects.
+            list: A list of the created `Department` objects.
         """
-        courses_data = [
-            {"code": "CS101", "title": "Introduction to Programming", "credits": 3},
-            {"code": "CS201", "title": "Data Structures", "credits": 3},
-            {"code": "CS301", "title": "Database Systems", "credits": 3},
-            {"code": "CS401", "title": "Software Engineering", "credits": 3},
-            {"code": "EE101", "title": "Circuit Analysis", "credits": 4},
-            {"code": "EE201", "title": "Digital Logic Design", "credits": 4},
-            {"code": "MBA501", "title": "Strategic Management", "credits": 3},
-            {"code": "MBA601", "title": "Financial Management", "credits": 3},
+        departments_data = [
+            {"name": "Anatomy", "code": "ANAT"},
+            {"name": "Physiology", "code": "PHYS"},
+            {"name": "Biochemistry", "code": "BIOCHEM"},
+            {"name": "Medicine", "code": "MED"},
+            {"name": "Surgery", "code": "SURG"},
+            {"name": "Pediatrics", "code": "PED"},
         ]
 
-        courses = []
-        for data in courses_data:
-            # Assign program based on course code
-            if data["code"].startswith("CS"):
-                program = next(p for p in programs if "Computer Science" in p.name)
-            elif data["code"].startswith("EE"):
-                program = next(
-                    p for p in programs if "Electrical Engineering" in p.name
-                )
-            else:
-                program = next(
-                    p for p in programs if "Business Administration" in p.name
-                )
-
-            course, created = Course.objects.get_or_create(
-                code=data["code"], defaults={**data, "program": program}
+        departments = []
+        for data in departments_data:
+            department, created = Department.objects.get_or_create(
+                code=data["code"], defaults=data
             )
-            courses.append(course)
+            departments.append(department)
 
-        self.stdout.write(f"  ✓ Created {len(courses)} courses")
-        return courses
+        self.stdout.write(f"  ✓ Created {len(departments)} departments")
+        return departments
 
-    def _create_terms(self):
+    def _create_academic_periods(self):
         """
-        Creates a set of academic terms.
+        Creates academic periods (years, blocks, modules).
 
         Returns:
-            list: A list of the created `Term` objects.
+            list: A list of the created `AcademicPeriod` objects.
         """
         current_year = date.today().year
-        terms_data = [
-            {
-                "name": f"Fall {current_year}",
+        periods = []
+
+        # Create Year 1
+        year1, created = AcademicPeriod.objects.get_or_create(
+            period_type=AcademicPeriod.PERIOD_TYPE_YEAR,
+            name="Year 1",
+            defaults={
+                "start_date": date(current_year, 9, 1),
+                "end_date": date(current_year + 1, 6, 30),
+            },
+        )
+        periods.append(year1)
+
+        # Create Block 1 under Year 1
+        block1, created = AcademicPeriod.objects.get_or_create(
+            period_type=AcademicPeriod.PERIOD_TYPE_BLOCK,
+            name="Block 1",
+            defaults={
+                "parent_period": year1,
                 "start_date": date(current_year, 9, 1),
                 "end_date": date(current_year, 12, 31),
-                "status": "open",
             },
-            {
-                "name": f"Spring {current_year + 1}",
-                "start_date": date(current_year + 1, 1, 15),
-                "end_date": date(current_year + 1, 5, 15),
-                "status": "closed",
-            },
-        ]
-
-        terms = []
-        for data in terms_data:
-            term, created = Term.objects.get_or_create(name=data["name"], defaults=data)
-            terms.append(term)
-
-        self.stdout.write(f"  ✓ Created {len(terms)} terms")
-        return terms
-
-    def _create_sections(self, courses, terms, users):
-        """
-        Creates sections for courses and assigns them to faculty members.
-
-        Args:
-            courses (list): A list of `Course` objects.
-            terms (list): A list of `Term` objects.
-            users (dict): A dictionary of user objects.
-
-        Returns:
-            list: A list of the created `Section` objects.
-        """
-        current_term = terms[0]  # Fall term
-        sections = []
-
-        # Get faculty users
-        faculty_users = [
-            users.get("faculty"),
-            users.get("faculty1"),
-            users.get("faculty2"),
-            users.get("faculty3"),
-        ]
-
-        faculty_idx = 0
-
-        for course in courses[:6]:  # Create sections for first 6 courses
-            for section_num in range(1, 3):  # 2 sections per course
-                # Assign faculty in round-robin fashion
-                teacher = faculty_users[faculty_idx % len(faculty_users)]
-                faculty_idx += 1
-
-                section, created = Section.objects.get_or_create(
-                    course=course,
-                    term=current_term.name,
-                    teacher=teacher,
-                    defaults={"capacity": 30},
-                )
-                sections.append(section)
-
-        self.stdout.write(
-            f"  ✓ Created {len(sections)} sections with faculty assignments"
         )
-        return sections
+        periods.append(block1)
+
+        # Create Module A under Block 1
+        module_a, created = AcademicPeriod.objects.get_or_create(
+            period_type=AcademicPeriod.PERIOD_TYPE_MODULE,
+            name="Module A",
+            defaults={
+                "parent_period": block1,
+                "start_date": date(current_year, 9, 1),
+                "end_date": date(current_year, 10, 31),
+            },
+        )
+        periods.append(module_a)
+
+        self.stdout.write(f"  ✓ Created {len(periods)} academic periods")
+        return periods
 
     def _create_students(self, programs, batches, groups, num_students, users):
         """
@@ -432,31 +371,31 @@ class Command(BaseCommand):
         student_logins = []
         student_group, _ = AuthGroup.objects.get_or_create(name="Student")
 
-        # Get batches for CS program (use first program if CS not found)
-        cs_program = next(
-            (p for p in programs if "Computer Science" in p.name), programs[0]
+        # Get batches for MBBS program (use first program if MBBS not found)
+        mbbs_program = next(
+            (p for p in programs if "MBBS" in p.name), programs[0]
         )
-        cs_batches = [b for b in batches if b.program == cs_program]
-        cs_groups = [g for g in groups if g.batch in cs_batches]
+        mbbs_batches = [b for b in batches if b.program == mbbs_program]
+        mbbs_groups = [g for g in groups if g.batch in mbbs_batches]
 
-        if not cs_batches or not cs_groups:
+        if not mbbs_batches or not mbbs_groups:
             # Fallback: use first available batch and group
-            cs_batches = [batches[0]] if batches else []
-            cs_groups = [groups[0]] if groups else []
+            mbbs_batches = [batches[0]] if batches else []
+            mbbs_groups = [groups[0]] if groups else []
 
         # Create the demo student user's record first
         student_user = users.get("student")
-        if student_user and cs_batches and cs_groups:
-            reg_no = f"{cs_batches[0].start_year}-CS-001"
+        if student_user and mbbs_batches and mbbs_groups:
+            reg_no = f"{mbbs_batches[0].start_year}-MBBS-001"
             first_name = student_user.first_name or "Jane"
             last_name = student_user.last_name or "Scholar"
             student, created = Student.objects.get_or_create(
                 reg_no=reg_no,
                 defaults={
                     "name": f"{first_name} {last_name}",
-                    "program": cs_program,
-                    "batch": cs_batches[0],
-                    "group": cs_groups[0],
+                    "program": mbbs_program,
+                    "batch": mbbs_batches[0],
+                    "group": mbbs_groups[0],
                     "status": Student.STATUS_ACTIVE,
                     "email": student_user.email,
                 },
@@ -475,7 +414,7 @@ class Command(BaseCommand):
 
         # Create other students with user accounts
         for i in range(1, num_students):
-            reg_no = f"{cs_batches[0].start_year}-CS-{(100 + i):03d}"
+            reg_no = f"{mbbs_batches[0].start_year}-MBBS-{(100 + i):03d}"
             first_name = fake.first_name()
             last_name = fake.last_name()
             name = f"{first_name} {last_name}"
@@ -497,16 +436,16 @@ class Command(BaseCommand):
                 user = User.objects.get(username=username)
 
             # Assign to batch and group (round-robin)
-            batch = cs_batches[i % len(cs_batches)]
-            group = [g for g in cs_groups if g.batch == batch][
-                (i // len(cs_batches)) % 2
+            batch = mbbs_batches[i % len(mbbs_batches)]
+            group = [g for g in mbbs_groups if g.batch == batch][
+                (i // len(mbbs_batches)) % 2
             ]
 
             student, created = Student.objects.get_or_create(
                 reg_no=reg_no,
                 defaults={
                     "name": name,
-                    "program": cs_program,
+                    "program": mbbs_program,
                     "batch": batch,
                     "group": group,
                     "status": Student.STATUS_ACTIVE,
@@ -581,183 +520,59 @@ class Command(BaseCommand):
 
         self.stdout.write("\n" + "=" * 80)
 
-    def _enroll_students(self, students, sections):
+    def _create_sessions(self, academic_periods, groups, departments, users):
         """
-        Enrolls students in various sections.
+        Creates timetable sessions for groups with faculty assignments.
 
         Args:
-            students (list): A list of `Student` objects.
-            sections (list): A list of `Section` objects.
+            academic_periods (list): A list of `AcademicPeriod` objects.
+            groups (list): A list of `Group` objects.
+            departments (list): A list of `Department` objects.
+            users (dict): A dictionary of user objects.
 
         Returns:
-            list: A list of the created `Enrollment` objects.
+            list: A list of the created `Session` objects.
         """
-        enrollments = []
+        sessions = []
 
-        for student in students:
-            # Enroll each student in 4-5 sections
-            student_sections = sections[: (4 + (hash(student.reg_no) % 2))]
+        # Get faculty users
+        faculty_users = [
+            users.get("faculty"),
+            users.get("faculty1"),
+            users.get("faculty2"),
+            users.get("faculty3"),
+        ]
+        faculty_users = [f for f in faculty_users if f is not None]
 
-            for section in student_sections:
-                enrollment, created = Enrollment.objects.get_or_create(
-                    student=student,
-                    section=section,
-                    defaults={
-                        "term": section.term,
-                        "status": "enrolled",
-                    },
+        if not faculty_users or not academic_periods or not groups or not departments:
+            self.stdout.write(self.style.WARNING("  ! Skipping sessions creation - missing required data"))
+            return sessions
+
+        # Create sessions for first academic period and first few groups
+        period = academic_periods[0]  # Use first period (Year 1 or Module A)
+        current_date = period.start_date or date.today()
+
+        # Create 5 sessions per group
+        for idx, group in enumerate(groups[:3]):  # First 3 groups
+            for day_offset in range(0, 10, 2):  # 5 sessions over 10 days
+                session_date = current_date + timedelta(days=day_offset)
+                start_time = timezone.make_aware(datetime.combine(session_date, datetime.min.time().replace(hour=9, minute=0)))
+                end_time = timezone.make_aware(datetime.combine(session_date, datetime.min.time().replace(hour=11, minute=0)))
+
+                # Assign faculty and department in round-robin
+                faculty = faculty_users[(idx + day_offset) % len(faculty_users)]
+                department = departments[(idx + day_offset) % len(departments)]
+
+                session, created = Session.objects.get_or_create(
+                    academic_period=period,
+                    group=group,
+                    faculty=faculty,
+                    department=department,
+                    starts_at=start_time,
+                    ends_at=end_time,
                 )
-                enrollments.append(enrollment)
+                if created:
+                    sessions.append(session)
 
-        self.stdout.write(f"  ✓ Created {len(enrollments)} enrollments")
-        return enrollments
-
-    def _create_attendance(self, enrollments):
-        """
-        Creates attendance records for students in their enrolled sections.
-
-        Args:
-            enrollments (list): A list of `Enrollment` objects.
-        """
-        attendance_count = 0
-
-        for enrollment in enrollments:
-            # Create 10 attendance records per enrollment
-            # Get term start date from enrollment
-            try:
-                term = Term.objects.get(name=enrollment.term)
-                start_date = term.start_date
-            except Term.DoesNotExist:
-                start_date = date.today() - timedelta(days=30)
-
-            for day in range(0, 30, 3):  # Every 3 days for 10 records
-                attendance_date = start_date + timedelta(days=day)
-                # 80% attendance rate
-                present = (hash(str(enrollment.id) + str(day)) % 10) < 8
-
-                Attendance.objects.get_or_create(
-                    section=enrollment.section,
-                    student=enrollment.student,
-                    date=attendance_date,
-                    defaults={
-                        "present": present,
-                        "reason": "" if present else "Absent",
-                    },
-                )
-                attendance_count += 1
-
-        self.stdout.write(f"  ✓ Created {attendance_count} attendance records")
-
-    def _create_assessments(self, sections):
-        """
-        Creates assessments and scores for students in the given sections.
-
-        Args:
-            sections (list): A list of `Section` objects.
-        """
-        for section in sections:
-            # Create assessment scheme
-            assessments_data = [
-                {"type": "midterm", "weight": 30},
-                {"type": "final", "weight": 50},
-                {"type": "quiz", "weight": 10},
-                {"type": "assignment", "weight": 10},
-            ]
-
-            for data in assessments_data:
-                assessment, created = Assessment.objects.get_or_create(
-                    section=section,
-                    type=data["type"],
-                    defaults={"weight": data["weight"]},
-                )
-
-                # Create scores for all enrolled students
-                enrollments = Enrollment.objects.filter(section=section)
-                for enrollment in enrollments:
-                    # Random score between 60-95 out of 100
-                    base_score = 60
-                    variance = 35
-                    score = (
-                        base_score
-                        + (hash(str(enrollment.id) + str(assessment.id)) % 100)
-                        / 100
-                        * variance
-                    )
-
-                    AssessmentScore.objects.get_or_create(
-                        assessment=assessment,
-                        student=enrollment.student,
-                        defaults={"score": round(score, 2), "max_score": 100},
-                    )
-
-        self.stdout.write(
-            f"  ✓ Created assessments with scores for {len(sections)} sections"
-        )
-
-    def _create_results(self, enrollments):
-        """
-        Creates final results for students based on their assessment scores.
-
-        Args:
-            enrollments (list): A list of `Enrollment` objects.
-        """
-        results_count = 0
-
-        for enrollment in enrollments:
-            # Calculate total score from assessment scores
-            assessments = Assessment.objects.filter(section=enrollment.section)
-            total_score = 0
-
-            for assessment in assessments:
-                try:
-                    score = AssessmentScore.objects.get(
-                        assessment=assessment, student=enrollment.student
-                    )
-                    # Weighted score
-                    total_score += (score.score / score.max_score) * assessment.weight
-                except AssessmentScore.DoesNotExist:
-                    pass
-
-            # Create result
-            result, created = Result.objects.get_or_create(
-                student=enrollment.student,
-                section=enrollment.section,
-                defaults={
-                    "final_grade": self._calculate_grade(total_score),
-                    "state": "draft",  # Start as draft
-                },
-            )
-            results_count += 1
-
-        self.stdout.write(f"  ✓ Created {results_count} results")
-
-    def _calculate_grade(self, score):
-        """
-        Calculates the letter grade based on a numerical score.
-
-        Args:
-            score (float): The numerical score.
-
-        Returns:
-            str: The corresponding letter grade.
-        """
-        if score >= 90:
-            return "A+"
-        elif score >= 85:
-            return "A"
-        elif score >= 80:
-            return "A-"
-        elif score >= 75:
-            return "B+"
-        elif score >= 70:
-            return "B"
-        elif score >= 65:
-            return "B-"
-        elif score >= 60:
-            return "C+"
-        elif score >= 55:
-            return "C"
-        elif score >= 50:
-            return "C-"
-        else:
-            return "F"
+        self.stdout.write(f"  ✓ Created {len(sessions)} timetable sessions")
+        return sessions

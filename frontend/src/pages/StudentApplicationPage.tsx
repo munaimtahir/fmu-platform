@@ -9,8 +9,6 @@ import { Select, SelectOption } from '@/components/ui/Select'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { FileUpload } from '@/components/ui/FileUpload'
 import { studentApplicationsService } from '@/services/studentApplications'
-import { programsService } from '@/services/programs'
-import { Program } from '@/types'
 
 // CNIC format validation: 12345-123456-1
 const cnicRegex = /^\d{5}-\d{7}-\d{1}$/
@@ -143,12 +141,9 @@ const formatCNIC = (value: string): string => {
 }
 
 export const StudentApplicationPage = () => {
-  const [, setPrograms] = useState<Program[]>([])
-  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [isLoadingPrograms, setIsLoadingPrograms] = useState(true)
   const [isSavingDraft, setIsSavingDraft] = useState(false)
   const [isLoadingDraft, setIsLoadingDraft] = useState(false)
   const [showLoadDraftModal, setShowLoadDraftModal] = useState(false)
@@ -172,7 +167,6 @@ export const StudentApplicationPage = () => {
     },
   })
 
-  watch('program') // Track program selection
   const dateOfBirth = watch('date_of_birth')
   const mailingAddressSame = watch('mailing_address_same')
   const guardianRelation = watch('guardian_relation')
@@ -180,41 +174,8 @@ export const StudentApplicationPage = () => {
   const addressDistrict = watch('address_district')
   const addressState = watch('address_state')
   const addressCountry = watch('address_country')
-
-  // Fetch MBBS programs (Undergraduate Medical)
-  useEffect(() => {
-    const fetchPrograms = async () => {
-      try {
-        setIsLoadingPrograms(true)
-        const response = await programsService.getAll({
-          level: 'undergraduate',
-          category: 'ug_medical',
-          is_active: true,
-        })
-        setPrograms(response.results)
-        
-        // Auto-select MBBS if available
-        const mbbsProgram = response.results.find((p) => 
-          p.name.toLowerCase().includes('mbbs')
-        )
-        if (mbbsProgram) {
-          setValue('program', mbbsProgram.id.toString())
-          setSelectedProgram(mbbsProgram)
-          // Calculate batch year: current year + duration
-          const currentYear = new Date().getFullYear()
-          const batchYear = currentYear + mbbsProgram.duration_years
-          setValue('batch_year', batchYear)
-        }
-      } catch (error) {
-        console.error('Error fetching programs:', error)
-        setSubmitError('Failed to load programs. Please refresh the page.')
-      } finally {
-        setIsLoadingPrograms(false)
-      }
-    }
-
-    fetchPrograms()
-  }, [setValue])
+  // Program selection is fixed to the single active program (MBBS), so we skip
+  // loading selectable programs and use the default batch year instead.
 
   // Copy address to mailing address when "same" is checked
   useEffect(() => {
@@ -227,19 +188,10 @@ export const StudentApplicationPage = () => {
     }
   }, [mailingAddressSame, addressCity, addressDistrict, addressState, addressCountry, setValue])
 
-  // Calculate batch year when date of birth changes
-  useEffect(() => {
-    if (dateOfBirth && selectedProgram) {
-      const currentYear = new Date().getFullYear()
-      const batchYear = currentYear + selectedProgram.duration_years
-      setValue('batch_year', batchYear)
-    }
-  }, [dateOfBirth, selectedProgram, setValue])
-
   const onSaveDraft = async () => {
     try {
       const formData = watch()
-      const email = formData.email
+      const email = formData.email?.trim().toLowerCase() || ''
       
       if (!email) {
         setDraftMessage('Please enter your email address to save a draft')
@@ -252,8 +204,8 @@ export const StudentApplicationPage = () => {
       
       // Prepare data for draft save
       const draftData: any = {
-        email,
         ...formData,
+        email,
       }
       
       // Convert date to string if present
@@ -350,7 +302,7 @@ export const StudentApplicationPage = () => {
       
       try {
         // Try to submit draft first
-        const draftResponse = await studentApplicationsService.submitDraft(email)
+        await studentApplicationsService.submitDraft(email)
         setSubmitSuccess(true)
         return
       } catch (draftError: any) {
@@ -942,32 +894,32 @@ export const StudentApplicationPage = () => {
             <div className="flex justify-between items-center pt-4 gap-4">
               <div className="flex gap-3">
                 <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={onSaveDraft}
-                  isLoading={isSavingDraft}
-                  disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
-                >
-                  {isSavingDraft ? 'Saving...' : 'Save Draft'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setShowLoadDraftModal(true)}
-                  disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
-                >
-                  Load Draft
-                </Button>
-              </div>
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                isLoading={isSubmitting}
-                disabled={isSubmitting || isLoadingPrograms || isSavingDraft || isLoadingDraft}
+                type="button"
+                variant="secondary"
+                onClick={onSaveDraft}
+                isLoading={isSavingDraft}
+                disabled={isSavingDraft || isLoadingDraft}
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Final'}
+                {isSavingDraft ? 'Saving...' : 'Save Draft'}
               </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowLoadDraftModal(true)}
+                disabled={isSavingDraft || isLoadingDraft}
+              >
+                Load Draft
+              </Button>
+            </div>
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              isLoading={isSubmitting}
+              disabled={isSubmitting || isSavingDraft || isLoadingDraft}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Final'}
+            </Button>
             </div>
           </form>
         </div>

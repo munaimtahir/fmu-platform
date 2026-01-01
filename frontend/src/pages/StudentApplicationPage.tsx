@@ -482,10 +482,10 @@ export const StudentApplicationPage = () => {
                 />
                 <DatePicker
                   label="Date of Birth"
-                  value={dateOfBirth || null}
+                  value={dateOfBirth ? new Date(dateOfBirth) : null}
                   onChange={(date) => {
                     if (date) {
-                      setValue('date_of_birth', date, { shouldValidate: true })
+                      setValue('date_of_birth', date.toISOString().split('T')[0], { shouldValidate: true })
                     }
                   }}
                   error={errors.date_of_birth?.message}

@@ -14,9 +14,7 @@ import { Student } from '@/types'
 const studentSchema = z.object({
   reg_no: z.string().min(1, 'Registration number is required'),
   name: z.string().min(1, 'Name is required'),
-  program: z.number().int().min(1, 'Program is required'),
-  batch_year: z.number().int().min(2000).max(new Date().getFullYear() + 10),
-  current_year: z.number().int().min(1).max(10),
+  program: z.string().min(1, 'Program is required'),
   status: z.enum(['active', 'inactive', 'graduated', 'suspended']),
 })
 
@@ -35,21 +33,47 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
     formState: { errors },
   } = useForm<StudentFormData>({
     resolver: zodResolver(studentSchema),
-    defaultValues: student || {
+    defaultValues: student ? {
+      reg_no: student.reg_no,
+      name: student.name,
+      program: String(student.program),
+      status: student.status,
+    } : {
       reg_no: '',
       name: '',
-      program: 0,
-      batch_year: new Date().getFullYear(),
-      current_year: 1,
+      program: '',
       status: 'active',
     },
   })
 
   const mutation = useMutation({
-    mutationFn: (data: StudentFormData) =>
-      student
-        ? studentsService.update(student.id, data)
-        : studentsService.create(data),
+    mutationFn: (data: StudentFormData) => {
+      const programId = parseInt(data.program, 10)
+      if (isNaN(programId)) {
+        throw new Error('Invalid program ID')
+      }
+      
+      const studentData: Partial<Student> = {
+        reg_no: data.reg_no,
+        name: data.name,
+        program: programId,
+        status: data.status,
+      }
+      
+      // For create, provide defaults if missing
+      if (!student) {
+        const createData: Omit<Student, 'id'> = {
+          reg_no: data.reg_no,
+          name: data.name,
+          program: programId,
+          status: data.status,
+          batch_year: new Date().getFullYear(),
+          current_year: 1,
+        }
+        return studentsService.create(createData)
+      }
+      return studentsService.update(student.id, studentData)
+    },
     onSuccess: () => {
       toast.success(student ? 'Student updated successfully' : 'Student created successfully')
       onSuccess()
@@ -121,7 +145,7 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
             <Input 
               id="program"
               type="number"
-              {...register('program', { valueAsNumber: true })} 
+              {...register('program')} 
               error={errors.program?.message}
               aria-required="true"
               aria-invalid={!!errors.program}

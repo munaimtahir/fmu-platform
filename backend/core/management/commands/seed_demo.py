@@ -10,12 +10,12 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from faker import Faker
 
-from sims_backend.academics.models import Course, Program, Section, Term
-from sims_backend.admissions.models import Student
+from sims_backend.academics.models import Batch, Course, Group, Program, Section, Term
 from sims_backend.assessments.models import Assessment, AssessmentScore
 from sims_backend.attendance.models import Attendance
 from sims_backend.enrollment.models import Enrollment
 from sims_backend.results.models import Result
+from sims_backend.students.models import Student
 
 User = get_user_model()
 fake = Faker()
@@ -79,12 +79,15 @@ class Command(BaseCommand):
 
         # Create academic structure
         programs = self._create_programs()
+        batches, groups = self._create_batches_and_groups(programs)
         courses = self._create_courses(programs)
         terms = self._create_terms()
         sections = self._create_sections(courses, terms, users)
 
         # Create students and enroll them
-        students = self._create_students(programs, num_students, users)
+        students, student_logins = self._create_students(
+            programs, batches, groups, num_students, users
+        )
         enrollments = self._enroll_students(students, sections)
 
         # Create attendance records
@@ -98,18 +101,16 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS("\n✅ Demo data seeded successfully!"))
         self.stdout.write(f"  - Programs: {len(programs)}")
+        self.stdout.write(f"  - Batches: {len(batches)}")
+        self.stdout.write(f"  - Groups: {len(groups)}")
         self.stdout.write(f"  - Courses: {len(courses)}")
         self.stdout.write(f"  - Terms: {len(terms)}")
         self.stdout.write(f"  - Sections: {len(sections)}")
         self.stdout.write(f"  - Students: {len(students)}")
         self.stdout.write(f"  - Enrollments: {len(enrollments)}")
-        self.stdout.write("\n🔑 Login credentials:")
-        self.stdout.write("  Admin: admin / admin123")
-        self.stdout.write("  Registrar: registrar / registrar123")
-        self.stdout.write(
-            "  Faculty: faculty / faculty123 (also faculty1, faculty2, faculty3)"
-        )
-        self.stdout.write("  Student: student / student123")
+        
+        # Write login credentials
+        self._print_login_credentials(student_logins)
 
     def _clear_data(self):
         """
@@ -125,6 +126,8 @@ class Command(BaseCommand):
         Attendance.objects.all().delete()
         Enrollment.objects.all().delete()
         Student.objects.all().delete()
+        Group.objects.all().delete()
+        Batch.objects.all().delete()
         Section.objects.all().delete()
         Term.objects.all().delete()
         Course.objects.all().delete()
@@ -248,6 +251,48 @@ class Command(BaseCommand):
         self.stdout.write(f"  ✓ Created {len(programs)} programs")
         return programs
 
+    def _create_batches_and_groups(self, programs):
+        """
+        Creates batches and groups for each program.
+
+        Args:
+            programs (list): A list of `Program` objects.
+
+        Returns:
+            tuple: A tuple containing (batches, groups) lists.
+        """
+        from django.contrib.auth.models import Group as AuthGroup
+
+        batches = []
+        groups = []
+        current_year = date.today().year
+
+        for program in programs:
+            # Create batches for the current and previous year
+            for year_offset in [0, 1]:
+                batch_year = current_year - year_offset
+                batch_name = f"{batch_year} Batch"
+                batch, created = Batch.objects.get_or_create(
+                    program=program,
+                    name=batch_name,
+                    defaults={"start_year": batch_year},
+                )
+                batches.append(batch)
+
+                # Create groups for each batch (Group A and Group B)
+                for group_letter in ["A", "B"]:
+                    group_name = f"Group {group_letter}"
+                    group, created = Group.objects.get_or_create(
+                        batch=batch,
+                        name=group_name,
+                    )
+                    groups.append(group)
+
+        self.stdout.write(
+            f"  ✓ Created {len(batches)} batches and {len(groups)} groups"
+        )
+        return batches, groups
+
     def _create_courses(self, programs):
         """
         Creates a set of courses for the given programs.
@@ -367,51 +412,174 @@ class Command(BaseCommand):
         )
         return sections
 
-    def _create_students(self, programs, num_students, users):
+    def _create_students(self, programs, batches, groups, num_students, users):
         """
-        Creates a set of student records.
+        Creates a set of student records with user accounts.
 
         Args:
             programs (list): A list of `Program` objects.
+            batches (list): A list of `Batch` objects.
+            groups (list): A list of `Group` objects.
             num_students (int): The number of students to create.
             users (dict): A dictionary of user objects.
 
         Returns:
-            list: A list of the created `Student` objects.
+            tuple: A tuple containing (students, student_logins) lists.
         """
+        from django.contrib.auth.models import Group as AuthGroup
+
         students = []
-        bscs_program = next(p for p in programs if "Computer Science" in p.name)
+        student_logins = []
+        student_group, _ = AuthGroup.objects.get_or_create(name="Student")
+
+        # Get batches for CS program (use first program if CS not found)
+        cs_program = next(
+            (p for p in programs if "Computer Science" in p.name), programs[0]
+        )
+        cs_batches = [b for b in batches if b.program == cs_program]
+        cs_groups = [g for g in groups if g.batch in cs_batches]
+
+        if not cs_batches or not cs_groups:
+            # Fallback: use first available batch and group
+            cs_batches = [batches[0]] if batches else []
+            cs_groups = [groups[0]] if groups else []
 
         # Create the demo student user's record first
         student_user = users.get("student")
-        if student_user:
-            reg_no = "2024-CS-001"
+        if student_user and cs_batches and cs_groups:
+            reg_no = f"{cs_batches[0].start_year}-CS-001"
+            first_name = student_user.first_name or "Jane"
+            last_name = student_user.last_name or "Scholar"
             student, created = Student.objects.get_or_create(
                 reg_no=reg_no,
                 defaults={
-                    "name": f"{student_user.first_name} {student_user.last_name}",
-                    "program": bscs_program.name,
-                    "status": "active",
+                    "name": f"{first_name} {last_name}",
+                    "program": cs_program,
+                    "batch": cs_batches[0],
+                    "group": cs_groups[0],
+                    "status": Student.STATUS_ACTIVE,
+                    "email": student_user.email,
                 },
             )
             students.append(student)
+            student_logins.append(
+                {
+                    "reg_no": reg_no,
+                    "name": student.name,
+                    "username": student_user.username,
+                    "email": student_user.email,
+                    "password": "student123",
+                }
+            )
             self.stdout.write(f"  ✓ Created student record for demo user: {reg_no}")
 
-        # Create other students
+        # Create other students with user accounts
         for i in range(1, num_students):
-            reg_no = f"2024-CS-{100 + i:03d}"
+            reg_no = f"{cs_batches[0].start_year}-CS-{(100 + i):03d}"
+            first_name = fake.first_name()
+            last_name = fake.last_name()
+            name = f"{first_name} {last_name}"
+            username = f"student{reg_no.replace('-', '').lower()}"
+            email = f"{username}@sims.edu"
+            password = f"student{reg_no.split('-')[0]}"
+
+            # Create user account
+            if not User.objects.filter(username=username).exists():
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                )
+                user.groups.add(student_group)
+            else:
+                user = User.objects.get(username=username)
+
+            # Assign to batch and group (round-robin)
+            batch = cs_batches[i % len(cs_batches)]
+            group = [g for g in cs_groups if g.batch == batch][
+                (i // len(cs_batches)) % 2
+            ]
+
             student, created = Student.objects.get_or_create(
                 reg_no=reg_no,
                 defaults={
-                    "name": f"{fake.first_name()} {fake.last_name()}",
-                    "program": bscs_program.name,
-                    "status": "active",
+                    "name": name,
+                    "program": cs_program,
+                    "batch": batch,
+                    "group": group,
+                    "status": Student.STATUS_ACTIVE,
+                    "email": email,
+                    "phone": fake.phone_number()[:20],
+                    "date_of_birth": fake.date_of_birth(minimum_age=18, maximum_age=25),
                 },
             )
             students.append(student)
+            student_logins.append(
+                {
+                    "reg_no": reg_no,
+                    "name": name,
+                    "username": username,
+                    "email": email,
+                    "password": password,
+                }
+            )
 
-        self.stdout.write(f"  ✓ Created {len(students)} students")
-        return students
+        self.stdout.write(f"  ✓ Created {len(students)} students with user accounts")
+        return students, student_logins
+
+    def _print_login_credentials(self, student_logins):
+        """
+        Prints login credentials for all users.
+
+        Args:
+            student_logins (list): A list of student login dictionaries.
+        """
+        self.stdout.write("\n" + "=" * 80)
+        self.stdout.write(self.style.SUCCESS("🔑 LOGIN CREDENTIALS"))
+        self.stdout.write("=" * 80)
+        self.stdout.write("\n📋 ADMINISTRATIVE USERS:")
+        self.stdout.write("  Admin:")
+        self.stdout.write("    Username: admin")
+        self.stdout.write("    Email: admin@sims.edu")
+        self.stdout.write("    Password: admin123")
+        self.stdout.write("\n  Registrar:")
+        self.stdout.write("    Username: registrar")
+        self.stdout.write("    Email: registrar@sims.edu")
+        self.stdout.write("    Password: registrar123")
+        self.stdout.write("\n  Faculty:")
+        self.stdout.write("    Username: faculty / faculty1 / faculty2 / faculty3")
+        self.stdout.write("    Email: faculty@sims.edu / faculty1@sims.edu / etc.")
+        self.stdout.write("    Password: faculty123")
+        self.stdout.write("\n" + "-" * 80)
+        self.stdout.write("\n👥 STUDENT USERS:")
+        self.stdout.write(f"  Total Students: {len(student_logins)}")
+        self.stdout.write("\n  Demo Student:")
+        demo_student = next(
+            (s for s in student_logins if s["username"] == "student"), None
+        )
+        if demo_student:
+            self.stdout.write(f"    Reg No: {demo_student['reg_no']}")
+            self.stdout.write(f"    Name: {demo_student['name']}")
+            self.stdout.write(f"    Username: {demo_student['username']}")
+            self.stdout.write(f"    Email: {demo_student['email']}")
+            self.stdout.write(f"    Password: {demo_student['password']}")
+
+        # Show first 10 students
+        self.stdout.write("\n  Sample Students (first 10):")
+        for i, login in enumerate(student_logins[:10], 1):
+            self.stdout.write(f"\n  {i}. {login['name']} ({login['reg_no']})")
+            self.stdout.write(f"     Username: {login['username']}")
+            self.stdout.write(f"     Email: {login['email']}")
+            self.stdout.write(f"     Password: {login['password']}")
+
+        if len(student_logins) > 10:
+            self.stdout.write(
+                f"\n  ... and {len(student_logins) - 10} more students"
+            )
+
+        self.stdout.write("\n" + "=" * 80)
 
     def _enroll_students(self, students, sections):
         """

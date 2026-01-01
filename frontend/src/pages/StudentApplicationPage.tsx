@@ -894,14 +894,23 @@ export const StudentApplicationPage = () => {
             <div className="flex justify-between items-center pt-4 gap-4">
               <div className="flex gap-3">
                 <Button
-                type="button"
-                variant="secondary"
-                onClick={onSaveDraft}
-                isLoading={isSavingDraft}
-                disabled={isSavingDraft || isLoadingDraft}
-              >
-                {isSavingDraft ? 'Saving...' : 'Save Draft'}
-              </Button>
+                  type="button"
+                  variant="ghost"
+                  onClick={onSaveDraft}
+                  isLoading={isSavingDraft}
+                  disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
+                >
+                  {isSavingDraft ? 'Saving...' : 'Save Draft'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowLoadDraftModal(true)}
+                  disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
+                >
+                  Load Draft
+                </Button>
+              </div>
               <Button
                 type="button"
                 variant="secondary"
@@ -961,7 +970,7 @@ export const StudentApplicationPage = () => {
             <div className="flex justify-end gap-3">
               <Button
                 type="button"
-                variant="secondary"
+                variant="ghost"
                 onClick={() => {
                   setShowLoadDraftModal(false)
                   setLoadDraftEmail('')

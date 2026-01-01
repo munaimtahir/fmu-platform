@@ -29,18 +29,25 @@ class Migration(migrations.Migration):
         ),
         
         # Add new fields to Student model
-        # Note: default values are only used for existing rows during migration
+        # Note: default values are only used for existing rows during migration.
+        # The value 2029 is a placeholder for pre-existing Student records and
+        # should be reviewed/updated to the correct batch year after migration.
         # preserve_default=False ensures the default is not kept in the schema
         migrations.AddField(
             model_name="student",
             name="batch_year",
             field=models.PositiveSmallIntegerField(
-                default=2029,  # Default graduating year for existing records
+                default=2029,  # Placeholder graduating year applied to existing records only
                 validators=[
                     django.core.validators.MinValueValidator(2000),
                     django.core.validators.MaxValueValidator(2100),
                 ],
-                help_text="Graduating year (batch year). For example, for MBBS 5-year program, if admitted in 2024, batch_year would be 2029",
+                help_text=(
+                    "Graduating year (batch year). For example, for an MBBS 5-year program, "
+                    "if admitted in 2024, batch_year would be 2029. For Student records that "
+                    "existed before this migration, a placeholder value of 2029 is set and "
+                    "should be updated to the correct batch year where applicable."
+                ),
             ),
             preserve_default=False,
         ),

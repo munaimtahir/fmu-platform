@@ -19,12 +19,12 @@ class Migration(migrations.Migration):
         migrations.RenameIndex(
             model_name="applicationdraft",
             old_name="admissions_a_email_8a3b2d_idx",
-            new_name="admissions__email_ad3c8c_idx",
+            new_name="admissions_a_email_ad3c8c_idx",
         ),
         migrations.RenameIndex(
             model_name="applicationdraft",
             old_name="admissions_a_status_9c4e5f_idx",
-            new_name="admissions__status_292cc2_idx",
+            new_name="admissions_a_status_292cc2_idx",
         ),
         
         # Add new fields to Student model

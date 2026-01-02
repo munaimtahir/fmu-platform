@@ -218,6 +218,10 @@ GET    /api/assessments/             # List assessments
 GET    /api/assessment-scores/       # List scores
 ```
 
+## Attendance Inputs (Live, CSV, Scanned)
+
+New attendance input workflows are available under `/attendance/input` in the frontend and `/api/attendance-input/` in the backend. See `docs/ATTENDANCE_INPUTS.md` for endpoint details, dry-run/commit guidance, and demo steps.
+
 ## Support
 
 If you encounter issues:

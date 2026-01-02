@@ -12,6 +12,8 @@ Creates 20 students distributed across 8 different workflow stages:
 8. FEES_VOUCHER_GENERATED (1 student)
 """
 
+from datetime import date
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -147,7 +149,7 @@ class Command(BaseCommand):
 
         # Step 9: Enroll all students
         self.stdout.write("\n📝 Enrolling students in sections...")
-        enrollments = generator.enroll_students_in_sections(students, sections, term_name)
+        generator.enroll_students_in_sections(students, sections, term_name)
 
         # Step 10: Create sessions for attendance
         self.stdout.write("\n🗓️  Creating timetable sessions...")

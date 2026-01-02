@@ -15,10 +15,8 @@ from faker import Faker
 
 from sims_backend.academics.models import (
     AcademicPeriod,
-    Batch,
     Course,
     Department,
-    Group,
     Program,
     Section,
 )
@@ -41,6 +39,7 @@ class DemoScenarioGenerator:
     # Constants
     DEFAULT_GRADUATING_YEARS_AHEAD = 5  # For MBBS programs
     DEMO_PASSWORD_SUFFIX = "demo123"  # Consistent password for all demo users
+    DEMO_FACULTY_PASSWORD = "faculty123"  # Password for demo faculty users
 
     def __init__(self, stdout=None):
         self.stdout = stdout
@@ -154,6 +153,23 @@ class DemoScenarioGenerator:
                     "capacity": 50,
                 },
             )
+            
+            # Update existing section if needed
+            if not created:
+                updated = False
+                if section.faculty != faculty:
+                    section.faculty = faculty
+                    updated = True
+                if section.group != group:
+                    section.group = group
+                    updated = True
+                if section.capacity != 50:
+                    section.capacity = 50
+                    updated = True
+                if updated:
+                    section.save()
+                    self.log(f"  ✓ Updated section: {section_name} for {course.code}")
+            
             sections.append(section)
             if created:
                 self.log(f"  ✓ Created section: {section_name} for {course.code}")
@@ -176,7 +192,7 @@ class DemoScenarioGenerator:
                 user = User.objects.create_user(
                     username=username,
                     email=email,
-                    password="faculty123",
+                    password=self.DEMO_FACULTY_PASSWORD,
                     first_name=fake.first_name(),
                     last_name=fake.last_name(),
                 )
@@ -222,7 +238,8 @@ class DemoScenarioGenerator:
                 user.groups.add(student_group)
 
             dob = fake.date_of_birth(minimum_age=18, maximum_age=25)
-            phone = fake.phone_number()[:20]
+            # Generate phone number and validate length (model max is 20 chars)
+            phone = fake.numerify(text='+92##########')  # Pakistan format, 14 chars
 
             # Create admissions student record
             admissions_student, _ = Student.objects.get_or_create(
@@ -346,6 +363,13 @@ class DemoScenarioGenerator:
         # Import admissions.Student for enrollment lookup
         from sims_backend.admissions.models import Student as AdmissionsStudent
 
+        # Prefetch admissions students to avoid N+1 queries
+        student_reg_nos = [student.reg_no for student in students]
+        admissions_students_dict = {
+            s.reg_no: s
+            for s in AdmissionsStudent.objects.filter(reg_no__in=student_reg_nos)
+        }
+
         for section in sections:
             # Create assessments for each section
             quiz, _ = Assessment.objects.get_or_create(
@@ -359,30 +383,22 @@ class DemoScenarioGenerator:
                 defaults={"weight": 30},
             )
 
-            # Create scores for students enrolled in this section
-            # Need to get AdmissionsStudent instances based on reg_no
-            for student in students:
-                # Find matching admissions student
-                admissions_student = AdmissionsStudent.objects.filter(
-                    reg_no=student.reg_no
-                ).first()
+            # Get all enrollments for this section with related students
+            enrollments = Enrollment.objects.filter(
+                section=section, student__reg_no__in=student_reg_nos
+            ).select_related('student')
 
-                if admissions_student:
-                    # Check if enrolled
-                    enrollment = Enrollment.objects.filter(
-                        section=section, student=admissions_student
-                    ).first()
-
-                    if enrollment:
-                        # Quiz score
-                        score_val = random.uniform(*score_range)
-                        quiz_score, created = AssessmentScore.objects.get_or_create(
-                            assessment=quiz,
-                            student=admissions_student,
-                            defaults={"score": score_val, "max_score": 100},
-                        )
-                        if created:
-                            scores.append(quiz_score)
+            # Create scores for enrolled students
+            for enrollment in enrollments:
+                # Quiz score
+                score_val = random.uniform(*score_range)
+                quiz_score, created = AssessmentScore.objects.get_or_create(
+                    assessment=quiz,
+                    student=enrollment.student,
+                    defaults={"score": score_val, "max_score": 100},
+                )
+                if created:
+                    scores.append(quiz_score)
 
         return scores
 
@@ -510,44 +526,72 @@ class DemoScenarioGenerator:
         return sessions
 
     def delete_demo_objects(self):
-        """Delete all objects created by this demo generator"""
+        """Delete all objects created by this demo generator
+        
+        Note: This method deletes objects in dependency order to avoid
+        ProtectedError. If demo objects are referenced by non-demo objects,
+        deletion will fail and an error will be logged.
+        """
         self.log("Deleting demo objects...")
 
-        # Delete in reverse dependency order
-        # First delete attendance which references students
-        Attendance.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
-        
-        # Delete enrollment which references students and sections
-        Enrollment.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
-        
-        # Delete results and exams
-        ResultComponentEntry.objects.filter(result_header__exam__title__startswith=self.demo_prefix).delete()
-        ResultHeader.objects.filter(exam__title__startswith=self.demo_prefix).delete()
-        ExamComponent.objects.filter(exam__title__startswith=self.demo_prefix).delete()
-        Exam.objects.filter(title__startswith=self.demo_prefix).delete()
+        from django.db.models.deletion import ProtectedError
 
-        # Delete finance records
-        Challan.objects.filter(challan_no__startswith=self.demo_prefix).delete()
-        StudentLedgerItem.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
-        Charge.objects.filter(title__startswith=self.demo_prefix).delete()
+        try:
+            # Delete in reverse dependency order
+            # First delete attendance which references students
+            Attendance.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
+            
+            # Delete enrollment which references students and sections
+            Enrollment.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
+            
+            # Delete results and exams
+            ResultComponentEntry.objects.filter(
+                result_header__exam__title__startswith=self.demo_prefix
+            ).delete()
+            ResultHeader.objects.filter(exam__title__startswith=self.demo_prefix).delete()
+            ExamComponent.objects.filter(exam__title__startswith=self.demo_prefix).delete()
+            Exam.objects.filter(title__startswith=self.demo_prefix).delete()
 
-        # Delete assessments
-        AssessmentScore.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
-        Assessment.objects.filter(section__name__startswith=self.demo_prefix).delete()
+            # Delete finance records
+            Challan.objects.filter(challan_no__startswith=self.demo_prefix).delete()
+            StudentLedgerItem.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
+            Charge.objects.filter(title__startswith=self.demo_prefix).delete()
 
-        # Delete sessions before faculty users (to avoid protected foreign key error)
-        Session.objects.filter(faculty__username__startswith=self.demo_prefix.lower()).delete()
-        
-        # Delete sections and courses
-        Section.objects.filter(name__startswith=self.demo_prefix).delete()
-        Course.objects.filter(code__startswith=self.demo_prefix).delete()
+            # Delete assessments
+            AssessmentScore.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
+            Assessment.objects.filter(section__name__startswith=self.demo_prefix).delete()
 
-        # Now safe to delete students (both models)
-        from sims_backend.students.models import Student as StudentsStudent
-        StudentsStudent.objects.filter(reg_no__startswith=self.demo_prefix).delete()
-        Student.objects.filter(reg_no__startswith=self.demo_prefix).delete()
-        
-        # Finally delete users
-        User.objects.filter(username__startswith=self.demo_prefix.lower()).delete()
+            # Delete sessions before faculty users (to avoid protected foreign key error)
+            # Only delete sessions where faculty is a demo user
+            demo_faculty_usernames = [
+                f"{self.demo_prefix.lower()}faculty{i}" for i in range(1, 10)
+            ]
+            Session.objects.filter(faculty__username__in=demo_faculty_usernames).delete()
+            
+            # Delete sections and courses
+            Section.objects.filter(name__startswith=self.demo_prefix).delete()
+            Course.objects.filter(code__startswith=self.demo_prefix).delete()
 
-        self.log("  ✓ Demo objects deleted")
+            # Now safe to delete students (both models)
+            from sims_backend.students.models import Student as StudentsStudent
+            StudentsStudent.objects.filter(reg_no__startswith=self.demo_prefix).delete()
+            Student.objects.filter(reg_no__startswith=self.demo_prefix).delete()
+            
+            # Finally delete users - only delete those with demo prefix
+            User.objects.filter(username__in=demo_faculty_usernames).delete()
+            demo_student_usernames = User.objects.filter(
+                username__startswith=f"{self.demo_prefix.lower()}student"
+            )
+            demo_student_usernames.delete()
+
+            self.log("  ✓ Demo objects deleted")
+            
+        except ProtectedError as e:
+            self.log(
+                f"  ⚠️  Warning: Some demo objects could not be deleted because "
+                f"they are referenced by non-demo objects: {e}"
+            )
+            raise
+        except Exception as e:
+            self.log(f"  ❌ Error deleting demo objects: {e}")
+            raise

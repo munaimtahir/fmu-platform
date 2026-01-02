@@ -1,6 +1,5 @@
 from decimal import Decimal
 
-from django.db import transaction
 from django.db.models import Sum
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend

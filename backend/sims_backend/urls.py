@@ -52,6 +52,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health_check, name="health"),
     path("healthz/", health_check, name="healthz"),  # Alias for health check
+    path("api/health/", health_check, name="api_health"),  # Requirement alias
     # New unified auth endpoints (canonical)
     path("api/auth/login/", UnifiedLoginView.as_view(), name="auth_login"),
     path("api/auth/logout/", LogoutView.as_view(), name="auth_logout"),

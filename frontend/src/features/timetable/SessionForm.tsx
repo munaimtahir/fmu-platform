@@ -1,7 +1,7 @@
 /**
  * Session Form Component
  */
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -38,7 +38,6 @@ interface SessionFormProps {
 }
 
 export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
-  const [selectedAcademicPeriod, setSelectedAcademicPeriod] = useState<string>('')
 
   // Fetch dropdown data
   const { data: academicPeriods } = useQuery({
@@ -93,7 +92,6 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
       setValue('group', String(session.group))
       setValue('faculty', String(session.faculty))
       setValue('department', String(session.department))
-      setSelectedAcademicPeriod(String(session.academic_period))
       if (session.starts_at) {
         setValue('starts_at', new Date(session.starts_at).toISOString().slice(0, 16))
       }
@@ -178,7 +176,6 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
                 value={watch('academic_period') || ''}
                 onChange={(value) => {
                   setValue('academic_period', value)
-                  setSelectedAcademicPeriod(value)
                 }}
                 error={errors.academic_period?.message}
                 required

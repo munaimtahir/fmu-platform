@@ -113,7 +113,7 @@ export function ImportUploader({
             'Preview Import'
           )}
         </Button>
-        <Button type="button" onClick={onReset} variant="outline">
+        <Button type="button" onClick={onReset} variant="secondary">
           Reset
         </Button>
       </div>

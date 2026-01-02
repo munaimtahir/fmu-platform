@@ -110,7 +110,7 @@ export function ImportHistoryTable({
         <div className="flex gap-2">
           <Button
             size="sm"
-            variant="outline"
+            variant="secondary"
             onClick={() => onViewDetails(job.id)}
           >
             Details
@@ -118,7 +118,7 @@ export function ImportHistoryTable({
           {job.error_report_file && (
             <Button
               size="sm"
-              variant="outline"
+              variant="secondary"
               onClick={() => onDownloadErrors(job.id)}
             >
               Errors
@@ -141,11 +141,11 @@ export function ImportHistoryTable({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Import History</h3>
-        <Button onClick={fetchJobs} variant="outline" size="sm">
+        <Button onClick={fetchJobs} variant="secondary" size="sm">
           Refresh
         </Button>
       </div>
-      <SimpleTable data={jobs} columns={columns} />
+      <SimpleTable data={jobs} columns={columns as any} keyField="id" />
     </div>
   )
 }

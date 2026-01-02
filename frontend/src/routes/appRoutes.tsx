@@ -32,6 +32,8 @@ import { DefaultersReportPage } from '@/pages/finance/DefaultersReportPage'
 import { CollectionReportPage } from '@/pages/finance/CollectionReportPage'
 import { AgingReportPage } from '@/pages/finance/AgingReportPage'
 import { StudentStatementPage } from '@/pages/finance/StudentStatementPage'
+import { VouchersPage } from '@/pages/finance/VouchersPage'
+import { PaymentsPage } from '@/pages/finance/PaymentsPage'
 import { TimetablePage } from '@/features/timetable/TimetablePage'
 
 /**

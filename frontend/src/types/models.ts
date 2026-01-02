@@ -226,6 +226,21 @@ export interface Attendance {
   status: 'Present' | 'Absent' | 'Late' | 'Excused'
 }
 
+// Timetable session
+export interface Session {
+  id: number
+  academic_period: number
+  academic_period_name?: string
+  group: number
+  group_name?: string
+  faculty: number
+  faculty_name?: string
+  department: number
+  department_name?: string
+  starts_at: string
+  ends_at: string
+}
+
 // Pagination response
 export interface PaginatedResponse<T> {
   count: number

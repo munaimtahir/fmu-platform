@@ -4,6 +4,7 @@
 - Student registry + admission file
 - Course/Term management
 - Attendance (web + CSV), Assessment & Results
+- Multi-channel attendance inputs (live tap form, CSV, scanned sheet) are now available under `/api/attendance-input/`.
 - Reports (attendance eligibility, defaulters, result summary)
 - RBAC, Audit log, Backups
 

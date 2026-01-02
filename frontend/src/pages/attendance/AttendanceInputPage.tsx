@@ -16,6 +16,33 @@ interface RosterStudent {
   status: string | null
 }
 
+interface CsvPreviewError {
+  row: number
+  message?: string
+  reg_no?: string
+}
+
+interface CsvPreview {
+  job_id: number
+  matched: number
+  errors: CsvPreviewError[]
+  results?: Array<{
+    student_id: number
+    reg_no: string
+    name: string
+    status: string
+  }>
+}
+
+interface SheetPreviewRecord {
+  student_id: number
+  reg_no: string
+  name: string
+  detected_status: string
+}
+
+type SheetPreview = SheetPreviewRecord[]
+
 export function AttendanceInputPage() {
   const today = useMemo(() => new Date().toISOString().split('T')[0], [])
   const [activeTab, setActiveTab] = useState<TabKey>('live')
@@ -27,11 +54,11 @@ export function AttendanceInputPage() {
 
   // CSV state
   const [csvFile, setCsvFile] = useState<File | null>(null)
-  const [csvPreview, setCsvPreview] = useState<any>(null)
+  const [csvPreview, setCsvPreview] = useState<CsvPreview | null>(null)
 
   // Sheet state
   const [sheetFile, setSheetFile] = useState<File | null>(null)
-  const [sheetPreview, setSheetPreview] = useState<any>(null)
+  const [sheetPreview, setSheetPreview] = useState<SheetPreview | null>(null)
   const [sheetJobId, setSheetJobId] = useState<number | null>(null)
   const [csvJobId, setCsvJobId] = useState<number | null>(null)
 
@@ -110,7 +137,9 @@ export function AttendanceInputPage() {
       })
       toast.success(`Saved attendance for ${result.total} students`)
     } catch (err) {
-      toast.error('Unable to submit attendance')
+      console.error('Error submitting live attendance:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Unable to submit attendance'
+      toast.error(errorMessage)
     }
   }
 
@@ -129,7 +158,9 @@ export function AttendanceInputPage() {
       setCsvJobId(preview.job_id)
       toast.success('CSV validated')
     } catch (err) {
-      toast.error('CSV dry-run failed')
+      console.error('Error in CSV dry-run:', err)
+      const errorMessage = err instanceof Error ? err.message : 'CSV dry-run failed'
+      toast.error(errorMessage)
     }
   }
 
@@ -142,7 +173,9 @@ export function AttendanceInputPage() {
       await attendanceInputService.csvCommit(csvJobId)
       toast.success('CSV attendance committed')
     } catch (err) {
-      toast.error('CSV commit failed')
+      console.error('Error committing CSV:', err)
+      const errorMessage = err instanceof Error ? err.message : 'CSV commit failed'
+      toast.error(errorMessage)
     }
   }
 
@@ -161,7 +194,9 @@ export function AttendanceInputPage() {
       setSheetJobId(preview.job_id)
       toast.success('Scan analyzed')
     } catch (err) {
-      toast.error('Scan dry-run failed')
+      console.error('Error analyzing sheet:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Scan dry-run failed'
+      toast.error(errorMessage)
     }
   }
 
@@ -171,7 +206,7 @@ export function AttendanceInputPage() {
       return
     }
     const records =
-      sheetPreview?.map((row: any) => ({
+      sheetPreview?.map((row: SheetPreviewRecord) => ({
         student_id: row.student_id,
         status: row.detected_status === 'ABSENT' ? 'A' : 'P',
       })) || []
@@ -179,7 +214,9 @@ export function AttendanceInputPage() {
       await attendanceInputService.sheetCommit(sheetJobId, records)
       toast.success('Scanned attendance committed')
     } catch (err) {
-      toast.error('Sheet commit failed')
+      console.error('Error committing sheet:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Sheet commit failed'
+      toast.error(errorMessage)
     }
   }
 
@@ -318,7 +355,7 @@ export function AttendanceInputPage() {
                     <p>Errors: {csvPreview.errors?.length || 0}</p>
                     {csvPreview.errors?.length > 0 && (
                       <ul className="mt-2 list-disc space-y-1 pl-5">
-                        {csvPreview.errors.map((err: any, idx: number) => (
+                        {csvPreview.errors.map((err: CsvPreviewError, idx: number) => (
                           <li key={idx}>
                             Row {err.row}: {err.message || err.reg_no}
                           </li>
@@ -348,7 +385,7 @@ export function AttendanceInputPage() {
                 </div>
                 {sheetPreview && (
                   <div className="space-y-2">
-                    {sheetPreview.map((row: any) => (
+                    {sheetPreview.map((row: SheetPreviewRecord) => (
                       <div
                         key={row.student_id}
                         className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-2"

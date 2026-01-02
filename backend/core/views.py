@@ -253,11 +253,52 @@ def dashboard_stats(request):
         }
     elif in_group(user, "STUDENT"):
         # Student sees their own stats
-        # TODO: Link User to Student (for MVP, return basic stats)
-        stats = {
-            "message": "Student dashboard - link User to Student for detailed stats",
-            "note": "User-Student linking not yet implemented in MVP",
-        }
+        try:
+            student = user.student
+
+            # Attendance stats
+            present_count = Attendance.objects.filter(
+                student=student,
+                status__in=[Attendance.STATUS_PRESENT, Attendance.STATUS_LATE],
+            ).count()
+
+            total_attendance_records = Attendance.objects.filter(
+                student=student
+            ).count()
+
+            attendance_pct = 0
+            if total_attendance_records > 0:
+                attendance_pct = round(
+                    (present_count / total_attendance_records) * 100, 1
+                )
+
+            # Finance stats
+            pending_dues_count = StudentLedgerItem.objects.filter(
+                student=student, status=StudentLedgerItem.STATUS_PENDING
+            ).count()
+
+            # Results stats
+            published_results_count = ResultHeader.objects.filter(
+                student=student, status=ResultHeader.STATUS_PUBLISHED
+            ).count()
+
+            stats = {
+                "student_name": student.name,
+                "reg_no": student.reg_no,
+                "program": student.program.name,
+                "batch": student.batch.name,
+                "attendance_percentage": attendance_pct,
+                "classes_attended": present_count,
+                "pending_dues": pending_dues_count,
+                "published_results": published_results_count,
+            }
+        except Exception as e:
+            # Handle case where User is not linked to Student or other errors
+            logger.error(f"Error fetching student stats for user {user.username}: {e}")
+            stats = {
+                "message": "No student record linked to your account.",
+                "note": "Please contact the administrator.",
+            }
     elif in_group(user, "OFFICE_ASSISTANT"):
         # Office Assistant sees data-entry relevant stats
         stats = {

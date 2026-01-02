@@ -13,6 +13,7 @@ from sims_backend.finance.services import (
     approve_adjustment,
     compute_student_balance,
     create_voucher_from_feeplan,
+    finance_gate_checks,
     post_payment,
     verify_payment,
 )
@@ -201,7 +202,6 @@ def test_transcript_allowed_when_dues_paid(finance_setup):
     ).voucher
     
     # Pay the voucher
-    from sims_backend.finance.services import post_payment, verify_payment
     payment = post_payment(
         student=finance_setup["student"],
         term=finance_setup["term"],
@@ -237,7 +237,6 @@ def test_finance_policy_blocks_results(finance_setup):
     )
 
     # Test the finance_gate_checks function directly
-    from sims_backend.finance.services import finance_gate_checks
     gate = finance_gate_checks(finance_setup["student"], finance_setup["term"])
     gating = gate.get("gating", {})
     assert gating.get("can_view_results") is False, "Results should be blocked when dues exist"

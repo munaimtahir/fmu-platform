@@ -16,7 +16,7 @@ export const RequestsPage: React.FC = () => {
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['requests', search],
-    queryFn: () => requestsService.getAll({ search, page_size: 100 }),
+    queryFn: () => requestsService.getAll({ search }),
   })
 
   const columns = useMemo<ColumnDef<Request>[]>(
@@ -104,7 +104,6 @@ export const RequestsPage: React.FC = () => {
           <DataTable
             data={requests}
             columns={columns}
-            searchKey="student_name"
           />
         )}
       </PageShell>

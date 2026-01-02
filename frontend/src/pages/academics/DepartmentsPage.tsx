@@ -78,7 +78,6 @@ export const DepartmentsPage: React.FC = () => {
           <DataTable
             data={departments.filter(d => !search || d.name.toLowerCase().includes(search.toLowerCase()))}
             columns={columns}
-            searchKey="name"
           />
         )}
       </PageShell>

@@ -48,6 +48,7 @@ import { ExamsPage } from '@/pages/exams/ExamsPage'
 import { ResultsPage } from '@/pages/results/ResultsPage'
 import { RequestsPage } from '@/pages/requests/RequestsPage'
 import { TranscriptsPage } from '@/pages/transcripts/TranscriptsPage'
+// UnauthorizedPage is imported dynamically in ProtectedRoute to avoid circular dependencies
 
 /**
  * Application routes configuration

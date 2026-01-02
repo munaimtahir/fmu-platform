@@ -78,7 +78,6 @@ export const GroupsPage: React.FC = () => {
           <DataTable
             data={groups.filter(g => !search || g.name.toLowerCase().includes(search.toLowerCase()))}
             columns={columns}
-            searchKey="name"
           />
         )}
       </PageShell>

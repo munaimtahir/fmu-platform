@@ -88,7 +88,6 @@ export const AcademicPeriodsPage: React.FC = () => {
           <DataTable
             data={periods.filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))}
             columns={columns}
-            searchKey="name"
           />
         )}
       </PageShell>

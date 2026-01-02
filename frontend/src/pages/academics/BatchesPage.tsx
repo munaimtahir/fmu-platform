@@ -16,7 +16,7 @@ export const BatchesPage: React.FC = () => {
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['batches', search],
-    queryFn: () => batchesService.getAll({ search, page_size: 100 }),
+    queryFn: () => batchesService.getAll({ search }),
   })
 
   const columns = useMemo<ColumnDef<Batch>[]>(
@@ -92,7 +92,6 @@ export const BatchesPage: React.FC = () => {
           <DataTable
             data={batches}
             columns={columns}
-            searchKey="name"
           />
         )}
       </PageShell>

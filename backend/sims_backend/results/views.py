@@ -37,8 +37,9 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             queryset = queryset.filter(status='PUBLISHED')
             # Filter to student's own records via user link
-            if hasattr(user, 'student') and user.student:
-                queryset = queryset.filter(student=user.student)
+            student = getattr(user, 'student', None)
+            if student:
+                queryset = queryset.filter(student=student)
             else:
                 # No student record linked, return empty queryset
                 queryset = queryset.none()
@@ -83,15 +84,8 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='me')
     def me(self, request):
         """Student's own results (published only)"""
-        user = request.user
+        # get_queryset() already applies student-specific filtering
         queryset = self.get_queryset().filter(status='PUBLISHED')
-        
-        # Filter to student's own records
-        if hasattr(user, 'student') and user.student:
-            queryset = queryset.filter(student=user.student)
-        else:
-            queryset = queryset.none()
-            
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 

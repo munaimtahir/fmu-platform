@@ -10,6 +10,9 @@ from django.utils import timezone
 
 from core.models import TimeStampedModel
 
+# Maximum allowed voucher amount to prevent database overflow
+MAX_VOUCHER_AMOUNT = Decimal("9999999999.99")
+
 
 class FeeType(TimeStampedModel):
     """Reference table for fee categories (tuition, exam, library, etc.)."""
@@ -124,7 +127,7 @@ class Voucher(TimeStampedModel):
     total_amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,
-        validators=[MinValueValidator(0), MaxValueValidator(Decimal("9999999999.99"))],
+        validators=[MinValueValidator(0), MaxValueValidator(MAX_VOUCHER_AMOUNT)],
         help_text="Snapshot total for printing (truth derived from ledger)",
     )
     notes = models.TextField(blank=True)

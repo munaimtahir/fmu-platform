@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import api, { setTokens, clearTokens, getAccessToken, getRefreshToken } from './axios'
+import { env } from '@/lib/env'
 
 describe('axios setup and token management', () => {
   beforeEach(() => {
@@ -41,8 +42,8 @@ describe('axios setup and token management', () => {
   })
 
   describe('API instance', () => {
-    it('should have a relative base URL', () => {
-      expect(api.defaults.baseURL).toBe('')
+    it('should use configured base URL', () => {
+      expect(api.defaults.baseURL).toBe(env.apiBaseUrl)
     })
 
     it('should have JSON content type header', () => {

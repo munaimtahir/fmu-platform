@@ -2,6 +2,7 @@
 
 import logging
 
+from django.db.models import Sum
 from rest_framework import status
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.decorators import api_view, permission_classes
@@ -15,7 +16,7 @@ from sims_backend.academics.models import Batch, Group, Program
 from sims_backend.attendance.models import Attendance
 from sims_backend.common_permissions import in_group
 from sims_backend.exams.models import Exam
-from sims_backend.finance.models import Challan, Charge, StudentLedgerItem
+from sims_backend.finance.models import LedgerEntry, Payment, Voucher
 from sims_backend.results.models import ResultHeader
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
@@ -214,6 +215,18 @@ def dashboard_stats(request):
     # MVP stats based on new models
     if user.is_superuser or in_group(user, "ADMIN") or in_group(user, "COORDINATOR"):
         # Admin/Coordinator sees all statistics
+        debit_total = (
+            LedgerEntry.objects.filter(entry_type=LedgerEntry.ENTRY_DEBIT, voided_at__isnull=True).aggregate(
+                total=Sum("amount")
+            )["total"]
+            or 0
+        )
+        credit_total = (
+            LedgerEntry.objects.filter(entry_type=LedgerEntry.ENTRY_CREDIT, voided_at__isnull=True).aggregate(
+                total=Sum("amount")
+            )["total"]
+            or 0
+        )
         stats = {
             "total_students": Student.objects.filter(status="active").count(),
             "total_programs": Program.objects.filter(is_active=True).count(),
@@ -223,8 +236,9 @@ def dashboard_stats(request):
             "total_exams": Exam.objects.count(),
             "published_results": ResultHeader.objects.filter(status="PUBLISHED").count(),
             "draft_results": ResultHeader.objects.filter(status="DRAFT").count(),
-            "total_charges": Charge.objects.count(),
-            "pending_ledger_items": StudentLedgerItem.objects.filter(status="PENDING").count(),
+            "total_vouchers": Voucher.objects.count(),
+            "verified_payments": Payment.objects.filter(status="verified").count(),
+            "finance_outstanding": float(debit_total - credit_total),
         }
     elif in_group(user, "FACULTY"):
         # Faculty sees only their own sessions and students
@@ -244,12 +258,24 @@ def dashboard_stats(request):
         }
     elif in_group(user, "FINANCE"):
         # Finance sees finance-related statistics
+        debit_total = (
+            LedgerEntry.objects.filter(entry_type=LedgerEntry.ENTRY_DEBIT, voided_at__isnull=True).aggregate(
+                total=Sum("amount")
+            )["total"]
+            or 0
+        )
+        credit_total = (
+            LedgerEntry.objects.filter(entry_type=LedgerEntry.ENTRY_CREDIT, voided_at__isnull=True).aggregate(
+                total=Sum("amount")
+            )["total"]
+            or 0
+        )
         stats = {
-            "total_charges": Charge.objects.count(),
-            "pending_ledger_items": StudentLedgerItem.objects.filter(status="PENDING").count(),
-            "paid_ledger_items": StudentLedgerItem.objects.filter(status="PAID").count(),
-            "total_challans": Challan.objects.count(),
-            "pending_challans": Challan.objects.filter(status="PENDING").count(),
+            "total_vouchers": Voucher.objects.count(),
+            "payments_recorded": Payment.objects.count(),
+            "finance_outstanding": float(debit_total - credit_total),
+            "paid_vouchers": Voucher.objects.filter(status="paid").count(),
+            "overdue_vouchers": Voucher.objects.filter(status="overdue").count(),
         }
     elif in_group(user, "STUDENT"):
         # Student sees their own stats

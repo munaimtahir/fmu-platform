@@ -462,3 +462,26 @@ Standard error response format:
 - `404` - Not Found
 - `409` - Conflict (e.g., duplicate enrollment)
 - `500` - Server Error
+
+---
+
+## Finance Module (new)
+Key endpoints (all require authentication; finance/admin unless noted):
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/finance/fee-types/` | GET/POST/PATCH | Manage reference fee codes |
+| `/api/finance/fee-plans/` | GET/POST/PATCH | Configure fee amounts per program/term |
+| `/api/finance/vouchers/` | GET/POST | List/create vouchers; status derived from ledger |
+| `/api/finance/vouchers/generate/` | POST | Bulk generate vouchers from fee plans |
+| `/api/finance/vouchers/{id}/pdf/` | GET | Download voucher PDF |
+| `/api/finance/payments/` | POST | Record a payment (received) |
+| `/api/finance/payments/{id}/verify/` | POST | Verify/reject payment and post ledger credit |
+| `/api/finance/payments/{id}/pdf/` | GET | Download payment receipt PDF |
+| `/api/finance/ledger/` | GET | Read-only ledger entries (students see their own) |
+| `/api/finance/adjustments/` | GET/POST | Waivers/scholarships/adjustments; approve to credit ledger |
+| `/api/finance/policies/` | GET/POST | Configure finance gates (transcripts/results) |
+| `/api/finance/students/{id}/` | GET | Finance summary + gating flags for a student |
+| `/api/finance/reports/defaulters/` | POST | List students above threshold outstanding |
+
+Finance errors follow the `{ "error": { "code": "...", "message": "..." } }` envelope (e.g., `FINANCE_BLOCKED` for gates).

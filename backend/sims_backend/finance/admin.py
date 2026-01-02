@@ -1,51 +1,67 @@
 from django.contrib import admin
 
-from sims_backend.finance.models import Challan, Charge, ChargeTemplate, PaymentLog, StudentLedgerItem
+from sims_backend.finance.models import (
+    Adjustment,
+    FeePlan,
+    FeeType,
+    FinancePolicy,
+    LedgerEntry,
+    Payment,
+    Voucher,
+    VoucherItem,
+)
 
 
-@admin.register(ChargeTemplate)
-class ChargeTemplateAdmin(admin.ModelAdmin):
-    list_display = ['title_template', 'default_amount', 'frequency_unit', 'frequency_interval', 'auto_generate_mode']
-    list_filter = ['frequency_unit', 'auto_generate_mode']
-    search_fields = ['title_template']
+@admin.register(FeeType)
+class FeeTypeAdmin(admin.ModelAdmin):
+    list_display = ("code", "name", "is_active", "created_at")
+    list_filter = ("is_active",)
+    search_fields = ("code", "name")
 
 
-@admin.register(Charge)
-class ChargeAdmin(admin.ModelAdmin):
-    list_display = ['title', 'amount', 'due_date', 'academic_period', 'template']
-    list_filter = ['due_date', 'academic_period']
-    search_fields = ['title']
-    ordering = ['-due_date']
+@admin.register(FeePlan)
+class FeePlanAdmin(admin.ModelAdmin):
+    list_display = ("program", "term", "fee_type", "amount", "is_mandatory", "is_active")
+    list_filter = ("program", "term", "fee_type", "is_active")
+    search_fields = ("program__name", "term__name", "fee_type__code")
 
 
-@admin.register(StudentLedgerItem)
-class StudentLedgerItemAdmin(admin.ModelAdmin):
-    list_display = ['student', 'charge', 'status', 'created_at']
-    list_filter = ['status', 'charge', 'created_at']
-    search_fields = ['student__reg_no', 'student__name', 'charge__title']
-    ordering = ['student', '-charge__due_date']
-
-
-class PaymentLogInline(admin.TabularInline):
-    model = PaymentLog
+class VoucherItemInline(admin.TabularInline):
+    model = VoucherItem
     extra = 0
-    fields = ['received', 'amount_received', 'received_at', 'received_by', 'remarks']
-    readonly_fields = ['received_at']
 
 
-@admin.register(Challan)
-class ChallanAdmin(admin.ModelAdmin):
-    list_display = ['challan_no', 'student', 'ledger_item', 'amount_total', 'status']
-    list_filter = ['status', 'created_at']
-    search_fields = ['challan_no', 'student__reg_no', 'student__name']
-    ordering = ['-created_at']
-    inlines = [PaymentLogInline]
+@admin.register(Voucher)
+class VoucherAdmin(admin.ModelAdmin):
+    list_display = ("voucher_no", "student", "term", "status", "total_amount", "due_date")
+    list_filter = ("status", "term")
+    search_fields = ("voucher_no", "student__reg_no", "student__name")
+    inlines = [VoucherItemInline]
 
 
-@admin.register(PaymentLog)
-class PaymentLogAdmin(admin.ModelAdmin):
-    list_display = ['challan', 'received', 'amount_received', 'received_at', 'received_by']
-    list_filter = ['received', 'received_at']
-    search_fields = ['challan__challan_no', 'challan__student__reg_no']
-    ordering = ['-received_at']
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ("receipt_no", "student", "term", "amount", "method", "status", "received_at")
+    list_filter = ("method", "status", "term")
+    search_fields = ("receipt_no", "student__reg_no")
 
+
+@admin.register(Adjustment)
+class AdjustmentAdmin(admin.ModelAdmin):
+    list_display = ("student", "term", "kind", "amount", "status", "approved_at")
+    list_filter = ("kind", "status", "term")
+    search_fields = ("student__reg_no", "student__name")
+
+
+@admin.register(LedgerEntry)
+class LedgerEntryAdmin(admin.ModelAdmin):
+    list_display = ("student", "term", "entry_type", "amount", "reference_type", "reference_id", "created_at")
+    list_filter = ("entry_type", "reference_type", "term")
+    search_fields = ("student__reg_no", "reference_id")
+
+
+@admin.register(FinancePolicy)
+class FinancePolicyAdmin(admin.ModelAdmin):
+    list_display = ("rule_key", "threshold_amount", "fee_type", "is_active")
+    list_filter = ("is_active",)
+    search_fields = ("rule_key",)

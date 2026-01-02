@@ -20,6 +20,10 @@ const navigationItems: NavItem[] = [
   { label: 'Attendance', path: '/attendance', icon: '✅', roles: ['Admin', 'Faculty'] },
   { label: 'Bulk Attendance', path: '/attendance/bulk', icon: '✏️', roles: ['Admin', 'Faculty'] },
   { label: 'Gradebook', path: '/gradebook', icon: '📖', roles: ['Admin', 'Faculty', 'Student'] },
+  { label: 'Finance', path: '/finance', icon: '💰', roles: ['Admin', 'Finance'] },
+  { label: 'Fee Plans', path: '/finance/fee-plans', icon: '🧾', roles: ['Admin', 'Finance'] },
+  { label: 'Voucher Generation', path: '/finance/vouchers', icon: '🪙', roles: ['Admin', 'Finance'] },
+  { label: 'My Fees', path: '/finance/me', icon: '💳', roles: ['Student'] },
   { label: 'DataTable Demo', path: '/demo/datatable', icon: '🧪', roles: [] },
 ]
 

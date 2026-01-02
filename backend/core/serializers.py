@@ -31,10 +31,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     full_name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
+    student_id = serializers.IntegerField(source="student.id", read_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "full_name", "role", "is_active"]
+        fields = ["id", "username", "email", "full_name", "role", "student_id", "is_active"]
         read_only_fields = fields
 
     def get_full_name(self, obj):
@@ -46,11 +47,9 @@ class UserSerializer(serializers.ModelSerializer):
         """Get user's primary role based on groups."""
         if obj.is_superuser:
             return "Admin"
-        # Check group memberships
-        groups = obj.groups.values_list("name", flat=True)
-        # Return first matching role in priority order
-        for role in ["Admin", "Registrar", "ExamCell", "Faculty", "Student"]:
-            if role in groups:
+        groups = list(obj.groups.values_list("name", flat=True))
+        for role in ["Admin", "Registrar", "Finance", "ExamCell", "Faculty", "Student"]:
+            if role in groups or role.upper() in groups:
                 return role
         return "User"
 

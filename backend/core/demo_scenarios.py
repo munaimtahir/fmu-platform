@@ -17,7 +17,8 @@ from django.utils import timezone
 from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group, Program
 from sims_backend.attendance.models import Attendance
 from sims_backend.exams.models import Exam, ExamComponent
-from sims_backend.finance.models import Challan, Charge, StudentLedgerItem
+from sims_backend.finance.models import FeePlan, FeeType, Voucher
+from sims_backend.finance.services import create_voucher_from_feeplan
 from sims_backend.results.models import ResultComponentEntry, ResultHeader
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
@@ -291,55 +292,49 @@ def create_result_for_student(
     return result_header
 
 
-def create_challan_for_student(
+def ensure_demo_fee_plans(program: Program, term: AcademicPeriod) -> None:
+    """Ensure default fee types and plans exist for demo scenarios."""
+    tuition, _ = FeeType.objects.get_or_create(code="TUITION", defaults={"name": "Tuition Fee"})
+    exam, _ = FeeType.objects.get_or_create(code="EXAM", defaults={"name": "Exam Fee"})
+    library, _ = FeeType.objects.get_or_create(code="LIBRARY", defaults={"name": "Library Fee"})
+
+    for fee_type, amount in [(tuition, Decimal("50000.00")), (exam, Decimal("5000.00")), (library, Decimal("2000.00"))]:
+        FeePlan.objects.get_or_create(
+            program=program,
+            term=term,
+            fee_type=fee_type,
+            defaults={"amount": amount, "is_mandatory": True, "frequency": FeePlan.FREQ_PER_TERM},
+        )
+
+
+def create_voucher_for_student(
     student: Student,
     academic_period: AcademicPeriod,
     amount: Decimal = Decimal("50000.00"),
-) -> Challan:
-    """Create a fee challan for a student."""
-    # Create charge if needed
-    charge, _ = Charge.objects.get_or_create(
-        title=f"{DEMO_TAG_PREFIX}Tuition Fee - {academic_period.name}",
-        academic_period=academic_period,
-        defaults={
-            "amount": amount,
-            "due_date": date.today() + timedelta(days=30),
-        }
-    )
-    
-    # Create ledger item
-    ledger_item, _ = StudentLedgerItem.objects.get_or_create(
+) -> Voucher:
+    """Create a finance voucher for a student based on demo fee plans."""
+    ensure_demo_fee_plans(student.program, academic_period)
+    result = create_voucher_from_feeplan(
         student=student,
-        charge=charge,
-        defaults={"status": StudentLedgerItem.STATUS_PENDING}
+        term=academic_period,
+        created_by=None,
+        due_date=date.today() + timedelta(days=30),
     )
-    
-    # Check if challan already exists for this ledger item
-    challan = Challan.objects.filter(ledger_item=ledger_item).first()
-    if challan:
-        return challan
-    
-    # Create new challan
-    from sims_backend.finance.services import generate_challan_number
-    challan_no = generate_challan_number()
-    
-    challan = Challan.objects.create(
-        challan_no=challan_no,
-        student=student,
-        ledger_item=ledger_item,
-        amount_total=amount,
-        status=Challan.STATUS_PENDING,
-    )
-    
-    return challan
+    return result.voucher
 
 
 def delete_demo_objects():
     """Delete all objects tagged with DEMO_ prefix."""
     # Delete in reverse dependency order
-    Challan.objects.filter(challan_no__startswith=DEMO_TAG_PREFIX).delete()
-    StudentLedgerItem.objects.filter(charge__title__startswith=DEMO_TAG_PREFIX).delete()
-    Charge.objects.filter(title__startswith=DEMO_TAG_PREFIX).delete()
+    from sims_backend.finance.models import Adjustment, FinancePolicy, LedgerEntry, Payment
+
+    LedgerEntry.objects.all().delete()
+    Payment.objects.all().delete()
+    Adjustment.objects.all().delete()
+    Voucher.objects.all().delete()
+    FeePlan.objects.filter(fee_type__code__in=["TUITION", "EXAM", "LIBRARY"]).delete()
+    FinancePolicy.objects.filter(rule_key__startswith="BLOCK_").delete()
+    FeeType.objects.filter(code__in=["TUITION", "EXAM", "LIBRARY"]).delete()
     
     ResultComponentEntry.objects.filter(result_header__exam__title__startswith=DEMO_TAG_PREFIX).delete()
     ResultHeader.objects.filter(exam__title__startswith=DEMO_TAG_PREFIX).delete()
@@ -348,8 +343,10 @@ def delete_demo_objects():
     Exam.objects.filter(title__startswith=DEMO_TAG_PREFIX).delete()
     
     Attendance.objects.filter(session__academic_period__name__startswith=DEMO_TAG_PREFIX).delete()
+    Session.objects.filter(group__name__startswith=DEMO_TAG_PREFIX).delete()
     Session.objects.filter(academic_period__name__startswith=DEMO_TAG_PREFIX).delete()
-    
+
+    Student.objects.filter(group__name__startswith=DEMO_TAG_PREFIX).delete()
     Student.objects.filter(reg_no__contains=DEMO_TAG_PREFIX).delete()
     Group.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()
     Batch.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()

@@ -13,8 +13,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from sims_backend.admissions.models import Student
-from sims_backend.results.models import Result
+from sims_backend.common_permissions import in_group
+from sims_backend.students.models import Student
+from sims_backend.finance.services import finance_gate_checks
+from sims_backend.results.models import ResultHeader
 
 # Token expires after 48 hours
 TOKEN_MAX_AGE = 48 * 60 * 60
@@ -79,28 +81,28 @@ def generate_transcript_pdf(student: Student) -> io.BytesIO:
     story.append(Spacer(1, 0.25 * inch))
 
     # Results
-    results = Result.objects.filter(student=student, is_published=True).select_related(
-        "section__course"
+    results = ResultHeader.objects.filter(student=student, status=ResultHeader.STATUS_PUBLISHED).select_related(
+        "exam__academic_period"
     )
 
     if results.exists():
-        story.append(Paragraph("<b>Course Results</b>", styles["Heading2"]))
+        story.append(Paragraph("<b>Exam Results</b>", styles["Heading2"]))
         story.append(Spacer(1, 0.1 * inch))
 
-        result_data = [["Course Code", "Course Title", "Term", "Grade"]]
+        result_data = [["Exam", "Term", "Total", "Outcome"]]
 
         for result in results:
             result_data.append(
                 [
-                    result.section.course.code,
-                    result.section.course.title,
-                    result.section.term,
-                    result.final_grade,
+                    result.exam.title,
+                    getattr(result.exam.academic_period, "name", ""),
+                    f"{result.total_obtained} / {result.total_max}",
+                    result.get_final_outcome_display(),
                 ]
             )
 
         result_table = Table(
-            result_data, colWidths=[1.5 * inch, 3 * inch, 1 * inch, 1 * inch]
+            result_data, colWidths=[2.5 * inch, 2 * inch, 1 * inch, 1 * inch]
         )
         result_table.setStyle(
             TableStyle(
@@ -155,6 +157,27 @@ def get_transcript(request, student_id: int):
             {"error": {"code": 404, "message": "Student not found"}}, status=404
         )
 
+    if in_group(request.user, "STUDENT") and getattr(request.user, "student", None) != student:
+        return Response(
+            {"error": {"code": "FORBIDDEN", "message": "You can only access your own transcript"}},
+            status=403,
+        )
+
+    gate = finance_gate_checks(student, None)
+    gating = gate.get("gating", {})
+    if gating and not gating.get("can_view_transcript", True):
+        return Response(
+            {
+                "error": {
+                    "code": "FINANCE_BLOCKED",
+                    "message": "Transcript generation blocked due to outstanding dues",
+                    "reasons": gating.get("reasons", []),
+                    "outstanding": gate.get("outstanding"),
+                }
+            },
+            status=403,
+        )
+
     # Generate PDF
     pdf_buffer = generate_transcript_pdf(student)
 
@@ -197,10 +220,31 @@ def enqueue_transcript_generation(request):
 
     # Check if student exists
     try:
-        Student.objects.get(id=student_id)
+        student = Student.objects.get(id=student_id)
     except Student.DoesNotExist:
         return Response(
             {"error": {"code": 404, "message": "Student not found"}}, status=404
+        )
+
+    if in_group(request.user, "STUDENT") and getattr(request.user, "student", None) != student:
+        return Response(
+            {"error": {"code": "FORBIDDEN", "message": "You can only access your own transcript"}},
+            status=403,
+        )
+
+    gate = finance_gate_checks(student, None)
+    gating = gate.get("gating", {})
+    if gating and not gating.get("can_view_transcript", True):
+        return Response(
+            {
+                "error": {
+                    "code": "FINANCE_BLOCKED",
+                    "message": "Transcript request blocked due to outstanding dues",
+                    "reasons": gating.get("reasons", []),
+                    "outstanding": gate.get("outstanding"),
+                }
+            },
+            status=403,
         )
 
     # Enqueue the job

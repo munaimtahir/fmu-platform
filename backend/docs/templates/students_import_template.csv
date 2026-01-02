@@ -1,0 +1,2 @@
+reg_no,name,program_name,batch_name,group_name,status,email,phone,date_of_birth
+STU001,John Doe,MBBS,2024 Batch,Group A,active,john.doe@example.com,+1234567890,2000-01-15

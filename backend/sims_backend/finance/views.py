@@ -39,9 +39,12 @@ from sims_backend.finance.serializers import (
 from sims_backend.finance.services import (
     aging_report,
     approve_adjustment,
+<<<<<<< HEAD
     cancel_voucher,
     collection_report,
     compute_student_balance,
+=======
+>>>>>>> 7e0be1a6e4574a7174d5cfda368fbd49a84c021d
     create_voucher_from_feeplan,
     generate_voucher_number as create_voucher_number,
     defaulters,
@@ -104,6 +107,13 @@ class VoucherViewSet(viewsets.ModelViewSet):
                 return qs.none()
             qs = qs.filter(student=student)
         return qs
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        # Skip balance calculation for list views to avoid N+1 queries
+        if self.action == 'list':
+            context['skip_balance'] = True
+        return context
 
     def create(self, request, *args, **kwargs):
         if not _finance_only(request.user):
@@ -358,8 +368,17 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
             except AcademicPeriod.DoesNotExist:
                 return Response({"error": {"code": "TERM_NOT_FOUND", "message": "Invalid term"}}, status=404)
 
-        summary = finance_gate_checks(student, term or student.program.fee_plans.first().term if student.program.fee_plans.exists() else None)
-        voucher_statuses = {v.voucher_no: v.status for v in student.vouchers.filter(term=term) if term}
+        # Determine the term for finance checks
+        if not term and student.program:
+            # Fall back to first fee plan term if available
+            first_plan = student.program.fee_plans.first()
+            if first_plan:
+                term = first_plan.term
+
+        summary = finance_gate_checks(student, term)
+        voucher_statuses = {}
+        if term:
+            voucher_statuses = {v.voucher_no: v.status for v in student.vouchers.filter(term=term)}
         payload = {
             "student_id": student.id,
             "term_id": term.id if term else None,

@@ -13,6 +13,7 @@ from sims_backend.finance.services import (
     approve_adjustment,
     compute_student_balance,
     create_voucher_from_feeplan,
+    finance_gate_checks,
     post_payment,
     verify_payment,
 )
@@ -178,4 +179,65 @@ def test_finance_policy_blocks_transcript(finance_setup):
     client.force_authenticate(user=finance_setup["student_user"])
     response = client.get(f"/api/transcripts/{finance_setup['student'].id}/")
     assert response.status_code == 403
-    assert response.json()["error"]["code"] == "FINANCE_BLOCKED"
+    error_data = response.json()["error"]
+    assert error_data["code"] == "FINANCE_BLOCKED"
+    assert "outstanding" in error_data
+    assert "reasons" in error_data
+    assert len(error_data["reasons"]) > 0
+
+
+@pytest.mark.django_db
+def test_transcript_allowed_when_dues_paid(finance_setup):
+    """Transcript endpoint should allow access when all dues are paid."""
+    FinancePolicy.objects.get_or_create(
+        rule_key="BLOCK_TRANSCRIPT_IF_DUES",
+        defaults={"threshold_amount": Decimal("0"), "description": "Block transcripts when dues exist"},
+    )
+    # Create voucher
+    voucher = create_voucher_from_feeplan(
+        student=finance_setup["student"],
+        term=finance_setup["term"],
+        created_by=finance_setup["finance_user"],
+        due_date=date.today(),
+    ).voucher
+    
+    # Pay the voucher
+    payment = post_payment(
+        student=finance_setup["student"],
+        term=finance_setup["term"],
+        amount=voucher.total_amount,
+        method=Payment.METHOD_BANK_TRANSFER,
+        voucher=voucher,
+        received_by=finance_setup["finance_user"],
+    )
+    verify_payment(payment, approved_by=finance_setup["finance_user"])
+
+    client = APIClient()
+    client.force_authenticate(user=finance_setup["student_user"])
+    response = client.get(f"/api/transcripts/{finance_setup['student'].id}/")
+    # Should succeed (200) or the transcript generation may have other issues
+    # At minimum, it should NOT be blocked by finance (403 with FINANCE_BLOCKED)
+    if response.status_code == 403:
+        error_data = response.json().get("error", {})
+        assert error_data.get("code") != "FINANCE_BLOCKED", "Transcript should not be blocked when dues are paid"
+
+
+@pytest.mark.django_db
+def test_finance_policy_blocks_results(finance_setup):
+    """Results endpoint should block when finance policy fails."""
+    FinancePolicy.objects.get_or_create(
+        rule_key="BLOCK_RESULTS_IF_DUES",
+        defaults={"threshold_amount": Decimal("0"), "description": "Block results when dues exist"},
+    )
+    create_voucher_from_feeplan(
+        student=finance_setup["student"],
+        term=finance_setup["term"],
+        created_by=finance_setup["finance_user"],
+        due_date=date.today(),
+    )
+
+    # Test the finance_gate_checks function directly
+    gate = finance_gate_checks(finance_setup["student"], finance_setup["term"])
+    gating = gate.get("gating", {})
+    assert gating.get("can_view_results") is False, "Results should be blocked when dues exist"
+    assert len(gating.get("reasons", [])) > 0

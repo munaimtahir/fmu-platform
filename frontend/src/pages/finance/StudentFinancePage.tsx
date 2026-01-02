@@ -10,6 +10,7 @@ export const StudentFinancePage: React.FC = () => {
   const [summary, setSummary] = useState<FinanceSummary | null>(null)
   const [vouchers, setVouchers] = useState<Voucher[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -17,11 +18,18 @@ export const StudentFinancePage: React.FC = () => {
         setLoading(false)
         return
       }
-      const data = await financeService.getStudentSummary(user.student_id)
-      const voucherList = await financeService.listVouchers({ student: user.student_id })
-      setSummary(data)
-      setVouchers(voucherList)
-      setLoading(false)
+      try {
+        const data = await financeService.getStudentSummary(user.student_id)
+        const voucherList = await financeService.listVouchers({ student: user.student_id })
+        setSummary(data)
+        setVouchers(voucherList)
+        setError(null)
+      } catch (err) {
+        setError('Failed to load finance information. Please try again later.')
+        console.error('Error loading student finance data:', err)
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [user])
@@ -44,6 +52,10 @@ export const StudentFinancePage: React.FC = () => {
 
         {loading ? (
           <p className="text-gray-500">Loading...</p>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
         ) : (
           <>
             {summary && (

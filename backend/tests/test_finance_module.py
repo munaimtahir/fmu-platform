@@ -203,11 +203,11 @@ def test_transcript_allowed_when_dues_paid(finance_setup):
     # Pay the voucher
     from sims_backend.finance.services import post_payment, verify_payment
     payment = post_payment(
-        voucher=voucher,
+        student=finance_setup["student"],
+        term=finance_setup["term"],
         amount=voucher.total_amount,
-        payment_date=date.today(),
-        payment_method="BANK_TRANSFER",
-        transaction_ref="TEST123",
+        method=Payment.METHOD_BANK_TRANSFER,
+        voucher=voucher,
         received_by=finance_setup["finance_user"],
     )
     verify_payment(payment, approved_by=finance_setup["finance_user"])

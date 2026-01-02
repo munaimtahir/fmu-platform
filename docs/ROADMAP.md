@@ -9,7 +9,7 @@
 - RBAC, Audit log, Backups
 
 ## Phase 2 (8 weeks): Operations & Integrations
-- Fee management
+- Fee management ✅ (finance module shipped with vouchers/payments/ledger/policies)
 - Notifications (Email/WhatsApp/SMS)
 - Clinical rotations & logbook (medical programs)
 - Google Workspace provisioning

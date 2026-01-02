@@ -251,18 +251,9 @@ class Command(BaseCommand):
             generator.create_attendance_records(
                 [student], sessions, attendance_percentage=88
             )
-        generator.create_assessment_scores(bucket8_students, sections, score_range=(75, 90))
-        generator.create_exam_and_results(
-            bucket8_students,
-            academic_period,
-            departments[0],
-            ResultHeader.STATUS_PUBLISHED,
-        )
-        for student in bucket8_students:
-            generator.create_fee_voucher(student, academic_period)
-        self.stdout.write(
-            f"  ✓ Bucket 8 (FEES_VOUCHER_GENERATED): {len(bucket8_students)} students"
-        )
+            # Create voucher
+            create_voucher_for_student(student, academic_period, amount=Decimal("50000.00"))
+            students_by_scenario["FEES_VOUCHER_GENERATED"].append((student, user))
 
         # Print summary
         self._print_summary(

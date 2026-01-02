@@ -21,7 +21,7 @@ from sims_backend.academics.models import (
 )
 from sims_backend.attendance.models import Attendance
 from sims_backend.exams.models import Exam
-from sims_backend.finance.models import Charge, StudentLedgerItem
+from sims_backend.finance.models import LedgerEntry
 from sims_backend.results.models import ResultHeader
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
@@ -331,29 +331,26 @@ class TestFinancePermissions:
     def test_student_sees_only_own_ledger(
         self, api_client, student1_user, student2_user, student1, student2, setup_academic_structure
     ):
-        """Student should only see their own ledger items"""
-        # Create a charge
-        charge = Charge.objects.create(
-            title="Tuition Fee",
-            amount=50000,
-            due_date="2024-01-01",
-        )
-
-        # Create ledger items for both students
-        StudentLedgerItem.objects.create(
+        """Student should only see their own ledger entries"""
+        LedgerEntry.objects.create(
             student=student1,
-            charge=charge,
-            status=StudentLedgerItem.STATUS_PENDING,
+            term=setup_academic_structure["academic_period"],
+            entry_type=LedgerEntry.ENTRY_DEBIT,
+            amount=1000,
+            reference_type=LedgerEntry.REF_VOUCHER,
+            reference_id="v1",
         )
-        StudentLedgerItem.objects.create(
+        LedgerEntry.objects.create(
             student=student2,
-            charge=charge,
-            status=StudentLedgerItem.STATUS_PAID,
+            term=setup_academic_structure["academic_period"],
+            entry_type=LedgerEntry.ENTRY_DEBIT,
+            amount=2000,
+            reference_type=LedgerEntry.REF_VOUCHER,
+            reference_id="v2",
         )
 
-        # Student 1 logs in and queries ledger
         api_client.force_authenticate(user=student1_user)
-        response = api_client.get("/api/ledger/")
+        response = api_client.get("/api/finance/ledger/")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -373,7 +370,7 @@ class TestFinancePermissions:
         orphan_user.groups.add(Group.objects.get(name="STUDENT"))
 
         api_client.force_authenticate(user=orphan_user)
-        response = api_client.get("/api/ledger/")
+        response = api_client.get("/api/finance/ledger/")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -388,22 +385,26 @@ class TestFinancePermissions:
     def test_admin_sees_all_ledger_items(
         self, api_client, admin_user, student1, student2, setup_academic_structure
     ):
-        """Admin/Finance should see all ledger items"""
-        charge = Charge.objects.create(
-            title="Library Fee",
-            amount=5000,
-            due_date="2024-01-01",
+        """Admin/Finance should see all ledger entries"""
+        LedgerEntry.objects.create(
+            student=student1,
+            term=setup_academic_structure["academic_period"],
+            entry_type=LedgerEntry.ENTRY_DEBIT,
+            amount=500,
+            reference_type=LedgerEntry.REF_VOUCHER,
+            reference_id="v3",
         )
-
-        StudentLedgerItem.objects.create(
-            student=student1, charge=charge, status=StudentLedgerItem.STATUS_PENDING
-        )
-        StudentLedgerItem.objects.create(
-            student=student2, charge=charge, status=StudentLedgerItem.STATUS_PAID
+        LedgerEntry.objects.create(
+            student=student2,
+            term=setup_academic_structure["academic_period"],
+            entry_type=LedgerEntry.ENTRY_DEBIT,
+            amount=700,
+            reference_type=LedgerEntry.REF_VOUCHER,
+            reference_id="v4",
         )
 
         api_client.force_authenticate(user=admin_user)
-        response = api_client.get("/api/ledger/")
+        response = api_client.get("/api/finance/ledger/")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -414,6 +415,5 @@ class TestFinancePermissions:
             results = data
 
         assert len(results) == 2
-
 
 

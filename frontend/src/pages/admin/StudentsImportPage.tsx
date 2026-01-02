@@ -116,12 +116,12 @@ export function StudentsImportPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Student CSV Import</h1>
         <div className="flex gap-2">
-          <Button onClick={handleDownloadTemplate} variant="outline">
+          <Button onClick={handleDownloadTemplate} variant="secondary">
             Download Template
           </Button>
           <Button
             onClick={() => setViewMode('history')}
-            variant={viewMode === 'history' ? 'default' : 'outline'}
+            variant={viewMode === 'history' ? 'primary' : 'secondary'}
           >
             Import History
           </Button>
@@ -129,13 +129,13 @@ export function StudentsImportPage() {
       </div>
 
       {error && (
-        <Alert variant="error" onClose={() => setError(null)}>
+        <Alert variant="error" >
           {error}
         </Alert>
       )}
 
       {success && (
-        <Alert variant="success" onClose={() => setSuccess(null)}>
+        <Alert variant="success" >
           {success}
         </Alert>
       )}
@@ -155,7 +155,7 @@ export function StudentsImportPage() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Import Preview</h2>
-              <Button onClick={handleReset} variant="outline">
+              <Button onClick={handleReset} variant="secondary">
                 Upload New File
               </Button>
             </div>
@@ -188,7 +188,7 @@ export function StudentsImportPage() {
             <ImportPreviewTable previewRows={previewData.preview_rows} />
 
             <div className="flex justify-end gap-2">
-              <Button onClick={handleReset} variant="outline">
+              <Button onClick={handleReset} variant="secondary">
                 Cancel
               </Button>
               <Button
@@ -208,7 +208,7 @@ export function StudentsImportPage() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Import History</h2>
-              <Button onClick={() => setViewMode('upload')} variant="outline">
+              <Button onClick={() => setViewMode('upload')} variant="secondary">
                 New Import
               </Button>
             </div>

@@ -9,6 +9,7 @@ export interface User {
   full_name: string
   role: string  // Admin, Registrar, Faculty, Student, ExamCell, User
   is_active: boolean
+  student_id?: number  // Optional student ID for student users
 }
 
 export interface AuthState {

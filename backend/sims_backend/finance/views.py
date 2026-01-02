@@ -39,12 +39,9 @@ from sims_backend.finance.serializers import (
 from sims_backend.finance.services import (
     aging_report,
     approve_adjustment,
-<<<<<<< HEAD
     cancel_voucher,
     collection_report,
     compute_student_balance,
-=======
->>>>>>> 7e0be1a6e4574a7174d5cfda368fbd49a84c021d
     create_voucher_from_feeplan,
     generate_voucher_number as create_voucher_number,
     defaulters,

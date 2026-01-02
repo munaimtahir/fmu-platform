@@ -15,6 +15,7 @@ const studentSchema = z.object({
   reg_no: z.string().min(1, 'Registration number is required'),
   name: z.string().min(1, 'Name is required'),
   program: z.string().min(1, 'Program is required'),
+  batch_year: z.number().optional(),
   status: z.enum(['active', 'inactive', 'graduated', 'suspended']),
 })
 
@@ -174,26 +175,6 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
             {errors.batch_year && (
               <p id="batch-year-error" className="mt-1 text-sm text-red-600" role="alert">
                 {errors.batch_year.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="current_year" className="block text-sm font-medium mb-1">
-              Current Year <span className="text-red-500" aria-label="required">*</span>
-            </label>
-            <Input 
-              id="current_year"
-              type="number"
-              {...register('current_year', { valueAsNumber: true })} 
-              error={errors.current_year?.message}
-              aria-required="true"
-              aria-invalid={!!errors.current_year}
-              aria-describedby={errors.current_year ? 'current-year-error' : undefined}
-            />
-            {errors.current_year && (
-              <p id="current-year-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.current_year.message}
               </p>
             )}
           </div>

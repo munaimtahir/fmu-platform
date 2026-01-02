@@ -15,15 +15,32 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameIndex(
-            model_name="applicationdraft",
-            new_name="admissions__email_ad3c8c_idx",
-            old_name="admissions_a_email_8a3b2d_idx",
+        # Create indexes if they don't exist (for fresh databases, skip rename)
+        migrations.RunSQL(
+            sql="""
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'admissions_a_email_8a3b2d_idx') THEN
+                    ALTER INDEX admissions_a_email_8a3b2d_idx RENAME TO admissions__email_ad3c8c_idx;
+                ELSE
+                    CREATE INDEX IF NOT EXISTS admissions__email_ad3c8c_idx ON admissions_applicationdraft(email, status);
+                END IF;
+            END $$;
+            """,
+            reverse_sql="ALTER INDEX IF EXISTS admissions__email_ad3c8c_idx RENAME TO admissions_a_email_8a3b2d_idx;",
         ),
-        migrations.RenameIndex(
-            model_name="applicationdraft",
-            new_name="admissions__status_292cc2_idx",
-            old_name="admissions_a_status_9c4e5f_idx",
+        migrations.RunSQL(
+            sql="""
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'admissions_a_status_9c4e5f_idx') THEN
+                    ALTER INDEX admissions_a_status_9c4e5f_idx RENAME TO admissions__status_292cc2_idx;
+                ELSE
+                    CREATE INDEX IF NOT EXISTS admissions__status_292cc2_idx ON admissions_applicationdraft(status);
+                END IF;
+            END $$;
+            """,
+            reverse_sql="ALTER INDEX IF EXISTS admissions__status_292cc2_idx RENAME TO admissions_a_status_9c4e5f_idx;",
         ),
         migrations.AddField(
             model_name="student",

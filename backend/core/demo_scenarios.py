@@ -584,8 +584,6 @@ class DemoScenarioGenerator:
                 f"  ⚠️  Warning: Some demo objects could not be deleted because "
                 f"they are referenced by non-demo objects: {e}"
             )
-    
-    return result_header
 
 
 def ensure_demo_fee_plans(program: Program, term: AcademicPeriod) -> None:

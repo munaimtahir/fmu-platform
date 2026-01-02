@@ -14,12 +14,10 @@ import type {
 export const financeService = {
   async getFeeTypes(): Promise<FeeType[]> {
     const response = await api.get<FeeType[]>('/api/finance/fee-types/')
-    // @ts-expect-error handle paginated or list responses
     return (response.data as any).results ?? response.data
   },
   async getFeePlans(): Promise<FeePlan[]> {
     const response = await api.get<FeePlan[]>('/api/finance/fee-plans/')
-    // @ts-expect-error handle paginated or list responses
     return (response.data as any).results ?? response.data
   },
   async createFeePlan(payload: Partial<FeePlan>): Promise<FeePlan> {
@@ -38,12 +36,10 @@ export const financeService = {
   },
   async listVouchers(params?: Record<string, unknown>): Promise<Voucher[]> {
     const response = await api.get<Voucher[]>('/api/finance/vouchers/', { params })
-    // @ts-expect-error handle paginated or list responses
     return (response.data as any).results ?? response.data
   },
   async listPayments(params?: Record<string, unknown>): Promise<Payment[]> {
     const response = await api.get<Payment[]>('/api/finance/payments/', { params })
-    // @ts-expect-error handle paginated or list responses
     return (response.data as any).results ?? response.data
   },
   async recordPayment(payload: {

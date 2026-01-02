@@ -14,12 +14,17 @@ interface FinanceStats {
 export const FinanceDashboard: React.FC = () => {
   const [stats, setStats] = useState<FinanceStats>({})
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const loadStats = async () => {
       try {
         const response = await api.get<FinanceStats>('/api/dashboard/stats/')
         setStats(response.data)
+        setError(null)
+      } catch (err) {
+        setError('Failed to load finance statistics. Please try again later.')
+        console.error('Error loading finance stats:', err)
       } finally {
         setLoading(false)
       }
@@ -37,6 +42,10 @@ export const FinanceDashboard: React.FC = () => {
 
         {loading ? (
           <p className="text-gray-500">Loading...</p>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card>

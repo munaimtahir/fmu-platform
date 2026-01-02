@@ -104,6 +104,12 @@ class LiveSubmitAPIView(APIView):
 
         default_status = parse_status_value(payload.get("default_status"), Attendance.STATUS_PRESENT)
         records = payload.get("records", [])
+        # Ensure records is a list
+        if not isinstance(records, list):
+            if hasattr(records, '__iter__') and not isinstance(records, (str, bytes)):
+                records = list(records)
+            else:
+                records = []
         date_str = payload.get("date")
         target_date = datetime.fromisoformat(date_str).date() if date_str else None
 
@@ -115,13 +121,17 @@ class LiveSubmitAPIView(APIView):
         except PermissionError as exc:
             return _json_error(str(exc), status.HTTP_403_FORBIDDEN)
 
-        result = bulk_upsert_attendance_for_session(
-            session=session,
-            records=records,
-            default_status=default_status,
-            actor=request.user,
-            target_date=target_date,
-        )
+        try:
+            result = bulk_upsert_attendance_for_session(
+                session=session,
+                records=records,
+                default_status=default_status,
+                actor=request.user,
+                target_date=target_date,
+            )
+        except ValueError as exc:
+            # Catch validation errors (e.g., past date restrictions)
+            return _json_error(str(exc), status.HTTP_400_BAD_REQUEST)
         audit_summary = (
             f"Attendance bulk submit: session={session.id} "
             f"date={target_date or session.starts_at.date()} "

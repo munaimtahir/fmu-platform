@@ -137,6 +137,9 @@ class CSVDryRunAPIView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
+        # File size validation (10MB limit)
+        MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
+        
         session_id = request.data.get("session_id")
         upload = request.FILES.get("file")
         date_str = request.data.get("date")
@@ -144,6 +147,9 @@ class CSVDryRunAPIView(APIView):
             return _json_error("session_id is required")
         if not upload:
             return _json_error("file is required")
+        
+        if upload.size > MAX_FILE_SIZE:
+            return _json_error(f"File size exceeds maximum limit of {MAX_FILE_SIZE // (1024 * 1024)}MB")
 
         try:
             session = _get_session(session_id)
@@ -290,11 +296,17 @@ class TickSheetDryRunAPIView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
+        # File size validation (20MB limit for scanned documents)
+        MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB in bytes
+        
         session_id = request.data.get("session_id")
         upload = request.FILES.get("file")
         date_str = request.data.get("date")
         if not session_id or not upload:
             return _json_error("session_id and file are required")
+        
+        if upload.size > MAX_FILE_SIZE:
+            return _json_error(f"File size exceeds maximum limit of {MAX_FILE_SIZE // (1024 * 1024)}MB")
 
         try:
             session = _get_session(session_id)

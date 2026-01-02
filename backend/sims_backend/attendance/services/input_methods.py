@@ -9,7 +9,7 @@ from datetime import date
 from io import StringIO
 from typing import Iterable, List, Mapping, MutableMapping, Optional
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 from sims_backend.attendance.models import Attendance
@@ -83,7 +83,7 @@ def _validate_date(session: Session, target_date: Optional[date], user: User) ->
         raise ValueError("Editing attendance for past dates requires admin privileges.")
     session_date = session.starts_at.date()
     if session_date != target_date:
-        # Allow near-matches but warn
+        # For non-admin users, disallow dates that do not match the session schedule
         if not _has_admin_override(user):
             raise ValueError("Date does not match the session schedule.")
 
@@ -122,20 +122,41 @@ def bulk_upsert_attendance_for_session(
         if status_val == STATUS_ABSENT:
             absent += 1
 
+    # Bulk upsert to avoid N update_or_create calls.
+    # Fetch existing attendance records for this session and these students.
+    existing_attendance_qs = Attendance.objects.filter(
+        session=session, student_id__in=statuses.keys()
+    )
+    existing_by_student_id = {att.student_id: att for att in existing_attendance_qs}
+
+    now = timezone.now()
+    to_create: list[Attendance] = []
+    to_update: list[Attendance] = []
+
     for sid, status_val in statuses.items():
-        attendance, was_created = Attendance.objects.update_or_create(
-            session=session,
-            student_id=sid,
-            defaults={
-                "status": status_val,
-                "marked_by": actor,
-                "marked_at": timezone.now(),
-            },
-        )
-        if was_created:
-            created += 1
+        attendance = existing_by_student_id.get(sid)
+        if attendance is None:
+            attendance = Attendance(
+                session=session,
+                student_id=sid,
+                status=status_val,
+                marked_by=actor,
+                marked_at=now,
+            )
+            to_create.append(attendance)
         else:
-            updated += 1
+            attendance.status = status_val
+            attendance.marked_by = actor
+            attendance.marked_at = now
+            to_update.append(attendance)
+
+    if to_create:
+        Attendance.objects.bulk_create(to_create)
+    if to_update:
+        Attendance.objects.bulk_update(to_update, ["status", "marked_by", "marked_at"])
+
+    created = len(to_create)
+    updated = len(to_update)
 
     return {"created": created, "updated": updated, "total": len(statuses), "absent": absent}
 
@@ -153,10 +174,14 @@ def parse_csv_payload(
     session: Session,
     default_status: str = STATUS_PRESENT,
 ) -> AttendanceInputJobSummary:
-    """Parse a CSV upload into normalized records."""
+    """Parse a CSV upload into normalized records using streaming for memory efficiency."""
+    import codecs
+    
     file_obj.seek(0)
-    content = file_obj.read().decode("utf-8")
-    reader = csv.DictReader(StringIO(content))
+    # Use codecs.iterdecode for memory-efficient streaming
+    # This avoids loading the entire file into memory at once
+    text_stream = codecs.iterdecode(file_obj, 'utf-8', errors='replace')
+    reader = csv.DictReader(text_stream)
 
     students = Student.objects.filter(group=session.group)
     students_by_reg = {s.reg_no: s for s in students}
@@ -199,11 +224,11 @@ def compute_file_fingerprint(file_obj) -> str:
     """Return a short fingerprint for storage."""
     try:
         file_obj.seek(0)
-    except Exception:
+    except (AttributeError, IOError, OSError):
         pass
     digest = _hash_file(file_obj)
     try:
         file_obj.seek(0)
-    except Exception:
+    except (AttributeError, IOError, OSError):
         pass
     return digest[:16]

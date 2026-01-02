@@ -68,10 +68,47 @@ curl -X POST -H "Authorization: Bearer <token>" -H "Content-Type: application/js
   http://localhost:8000/api/attendance-input/live/submit/
 
 # CSV dry-run
-curl -X POST -H "Authorization: Bearer <token>" -F "session_id=1" -F "file=@attendance.csv" \
+curl -X POST -H "Authorization: Bearer <token>" \
+  -F "session_id=1" \
+  -F "date=2024-01-10" \
+  -F "file=@attendance.csv" \
   http://localhost:8000/api/attendance-input/csv/dry-run/
+
+# CSV commit (use job_id from CSV dry-run response)
+curl -X POST -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{"job_id":"<job_id_from_csv_dry_run>"}' \
+  http://localhost:8000/api/attendance-input/csv/commit/
 
 # Sheet template
 curl -H "Authorization: Bearer <token>" \
   "http://localhost:8000/api/attendance-input/sheet/template/?session_id=1" -o sheet.pdf
+
+# Sheet dry-run (upload scanned/ticked sheet)
+curl -X POST -H "Authorization: Bearer <token>" \
+  -F "session_id=1" \
+  -F "date=2024-01-10" \
+  -F "file=@scanned_sheet.pdf" \
+  http://localhost:8000/api/attendance-input/sheet/dry-run/
+
+# Sheet commit using reviewed records (optional records override dry-run results)
+curl -X POST -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{
+    "job_id": "<job_id_from_sheet_dry_run>",
+    "records": [
+      {"student_id": 101, "status": "P"},
+      {"student_id": 102, "status": "A"}
+    ]
+  }' \
+  http://localhost:8000/api/attendance-input/sheet/commit/
+
+# Biometric punch import (example payload structure)
+curl -X POST -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{
+    "device_id": "DEVICE-001",
+    "punches": [
+      {"employee_code": "EMP-001", "timestamp": "2024-01-10T09:02:00Z"},
+      {"employee_code": "EMP-002", "timestamp": "2024-01-10T09:05:30Z"}
+    ]
+  }' \
+  http://localhost:8000/api/attendance-input/biometric/punches/
 ```

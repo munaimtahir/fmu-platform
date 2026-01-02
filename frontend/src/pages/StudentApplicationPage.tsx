@@ -485,7 +485,7 @@ export const StudentApplicationPage = () => {
                   value={dateOfBirth ? new Date(dateOfBirth) : null}
                   onChange={(date) => {
                     if (date) {
-                      setValue('date_of_birth', date.toISOString().split('T')[0], { shouldValidate: true })
+                      setValue('date_of_birth', date as Date, { shouldValidate: true })
                     }
                   }}
                   error={errors.date_of_birth?.message}
@@ -898,7 +898,7 @@ export const StudentApplicationPage = () => {
                   variant="ghost"
                   onClick={onSaveDraft}
                   isLoading={isSavingDraft}
-                  disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
+                  disabled={isSavingDraft || isLoadingDraft}
                 >
                   {isSavingDraft ? 'Saving...' : 'Save Draft'}
                 </Button>
@@ -906,7 +906,7 @@ export const StudentApplicationPage = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => setShowLoadDraftModal(true)}
-                  disabled={isSavingDraft || isLoadingDraft || isLoadingPrograms}
+                  disabled={isSavingDraft || isLoadingDraft}
                 >
                   Load Draft
                 </Button>
@@ -929,7 +929,6 @@ export const StudentApplicationPage = () => {
             >
               {isSubmitting ? 'Submitting...' : 'Submit Final'}
             </Button>
-            </div>
           </form>
         </div>
 

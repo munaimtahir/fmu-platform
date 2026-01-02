@@ -33,10 +33,16 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
 
-        # Students can only see published results
+        # Students can only see published results for their own records
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             queryset = queryset.filter(status='PUBLISHED')
-            # TODO: Filter to own student record
+            # Filter to student's own records via user link
+            student = getattr(user, 'student', None)
+            if student:
+                queryset = queryset.filter(student=student)
+            else:
+                # No student record linked, return empty queryset
+                queryset = queryset.none()
 
         return queryset
 
@@ -78,7 +84,8 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='me')
     def me(self, request):
         """Student's own results (published only)"""
-        # TODO: Filter to student's own records
+        # get_queryset() applies student-specific filtering for STUDENT role
+        # This endpoint ensures PUBLISHED filter for all user roles
         queryset = self.get_queryset().filter(status='PUBLISHED')
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

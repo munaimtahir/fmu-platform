@@ -88,8 +88,13 @@ class StudentLedgerItemViewSet(FinancePermissionMixin, viewsets.ReadOnlyModelVie
 
         # Students can only see their own ledger items
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
-            # TODO: Filter to student's own records
-            pass
+            # Filter to student's own records via user link
+            student = getattr(user, 'student', None)
+            if student:
+                queryset = queryset.filter(student=student)
+            else:
+                # No student record linked, return empty queryset
+                queryset = queryset.none()
 
         return queryset
 
@@ -122,8 +127,13 @@ class ChallanViewSet(FinancePermissionMixin, viewsets.ModelViewSet):
 
         # Students can only see their own challans
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
-            # TODO: Filter to student's own records
-            pass
+            # Filter to student's own records via user link
+            student = getattr(user, 'student', None)
+            if student:
+                queryset = queryset.filter(student=student)
+            else:
+                # No student record linked, return empty queryset
+                queryset = queryset.none()
 
         return queryset
 

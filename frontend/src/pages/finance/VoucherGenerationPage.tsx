@@ -7,12 +7,20 @@ import { financeService } from '@/services'
 export const VoucherGenerationPage: React.FC = () => {
   const [result, setResult] = useState<{ created: number[]; skipped: number[] } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleGenerate = async (payload: { program_id?: number; term_id: number; due_date: string }) => {
     setLoading(true)
-    const response = await financeService.generateVouchers(payload)
-    setResult(response)
-    setLoading(false)
+    setError(null)
+    try {
+      const response = await financeService.generateVouchers(payload)
+      setResult(response)
+    } catch (err) {
+      setError('Failed to generate vouchers. Please try again.')
+      console.error('Error generating vouchers:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -25,6 +33,11 @@ export const VoucherGenerationPage: React.FC = () => {
 
         <Card>
           <VoucherGenerationForm onSubmit={handleGenerate} isLoading={loading} />
+          {error && (
+            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+              {error}
+            </div>
+          )}
           {result && (
             <div className="mt-4 text-sm text-gray-700">
               <p>Created: {result.created.length}</p>

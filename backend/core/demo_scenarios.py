@@ -237,8 +237,8 @@ class DemoScenarioGenerator:
                 user.groups.add(student_group)
 
             dob = fake.date_of_birth(minimum_age=18, maximum_age=25)
-            # Generate phone number and validate length (model max is 20 chars)
-            phone = fake.numerify(text='+92##########')  # Pakistan format, 14 chars
+            # Generate phone number in Pakistan format (13 chars: +92 + 10 digits)
+            phone = fake.numerify(text='+92##########')
 
             # Create admissions student record
             admissions_student, _ = Student.objects.get_or_create(

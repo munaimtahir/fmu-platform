@@ -1,5 +1,83 @@
 # Changelog
 
+## 2026-01-02 - Finance Module FIN-1: Demo + Reports + Hardening (v1.5.0)
+
+### Summary
+Enhanced Finance module with comprehensive reports, reversal workflows, demo pack, and hardening features. Release FIN-1 delivers a demo-ready, hardened v1.0 Finance release.
+
+### New Features
+
+#### Reports
+- **Defaulters Report**: Enhanced with CSV export, overdue days calculation, latest voucher tracking, and phone/email fields
+- **Daily Collection Report**: Date range filtering, grouping by payment method (cash/bank/online), totals and counts per method, CSV export
+- **Aging Report**: Outstanding buckets (0-7, 8-30, 31-60, 60+ days), counts and amounts per bucket, CSV export
+- **Student Statement**: Chronological ledger entries with running totals, opening/closing balances, PDF export
+
+#### Workflows
+- **Payment Reversal**: POST `/api/finance/payments/{id}/reverse/` creates compensating ledger entry, updates voucher status
+- **Voucher Cancellation**: POST `/api/finance/vouchers/{id}/cancel/` creates reversal entries, marks voucher cancelled
+- **Term Lock**: Prevents new vouchers, payments, and adjustments for closed terms (admin can override)
+- **Duplicate Prevention**: Enforces unique receipt_no and reference_no per method
+
+#### Demo Pack
+- **5 Specific Demo Students**: STUDENT_PAID, STUDENT_PARTIAL, STUDENT_DEFAULTER, STUDENT_WAIVER, STUDENT_REVERSAL
+- **Demo Documentation**: 7-minute demo script in `docs/DEMO_FINANCE.md`
+- **Screenshots Checklist**: Complete checklist in `docs/SHOWCASE_FINANCE_CHECKLIST.md`
+- **Enhanced Seed**: `seed_demo` creates predictable demo scenarios with all 5 student types
+
+#### Hardening
+- **Overpayment Handling**: Credit balance stored and displayed (Option A implemented)
+- **Partial Payment Rules**: Voucher status transitions (generated → partially_paid → paid) based on ledger
+- **Edge Case Validations**: Term lock checks, duplicate prevention, comprehensive error codes
+- **Permission Hardening**: Object-level access checks for students, strict staff permissions
+
+### Backend Changes
+- New report functions in `sims_backend/finance/services.py`: `collection_report()`, `aging_report()`, `student_statement()`
+- New workflow functions: `reverse_payment()`, `cancel_voucher()`, `is_term_locked()`
+- Enhanced `defaulters()` function with overdue days and contact info
+- Updated `seed_demo` command to create 5 specific demo students
+- New PDF generation: `student_statement_pdf()` in `sims_backend/finance/pdf.py`
+
+### API Changes
+- New endpoints:
+  - `POST /api/finance/payments/{id}/reverse/` - Reverse payment
+  - `POST /api/finance/vouchers/{id}/cancel/` - Cancel voucher
+  - `GET /api/finance/students/{id}/statement/` - Student statement
+  - `GET /api/finance/students/{id}/statement/pdf/` - Statement PDF
+  - `GET /api/finance/reports/collection/` - Collection report
+  - `GET /api/finance/reports/aging/` - Aging report
+- Enhanced endpoints:
+  - `POST /api/finance/reports/defaulters/` - Now supports CSV export (`?format=csv`)
+- All report endpoints support CSV export via `?format=csv` query parameter
+
+### Documentation
+- Updated `docs/FINANCE.md` with complete entity documentation, workflows, constraints
+- Created `docs/DEMO_FINANCE.md` with 7-minute demo script and credentials
+- Created `docs/SHOWCASE_FINANCE_CHECKLIST.md` with screenshots checklist
+- Created `docs/FINANCE_VERIFICATION.md` with docker workflow and smoke tests
+- Updated `docs/API.md` with new endpoints and report exports
+- Updated `docs/CHANGELOG.md` (this entry)
+
+### Files Changed
+- `backend/sims_backend/finance/services.py` - Report functions, reversal/cancellation workflows
+- `backend/sims_backend/finance/views.py` - New report endpoints, reversal/cancellation actions
+- `backend/sims_backend/finance/pdf.py` - Student statement PDF generation
+- `backend/core/management/commands/seed_demo.py` - Enhanced to create 5 demo students
+- `docs/FINANCE.md` - Complete module documentation
+- `docs/DEMO_FINANCE.md` - New demo guide
+- `docs/SHOWCASE_FINANCE_CHECKLIST.md` - New checklist
+- `docs/FINANCE_VERIFICATION.md` - New verification guide
+- `docs/API.md` - Updated with new endpoints
+- `docs/CHANGELOG.md` - This entry
+
+### Known Limitations / TODOs
+- Frontend pages for reports not yet implemented (backend APIs ready)
+- Frontend tests for report services pending
+- Comprehensive backend pytest tests pending (basic structure in place)
+- Overpayment auto-allocation to next voucher not implemented (credit balance approach used)
+
+---
+
 ## 2026-01-02 - Finance Module (v1.4.0)
 
 ### Summary

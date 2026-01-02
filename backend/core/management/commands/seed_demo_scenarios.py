@@ -158,30 +158,6 @@ class Command(BaseCommand):
 
         # Step 11: Distribute students into scenario buckets
         self.stdout.write("\n🎯 Distributing students into scenario buckets...")
-        
-        # Get students from `sims_backend.students.models.Student` for attendance/results
-        from sims_backend.students.models import Student as StudentsStudent
-        
-        # Try to match students by reg_no
-        matched_students = []
-        for student in students:
-            matched = StudentsStudent.objects.filter(reg_no=student.reg_no).first()
-            if not matched:
-                # Create matching record in students.Student if needed
-                matched = StudentsStudent.objects.create(
-                    reg_no=student.reg_no,
-                    name=student.name,
-                    program=program,
-                    batch=batch,
-                    group=groups[0] if groups else None,
-                    status=StudentsStudent.STATUS_ACTIVE,
-                    email=student.email,
-                    phone=student.phone,
-                    date_of_birth=student.date_of_birth,
-                )
-            matched_students.append(matched)
-        
-        students = matched_students
 
         # Bucket 1: ENROLLED_ONLY (3 students) - No attendance, no scores
         bucket1_students = students[0:3]

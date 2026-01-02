@@ -37,5 +37,5 @@
 
 ## Outstanding Risks
 - No runtime validation performed yet (blocked by package fetch).
-- Tagging `mvp-demo-ready` should wait until migrations + seeded data + UI/API checks complete on a machine with package access.
+- Tag `mvp-demo-ready` has **not** been created yet; it must only be added after migrations + seeded data + UI/API checks complete on a machine with package access.
 

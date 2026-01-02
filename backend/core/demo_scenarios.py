@@ -38,6 +38,10 @@ fake = Faker()
 class DemoScenarioGenerator:
     """Generator for demo scenario data"""
 
+    # Constants
+    DEFAULT_GRADUATING_YEARS_AHEAD = 5  # For MBBS programs
+    DEMO_PASSWORD_SUFFIX = "demo123"  # Consistent password for all demo users
+
     def __init__(self, stdout=None):
         self.stdout = stdout
         self.demo_prefix = "DEMO_"
@@ -201,7 +205,7 @@ class DemoScenarioGenerator:
             name = f"{first_name} {last_name}"
             username = f"{self.demo_prefix.lower()}student{i + 1:03d}"
             email = f"{username}@sims.edu"
-            password = f"student{current_year}"
+            password = self.DEMO_PASSWORD_SUFFIX
 
             # Assign to group (round-robin)
             group = groups[i % len(groups)] if groups else None
@@ -226,7 +230,7 @@ class DemoScenarioGenerator:
                 defaults={
                     "name": name,
                     "program": program,
-                    "batch_year": current_year + 5,  # Graduating year
+                    "batch_year": current_year + self.DEFAULT_GRADUATING_YEARS_AHEAD,
                     "current_year": 1,
                     "status": Student.STATUS_ACTIVE,
                     "email": email,
@@ -280,16 +284,17 @@ class DemoScenarioGenerator:
 
             if not admissions_student:
                 # Create admissions student if doesn't exist
+                current_year = date.today().year
                 admissions_student = AdmissionsStudent.objects.create(
                     reg_no=student.reg_no,
                     name=student.name,
                     program=student.program,
-                    batch_year=student.batch.start_year if hasattr(student, 'batch') else 2029,
+                    batch_year=getattr(student.batch, 'start_year', current_year + 5),
                     current_year=1,
                     status=AdmissionsStudent.STATUS_ACTIVE,
                     email=student.email,
-                    phone=student.phone if hasattr(student, 'phone') else '',
-                    date_of_birth=student.date_of_birth if hasattr(student, 'date_of_birth') else None,
+                    phone=getattr(student, 'phone', ''),
+                    date_of_birth=getattr(student, 'date_of_birth', None),
                 )
 
             # Enroll in 1-2 sections
@@ -509,26 +514,31 @@ class DemoScenarioGenerator:
         self.log("Deleting demo objects...")
 
         # Delete in reverse dependency order
-        # First delete attendance and enrollment which reference students
+        # First delete attendance which references students
         Attendance.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
         
+        # Delete enrollment which references students and sections
+        Enrollment.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
+        
+        # Delete results and exams
         ResultComponentEntry.objects.filter(result_header__exam__title__startswith=self.demo_prefix).delete()
         ResultHeader.objects.filter(exam__title__startswith=self.demo_prefix).delete()
         ExamComponent.objects.filter(exam__title__startswith=self.demo_prefix).delete()
         Exam.objects.filter(title__startswith=self.demo_prefix).delete()
 
+        # Delete finance records
         Challan.objects.filter(challan_no__startswith=self.demo_prefix).delete()
         StudentLedgerItem.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
         Charge.objects.filter(title__startswith=self.demo_prefix).delete()
 
+        # Delete assessments
         AssessmentScore.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
         Assessment.objects.filter(section__name__startswith=self.demo_prefix).delete()
-
-        Enrollment.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
 
         # Delete sessions before faculty users (to avoid protected foreign key error)
         Session.objects.filter(faculty__username__startswith=self.demo_prefix.lower()).delete()
         
+        # Delete sections and courses
         Section.objects.filter(name__startswith=self.demo_prefix).delete()
         Course.objects.filter(code__startswith=self.demo_prefix).delete()
 

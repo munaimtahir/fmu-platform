@@ -95,8 +95,8 @@ class Command(BaseCommand):
         # Step 3: Get or create batch and groups
         batch, _ = Batch.objects.get_or_create(
             program=program,
-            name=f"{program_name} {academic_period.start_date.year} Batch",
-            defaults={"start_year": academic_period.start_date.year},
+            name=f"{program_name} {academic_period.start_date.year if academic_period.start_date else date.today().year} Batch",
+            defaults={"start_year": academic_period.start_date.year if academic_period.start_date else date.today().year},
         )
 
         groups = []

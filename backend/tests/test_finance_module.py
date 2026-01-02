@@ -240,5 +240,5 @@ def test_finance_policy_blocks_results(finance_setup):
     from sims_backend.finance.services import finance_gate_checks
     gate = finance_gate_checks(finance_setup["student"], finance_setup["term"])
     gating = gate.get("gating", {})
-    assert gating.get("can_view_results") == False, "Results should be blocked when dues exist"
+    assert gating.get("can_view_results") is False, "Results should be blocked when dues exist"
     assert len(gating.get("reasons", [])) > 0

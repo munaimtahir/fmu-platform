@@ -346,12 +346,11 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
                 return Response({"error": {"code": "TERM_NOT_FOUND", "message": "Invalid term"}}, status=404)
 
         # Determine the term for finance checks
-        if not term:
+        if not term and student.program:
             # Fall back to first fee plan term if available
-            if student.program and student.program.fee_plans.exists():
-                first_plan = student.program.fee_plans.first()
-                if first_plan:
-                    term = first_plan.term
+            first_plan = student.program.fee_plans.first()
+            if first_plan:
+                term = first_plan.term
 
         summary = finance_gate_checks(student, term)
         voucher_statuses = {}

@@ -174,10 +174,14 @@ def parse_csv_payload(
     session: Session,
     default_status: str = STATUS_PRESENT,
 ) -> AttendanceInputJobSummary:
-    """Parse a CSV upload into normalized records."""
+    """Parse a CSV upload into normalized records using streaming for memory efficiency."""
+    import codecs
+    
     file_obj.seek(0)
-    content = file_obj.read().decode("utf-8")
-    reader = csv.DictReader(StringIO(content))
+    # Use codecs.iterdecode for memory-efficient streaming
+    # This avoids loading the entire file into memory at once
+    text_stream = codecs.iterdecode(file_obj, 'utf-8', errors='replace')
+    reader = csv.DictReader(text_stream)
 
     students = Student.objects.filter(group=session.group)
     students_by_reg = {s.reg_no: s for s in students}

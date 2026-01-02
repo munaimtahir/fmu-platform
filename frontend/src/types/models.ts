@@ -274,6 +274,59 @@ export interface FinanceSummary {
   gating: Record<string, unknown>
 }
 
+export interface DefaulterRow {
+  student_id: number
+  reg_no: string
+  name: string
+  outstanding: number
+  overdue_days: number
+  latest_voucher_no?: string
+  phone?: string
+  email?: string
+}
+
+export interface CollectionReport {
+  start_date: string
+  end_date: string
+  total_collected: number
+  total_count: number
+  by_method: Record<string, { total: number; count: number }>
+}
+
+export interface AgingReport {
+  term_id?: number | null
+  term_name: string
+  buckets: {
+    '0_7': { count: number; amount: number }
+    '8_30': { count: number; amount: number }
+    '31_60': { count: number; amount: number }
+    '60_plus': { count: number; amount: number }
+  }
+}
+
+export interface StatementEntry {
+  date: string
+  description: string
+  entry_type: 'debit' | 'credit'
+  debit?: number
+  credit?: number
+  reference_type: string
+  reference_id: string
+  voucher_no?: string
+  running_balance: number
+}
+
+export interface StudentStatement {
+  student_id: number
+  student_name: string
+  student_reg_no: string
+  term_id?: number | null
+  term_name: string
+  opening_balance: number
+  closing_balance: number
+  entries: StatementEntry[]
+}
+
 // Assessment model
 export interface Assessment {
   id: number

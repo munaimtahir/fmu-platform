@@ -478,10 +478,22 @@ Key endpoints (all require authentication; finance/admin unless noted):
 | `/api/finance/payments/` | POST | Record a payment (received) |
 | `/api/finance/payments/{id}/verify/` | POST | Verify/reject payment and post ledger credit |
 | `/api/finance/payments/{id}/pdf/` | GET | Download payment receipt PDF |
+| `/api/finance/payments/{id}/reverse/` | POST | Reverse payment (creates compensating ledger entry) |
 | `/api/finance/ledger/` | GET | Read-only ledger entries (students see their own) |
 | `/api/finance/adjustments/` | GET/POST | Waivers/scholarships/adjustments; approve to credit ledger |
 | `/api/finance/policies/` | GET/POST | Configure finance gates (transcripts/results) |
 | `/api/finance/students/{id}/` | GET | Finance summary + gating flags for a student |
-| `/api/finance/reports/defaulters/` | POST | List students above threshold outstanding |
+| `/api/finance/students/{id}/statement/` | GET | Student ledger statement (chronological with running totals) |
+| `/api/finance/students/{id}/statement/pdf/` | GET | Student statement PDF export |
+| `/api/finance/vouchers/{id}/cancel/` | POST | Cancel voucher (creates reversal entries) |
+| `/api/finance/reports/defaulters/` | POST | Defaulters report (filters: program, term, min_outstanding) |
+| `/api/finance/reports/collection/` | GET | Daily collection report (date range, grouped by method) |
+| `/api/finance/reports/aging/` | GET | Aging report (buckets: 0-7, 8-30, 31-60, 60+ days) |
 
-Finance errors follow the `{ "error": { "code": "...", "message": "..." } }` envelope (e.g., `FINANCE_BLOCKED` for gates).
+**Report CSV Exports:** Add `?format=csv` to any report endpoint to download CSV.
+
+**Payment Reversal:** POST `/api/finance/payments/{id}/reverse/` with `{"reason": "..."}` creates compensating debit entry.
+
+**Voucher Cancellation:** POST `/api/finance/vouchers/{id}/cancel/` with `{"reason": "..."}` creates reversal credit entries.
+
+Finance errors follow the `{ "error": { "code": "...", "message": "..." } }` envelope (e.g., `FINANCE_BLOCKED`, `TERM_LOCKED`, `DUPLICATE_REFERENCE`).

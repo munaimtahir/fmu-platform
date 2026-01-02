@@ -109,3 +109,78 @@ def payment_receipt_pdf(payment: Payment) -> io.BytesIO:
     doc.build(story)
     buffer.seek(0)
     return buffer
+
+
+def student_statement_pdf(statement: dict) -> io.BytesIO:
+    """Generate a PDF student ledger statement."""
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    story = []
+    styles = getSampleStyleSheet()
+
+    story.append(Paragraph("<b>STUDENT LEDGER STATEMENT</b>", styles["Title"]))
+    story.append(Spacer(1, 0.25 * inch))
+
+    # Student information
+    student_info = [
+        ["Student Name:", statement["student_name"]],
+        ["Registration No:", statement["student_reg_no"]],
+        ["Term:", statement["term_name"]],
+    ]
+    info_table = Table(student_info, colWidths=[1.8 * inch, 4.5 * inch])
+    info_table.setStyle(
+        TableStyle(
+            [
+                ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+                ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
+    story.append(info_table)
+    story.append(Spacer(1, 0.3 * inch))
+
+    # Opening balance
+    story.append(Paragraph(f"<b>Opening Balance:</b> {statement['opening_balance']:.2f} PKR", styles["Normal"]))
+    story.append(Spacer(1, 0.2 * inch))
+
+    # Ledger entries table
+    if statement["entries"]:
+        entry_data = [["Date", "Description", "Debit", "Credit", "Balance"]]
+        for entry in statement["entries"]:
+            entry_data.append([
+                entry["date"].strftime("%Y-%m-%d"),
+                entry["description"][:50],  # Truncate long descriptions
+                f"{entry['debit']:.2f}" if entry["debit"] else "",
+                f"{entry['credit']:.2f}" if entry["credit"] else "",
+                f"{entry['running_balance']:.2f}",
+            ])
+        
+        entry_table = Table(entry_data, colWidths=[1 * inch, 2.5 * inch, 0.8 * inch, 0.8 * inch, 1 * inch])
+        entry_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("ALIGN", (2, 1), (-1, -1), "RIGHT"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTNAME", (0, -1), (-1, -1), "Helvetica-Bold"),
+                ]
+            )
+        )
+        story.append(entry_table)
+    else:
+        story.append(Paragraph("No ledger entries found.", styles["Normal"]))
+    
+    story.append(Spacer(1, 0.3 * inch))
+    
+    # Closing balance
+    story.append(Paragraph(f"<b>Closing Balance:</b> {statement['closing_balance']:.2f} PKR", styles["Normal"]))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    story.append(Paragraph(f"Generated on {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", styles["Italic"]))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer

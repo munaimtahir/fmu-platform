@@ -222,7 +222,7 @@ class Command(BaseCommand):
             else:
                 users[username] = User.objects.get(username=username)
 
-        # Create student user
+        # Create student user (STUDENT_PAID)
         if not User.objects.filter(username="student").exists():
             users["student"] = User.objects.create_user(
                 username="student",
@@ -232,10 +232,12 @@ class Command(BaseCommand):
                 last_name="Scholar",
             )
             users["student"].groups.add(student_group)
-            self.stdout.write("  ✓ Created student user")
+            self.stdout.write("  ✓ Created student user (STUDENT_PAID)")
         else:
             users["student"] = User.objects.get(username="student")
         users["student"].groups.add(student_group, student_upper)
+        
+        # Create defaulter student user (STUDENT_DEFAULTER)
         if not User.objects.filter(username="student_defaulter").exists():
             users["student_defaulter"] = User.objects.create_user(
                 username="student_defaulter",
@@ -245,10 +247,55 @@ class Command(BaseCommand):
                 last_name="Dues",
             )
             users["student_defaulter"].groups.add(student_group, student_upper)
-            self.stdout.write("  ✓ Created defaulter student user")
+            self.stdout.write("  ✓ Created defaulter student user (STUDENT_DEFAULTER)")
         else:
             users["student_defaulter"] = User.objects.get(username="student_defaulter")
             users["student_defaulter"].groups.add(student_group, student_upper)
+        
+        # Create partial student user (STUDENT_PARTIAL)
+        if not User.objects.filter(username="student_partial").exists():
+            users["student_partial"] = User.objects.create_user(
+                username="student_partial",
+                email="student_partial@sims.edu",
+                password="student123",
+                first_name="Alex",
+                last_name="Partial",
+            )
+            users["student_partial"].groups.add(student_group, student_upper)
+            self.stdout.write("  ✓ Created partial student user (STUDENT_PARTIAL)")
+        else:
+            users["student_partial"] = User.objects.get(username="student_partial")
+            users["student_partial"].groups.add(student_group, student_upper)
+        
+        # Create waiver student user (STUDENT_WAIVER)
+        if not User.objects.filter(username="student_waiver").exists():
+            users["student_waiver"] = User.objects.create_user(
+                username="student_waiver",
+                email="student_waiver@sims.edu",
+                password="student123",
+                first_name="Sam",
+                last_name="Waiver",
+            )
+            users["student_waiver"].groups.add(student_group, student_upper)
+            self.stdout.write("  ✓ Created waiver student user (STUDENT_WAIVER)")
+        else:
+            users["student_waiver"] = User.objects.get(username="student_waiver")
+            users["student_waiver"].groups.add(student_group, student_upper)
+        
+        # Create reversal student user (STUDENT_REVERSAL)
+        if not User.objects.filter(username="student_reversal").exists():
+            users["student_reversal"] = User.objects.create_user(
+                username="student_reversal",
+                email="student_reversal@sims.edu",
+                password="student123",
+                first_name="Pat",
+                last_name="Reversal",
+            )
+            users["student_reversal"].groups.add(student_group, student_upper)
+            self.stdout.write("  ✓ Created reversal student user (STUDENT_REVERSAL)")
+        else:
+            users["student_reversal"] = User.objects.get(username="student_reversal")
+            users["student_reversal"].groups.add(student_group, student_upper)
 
         # Create finance user
         if not User.objects.filter(username="finance").exists():
@@ -436,62 +483,43 @@ class Command(BaseCommand):
             mbbs_batches = [batches[0]] if batches else []
             mbbs_groups = [groups[0]] if groups else []
 
-        # Create the demo student user's record first
-        student_user = users.get("student")
-        if student_user and mbbs_batches and mbbs_groups:
-            reg_no = f"{mbbs_batches[0].start_year}-MBBS-001"
-            first_name = student_user.first_name or "Jane"
-            last_name = student_user.last_name or "Scholar"
-            student, created = Student.objects.get_or_create(
-                reg_no=reg_no,
-                defaults={
-                    "name": f"{first_name} {last_name}",
-                    "program": mbbs_program,
-                    "batch": mbbs_batches[0],
-                    "group": mbbs_groups[0],
-                    "status": Student.STATUS_ACTIVE,
-                    "email": student_user.email,
-                },
-            )
-            students.append(student)
-            student_logins.append(
-                {
-                    "reg_no": reg_no,
-                    "name": student.name,
-                    "username": student_user.username,
-                    "email": student_user.email,
-                    "password": "student123",
-                }
-            )
-            self.stdout.write(f"  ✓ Created student record for demo user: {reg_no}")
-
-        # Create a defaulter student linked to dedicated user for finance gating demos
-        defaulter_user = users.get("student_defaulter")
-        if defaulter_user and mbbs_batches and mbbs_groups:
-            reg_no = f"{mbbs_batches[0].start_year}-MBBS-DEF"
-            defaulter, _ = Student.objects.get_or_create(
-                reg_no=reg_no,
-                defaults={
-                    "name": "Dana Dues",
-                    "program": mbbs_program,
-                    "batch": mbbs_batches[0],
-                    "group": mbbs_groups[0],
-                    "status": Student.STATUS_ACTIVE,
-                    "email": defaulter_user.email,
-                    "user": defaulter_user,
-                },
-            )
-            students.append(defaulter)
-            student_logins.append(
-                {
-                    "reg_no": reg_no,
-                    "name": defaulter.name,
-                    "username": defaulter_user.username,
-                    "email": defaulter_user.email,
-                    "password": "student123",
-                }
-            )
-            self.stdout.write("  ✓ Created defaulter student user record")
+        # Create the 5 specific demo students
+        demo_students_config = [
+            ("student", f"{mbbs_batches[0].start_year}-MBBS-001", "Jane", "Scholar", "STUDENT_PAID"),
+            ("student_defaulter", f"{mbbs_batches[0].start_year}-MBBS-DEF", "Dana", "Dues", "STUDENT_DEFAULTER"),
+            ("student_partial", f"{mbbs_batches[0].start_year}-MBBS-PAR", "Alex", "Partial", "STUDENT_PARTIAL"),
+            ("student_waiver", f"{mbbs_batches[0].start_year}-MBBS-WAI", "Sam", "Waiver", "STUDENT_WAIVER"),
+            ("student_reversal", f"{mbbs_batches[0].start_year}-MBBS-REV", "Pat", "Reversal", "STUDENT_REVERSAL"),
+        ]
+        
+        demo_students_map = {}
+        for username_key, reg_no, first_name, last_name, demo_type in demo_students_config:
+            user = users.get(username_key)
+            if user and mbbs_batches and mbbs_groups:
+                student, created = Student.objects.get_or_create(
+                    reg_no=reg_no,
+                    defaults={
+                        "name": f"{first_name} {last_name}",
+                        "program": mbbs_program,
+                        "batch": mbbs_batches[0],
+                        "group": mbbs_groups[0],
+                        "status": Student.STATUS_ACTIVE,
+                        "email": user.email,
+                        "user": user,
+                    },
+                )
+                students.append(student)
+                demo_students_map[username_key] = student
+                student_logins.append(
+                    {
+                        "reg_no": reg_no,
+                        "name": student.name,
+                        "username": user.username,
+                        "email": user.email,
+                        "password": "student123",
+                    }
+                )
+                self.stdout.write(f"  ✓ Created {demo_type} student: {reg_no}")
 
         # Create other students with user accounts
         for i in range(1, num_students):
@@ -732,22 +760,126 @@ class Command(BaseCommand):
         )
 
         due_date = date.today() + timedelta(days=10)
-        seeded_students = list(students[:20])
-        defaulter_student = next((s for s in seeded_students if getattr(s.user, "username", "") == "student_defaulter"), None)
-        if defaulter_student is None:
-            defaulter_student = next((s for s in students if getattr(s.user, "username", "") == "student_defaulter"), None)
-            if defaulter_student:
-                seeded_students.append(defaulter_student)
-
-        paid_students = [s for s in seeded_students if s != defaulter_student][:10]
-        partial_candidates = [s for s in seeded_students if s not in paid_students and s != defaulter_student]
-        partial_students = partial_candidates[:5]
-        unpaid_students = [s for s in seeded_students if s not in paid_students and s not in partial_students]
-        if defaulter_student and defaulter_student not in unpaid_students:
-            unpaid_students.append(defaulter_student)
-
         finance_user = users.get("finance") or users.get("admin")
-
+        
+        # Get the 5 specific demo students
+        student_paid = next((s for s in students if getattr(s.user, "username", None) == "student"), None)
+        student_defaulter = next((s for s in students if getattr(s.user, "username", None) == "student_defaulter"), None)
+        student_partial = next((s for s in students if getattr(s.user, "username", None) == "student_partial"), None)
+        student_waiver = next((s for s in students if getattr(s.user, "username", None) == "student_waiver"), None)
+        student_reversal = next((s for s in students if getattr(s.user, "username", None) == "student_reversal"), None)
+        
+        # STUDENT_PAID: Fully paid
+        if student_paid:
+            voucher = create_voucher_from_feeplan(
+                student=student_paid,
+                term=term1,
+                created_by=finance_user,
+                due_date=due_date,
+            ).voucher
+            payment = post_payment(
+                student=student_paid,
+                term=term1,
+                amount=voucher.total_amount,
+                method=Payment.METHOD_CASH,
+                voucher=voucher,
+                received_by=finance_user,
+            )
+            verify_payment(payment, approved_by=finance_user)
+            self.stdout.write("  ✓ STUDENT_PAID: Voucher created and fully paid")
+        
+        # STUDENT_PARTIAL: Partially paid (50%)
+        if student_partial:
+            voucher = create_voucher_from_feeplan(
+                student=student_partial,
+                term=term1,
+                created_by=finance_user,
+                due_date=due_date,
+            ).voucher
+            partial_amount = voucher.total_amount / 2
+            payment = post_payment(
+                student=student_partial,
+                term=term1,
+                amount=partial_amount,
+                method=Payment.METHOD_BANK_TRANSFER,
+                voucher=voucher,
+                received_by=finance_user,
+                reference_no="PARTIAL",
+            )
+            verify_payment(payment, approved_by=finance_user)
+            self.stdout.write("  ✓ STUDENT_PARTIAL: Voucher created and 50% paid")
+        
+        # STUDENT_DEFAULTER: Unpaid, overdue
+        if student_defaulter:
+            create_voucher_from_feeplan(
+                student=student_defaulter,
+                term=term1,
+                created_by=finance_user,
+                due_date=date.today() - timedelta(days=2),  # Overdue
+            )
+            self.stdout.write("  ✓ STUDENT_DEFAULTER: Overdue voucher created")
+        
+        # STUDENT_WAIVER: Approved waiver/scholarship
+        if student_waiver:
+            voucher = create_voucher_from_feeplan(
+                student=student_waiver,
+                term=term1,
+                created_by=finance_user,
+                due_date=due_date,
+            ).voucher
+            # Create and approve an adjustment (waiver)
+            from sims_backend.finance.models import Adjustment
+            from sims_backend.finance.services import approve_adjustment
+            adjustment = Adjustment.objects.create(
+                student=student_waiver,
+                term=term1,
+                kind=Adjustment.KIND_WAIVER,
+                amount=voucher.total_amount,  # Full waiver
+                reason="Demo waiver for STUDENT_WAIVER",
+                requested_by=finance_user,
+                status=Adjustment.STATUS_PENDING,
+            )
+            approve_adjustment(adjustment, approver=finance_user)
+            self.stdout.write("  ✓ STUDENT_WAIVER: Voucher created and waiver approved")
+        
+        # STUDENT_REVERSAL: Payment reversed/refunded
+        if student_reversal:
+            voucher = create_voucher_from_feeplan(
+                student=student_reversal,
+                term=term1,
+                created_by=finance_user,
+                due_date=due_date,
+            ).voucher
+            payment = post_payment(
+                student=student_reversal,
+                term=term1,
+                amount=voucher.total_amount,
+                method=Payment.METHOD_CASH,
+                voucher=voucher,
+                received_by=finance_user,
+            )
+            verify_payment(payment, approved_by=finance_user)
+            # Reverse the payment (will be implemented in services)
+            # For now, we'll create a reversal ledger entry manually
+            from sims_backend.finance.models import LedgerEntry
+            LedgerEntry.objects.create(
+                student=student_reversal,
+                term=term1,
+                entry_type=LedgerEntry.ENTRY_DEBIT,
+                amount=payment.amount,
+                reference_type=LedgerEntry.REF_REVERSAL,
+                reference_id=str(payment.id),
+                description=f"Reversal of payment {payment.receipt_no}",
+                created_by=finance_user,
+            )
+            self.stdout.write("  ✓ STUDENT_REVERSAL: Payment created, verified, and reversed")
+        
+        # Create additional students for variety (10 paid, 5 partial, 5 unpaid)
+        seeded_students = [s for s in students if s not in [student_paid, student_partial, student_defaulter, student_waiver, student_reversal]]
+        paid_students = seeded_students[:10]
+        partial_candidates = seeded_students[10:15]
+        unpaid_students = seeded_students[15:20]
+        
         for student in paid_students:
             voucher = create_voucher_from_feeplan(
                 student=student,
@@ -765,7 +897,7 @@ class Command(BaseCommand):
             )
             verify_payment(payment, approved_by=finance_user)
 
-        for student in partial_students:
+        for student in partial_candidates:
             voucher = create_voucher_from_feeplan(
                 student=student,
                 term=term1,
@@ -794,7 +926,10 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"  ✓ Finance seeded: {len(paid_students)} paid, {len(partial_students)} partial, {len(unpaid_students)} unpaid"
+                f"  ✓ Finance seeded: {len(paid_students) + (1 if student_paid else 0)} paid, "
+                f"{len(partial_candidates) + (1 if student_partial else 0)} partial, "
+                f"{len(unpaid_students) + (1 if student_defaulter else 0)} unpaid, "
+                f"1 waiver, 1 reversal"
             )
         )
         return {"term1": term1, "term2": term2}

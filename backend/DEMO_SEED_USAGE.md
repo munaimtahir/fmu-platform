@@ -124,7 +124,7 @@ The command distributes 20 students across 8 workflow stages:
   - `demo_faculty2` / faculty123
 - 20 Student users:
   - `demo_student001` through `demo_student020`
-  - Password pattern: `student{YEAR}` (e.g., student2026)
+  - Password pattern: `demo123` (e.g., demo123)
 
 ### Academic Data
 - 20 Students (both admissions.Student and students.Student records)
@@ -198,9 +198,9 @@ The command distributes 20 students across 8 workflow stages:
 👥 STUDENT DISTRIBUTION BY SCENARIO:
 
   1. ENROLLED_ONLY (3 students):
-     • DEMO_2026-MBBS-001 - John Doe (demo_student001 / student2026)
-     • DEMO_2026-MBBS-002 - Jane Smith (demo_student002 / student2026)
-     • DEMO_2026-MBBS-003 - Bob Wilson (demo_student003 / student2026)
+     • DEMO_2026-MBBS-001 - John Doe (demo_student001 / demo123)
+     • DEMO_2026-MBBS-002 - Jane Smith (demo_student002 / demo123)
+     • DEMO_2026-MBBS-003 - Bob Wilson (demo_student003 / demo123)
 
   [... additional buckets ...]
 

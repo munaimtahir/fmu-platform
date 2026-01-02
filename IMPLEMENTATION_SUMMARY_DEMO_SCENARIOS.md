@@ -112,7 +112,7 @@ python manage.py seed_demo_scenarios --reset --students 20
 
 ### Users (22 total)
 - 2 Faculty: `demo_faculty1`, `demo_faculty2` (password: faculty123)
-- 20 Students: `demo_student001` - `demo_student020` (password: student{YEAR})
+- 20 Students: `demo_student001` - `demo_student020` (password: demo123)
 
 ### Academic Structure
 - 1 Program (MBBS or specified)

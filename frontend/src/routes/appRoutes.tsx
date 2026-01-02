@@ -23,6 +23,10 @@ import { BulkEnrollmentPage } from '@/features/enrollment/BulkEnrollmentPage'
 import { BulkAttendancePage } from '@/features/attendance/BulkAttendancePage'
 import { AnalyticsDashboard } from '@/features/analytics/AnalyticsDashboard'
 import { StudentApplicationPage } from '@/pages/StudentApplicationPage'
+import { FinanceDashboard } from '@/pages/finance/FinanceDashboard'
+import { FeePlansPage } from '@/pages/finance/FeePlansPage'
+import { VoucherGenerationPage } from '@/pages/finance/VoucherGenerationPage'
+import { StudentFinancePage } from '@/pages/finance/StudentFinancePage'
 
 /**
  * Application routes configuration
@@ -203,6 +207,38 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute allowedRoles={['Admin']}>
         <AnalyticsDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/finance',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Finance']}>
+        <FinanceDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/finance/fee-plans',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Finance']}>
+        <FeePlansPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/finance/vouchers',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Finance']}>
+        <VoucherGenerationPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/finance/me',
+    element: (
+      <ProtectedRoute allowedRoles={['Student']}>
+        <StudentFinancePage />
       </ProtectedRoute>
     ),
   },

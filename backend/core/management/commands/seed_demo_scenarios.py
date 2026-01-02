@@ -22,7 +22,7 @@ from faker import Faker
 
 from core.demo_scenarios import (
     create_attendance_for_student,
-    create_challan_for_student,
+    create_voucher_for_student,
     create_demo_exam,
     create_demo_sessions,
     create_demo_student_with_user,
@@ -306,8 +306,8 @@ class Command(BaseCommand):
             student, user = create_demo_student_with_user(
                 reg_no, name, program, batch, group
             )
-            # Create challan
-            create_challan_for_student(student, academic_period, amount=Decimal("50000.00"))
+            # Create voucher
+            create_voucher_for_student(student, academic_period, amount=Decimal("50000.00"))
             students_by_scenario["FEES_VOUCHER_GENERATED"].append((student, user))
 
         return students_by_scenario

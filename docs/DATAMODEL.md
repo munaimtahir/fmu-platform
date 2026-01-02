@@ -240,6 +240,16 @@ pending ──approve──> approved ──process──> completed
 
 ---
 
+## Finance data model (Phase 2)
+- **FeeType**: static list of fee codes and names (e.g., TUITION, EXAM, LIBRARY).
+- **FeePlan**: program + term + fee_type + amount + frequency; one active plan per combination.
+- **Voucher & VoucherItem**: human-facing invoice grouped by student + term; `total_amount` snapshot and derived from line items.
+- **LedgerEntry**: immutable debit/credit lines (reference_type: voucher, payment, adjustment, scholarship, waiver, reversal). Balance is derived, not stored.
+- **Payment**: receipt details; verification posts credit ledger entries.
+- **Adjustment**: waiver/scholarship/adjustment approvals -> credit ledger entries.
+- **FinancePolicy**: gating rules (block transcript/results/enrollment when outstanding exceeds threshold).
+- **Finance gates**: transcript and result endpoints consult policies + outstanding balance before serving downloads/results.
+
 ## Indexes & Performance
 
 Key indexes for query performance:

@@ -10,7 +10,7 @@ from django.test import TestCase
 from sims_backend.results.models import ResultHeader
 from sims_backend.students.models import Student
 from sims_backend.attendance.models import Attendance
-from sims_backend.finance.models import Challan
+from sims_backend.finance.models import Voucher
 
 
 class DemoScenariosCommandTest(TestCase):
@@ -88,17 +88,17 @@ class DemoScenariosCommandTest(TestCase):
         self.assertTrue(low_attendance_found, "No student found with low attendance (60-74%)")
 
     def test_fees_voucher_generated_scenario(self):
-        """Test that FEES_VOUCHER_GENERATED student has a challan."""
+        """Test that FEES_VOUCHER_GENERATED student has a voucher."""
         call_command("seed_demo_scenarios", "--students", "20")
         
-        # Find demo students with challans
+        # Find demo students with vouchers
         demo_students = Student.objects.filter(reg_no__contains="DEMO-")
-        students_with_challans = Challan.objects.filter(
+        students_with_vouchers = Voucher.objects.filter(
             student__in=demo_students,
-            status=Challan.STATUS_PENDING
+            status=Voucher.STATUS_GENERATED
         )
         
-        self.assertGreater(students_with_challans.count(), 0, "No student found with pending challan")
+        self.assertGreater(students_with_vouchers.count(), 0, "No student found with generated voucher")
 
     def test_command_with_custom_parameters(self):
         """Test command with custom program and term parameters."""

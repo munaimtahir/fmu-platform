@@ -88,12 +88,12 @@ urlpatterns = [
     path("", include("sims_backend.results.urls")),
     path("", include("sims_backend.finance.urls")),
     path("", include("sims_backend.audit.urls")),
+    path("", include("sims_backend.transcripts.urls")),
     # Legacy apps (to be removed) - commented out for MVP migration
     path("api/", include("sims_backend.admissions.urls")),  # Enabled for student application form
     # path("", include("sims_backend.enrollment.urls")),
     # path("", include("sims_backend.assessments.urls")),
     # path("", include("sims_backend.requests.urls")),
-    # path("", include("sims_backend.transcripts.urls")),
 ]
 
 # Static files in DEBUG mode

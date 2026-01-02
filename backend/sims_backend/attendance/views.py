@@ -1,5 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
@@ -9,6 +9,23 @@ from sims_backend.attendance.models import Attendance
 from sims_backend.attendance.serializers import AttendanceSerializer
 from sims_backend.common_permissions import in_group
 from sims_backend.timetable.models import Session
+
+
+class CanMarkAttendance(permissions.BasePermission):
+    """
+    Allows access to mark attendance for Admin, Coordinator, Faculty, and Office Assistant.
+    """
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+        return (
+            user.is_superuser or
+            in_group(user, 'ADMIN') or
+            in_group(user, 'COORDINATOR') or
+            in_group(user, 'FACULTY') or
+            in_group(user, 'OFFICE_ASSISTANT')
+        )
 
 
 class AttendanceViewSet(viewsets.ModelViewSet):
@@ -25,8 +42,8 @@ class AttendanceViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         # Faculty and OfficeAssistant can mark attendance
-        if self.action in ['create', 'update', 'partial_update']:
-            return [IsAuthenticated()]  # Check in get_queryset
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [CanMarkAttendance()]
         return [IsAuthenticated()]
 
     def get_queryset(self):

@@ -337,7 +337,8 @@ def create_challan_for_student(
 def delete_demo_objects():
     """Delete all objects tagged with DEMO_ prefix."""
     # Delete in reverse dependency order
-    Challan.objects.filter(challan_no__startswith=DEMO_TAG_PREFIX).delete()
+    # Challan numbers are generated and might not have DEMO_ prefix, so we filter by student ledger item charge
+    Challan.objects.filter(ledger_item__charge__title__startswith=DEMO_TAG_PREFIX).delete()
     StudentLedgerItem.objects.filter(charge__title__startswith=DEMO_TAG_PREFIX).delete()
     Charge.objects.filter(title__startswith=DEMO_TAG_PREFIX).delete()
     

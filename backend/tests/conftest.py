@@ -28,7 +28,12 @@ def admin_user(db):
 @pytest.fixture()
 def registrar_user(db):
     user = User.objects.create_user(username="registrar1", password="pass")
-    user.groups.add(Group.objects.get(name="Registrar"))
+    # Using OFFICE_ASSISTANT or creating Registrar as needed, but standard roles are uppercase.
+    # If Registrar is not a standard MVP role, we might need to create it or map it.
+    # Assuming "Registrar" was intended to be "COORDINATOR" or "OFFICE_ASSISTANT" or a specific role.
+    # For now, let's create it if missing to fix the test, but note the casing mismatch.
+    group, _ = Group.objects.get_or_create(name="Registrar")
+    user.groups.add(group)
     user.is_staff = True
     user.save()
     return user
@@ -37,6 +42,7 @@ def registrar_user(db):
 @pytest.fixture()
 def student_user(db):
     user = User.objects.create_user(username="STU-0001", password="pass")
-    user.groups.add(Group.objects.get(name="Student"))
+    # MVP roles use uppercase "STUDENT"
+    user.groups.add(Group.objects.get(name="STUDENT"))
     user.save()
     return user

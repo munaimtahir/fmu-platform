@@ -20,11 +20,13 @@ class ResultHeader(TimeStampedModel):
     STATUS_DRAFT = "DRAFT"
     STATUS_VERIFIED = "VERIFIED"
     STATUS_PUBLISHED = "PUBLISHED"
+    STATUS_FROZEN = "FROZEN"
 
     STATUS_CHOICES = [
         (STATUS_DRAFT, "Draft"),
         (STATUS_VERIFIED, "Verified"),
         (STATUS_PUBLISHED, "Published"),
+        (STATUS_FROZEN, "Frozen"),
     ]
 
     exam = models.ForeignKey(

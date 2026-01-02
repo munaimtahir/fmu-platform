@@ -102,10 +102,28 @@ def bulk_upsert_attendance_for_session(
     valid_ids = {student.id for student in students}
     statuses: MutableMapping[int, str] = {sid: default_status for sid in valid_ids}
 
-    for record in records:
+    # Ensure records is iterable and convert to list if needed
+    # DRF should pass records as a list
+    if not records:
+        records_list = []
+    elif isinstance(records, list):
+        records_list = records
+    else:
+        # Fallback: try to convert to list, but limit iteration to prevent infinite loops
+        try:
+            records_list = list(records) if hasattr(records, '__iter__') and not isinstance(records, (str, bytes)) else []
+        except (TypeError, ValueError):
+            records_list = []
+    
+    processed_count = 0
+    for record in records_list:
+        # Handle both dict and other formats
+        if not isinstance(record, dict):
+            continue
         sid = record.get("student_id") or record.get("student")
         reg_no = record.get("reg_no")
-        status_val = parse_status_value(record.get("status"), default_status)
+        raw_status = record.get("status")
+        status_val = parse_status_value(raw_status, default_status)
         if not sid and reg_no:
             try:
                 sid = students.get(reg_no=reg_no).id
@@ -114,6 +132,7 @@ def bulk_upsert_attendance_for_session(
         if not sid or sid not in valid_ids:
             continue
         statuses[int(sid)] = status_val
+        processed_count += 1
 
     created = 0
     updated = 0
@@ -121,6 +140,13 @@ def bulk_upsert_attendance_for_session(
     for status_val in statuses.values():
         if status_val == STATUS_ABSENT:
             absent += 1
+    # Debug: log if records weren't processed
+    if processed_count == 0 and len(records_list) > 0:
+        import logging
+        logger = logging.getLogger(__name__)
+        first_rec = records_list[0] if records_list else None
+        first_sid = first_rec.get("student_id") if isinstance(first_rec, dict) else None
+        logger.warning(f"bulk_upsert: {len(records_list)} records provided but 0 processed. valid_ids sample: {list(valid_ids)[:5]}, first record type: {type(first_rec)}, first student_id: {first_sid}, first record keys: {list(first_rec.keys()) if isinstance(first_rec, dict) else 'N/A'}")
 
     # Bulk upsert to avoid N update_or_create calls.
     # Fetch existing attendance records for this session and these students.

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from core.models import TimeStampedModel
@@ -18,6 +19,14 @@ class Student(TimeStampedModel):
         (STATUS_SUSPENDED, "Suspended"),
     ]
 
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student",
+        help_text="Linked user account (optional until account is created)",
+    )
     reg_no = models.CharField(
         max_length=32,
         unique=True,

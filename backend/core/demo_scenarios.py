@@ -184,12 +184,15 @@ class DemoScenarioGenerator:
         return faculty_users
 
     def create_demo_students(self, program, batch, groups, num_students=20):
-        """Create demo students with user accounts"""
+        """Create demo students with user accounts - creates both admissions and students records"""
         students = []
         student_logins = []
         student_group, _ = AuthGroup.objects.get_or_create(name="Student")
 
         current_year = date.today().year
+
+        # Import both Student models
+        from sims_backend.students.models import Student as StudentsStudent
 
         for i in range(num_students):
             reg_no = f"{self.demo_prefix}{current_year}-{program.name[:4].upper()}-{(i + 1):03d}"
@@ -214,8 +217,11 @@ class DemoScenarioGenerator:
                 )
                 user.groups.add(student_group)
 
-            # Create student record
-            student, created = Student.objects.get_or_create(
+            dob = fake.date_of_birth(minimum_age=18, maximum_age=25)
+            phone = fake.phone_number()[:20]
+
+            # Create admissions student record
+            admissions_student, _ = Student.objects.get_or_create(
                 reg_no=reg_no,
                 defaults={
                     "name": name,
@@ -224,12 +230,28 @@ class DemoScenarioGenerator:
                     "current_year": 1,
                     "status": Student.STATUS_ACTIVE,
                     "email": email,
-                    "phone": fake.phone_number()[:20],
-                    "date_of_birth": fake.date_of_birth(minimum_age=18, maximum_age=25),
+                    "phone": phone,
+                    "date_of_birth": dob,
                 },
             )
 
-            students.append(student)
+            # Create students student record (for attendance/results)
+            students_student, _ = StudentsStudent.objects.get_or_create(
+                reg_no=reg_no,
+                defaults={
+                    "name": name,
+                    "program": program,
+                    "batch": batch,
+                    "group": group,
+                    "status": StudentsStudent.STATUS_ACTIVE,
+                    "email": email,
+                    "phone": phone,
+                    "date_of_birth": dob,
+                },
+            )
+
+            # Return students.Student instances for use in attendance/results
+            students.append(students_student)
             student_logins.append(
                 {
                     "reg_no": reg_no,
@@ -247,14 +269,36 @@ class DemoScenarioGenerator:
         """Enroll students in sections"""
         enrollments = []
 
+        # Import admissions.Student for enrollment
+        from sims_backend.admissions.models import Student as AdmissionsStudent
+
         for i, student in enumerate(students):
+            # Find matching admissions student
+            admissions_student = AdmissionsStudent.objects.filter(
+                reg_no=student.reg_no
+            ).first()
+
+            if not admissions_student:
+                # Create admissions student if doesn't exist
+                admissions_student = AdmissionsStudent.objects.create(
+                    reg_no=student.reg_no,
+                    name=student.name,
+                    program=student.program,
+                    batch_year=student.batch.start_year if hasattr(student, 'batch') else 2029,
+                    current_year=1,
+                    status=AdmissionsStudent.STATUS_ACTIVE,
+                    email=student.email,
+                    phone=student.phone if hasattr(student, 'phone') else '',
+                    date_of_birth=student.date_of_birth if hasattr(student, 'date_of_birth') else None,
+                )
+
             # Enroll in 1-2 sections
             num_sections = 1 if i % 3 == 0 else 2
             selected_sections = random.sample(sections, min(num_sections, len(sections)))
 
             for section in selected_sections:
                 enrollment, created = Enrollment.objects.get_or_create(
-                    student=student,
+                    student=admissions_student,
                     section=section,
                     defaults={
                         "term": term_name,
@@ -294,6 +338,9 @@ class DemoScenarioGenerator:
         """Create assessment scores for students"""
         scores = []
 
+        # Import admissions.Student for enrollment lookup
+        from sims_backend.admissions.models import Student as AdmissionsStudent
+
         for section in sections:
             # Create assessments for each section
             quiz, _ = Assessment.objects.get_or_create(
@@ -308,17 +355,29 @@ class DemoScenarioGenerator:
             )
 
             # Create scores for students enrolled in this section
-            enrollments = Enrollment.objects.filter(section=section, student__in=students)
-            for enrollment in enrollments:
-                # Quiz score
-                score_val = random.uniform(*score_range)
-                quiz_score, created = AssessmentScore.objects.get_or_create(
-                    assessment=quiz,
-                    student=enrollment.student,
-                    defaults={"score": score_val, "max_score": 100},
-                )
-                if created:
-                    scores.append(quiz_score)
+            # Need to get AdmissionsStudent instances based on reg_no
+            for student in students:
+                # Find matching admissions student
+                admissions_student = AdmissionsStudent.objects.filter(
+                    reg_no=student.reg_no
+                ).first()
+
+                if admissions_student:
+                    # Check if enrolled
+                    enrollment = Enrollment.objects.filter(
+                        section=section, student=admissions_student
+                    ).first()
+
+                    if enrollment:
+                        # Quiz score
+                        score_val = random.uniform(*score_range)
+                        quiz_score, created = AssessmentScore.objects.get_or_create(
+                            assessment=quiz,
+                            student=admissions_student,
+                            defaults={"score": score_val, "max_score": 100},
+                        )
+                        if created:
+                            scores.append(quiz_score)
 
         return scores
 
@@ -450,6 +509,9 @@ class DemoScenarioGenerator:
         self.log("Deleting demo objects...")
 
         # Delete in reverse dependency order
+        # First delete attendance and enrollment which reference students
+        Attendance.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
+        
         ResultComponentEntry.objects.filter(result_header__exam__title__startswith=self.demo_prefix).delete()
         ResultHeader.objects.filter(exam__title__startswith=self.demo_prefix).delete()
         ExamComponent.objects.filter(exam__title__startswith=self.demo_prefix).delete()
@@ -462,14 +524,20 @@ class DemoScenarioGenerator:
         AssessmentScore.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
         Assessment.objects.filter(section__name__startswith=self.demo_prefix).delete()
 
-        Attendance.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
-
         Enrollment.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
 
+        # Delete sessions before faculty users (to avoid protected foreign key error)
+        Session.objects.filter(faculty__username__startswith=self.demo_prefix.lower()).delete()
+        
         Section.objects.filter(name__startswith=self.demo_prefix).delete()
         Course.objects.filter(code__startswith=self.demo_prefix).delete()
 
+        # Now safe to delete students (both models)
+        from sims_backend.students.models import Student as StudentsStudent
+        StudentsStudent.objects.filter(reg_no__startswith=self.demo_prefix).delete()
         Student.objects.filter(reg_no__startswith=self.demo_prefix).delete()
+        
+        # Finally delete users
         User.objects.filter(username__startswith=self.demo_prefix.lower()).delete()
 
         self.log("  ✓ Demo objects deleted")

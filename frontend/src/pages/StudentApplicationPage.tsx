@@ -929,7 +929,6 @@ export const StudentApplicationPage = () => {
             >
               {isSubmitting ? 'Submitting...' : 'Submit Final'}
             </Button>
-            </div>
           </form>
         </div>
 

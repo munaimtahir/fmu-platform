@@ -10,6 +10,7 @@ import { ExamCellDashboard } from '@/pages/dashboards/ExamCellDashboard'
 import { DataTableDemo } from '@/pages/demo/DataTableDemo'
 import { AttendanceDashboard } from '@/pages/attendance/AttendanceDashboard'
 import { EligibilityReport } from '@/pages/attendance/EligibilityReport'
+import { AttendanceInputPage } from '@/pages/attendance/AttendanceInputPage'
 import { Gradebook } from '@/pages/gradebook/Gradebook'
 import { PublishResults } from '@/pages/examcell/PublishResults'
 import { TranscriptVerify } from '@/pages/verify/TranscriptVerify'
@@ -103,6 +104,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute allowedRoles={['Faculty', 'Admin']}>
         <AttendanceDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/attendance/input',
+    element: (
+      <ProtectedRoute allowedRoles={['Faculty', 'Admin']}>
+        <AttendanceInputPage />
       </ProtectedRoute>
     ),
   },

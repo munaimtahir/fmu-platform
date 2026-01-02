@@ -36,7 +36,10 @@ export const attendanceInputService = {
   },
 
   templateUrl(sessionId: number) {
-    return `/api/attendance-input/sheet/template/?session_id=${sessionId}`
+    return api.getUri({
+      url: '/api/attendance-input/sheet/template/',
+      params: { session_id: sessionId },
+    })
   },
 
   async sheetDryRun(formData: FormData) {

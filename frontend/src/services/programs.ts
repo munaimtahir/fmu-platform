@@ -15,7 +15,7 @@ export const programsService = {
     category?: string
     is_active?: boolean
   }): Promise<PaginatedResponse<Program>> {
-    const response = await api.get<PaginatedResponse<Program>>('/api/programs/', {
+    const response = await api.get<PaginatedResponse<Program>>('/api/academics/programs/', {
       params,
     })
     return response.data
@@ -36,7 +36,7 @@ export const programsService = {
     level: string,
     category: string
   ): Promise<Program[]> {
-    const response = await api.get<PaginatedResponse<Program>>('/api/programs/', {
+    const response = await api.get<PaginatedResponse<Program>>('/api/academics/programs/', {
       params: {
         level,
         category,

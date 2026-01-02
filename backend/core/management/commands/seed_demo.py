@@ -12,7 +12,7 @@ from django.utils import timezone
 from faker import Faker
 
 from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group, Program
-from sims_backend.finance.models import FeePlan, FeeType, FinancePolicy, Payment
+from sims_backend.finance.models import FeePlan, FeeType, FinancePolicy, Payment, Voucher
 from sims_backend.finance.services import create_voucher_from_feeplan, post_payment, verify_payment
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
@@ -897,7 +897,7 @@ class Command(BaseCommand):
             )
             verify_payment(payment, approved_by=finance_user)
 
-        for student in partial_candidates:
+        for idx, student in enumerate(partial_candidates, 1):
             voucher = create_voucher_from_feeplan(
                 student=student,
                 term=term1,
@@ -912,7 +912,7 @@ class Command(BaseCommand):
                 method=Payment.METHOD_BANK_TRANSFER,
                 voucher=voucher,
                 received_by=finance_user,
-                reference_no="PARTIAL",
+                reference_no=f"PARTIAL-{student.reg_no}-{idx}",
             )
             verify_payment(payment, approved_by=finance_user)
 

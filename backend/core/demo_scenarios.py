@@ -9,7 +9,6 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group as AuthGroup
-from django.db import transaction
 from django.utils import timezone
 from faker import Faker
 
@@ -153,7 +152,7 @@ class DemoScenarioGenerator:
                     "capacity": 50,
                 },
             )
-            
+
             # Update existing section if needed
             if not created:
                 updated = False
@@ -169,7 +168,7 @@ class DemoScenarioGenerator:
                 if updated:
                     section.save()
                     self.log(f"  ✓ Updated section: {section_name} for {course.code}")
-            
+
             sections.append(section)
             if created:
                 self.log(f"  ✓ Created section: {section_name} for {course.code}")
@@ -360,15 +359,8 @@ class DemoScenarioGenerator:
         """Create assessment scores for students"""
         scores = []
 
-        # Import admissions.Student for enrollment lookup
-        from sims_backend.admissions.models import Student as AdmissionsStudent
-
-        # Prefetch admissions students to avoid N+1 queries
+        # Get student registration numbers for filtering
         student_reg_nos = [student.reg_no for student in students]
-        admissions_students_dict = {
-            s.reg_no: s
-            for s in AdmissionsStudent.objects.filter(reg_no__in=student_reg_nos)
-        }
 
         for section in sections:
             # Create assessments for each section
@@ -527,7 +519,7 @@ class DemoScenarioGenerator:
 
     def delete_demo_objects(self):
         """Delete all objects created by this demo generator
-        
+
         Note: This method deletes objects in dependency order to avoid
         ProtectedError. If demo objects are referenced by non-demo objects,
         deletion will fail and an error will be logged.
@@ -540,10 +532,10 @@ class DemoScenarioGenerator:
             # Delete in reverse dependency order
             # First delete attendance which references students
             Attendance.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
-            
+
             # Delete enrollment which references students and sections
             Enrollment.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
-            
+
             # Delete results and exams
             ResultComponentEntry.objects.filter(
                 result_header__exam__title__startswith=self.demo_prefix
@@ -567,7 +559,7 @@ class DemoScenarioGenerator:
                 f"{self.demo_prefix.lower()}faculty{i}" for i in range(1, 10)
             ]
             Session.objects.filter(faculty__username__in=demo_faculty_usernames).delete()
-            
+
             # Delete sections and courses
             Section.objects.filter(name__startswith=self.demo_prefix).delete()
             Course.objects.filter(code__startswith=self.demo_prefix).delete()
@@ -576,7 +568,7 @@ class DemoScenarioGenerator:
             from sims_backend.students.models import Student as StudentsStudent
             StudentsStudent.objects.filter(reg_no__startswith=self.demo_prefix).delete()
             Student.objects.filter(reg_no__startswith=self.demo_prefix).delete()
-            
+
             # Finally delete users - only delete those with demo prefix
             User.objects.filter(username__in=demo_faculty_usernames).delete()
             demo_student_usernames = User.objects.filter(
@@ -585,7 +577,7 @@ class DemoScenarioGenerator:
             demo_student_usernames.delete()
 
             self.log("  ✓ Demo objects deleted")
-            
+
         except ProtectedError as e:
             self.log(
                 f"  ⚠️  Warning: Some demo objects could not be deleted because "

@@ -1,256 +1,415 @@
+from __future__ import annotations
+
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 from core.models import TimeStampedModel
 
 
-class ChargeTemplate(TimeStampedModel):
-    """Template for generating charges"""
+class FeeType(TimeStampedModel):
+    """Reference table for fee categories (tuition, exam, library, etc.)."""
 
-    FREQUENCY_BLOCK = "BLOCK"
-    FREQUENCY_MONTH = "MONTH"
-    FREQUENCY_TERM = "TERM"
-    FREQUENCY_YEAR = "YEAR"
-
-    FREQUENCY_CHOICES = [
-        (FREQUENCY_BLOCK, "Block"),
-        (FREQUENCY_MONTH, "Month"),
-        (FREQUENCY_TERM, "Term"),
-        (FREQUENCY_YEAR, "Year"),
-    ]
-
-    AUTO_GENERATE_MANUAL_WITH_REMINDER = "MANUAL_WITH_REMINDER"
-    AUTO_GENERATE_ALL_NOW = "GENERATE_ALL_NOW"
-    AUTO_GENERATE_REMIND_THEN_GENERATE = "REMIND_THEN_GENERATE"
-
-    AUTO_GENERATE_CHOICES = [
-        (AUTO_GENERATE_MANUAL_WITH_REMINDER, "Manual with Reminder"),
-        (AUTO_GENERATE_ALL_NOW, "Generate All Now"),
-        (AUTO_GENERATE_REMIND_THEN_GENERATE, "Remind Then Generate"),
-    ]
-
-    title_template = models.CharField(
-        max_length=255,
-        help_text="Title template (supports placeholders like {academic_period}, {batch})",
-    )
-    default_amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
-        help_text="Default charge amount",
-    )
-    frequency_unit = models.CharField(
-        max_length=16,
-        choices=FREQUENCY_CHOICES,
-        help_text="Frequency unit for charge generation",
-    )
-    frequency_interval = models.IntegerField(
-        default=1,
-        validators=[MinValueValidator(1)],
-        help_text="Frequency interval (e.g., every 2 blocks)",
-    )
-    auto_generate_mode = models.CharField(
+    code = models.CharField(
         max_length=32,
-        choices=AUTO_GENERATE_CHOICES,
-        default=AUTO_GENERATE_MANUAL_WITH_REMINDER,
-        help_text="How charges should be generated",
+        unique=True,
+        help_text="Unique fee type code (e.g., TUITION, EXAM, LIBRARY)",
     )
+    name = models.CharField(max_length=128, help_text="Human readable fee type name")
+    is_active = models.BooleanField(default=True, help_text="Whether this fee type can be used")
 
     class Meta:
-        ordering = ["title_template"]
+        ordering = ["code"]
+        indexes = [models.Index(fields=["is_active"])]
 
-    def __str__(self):
-        return f"{self.title_template} ({self.default_amount})"
+    def save(self, *args, **kwargs):
+        if self.code:
+            self.code = self.code.upper()
+        return super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f"{self.code} - {self.name}"
 
 
-class Charge(TimeStampedModel):
-    """Charge instance"""
+class FeePlan(TimeStampedModel):
+    """Defines fee amounts for a program + term + fee type combination."""
 
-    title = models.CharField(
-        max_length=255,
-        help_text="Charge title",
+    FREQ_ONE_TIME = "one_time"
+    FREQ_PER_TERM = "per_term"
+    FREQUENCY_CHOICES = [
+        (FREQ_ONE_TIME, "One-time"),
+        (FREQ_PER_TERM, "Per term"),
+    ]
+
+    program = models.ForeignKey(
+        "academics.Program",
+        on_delete=models.PROTECT,
+        related_name="fee_plans",
+        help_text="Program the plan applies to",
     )
-    amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
-        help_text="Charge amount",
-    )
-    due_date = models.DateField(
-        help_text="Due date for this charge",
-    )
-    academic_period = models.ForeignKey(
+    term = models.ForeignKey(
         "academics.AcademicPeriod",
         on_delete=models.PROTECT,
-        related_name="charges",
-        null=True,
-        blank=True,
-        help_text="Academic period this charge is for (optional)",
+        related_name="fee_plans",
+        help_text="Term/academic period the plan applies to",
     )
-    template = models.ForeignKey(
-        ChargeTemplate,
-        on_delete=models.SET_NULL,
-        related_name="charges",
-        null=True,
-        blank=True,
-        help_text="Template used to generate this charge (optional)",
-    )
-
-    class Meta:
-        ordering = ["-due_date", "title"]
-        indexes = [
-            models.Index(fields=["due_date"]),
-            models.Index(fields=["academic_period"]),
-        ]
-
-    def __str__(self):
-        return f"{self.title} - {self.amount} (Due: {self.due_date})"
-
-
-class StudentLedgerItem(TimeStampedModel):
-    """Ledger item linking a student to a charge"""
-
-    STATUS_PENDING = "PENDING"
-    STATUS_PAID = "PAID"
-    STATUS_WAIVED = "WAIVED"
-    STATUS_CANCELLED = "CANCELLED"
-
-    STATUS_CHOICES = [
-        (STATUS_PENDING, "Pending"),
-        (STATUS_PAID, "Paid"),
-        (STATUS_WAIVED, "Waived"),
-        (STATUS_CANCELLED, "Cancelled"),
-    ]
-
-    student = models.ForeignKey(
-        "students.Student",
-        on_delete=models.CASCADE,
-        related_name="ledger_items",
-        help_text="Student this ledger item is for",
-    )
-    charge = models.ForeignKey(
-        Charge,
+    fee_type = models.ForeignKey(
+        FeeType,
         on_delete=models.PROTECT,
-        related_name="ledger_items",
-        help_text="Charge this ledger item is for",
+        related_name="fee_plans",
+        help_text="Fee type covered by this plan",
     )
-    status = models.CharField(
-        max_length=16,
-        choices=STATUS_CHOICES,
-        default=STATUS_PENDING,
-        help_text="Status of this ledger item",
-    )
-
-    class Meta:
-        unique_together = [("student", "charge")]
-        ordering = ["student", "-charge__due_date"]
-        indexes = [
-            models.Index(fields=["student", "status"]),
-            models.Index(fields=["charge", "status"]),
-        ]
-
-    def __str__(self):
-        return f"{self.student.reg_no} - {self.charge.title} ({self.get_status_display()})"
-
-
-class Challan(TimeStampedModel):
-    """Challan for payment"""
-
-    STATUS_PENDING = "PENDING"
-    STATUS_PAID = "PAID"
-    STATUS_CANCELLED = "CANCELLED"
-
-    STATUS_CHOICES = [
-        (STATUS_PENDING, "Pending"),
-        (STATUS_PAID, "Paid"),
-        (STATUS_CANCELLED, "Cancelled"),
-    ]
-
-    challan_no = models.CharField(
-        max_length=64,
-        unique=True,
-        help_text="Unique challan number",
-    )
-    student = models.ForeignKey(
-        "students.Student",
-        on_delete=models.PROTECT,
-        related_name="challans",
-        help_text="Student this challan is for",
-    )
-    ledger_item = models.ForeignKey(
-        StudentLedgerItem,
-        on_delete=models.PROTECT,
-        related_name="challans",
-        help_text="Ledger item this challan is for",
-    )
-    amount_total = models.DecimalField(
-        max_digits=10,
+    amount = models.DecimalField(
+        max_digits=12,
         decimal_places=2,
         validators=[MinValueValidator(0)],
-        help_text="Total amount in this challan",
+        help_text="Fee amount for this plan",
     )
-    status = models.CharField(
-        max_length=16,
-        choices=STATUS_CHOICES,
-        default=STATUS_PENDING,
-        help_text="Challan status",
+    is_mandatory = models.BooleanField(default=True, help_text="Whether this fee is mandatory")
+    frequency = models.CharField(max_length=16, choices=FREQUENCY_CHOICES, default=FREQ_ONE_TIME)
+    effective_from = models.DateField(null=True, blank=True, help_text="Optional effective start date")
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["program", "term", "fee_type"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["program", "term", "fee_type"],
+                condition=Q(is_active=True),
+                name="uniq_active_feeplan",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.program} - {self.term} - {self.fee_type} ({self.amount})"
+
+
+class Voucher(TimeStampedModel):
+    """Payment request grouping voucher items for a student."""
+
+    STATUS_GENERATED = "generated"
+    STATUS_PARTIAL = "partially_paid"
+    STATUS_PAID = "paid"
+    STATUS_OVERDUE = "overdue"
+    STATUS_CANCELLED = "cancelled"
+
+    STATUS_CHOICES = [
+        (STATUS_GENERATED, "Generated"),
+        (STATUS_PARTIAL, "Partially Paid"),
+        (STATUS_PAID, "Paid"),
+        (STATUS_OVERDUE, "Overdue"),
+        (STATUS_CANCELLED, "Cancelled"),
+    ]
+
+    voucher_no = models.CharField(max_length=64, unique=True, help_text="Readable voucher number")
+    student = models.ForeignKey(
+        "students.Student",
+        on_delete=models.PROTECT,
+        related_name="vouchers",
+        help_text="Student this voucher belongs to",
     )
+    term = models.ForeignKey(
+        "academics.AcademicPeriod",
+        on_delete=models.PROTECT,
+        related_name="vouchers",
+        help_text="Term for which the voucher is issued",
+    )
+    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default=STATUS_GENERATED)
+    issue_date = models.DateField(default=timezone.now)
+    due_date = models.DateField()
+    total_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        help_text="Snapshot total for printing (truth derived from ledger)",
+    )
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_vouchers",
+    )
+
+    class Meta:
+        ordering = ["-issue_date", "voucher_no"]
+        indexes = [
+            models.Index(fields=["student", "term"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.voucher_no} - {self.student.reg_no}"
+
+
+class VoucherItem(TimeStampedModel):
+    """Line item on a voucher."""
+
+    voucher = models.ForeignKey(
+        Voucher,
+        on_delete=models.CASCADE,
+        related_name="items",
+        help_text="Voucher this line item belongs to",
+    )
+    fee_type = models.ForeignKey(
+        FeeType,
+        on_delete=models.PROTECT,
+        related_name="voucher_items",
+        help_text="Fee type for this line",
+    )
+    description = models.TextField(blank=True)
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+    )
+    metadata = models.JSONField(null=True, blank=True, help_text="Optional metadata for integrations")
+
+    class Meta:
+        ordering = ["voucher", "fee_type"]
+
+    def __str__(self) -> str:
+        return f"{self.voucher.voucher_no} - {self.fee_type.code} ({self.amount})"
+
+
+class LedgerEntry(TimeStampedModel):
+    """Source-of-truth ledger entry."""
+
+    ENTRY_DEBIT = "debit"
+    ENTRY_CREDIT = "credit"
+    ENTRY_CHOICES = [
+        (ENTRY_DEBIT, "Debit"),
+        (ENTRY_CREDIT, "Credit"),
+    ]
+
+    REF_VOUCHER = "voucher"
+    REF_PAYMENT = "payment"
+    REF_ADJUSTMENT = "adjustment"
+    REF_WAIVER = "waiver"
+    REF_SCHOLARSHIP = "scholarship"
+    REF_REVERSAL = "reversal"
+
+    student = models.ForeignKey(
+        "students.Student",
+        on_delete=models.PROTECT,
+        related_name="ledger_entries",
+        help_text="Student the entry belongs to",
+    )
+    term = models.ForeignKey(
+        "academics.AcademicPeriod",
+        on_delete=models.PROTECT,
+        related_name="ledger_entries",
+        help_text="Term/academic period for the entry",
+    )
+    entry_type = models.CharField(max_length=8, choices=ENTRY_CHOICES)
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+    )
+    currency = models.CharField(max_length=8, default="PKR")
+    reference_type = models.CharField(
+        max_length=32,
+        choices=[
+            (REF_VOUCHER, "Voucher"),
+            (REF_PAYMENT, "Payment"),
+            (REF_ADJUSTMENT, "Adjustment"),
+            (REF_WAIVER, "Waiver"),
+            (REF_SCHOLARSHIP, "Scholarship"),
+            (REF_REVERSAL, "Reversal"),
+        ],
+    )
+    reference_id = models.CharField(max_length=64, blank=True)
+    description = models.TextField(blank=True)
+    voucher = models.ForeignKey(
+        Voucher,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ledger_entries",
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ledger_entries_created",
+    )
+    voided_at = models.DateTimeField(null=True, blank=True)
+    void_reason = models.TextField(blank=True)
 
     class Meta:
         ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=["challan_no"]),
-            models.Index(fields=["student", "status"]),
+            models.Index(fields=["student", "term"]),
+            models.Index(fields=["reference_type", "reference_id"]),
         ]
 
-    def __str__(self):
-        return f"{self.challan_no} - {self.student.reg_no} ({self.amount_total})"
+    def __str__(self) -> str:
+        return f"{self.student.reg_no} {self.entry_type} {self.amount}"
 
 
-class PaymentLog(TimeStampedModel):
-    """Payment log entry"""
+class Payment(TimeStampedModel):
+    """Payment against a voucher or open credit."""
 
-    challan = models.ForeignKey(
-        Challan,
+    METHOD_CASH = "cash"
+    METHOD_BANK_TRANSFER = "bank_transfer"
+    METHOD_ONLINE = "online"
+    METHOD_SCHOLARSHIP = "scholarship"
+    METHOD_WAIVER = "waiver"
+
+    STATUS_RECEIVED = "received"
+    STATUS_VERIFIED = "verified"
+    STATUS_REJECTED = "rejected"
+
+    receipt_no = models.CharField(max_length=64, unique=True)
+    student = models.ForeignKey(
+        "students.Student",
         on_delete=models.PROTECT,
-        related_name="payment_logs",
-        help_text="Challan this payment is for",
+        related_name="payments",
     )
-    received = models.BooleanField(
-        default=True,
-        help_text="Whether payment was received",
+    term = models.ForeignKey(
+        "academics.AcademicPeriod",
+        on_delete=models.PROTECT,
+        related_name="payments",
     )
-    received_at = models.DateTimeField(
-        default=timezone.now,
-        help_text="When payment was received",
+    voucher = models.ForeignKey(
+        Voucher,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="payments",
     )
-    amount_received = models.DecimalField(
-        max_digits=10,
+    amount = models.DecimalField(
+        max_digits=12,
         decimal_places=2,
         validators=[MinValueValidator(0)],
-        help_text="Amount received",
     )
+    method = models.CharField(
+        max_length=32,
+        choices=[
+            (METHOD_CASH, "Cash"),
+            (METHOD_BANK_TRANSFER, "Bank Transfer"),
+            (METHOD_ONLINE, "Online"),
+            (METHOD_SCHOLARSHIP, "Scholarship"),
+            (METHOD_WAIVER, "Waiver"),
+        ],
+    )
+    reference_no = models.CharField(max_length=128, blank=True)
     received_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
-        related_name="logged_payments",
         null=True,
-        help_text="User who logged this payment",
-    )
-    remarks = models.TextField(
         blank=True,
-        help_text="Payment remarks/notes",
+        related_name="payments_received",
+    )
+    received_at = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=16, choices=[(STATUS_RECEIVED, "Received"), (STATUS_VERIFIED, "Verified"), (STATUS_REJECTED, "Rejected")], default=STATUS_RECEIVED)
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["-received_at", "-created_at"]
+        indexes = [
+            models.Index(fields=["student", "term"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.receipt_no} - {self.student.reg_no}"
+
+
+class Adjustment(TimeStampedModel):
+    """Waiver/Scholarship/Adjustment that results in a credit after approval."""
+
+    KIND_WAIVER = "waiver"
+    KIND_SCHOLARSHIP = "scholarship"
+    KIND_ADJUSTMENT = "adjustment"
+    KIND_FINE_REVERSAL = "fine_reversal"
+
+    STATUS_PENDING = "pending"
+    STATUS_APPROVED = "approved"
+    STATUS_REJECTED = "rejected"
+
+    student = models.ForeignKey(
+        "students.Student",
+        on_delete=models.PROTECT,
+        related_name="adjustments",
+    )
+    term = models.ForeignKey(
+        "academics.AcademicPeriod",
+        on_delete=models.PROTECT,
+        related_name="adjustments",
+    )
+    kind = models.CharField(
+        max_length=32,
+        choices=[
+            (KIND_WAIVER, "Waiver"),
+            (KIND_SCHOLARSHIP, "Scholarship"),
+            (KIND_ADJUSTMENT, "Adjustment"),
+            (KIND_FINE_REVERSAL, "Fine Reversal"),
+        ],
+    )
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+    )
+    reason = models.TextField()
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="adjustments_requested",
+    )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="adjustments_approved",
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(
+        max_length=16,
+        choices=[(STATUS_PENDING, "Pending"), (STATUS_APPROVED, "Approved"), (STATUS_REJECTED, "Rejected")],
+        default=STATUS_PENDING,
     )
 
     class Meta:
-        ordering = ["-received_at"]
-        indexes = [
-            models.Index(fields=["challan"]),
-            models.Index(fields=["received_at"]),
-        ]
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["student", "term", "status"])]
 
-    def __str__(self):
-        return f"{self.challan.challan_no} - {self.amount_received} ({self.received_at})"
+    def __str__(self) -> str:
+        return f"{self.student.reg_no} {self.kind} {self.amount} ({self.status})"
 
+
+class FinancePolicy(TimeStampedModel):
+    """Configurable finance gating policy."""
+
+    rule_key = models.CharField(max_length=128, unique=True)
+    description = models.TextField(blank=True)
+    threshold_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
+    )
+    fee_type = models.ForeignKey(
+        FeeType,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="policies",
+        help_text="Optional scope to a specific fee type",
+    )
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["rule_key"]
+
+    def __str__(self) -> str:
+        return f"{self.rule_key} ({'active' if self.is_active else 'inactive'})"

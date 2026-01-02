@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-01-02 - Finance Module (v1.4.0)
+
+### Summary
+- Added finance domain (FeeType, FeePlan, Voucher, LedgerEntry, Payment, Adjustment, FinancePolicy) with ledger-derived balances and reversal-only semantics.
+- Integrated finance gating for transcripts/results, PDF vouchers/receipts, and defaulters/collection reports.
+- Extended demo seed with finance data (paid/partial/unpaid students) and new finance/frontend workflows.
+
+### Backend
+- New `sims_backend.finance` models, services, and DRF endpoints under `/api/finance/*`.
+- Finance policies block transcript and result endpoints when outstanding dues exceed thresholds.
+- Seed command now provisions finance user/role, fee plans, vouchers, payments, and policies.
+
+### Frontend
+- Finance dashboard, fee plan maintenance, voucher generation UI, and student "My Fees" page.
+- New finance client services and types.
+
+---
+
 ## 2025-11-24 - Unified Authentication System (v1.3.0)
 
 ### Summary

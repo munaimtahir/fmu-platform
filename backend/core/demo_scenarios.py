@@ -24,7 +24,8 @@ from sims_backend.assessments.models import Assessment, AssessmentScore
 from sims_backend.attendance.models import Attendance
 from sims_backend.enrollment.models import Enrollment
 from sims_backend.exams.models import Exam, ExamComponent
-from sims_backend.finance.models import Challan, Charge, StudentLedgerItem
+from sims_backend.finance.models import FeePlan, FeeType, Voucher
+from sims_backend.finance.services import create_voucher_from_feeplan
 from sims_backend.results.models import ResultComponentEntry, ResultHeader
 from sims_backend.timetable.models import Session
 
@@ -583,7 +584,69 @@ class DemoScenarioGenerator:
                 f"  ⚠️  Warning: Some demo objects could not be deleted because "
                 f"they are referenced by non-demo objects: {e}"
             )
-            raise
-        except Exception as e:
-            self.log(f"  ❌ Error deleting demo objects: {e}")
-            raise
+    
+    return result_header
+
+
+def ensure_demo_fee_plans(program: Program, term: AcademicPeriod) -> None:
+    """Ensure default fee types and plans exist for demo scenarios."""
+    tuition, _ = FeeType.objects.get_or_create(code="TUITION", defaults={"name": "Tuition Fee"})
+    exam, _ = FeeType.objects.get_or_create(code="EXAM", defaults={"name": "Exam Fee"})
+    library, _ = FeeType.objects.get_or_create(code="LIBRARY", defaults={"name": "Library Fee"})
+
+    for fee_type, amount in [(tuition, Decimal("50000.00")), (exam, Decimal("5000.00")), (library, Decimal("2000.00"))]:
+        FeePlan.objects.get_or_create(
+            program=program,
+            term=term,
+            fee_type=fee_type,
+            defaults={"amount": amount, "is_mandatory": True, "frequency": FeePlan.FREQ_PER_TERM},
+        )
+
+
+def create_voucher_for_student(
+    student: Student,
+    academic_period: AcademicPeriod,
+    amount: Decimal = Decimal("50000.00"),
+) -> Voucher:
+    """Create a finance voucher for a student based on demo fee plans."""
+    ensure_demo_fee_plans(student.program, academic_period)
+    result = create_voucher_from_feeplan(
+        student=student,
+        term=academic_period,
+        created_by=None,
+        due_date=date.today() + timedelta(days=30),
+    )
+    return result.voucher
+
+
+def delete_demo_objects():
+    """Delete all objects tagged with DEMO_ prefix."""
+    # Delete in reverse dependency order
+    from sims_backend.finance.models import Adjustment, FinancePolicy, LedgerEntry, Payment
+
+    LedgerEntry.objects.all().delete()
+    Payment.objects.all().delete()
+    Adjustment.objects.all().delete()
+    Voucher.objects.all().delete()
+    FeePlan.objects.filter(fee_type__code__in=["TUITION", "EXAM", "LIBRARY"]).delete()
+    FinancePolicy.objects.filter(rule_key__startswith="BLOCK_").delete()
+    FeeType.objects.filter(code__in=["TUITION", "EXAM", "LIBRARY"]).delete()
+    
+    ResultComponentEntry.objects.filter(result_header__exam__title__startswith=DEMO_TAG_PREFIX).delete()
+    ResultHeader.objects.filter(exam__title__startswith=DEMO_TAG_PREFIX).delete()
+    
+    ExamComponent.objects.filter(exam__title__startswith=DEMO_TAG_PREFIX).delete()
+    Exam.objects.filter(title__startswith=DEMO_TAG_PREFIX).delete()
+    
+    Attendance.objects.filter(session__academic_period__name__startswith=DEMO_TAG_PREFIX).delete()
+    Session.objects.filter(group__name__startswith=DEMO_TAG_PREFIX).delete()
+    Session.objects.filter(academic_period__name__startswith=DEMO_TAG_PREFIX).delete()
+
+    Student.objects.filter(group__name__startswith=DEMO_TAG_PREFIX).delete()
+    Student.objects.filter(reg_no__contains=DEMO_TAG_PREFIX).delete()
+    Group.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()
+    Batch.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()
+    AcademicPeriod.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()
+    Program.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()
+    
+    # Note: We don't delete users as they might be reused

@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 from sims_backend.common.workflow import validate_workflow_transition
 from sims_backend.common_permissions import IsAdminOrCoordinator, in_group
 from sims_backend.exams.services import compute_result_passing_status
+from sims_backend.finance.services import finance_gate_checks
 from sims_backend.results.models import ResultComponentEntry, ResultHeader
 from sims_backend.results.serializers import ResultComponentEntrySerializer, ResultHeaderSerializer
 
@@ -39,6 +41,17 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
             # Filter to student's own records via user link
             student = getattr(user, 'student', None)
             if student:
+                gate = finance_gate_checks(student, None)
+                gating = gate.get("gating", {})
+                if gating and not gating.get("can_view_results", True):
+                    raise PermissionDenied(
+                        detail={
+                            "code": "FINANCE_BLOCKED",
+                            "message": "Results are blocked until outstanding dues are cleared.",
+                            "reasons": gating.get("reasons", []),
+                            "outstanding": gate.get("outstanding"),
+                        }
+                    )
                 queryset = queryset.filter(student=student)
             else:
                 # No student record linked, return empty queryset

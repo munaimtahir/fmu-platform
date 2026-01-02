@@ -12,6 +12,8 @@ from django.utils import timezone
 from faker import Faker
 
 from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group, Program
+from sims_backend.finance.models import FeePlan, FeeType, FinancePolicy, Payment
+from sims_backend.finance.services import create_voucher_from_feeplan, post_payment, verify_payment
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
 
@@ -88,6 +90,7 @@ class Command(BaseCommand):
 
         # Create timetable sessions
         sessions = self._create_sessions(academic_periods, groups, departments, users)
+        finance_meta = self._seed_finance_data(programs, academic_periods, students, users)
 
         self.stdout.write(self.style.SUCCESS("\n✅ Demo data seeded successfully!"))
         self.stdout.write(f"  - Programs: {len(programs)}")
@@ -97,6 +100,11 @@ class Command(BaseCommand):
         self.stdout.write(f"  - Academic Periods: {len(academic_periods)}")
         self.stdout.write(f"  - Students: {len(students)}")
         self.stdout.write(f"  - Sessions: {len(sessions)}")
+        if finance_meta:
+            term1 = finance_meta.get("term1")
+            term2 = finance_meta.get("term2")
+            term_line = ", ".join([t.name for t in [term1, term2] if t])
+            self.stdout.write(f"  - Finance Terms: {term_line}")
         
         # Write login credentials
         self._print_login_credentials(student_logins)
@@ -110,6 +118,11 @@ class Command(BaseCommand):
         inserted.
         """
         Session.objects.all().delete()
+        Payment.objects.all().delete()
+        Voucher.objects.all().delete()
+        FeePlan.objects.all().delete()
+        FeeType.objects.all().delete()
+        FinancePolicy.objects.all().delete()
         Student.objects.all().delete()
         Group.objects.all().delete()
         Batch.objects.all().delete()
@@ -133,11 +146,17 @@ class Command(BaseCommand):
 
         users = {}
 
-        # Ensure groups exist
+        # Ensure groups exist (both title and uppercase for compatibility)
         admin_group, _ = Group.objects.get_or_create(name="Admin")
+        admin_group_upper, _ = Group.objects.get_or_create(name="ADMIN")
         faculty_group, _ = Group.objects.get_or_create(name="Faculty")
+        faculty_upper, _ = Group.objects.get_or_create(name="FACULTY")
         student_group, _ = Group.objects.get_or_create(name="Student")
+        student_upper, _ = Group.objects.get_or_create(name="STUDENT")
         registrar_group, _ = Group.objects.get_or_create(name="Registrar")
+        registrar_upper, _ = Group.objects.get_or_create(name="REGISTRAR")
+        finance_group, _ = Group.objects.get_or_create(name="Finance")
+        finance_upper, _ = Group.objects.get_or_create(name="FINANCE")
 
         # Create admin
         if not User.objects.filter(username="admin").exists():
@@ -152,6 +171,8 @@ class Command(BaseCommand):
             self.stdout.write("  ✓ Created admin user")
         else:
             users["admin"] = User.objects.get(username="admin")
+        # Ensure admin groups attached
+        users["admin"].groups.add(admin_group, admin_group_upper)
 
         # Create registrar user
         if not User.objects.filter(username="registrar").exists():
@@ -166,6 +187,7 @@ class Command(BaseCommand):
             self.stdout.write("  ✓ Created registrar user")
         else:
             users["registrar"] = User.objects.get(username="registrar")
+        users["registrar"].groups.add(registrar_group, registrar_upper, admin_group_upper)
 
         # Create faculty user
         if not User.objects.filter(username="faculty").exists():
@@ -180,6 +202,7 @@ class Command(BaseCommand):
             self.stdout.write("  ✓ Created faculty user")
         else:
             users["faculty"] = User.objects.get(username="faculty")
+        users["faculty"].groups.add(faculty_group, faculty_upper)
 
         # Create additional faculty users
         for i in range(1, 4):
@@ -193,6 +216,7 @@ class Command(BaseCommand):
                     last_name=fake.last_name(),
                 )
                 user.groups.add(faculty_group)
+                user.groups.add(faculty_upper)
                 users[username] = user
                 self.stdout.write(f"  ✓ Created {username} user")
             else:
@@ -211,6 +235,35 @@ class Command(BaseCommand):
             self.stdout.write("  ✓ Created student user")
         else:
             users["student"] = User.objects.get(username="student")
+        users["student"].groups.add(student_group, student_upper)
+        if not User.objects.filter(username="student_defaulter").exists():
+            users["student_defaulter"] = User.objects.create_user(
+                username="student_defaulter",
+                email="student_defaulter@sims.edu",
+                password="student123",
+                first_name="Dana",
+                last_name="Dues",
+            )
+            users["student_defaulter"].groups.add(student_group, student_upper)
+            self.stdout.write("  ✓ Created defaulter student user")
+        else:
+            users["student_defaulter"] = User.objects.get(username="student_defaulter")
+            users["student_defaulter"].groups.add(student_group, student_upper)
+
+        # Create finance user
+        if not User.objects.filter(username="finance").exists():
+            users["finance"] = User.objects.create_user(
+                username="finance",
+                email="finance@sims.edu",
+                password="finance123",
+                first_name="Finance",
+                last_name="Manager",
+            )
+            users["finance"].groups.add(finance_group, finance_upper, admin_group_upper)
+            self.stdout.write("  ✓ Created finance user")
+        else:
+            users["finance"] = User.objects.get(username="finance")
+            users["finance"].groups.add(finance_group, finance_upper, admin_group_upper)
 
         return users
 
@@ -412,6 +465,34 @@ class Command(BaseCommand):
             )
             self.stdout.write(f"  ✓ Created student record for demo user: {reg_no}")
 
+        # Create a defaulter student linked to dedicated user for finance gating demos
+        defaulter_user = users.get("student_defaulter")
+        if defaulter_user and mbbs_batches and mbbs_groups:
+            reg_no = f"{mbbs_batches[0].start_year}-MBBS-DEF"
+            defaulter, _ = Student.objects.get_or_create(
+                reg_no=reg_no,
+                defaults={
+                    "name": "Dana Dues",
+                    "program": mbbs_program,
+                    "batch": mbbs_batches[0],
+                    "group": mbbs_groups[0],
+                    "status": Student.STATUS_ACTIVE,
+                    "email": defaulter_user.email,
+                    "user": defaulter_user,
+                },
+            )
+            students.append(defaulter)
+            student_logins.append(
+                {
+                    "reg_no": reg_no,
+                    "name": defaulter.name,
+                    "username": defaulter_user.username,
+                    "email": defaulter_user.email,
+                    "password": "student123",
+                }
+            )
+            self.stdout.write("  ✓ Created defaulter student user record")
+
         # Create other students with user accounts
         for i in range(1, num_students):
             reg_no = f"{mbbs_batches[0].start_year}-MBBS-{(100 + i):03d}"
@@ -487,6 +568,10 @@ class Command(BaseCommand):
         self.stdout.write("    Username: registrar")
         self.stdout.write("    Email: registrar@sims.edu")
         self.stdout.write("    Password: registrar123")
+        self.stdout.write("\n  Finance:")
+        self.stdout.write("    Username: finance")
+        self.stdout.write("    Email: finance@sims.edu")
+        self.stdout.write("    Password: finance123")
         self.stdout.write("\n  Faculty:")
         self.stdout.write("    Username: faculty / faculty1 / faculty2 / faculty3")
         self.stdout.write("    Email: faculty@sims.edu / faculty1@sims.edu / etc.")
@@ -504,6 +589,14 @@ class Command(BaseCommand):
             self.stdout.write(f"    Username: {demo_student['username']}")
             self.stdout.write(f"    Email: {demo_student['email']}")
             self.stdout.write(f"    Password: {demo_student['password']}")
+        defaulter = next((s for s in student_logins if s["username"] == "student_defaulter"), None)
+        if defaulter:
+            self.stdout.write("\n  Defaulter Student (for finance gating demo):")
+            self.stdout.write(f"    Reg No: {defaulter['reg_no']}")
+            self.stdout.write(f"    Name: {defaulter['name']}")
+            self.stdout.write(f"    Username: {defaulter['username']}")
+            self.stdout.write(f"    Email: {defaulter['email']}")
+            self.stdout.write(f"    Password: {defaulter['password']}")
 
         # Show first 10 students
         self.stdout.write("\n  Sample Students (first 10):")
@@ -576,3 +669,132 @@ class Command(BaseCommand):
 
         self.stdout.write(f"  ✓ Created {len(sessions)} timetable sessions")
         return sessions
+
+    def _seed_finance_data(self, programs, academic_periods, students, users):
+        """Seed finance demo data: fee plans, vouchers, payments, and policies."""
+        from decimal import Decimal
+
+        if not programs or not students:
+            self.stdout.write(self.style.WARNING("  ! Skipping finance seeding - missing programs/students"))
+            return None
+
+        term1 = academic_periods[0] if academic_periods else None
+        term2 = academic_periods[1] if len(academic_periods) > 1 else term1
+
+        if not term1:
+            term1 = AcademicPeriod.objects.create(
+                period_type=AcademicPeriod.PERIOD_TYPE_YEAR,
+                name="Term 1",
+                start_date=date.today(),
+                end_date=date.today() + timedelta(days=120),
+            )
+            term2 = AcademicPeriod.objects.create(
+                period_type=AcademicPeriod.PERIOD_TYPE_YEAR,
+                name="Term 2",
+                start_date=date.today() + timedelta(days=121),
+                end_date=date.today() + timedelta(days=240),
+            )
+            academic_periods.extend([term1, term2])
+
+        tuition, _ = FeeType.objects.get_or_create(code="TUITION", defaults={"name": "Tuition Fee"})
+        exam, _ = FeeType.objects.get_or_create(code="EXAM", defaults={"name": "Exam Fee"})
+        library, _ = FeeType.objects.get_or_create(code="LIBRARY", defaults={"name": "Library Fee"})
+
+        for program in programs[:2]:
+            for term in filter(None, [term1, term2]):
+                for ft, amount in [
+                    (tuition, Decimal("50000")),
+                    (exam, Decimal("5000")),
+                    (library, Decimal("2000")),
+                ]:
+                    FeePlan.objects.get_or_create(
+                        program=program,
+                        term=term,
+                        fee_type=ft,
+                        defaults={"amount": amount, "is_mandatory": True, "frequency": FeePlan.FREQ_PER_TERM},
+                    )
+
+        FinancePolicy.objects.get_or_create(
+            rule_key="BLOCK_TRANSCRIPT_IF_DUES",
+            defaults={
+                "description": "Block transcript generation when outstanding balance exists",
+                "threshold_amount": Decimal("0"),
+                "is_active": True,
+            },
+        )
+        FinancePolicy.objects.get_or_create(
+            rule_key="BLOCK_RESULTS_IF_DUES",
+            defaults={
+                "description": "Block result viewing when dues exist",
+                "threshold_amount": Decimal("0"),
+                "is_active": True,
+            },
+        )
+
+        due_date = date.today() + timedelta(days=10)
+        seeded_students = list(students[:20])
+        defaulter_student = next((s for s in seeded_students if getattr(s.user, "username", "") == "student_defaulter"), None)
+        if defaulter_student is None:
+            defaulter_student = next((s for s in students if getattr(s.user, "username", "") == "student_defaulter"), None)
+            if defaulter_student:
+                seeded_students.append(defaulter_student)
+
+        paid_students = [s for s in seeded_students if s != defaulter_student][:10]
+        partial_candidates = [s for s in seeded_students if s not in paid_students and s != defaulter_student]
+        partial_students = partial_candidates[:5]
+        unpaid_students = [s for s in seeded_students if s not in paid_students and s not in partial_students]
+        if defaulter_student and defaulter_student not in unpaid_students:
+            unpaid_students.append(defaulter_student)
+
+        finance_user = users.get("finance") or users.get("admin")
+
+        for student in paid_students:
+            voucher = create_voucher_from_feeplan(
+                student=student,
+                term=term1,
+                created_by=finance_user,
+                due_date=due_date,
+            ).voucher
+            payment = post_payment(
+                student=student,
+                term=term1,
+                amount=voucher.total_amount,
+                method=Payment.METHOD_CASH,
+                voucher=voucher,
+                received_by=finance_user,
+            )
+            verify_payment(payment, approved_by=finance_user)
+
+        for student in partial_students:
+            voucher = create_voucher_from_feeplan(
+                student=student,
+                term=term1,
+                created_by=finance_user,
+                due_date=due_date,
+            ).voucher
+            partial_amount = voucher.total_amount / 2
+            payment = post_payment(
+                student=student,
+                term=term1,
+                amount=partial_amount,
+                method=Payment.METHOD_BANK_TRANSFER,
+                voucher=voucher,
+                received_by=finance_user,
+                reference_no="PARTIAL",
+            )
+            verify_payment(payment, approved_by=finance_user)
+
+        for student in unpaid_students:
+            create_voucher_from_feeplan(
+                student=student,
+                term=term1,
+                created_by=finance_user,
+                due_date=date.today() - timedelta(days=2),
+            )
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"  ✓ Finance seeded: {len(paid_students)} paid, {len(partial_students)} partial, {len(unpaid_students)} unpaid"
+            )
+        )
+        return {"term1": term1, "term2": term2}

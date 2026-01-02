@@ -199,6 +199,81 @@ export interface Enrollment {
   status: string
 }
 
+// Finance models
+export interface FeeType {
+  id: number
+  code: string
+  name: string
+  is_active: boolean
+}
+
+export interface FeePlan {
+  id: number
+  program: number
+  program_name?: string
+  term: number
+  term_name?: string
+  fee_type: number
+  fee_type_code?: string
+  amount: number
+  is_mandatory: boolean
+  frequency: 'one_time' | 'per_term'
+  effective_from?: string
+  is_active: boolean
+}
+
+export interface VoucherItem {
+  id: number
+  fee_type: number
+  fee_type_code?: string
+  description?: string
+  amount: number
+}
+
+export interface Voucher {
+  id: number
+  voucher_no: string
+  student: number
+  student_reg_no?: string
+  student_name?: string
+  term: number
+  term_name?: string
+  status: string
+  issue_date: string
+  due_date: string
+  total_amount: number
+  notes?: string
+  items: VoucherItem[]
+  balance?: {
+    outstanding: number
+  }
+}
+
+export interface Payment {
+  id: number
+  receipt_no: string
+  student: number
+  student_name?: string
+  term: number
+  term_name?: string
+  voucher?: number
+  amount: number
+  method: string
+  reference_no?: string
+  status: string
+  received_at: string
+}
+
+export interface FinanceSummary {
+  student_id: number
+  term_id?: number | null
+  outstanding: number
+  total_debits: number
+  total_credits: number
+  voucher_statuses: Record<string, string>
+  gating: Record<string, unknown>
+}
+
 // Assessment model
 export interface Assessment {
   id: number

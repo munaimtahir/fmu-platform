@@ -106,6 +106,9 @@ class VoucherSerializer(serializers.ModelSerializer):
         read_only_fields = ["voucher_no", "status", "created_at", "updated_at"]
 
     def get_balance(self, obj: Voucher) -> dict:
+        # Skip balance calculation for list views to avoid N+1 queries
+        if self.context.get('skip_balance', False):
+            return {}
         return compute_student_balance(obj.student, term=obj.term, voucher=obj)
 
     def validate(self, attrs):

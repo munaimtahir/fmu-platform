@@ -14,6 +14,7 @@ import { Gradebook } from '@/pages/gradebook/Gradebook'
 import { PublishResults } from '@/pages/examcell/PublishResults'
 import { TranscriptVerify } from '@/pages/verify/TranscriptVerify'
 import { AuditLog } from '@/pages/admin/AuditLog'
+import { StudentsImportPage } from '@/pages/admin/StudentsImportPage'
 import { StudentsPage } from '@/features/students/StudentsPage'
 import { CoursesPage } from '@/features/courses/CoursesPage'
 import { SectionsPage } from '@/features/sections/SectionsPage'
@@ -138,6 +139,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute allowedRoles={['Admin']}>
         <AuditLog />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/admin/students/import',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Coordinator']}>
+        <StudentsImportPage />
       </ProtectedRoute>
     ),
   },

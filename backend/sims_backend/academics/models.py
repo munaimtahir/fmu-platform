@@ -140,3 +140,89 @@ class Department(TimeStampedModel):
 
     def __str__(self):
         return f"{self.code} - {self.name}" if self.code else self.name
+
+
+class Course(TimeStampedModel):
+    """Course/Subject in an academic program"""
+
+    code = models.CharField(
+        max_length=32,
+        unique=True,
+        help_text="Course code (e.g., 'ANAT-101', 'PHYS-201')",
+    )
+    name = models.CharField(
+        max_length=255,
+        help_text="Course name (e.g., 'Human Anatomy', 'Physiology')",
+    )
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.PROTECT,
+        related_name="courses",
+        help_text="Department offering this course",
+    )
+    academic_period = models.ForeignKey(
+        AcademicPeriod,
+        on_delete=models.PROTECT,
+        related_name="courses",
+        null=True,
+        blank=True,
+        help_text="Academic period this course belongs to (optional)",
+    )
+    credits = models.PositiveSmallIntegerField(
+        default=3,
+        help_text="Credit hours for this course",
+    )
+
+    class Meta:
+        ordering = ["code"]
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+
+class Section(TimeStampedModel):
+    """Section/Class for a course with faculty and group assignment"""
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.PROTECT,
+        related_name="sections",
+        help_text="Course this section belongs to",
+    )
+    name = models.CharField(
+        max_length=128,
+        help_text="Section name (e.g., 'Section A', 'Morning Batch')",
+    )
+    academic_period = models.ForeignKey(
+        AcademicPeriod,
+        on_delete=models.PROTECT,
+        related_name="sections",
+        help_text="Academic period this section belongs to",
+    )
+    faculty = models.ForeignKey(
+        "auth.User",
+        on_delete=models.PROTECT,
+        related_name="teaching_sections",
+        null=True,
+        blank=True,
+        help_text="Faculty assigned to this section (optional)",
+    )
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.PROTECT,
+        related_name="sections",
+        null=True,
+        blank=True,
+        help_text="Group this section is assigned to (optional)",
+    )
+    capacity = models.PositiveSmallIntegerField(
+        default=50,
+        help_text="Maximum number of students",
+    )
+
+    class Meta:
+        ordering = ["course", "name"]
+        unique_together = [("course", "academic_period", "name")]
+
+    def __str__(self):
+        return f"{self.course.code} - {self.name} ({self.academic_period.name})"

@@ -84,7 +84,8 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='me')
     def me(self, request):
         """Student's own results (published only)"""
-        # get_queryset() already applies student-specific filtering
+        # get_queryset() applies student-specific filtering for STUDENT role
+        # This endpoint ensures PUBLISHED filter for all user roles
         queryset = self.get_queryset().filter(status='PUBLISHED')
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

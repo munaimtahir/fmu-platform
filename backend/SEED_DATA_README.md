@@ -6,7 +6,114 @@ This guide explains how to seed the SIMS database with demo data for demonstrati
 
 The seed data system creates:
 - **Academic Structure**: Programs, Batches, Groups, Courses, Terms, Sections
-- **Users**: Admin, Registrar, Faculty (4 users), and Student users
+- **Users**: Admin, Registrar, Faculty (4 users), and Student usersYou are working inside the FMU SIMS codebase (Django backend + existing apps like academics, students, core, audit). Implement a production-quality CSV importer for Students, derived strictly from the current database model and applied migrations in this repository.
+
+Mission
+1) Add a “Student Bulk Import” feature that imports students from a CSV file.
+2) Provide an admin dashboard page to upload, preview (dry-run), validate, and commit the import.
+3) Generate a downloadable CSV template matching the current Student model + required relations.
+
+Global constraints
+- MUST NOT guess Student fields. Read them from:
+  - students/models.py
+  - students/migrations/* (latest applied)
+  - related FK models (academics: Program/Batch/Department/Group/etc.)
+- Support “preview first” workflow: validation results shown BEFORE writing to DB.
+- Provide clear error reporting per row, and an export of failed rows with reasons.
+- Idempotent: re-uploading the same CSV should not create duplicates.
+- Create an ImportJob record for auditability (who imported, when, summary counts).
+- Keep the UI simple, clean, and consistent with existing admin/dashboard styles.
+
+Scope assumptions (verify & adapt to repo)
+- Backend: Django + DRF may exist; prefer Django views + templates for the admin import dashboard OR integrate into existing React frontend if that is the chosen UI stack in this repo.
+- Authentication exists; import feature must be restricted to Admin/Staff role only.
+
+Deliverables
+A) CSV Template and Mapping
+1) Detect required Student fields and relationships:
+   - Identify unique keys used to match/update existing students (e.g., roll_number, student_code, registration_number, email).
+   - Identify FK fields and acceptable CSV representations:
+     - Program: program_code or program_name
+     - Batch: batch_code or batch_name (and link to program if needed)
+     - Department: department_code or department_name (optional)
+     - Group/Section: group_code or group_name (optional)
+2) Create endpoint/button to download template CSV with correct headers.
+3) Add documentation in docs/IMPORT_STUDENTS.md describing the CSV columns, rules, and examples.
+
+B) Import Workflow
+Implement 2-phase import:
+1) Phase 1: Upload + Dry Run (no DB writes)
+   - Parse CSV
+   - Normalize values (trim spaces, unify case where appropriate)
+   - Validate each row:
+     - Required fields present
+     - Date parsing for DOB/admission_date (accept YYYY-MM-DD; reject others)
+     - Email format if email column exists
+     - FK resolution: match Program/Batch/Department by code/name (case-insensitive)
+     - Detect duplicates in-file (same roll_number etc.)
+     - Detect duplicates in DB (existing Student with same unique key)
+   - Produce a preview result:
+     - Total rows
+     - Valid rows
+     - Invalid rows
+     - Rows that would CREATE vs UPDATE (if update mode enabled)
+     - For each invalid row: error list with column names
+2) Phase 2: Commit
+   - Only commit valid rows
+   - Use atomic transaction
+   - Create or update students depending on config:
+     - Default: CREATE ONLY (fail if existing)
+     - Optional: UPSERT mode (update existing by unique key)
+   - Record ImportJob summary: created_count, updated_count, failed_count, started_by, started_at, finished_at.
+   - Store the uploaded file (or its hash) linked to ImportJob.
+
+C) Dashboard UI
+Provide an “Import Students” dashboard page for Admin:
+- Upload CSV
+- Toggle mode:
+  - Create only / Upsert
+- Preview results table (first N rows), with filters:
+  - Show invalid only
+  - Show create vs update
+- Button: “Download error CSV”
+- Button: “Commit Import”
+- View Import History table:
+  - job id, date/time, user, totals, created/updated/failed
+  - link to job detail view
+
+D) Tests
+Add tests for:
+- CSV parsing (valid/invalid)
+- FK resolution (code/name)
+- Duplicate handling (file-level and DB-level)
+- Dry-run produces no DB writes
+- Commit writes expected rows and creates ImportJob
+Use pytest if repo uses it; otherwise Django TestCase.
+
+E) Audit & Security
+- Restrict endpoints/views to Admin/Staff.
+- Log import actions in audit log if audit app exists.
+- Ensure safe file handling (size limit, CSV injection prevention on exports: prefix cells starting with =,+,-,@ with apostrophe).
+
+Implementation details (be smart)
+- Prefer a service module: students/services/import_students.py
+  - parse_csv(file) -> rows
+  - validate_rows(rows) -> ValidationResult
+  - commit(valid_rows, mode) -> CommitResult
+- Add models:
+  - students/models.py: ImportJob (or students/imports/models.py) with fields:
+    - id, created_by, created_at, finished_at, status
+    - mode, original_filename, file_hash
+    - total_rows, valid_rows, invalid_rows, created_count, updated_count
+    - error_report_file (optional)
+- Ensure migrations created and applied.
+
+Output required
+- Commit-ready code changes
+- docs/IMPORT_STUDENTS.md
+- A sample CSV template file under docs/templates/students_import_template.csv
+- Screenshots not required; ensure route is discoverable from admin/dashboard navigation.
+
 - **Students**: Student records linked to user accounts
 - **Enrollments**: Students enrolled in various course sections
 - **Attendance**: Attendance records for enrolled students

@@ -28,6 +28,11 @@ import { FinanceDashboard } from '@/pages/finance/FinanceDashboard'
 import { FeePlansPage } from '@/pages/finance/FeePlansPage'
 import { VoucherGenerationPage } from '@/pages/finance/VoucherGenerationPage'
 import { StudentFinancePage } from '@/pages/finance/StudentFinancePage'
+import { DefaultersReportPage } from '@/pages/finance/DefaultersReportPage'
+import { CollectionReportPage } from '@/pages/finance/CollectionReportPage'
+import { AgingReportPage } from '@/pages/finance/AgingReportPage'
+import { StudentStatementPage } from '@/pages/finance/StudentStatementPage'
+import { TimetablePage } from '@/features/timetable/TimetablePage'
 
 /**
  * Application routes configuration
@@ -196,6 +201,14 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: '/timetable',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Faculty', 'Registrar', 'Coordinator']}>
+        <TimetablePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/enrollment/bulk',
     element: (
       <ProtectedRoute allowedRoles={['Admin', 'Registrar']}>
@@ -244,10 +257,58 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: '/finance/vouchers/list',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Finance']}>
+        <VouchersPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/finance/payments',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Finance']}>
+        <PaymentsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/finance/me',
     element: (
       <ProtectedRoute allowedRoles={['Student']}>
         <StudentFinancePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/finance/reports/defaulters',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Finance']}>
+        <DefaultersReportPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/finance/reports/collection',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Finance']}>
+        <CollectionReportPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/finance/reports/aging',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Finance']}>
+        <AgingReportPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/finance/reports/statement',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Finance', 'Student']}>
+        <StudentStatementPage />
       </ProtectedRoute>
     ),
   },

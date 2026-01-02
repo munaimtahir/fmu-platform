@@ -257,16 +257,29 @@ def defaulters(program: Program | None, term, min_outstanding: Decimal) -> list[
     if program:
         students = students.filter(program=program)
 
+    # Aggregate outstanding balances for all relevant students in a single query
+    student_ids = list(students.values_list("id", flat=True))
+    outstanding_by_student_id: dict[int, Decimal] = {}
+    if student_ids:
+        aggregated = (
+            LedgerEntry.objects.filter(student_id__in=student_ids, term=term)
+            .values("student_id")
+            .annotate(outstanding=Sum("amount"))
+        )
+        for row in aggregated:
+            # Ensure we always have a Decimal value, even if aggregation returns None
+            outstanding_by_student_id[row["student_id"]] = row["outstanding"] or Decimal("0")
+
     rows = []
     for student in students:
-        summary = compute_student_balance(student, term)
-        if summary["outstanding"] >= min_outstanding:
+        outstanding = outstanding_by_student_id.get(student.id, Decimal("0"))
+        if outstanding >= min_outstanding:
             rows.append(
                 {
                     "student_id": student.id,
                     "reg_no": student.reg_no,
                     "name": student.name,
-                    "outstanding": summary["outstanding"],
+                    "outstanding": outstanding,
                 }
             )
     return rows

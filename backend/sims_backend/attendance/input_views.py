@@ -22,7 +22,6 @@ from sims_backend.attendance.models import (
     BiometricPunch,
 )
 from sims_backend.attendance.services import (
-        AttendanceInputJobSummary,
         build_roster_for_session,
         bulk_upsert_attendance_for_session,
         compute_file_fingerprint,
@@ -48,8 +47,16 @@ def _get_session(session_id: int) -> Session:
 def _require_session_access(user, session: Session) -> None:
     if user.is_superuser or in_group(user, "ADMIN") or in_group(user, "COORDINATOR"):
         return
-    if in_group(user, "FACULTY") and session.faculty_id == user.id:
-        return
+    if in_group(user, "FACULTY"):
+        faculty_obj = getattr(session, "faculty", None)
+        # Handle the case where Session.faculty is a FK directly to User
+        if faculty_obj is not None:
+            if faculty_obj == user or getattr(faculty_obj, "id", None) == user.id:
+                return
+            # Handle the case where Session.faculty is a separate model with a `.user` FK to User
+            faculty_user = getattr(faculty_obj, "user", None)
+            if faculty_user is not None and getattr(faculty_user, "id", None) == user.id:
+                return
     raise PermissionError("You do not have access to this session.")
 
 
@@ -60,6 +67,11 @@ class LiveRosterAPIView(APIView):
         session_id = request.query_params.get("session_id")
         if not session_id:
             return _json_error("session_id is required")
+
+        try:
+            session_id = int(session_id)
+        except (ValueError, TypeError):
+            return _json_error("session_id must be a valid integer")
 
         try:
             session = _get_session(session_id)
@@ -244,7 +256,8 @@ class TickSheetTemplateAPIView(APIView):
         pdf.drawString(inch, y, f"Attendance Sheet - Session {session.id}")
         y -= 0.3 * inch
         pdf.setFont("Helvetica", 10)
-        pdf.drawString(inch, y, f"Date: ____________   Faculty: {session.faculty.get_full_name()}")
+        faculty_name = session.faculty.get_full_name() if session.faculty else "__________"
+        pdf.drawString(inch, y, f"Date: ____________   Faculty: {faculty_name}")
         y -= 0.2 * inch
         pdf.drawString(inch, y, f"Group: {session.group.name}")
         y -= 0.4 * inch

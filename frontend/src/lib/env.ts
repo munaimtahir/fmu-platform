@@ -3,7 +3,7 @@
  * Centralizes access to environment variables
  */
 export const env = {
-  apiBaseUrl: import.meta.env.VITE_API_URL || '',
+  apiBaseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000',
 }
 
 // Also export API_URL for backward compatibility

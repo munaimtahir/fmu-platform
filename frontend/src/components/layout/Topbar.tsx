@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/useAuth'
 
 interface TopbarProps {
@@ -124,23 +125,23 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                   <button
                     onClick={() => {
                       setIsUserMenuOpen(false)
-                      // Profile page placeholder
+                      navigate('/profile')
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
-                    disabled
                   >
-                    Profile (Coming Soon)
+                    My Profile
                   </button>
                   
                   <button
                     onClick={() => {
                       setIsUserMenuOpen(false)
-                      // Settings page placeholder
+                      // Change password - TODO: implement when backend endpoint is available
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 opacity-50 cursor-not-allowed"
                     disabled
+                    title="Coming soon - backend endpoint needed"
                   >
-                    Settings (Coming Soon)
+                    Change Password
                   </button>
                   
                   <div className="border-t border-gray-200 my-2" />

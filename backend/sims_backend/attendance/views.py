@@ -36,8 +36,9 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         # Students can only see their own attendance
         if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
             # Filter to student's own records via user link
-            if hasattr(user, 'student') and user.student:
-                queryset = queryset.filter(student=user.student)
+            student = getattr(user, 'student', None)
+            if student:
+                queryset = queryset.filter(student=student)
             else:
                 # No student record linked, return empty queryset
                 queryset = queryset.none()

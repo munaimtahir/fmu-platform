@@ -1,7 +1,7 @@
 import uuid
+
 from django.conf import settings
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -146,14 +146,14 @@ class StudentApplication(TimeStampedModel):
     )
     email = models.EmailField(help_text="Email address")
     phone = models.CharField(max_length=20, help_text="Phone number")
-    
+
     # Detailed Address
     address_city = models.CharField(max_length=100, help_text="City")
     address_district = models.CharField(max_length=100, help_text="District")
     address_state = models.CharField(max_length=100, help_text="State/Province")
     address_country = models.CharField(max_length=100, default="Pakistan", help_text="Country")
     address = models.TextField(blank=True, help_text="Full address (legacy field)")
-    
+
     # Mailing Address
     mailing_address_same = models.BooleanField(
         default=True,
@@ -164,7 +164,7 @@ class StudentApplication(TimeStampedModel):
     mailing_district = models.CharField(max_length=100, blank=True, help_text="Mailing district")
     mailing_state = models.CharField(max_length=100, blank=True, help_text="Mailing state/province")
     mailing_country = models.CharField(max_length=100, blank=True, default="Pakistan", help_text="Mailing country")
-    
+
     # Guardian Information
     guardian_name = models.CharField(max_length=255, help_text="Guardian name")
     guardian_relation = models.CharField(
@@ -199,7 +199,7 @@ class StudentApplication(TimeStampedModel):
         blank=True,
         help_text="Previous institution name (legacy field)",
     )
-    
+
     # Admission/Merit Details
     mdcat_roll_number = models.CharField(
         max_length=50,
@@ -215,7 +215,7 @@ class StudentApplication(TimeStampedModel):
         validators=[MinValueValidator(0.0000), MaxValueValidator(100.0000)],
         help_text="Merit percentage (up to 4 decimal places)",
     )
-    
+
     # Qualification - HSSC/Intermediate
     hssc_year = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1900), MaxValueValidator(2100)],
@@ -232,7 +232,7 @@ class StudentApplication(TimeStampedModel):
         validators=[MinValueValidator(0.00), MaxValueValidator(100.00)],
         help_text="HSSC/Intermediate percentage",
     )
-    
+
     # Qualification - SSC
     ssc_year = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1900), MaxValueValidator(2100)],
@@ -334,10 +334,9 @@ class StudentApplication(TimeStampedModel):
         if self.status != self.STATUS_PENDING:
             raise ValueError("Only pending applications can be approved")
 
-        # Check if already created a student (idempotency)
         from django.contrib.auth import get_user_model
         User = get_user_model()
-        
+
         # Generate registration number (you may want to customize this logic)
         year_prefix = str(self.batch_year)[-2:]
         program = self.program
@@ -347,7 +346,7 @@ class StudentApplication(TimeStampedModel):
             program = Program.objects.filter(name__icontains='mbbs').first()
             if not program:
                 raise ValueError("No MBBS program found. Please set a program for this application.")
-        
+
         program_code = program.name[:4].upper()
         # Simple sequential number - in production, you'd want a better system
         count = StudentApplication.objects.filter(
@@ -358,7 +357,7 @@ class StudentApplication(TimeStampedModel):
         # Create Student record
         # Use first_name + last_name if available, otherwise fall back to full_name
         student_name = f"{self.first_name} {self.last_name}".strip() if (self.first_name and self.last_name) else self.full_name
-        
+
         # Try to find matching user by email
         linked_user = None
         if self.email:
@@ -366,7 +365,10 @@ class StudentApplication(TimeStampedModel):
                 linked_user = User.objects.get(email__iexact=self.email.strip())
             except User.DoesNotExist:
                 pass  # User will be linked later when account is created
-        
+            except User.MultipleObjectsReturned:
+                # Ambiguous email (multiple users); do not link any user automatically
+                linked_user = None
+
         student = Student.objects.create(
             reg_no=reg_no,
             name=student_name,
@@ -403,15 +405,15 @@ class StudentApplication(TimeStampedModel):
 
 class ApplicationDraft(TimeStampedModel):
     """Draft application form data - allows students to save progress and return later"""
-    
+
     STATUS_DRAFT = "DRAFT"
     STATUS_SUBMITTED = "SUBMITTED"
-    
+
     STATUS_CHOICES = [
         (STATUS_DRAFT, "Draft"),
         (STATUS_SUBMITTED, "Submitted"),
     ]
-    
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(
         db_index=True,
@@ -440,7 +442,7 @@ class ApplicationDraft(TimeStampedModel):
         blank=True,
         help_text="When the draft was submitted (locked)"
     )
-    
+
     class Meta:
         ordering = ["-last_saved_at"]
         indexes = [
@@ -449,33 +451,33 @@ class ApplicationDraft(TimeStampedModel):
         ]
         verbose_name = "Application Draft"
         verbose_name_plural = "Application Drafts"
-    
+
     def __str__(self) -> str:
         return f"Draft for {self.email} ({self.get_status_display()})"
-    
+
     def save(self, *args, **kwargs):
         """Normalize email to lowercase and ensure only one DRAFT per email"""
         # Normalize email
         if self.email:
             self.email = self.email.strip().lower()
-        
+
         # If this is a new DRAFT, delete any existing DRAFT for this email
         if self.status == self.STATUS_DRAFT:
             ApplicationDraft.objects.filter(
                 email=self.email,
                 status=self.STATUS_DRAFT
             ).exclude(pk=self.pk).delete()
-        
+
         # Set submitted_at when status changes to SUBMITTED
         if self.status == self.STATUS_SUBMITTED and not self.submitted_at:
             self.submitted_at = timezone.now()
-        
+
         super().save(*args, **kwargs)
-    
+
     def can_edit(self):
         """Check if draft can be edited"""
         return self.status == self.STATUS_DRAFT
-    
+
     @classmethod
     def get_draft_for_email(cls, email):
         """Get the active DRAFT for an email, or None if not found"""

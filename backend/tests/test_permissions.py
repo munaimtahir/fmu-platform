@@ -4,18 +4,20 @@ Tests for role-based permission enforcement on Attendance, Results, and Finance 
 These tests ensure students can only see their own data and admins can see all data.
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, timezone as dt_timezone
 from django.contrib.auth.models import Group, User
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from sims_backend.academics.models import (
     AcademicPeriod,
     Batch,
     Department,
-    Group as StudentGroup,
     Program,
+)
+from sims_backend.academics.models import (
+    Group as StudentGroup,
 )
 from sims_backend.attendance.models import Attendance
 from sims_backend.exams.models import Exam
@@ -35,13 +37,13 @@ def setup_academic_structure(db):
     )
     batch = Batch.objects.create(name="Batch 2024", program=program, start_year=2024)
     group = StudentGroup.objects.create(name="Group A", batch=batch)
-    
+
     # Create an academic period for sessions and exams
     academic_period = AcademicPeriod.objects.create(
         name="Year 1",
         period_type=AcademicPeriod.PERIOD_TYPE_YEAR,
     )
-    
+
     return {
         "department": department,
         "program": program,
@@ -121,15 +123,15 @@ class TestAttendancePermissions:
             group=setup_academic_structure["group"],
             department=setup_academic_structure["department"],
             faculty=faculty_user,
-            starts_at=datetime.now(dt_timezone.utc),
-            ends_at=datetime.now(dt_timezone.utc),
+            starts_at=datetime.now(UTC),
+            ends_at=datetime.now(UTC),
         )
 
         # Create attendance for both students
-        att1 = Attendance.objects.create(
+        Attendance.objects.create(
             session=session, student=student1, status=Attendance.STATUS_PRESENT
         )
-        att2 = Attendance.objects.create(
+        Attendance.objects.create(
             session=session, student=student2, status=Attendance.STATUS_ABSENT
         )
 
@@ -179,8 +181,8 @@ class TestAttendancePermissions:
             group=setup_academic_structure["group"],
             department=setup_academic_structure["department"],
             faculty=faculty_user,
-            starts_at=datetime.now(dt_timezone.utc),
-            ends_at=datetime.now(dt_timezone.utc),
+            starts_at=datetime.now(UTC),
+            ends_at=datetime.now(UTC),
         )
 
         Attendance.objects.create(
@@ -220,14 +222,14 @@ class TestResultsPermissions:
         )
 
         # Create results for both students - both published
-        result1 = ResultHeader.objects.create(
+        ResultHeader.objects.create(
             exam=exam,
             student=student1,
             status=ResultHeader.STATUS_PUBLISHED,
             total_obtained=80,
             total_max=100,
         )
-        result2 = ResultHeader.objects.create(
+        ResultHeader.objects.create(
             exam=exam,
             student=student2,
             status=ResultHeader.STATUS_PUBLISHED,
@@ -338,12 +340,12 @@ class TestFinancePermissions:
         )
 
         # Create ledger items for both students
-        ledger1 = StudentLedgerItem.objects.create(
+        StudentLedgerItem.objects.create(
             student=student1,
             charge=charge,
             status=StudentLedgerItem.STATUS_PENDING,
         )
-        ledger2 = StudentLedgerItem.objects.create(
+        StudentLedgerItem.objects.create(
             student=student2,
             charge=charge,
             status=StudentLedgerItem.STATUS_PAID,

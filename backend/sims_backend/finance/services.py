@@ -13,7 +13,6 @@ from sims_backend.academics.models import Program
 from sims_backend.finance.models import (
     Adjustment,
     FeePlan,
-    FeeType,
     FinancePolicy,
     LedgerEntry,
     Payment,

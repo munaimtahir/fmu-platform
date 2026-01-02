@@ -157,9 +157,18 @@ def get_transcript(request, student_id: int):
             {"error": {"code": 404, "message": "Student not found"}}, status=404
         )
 
-    if in_group(request.user, "STUDENT") and getattr(request.user, "student", None) != student:
+    # Check permissions: students can only view their own transcript
+    # Finance/Admin users can view any student's transcript for administrative purposes
+    if in_group(request.user, "STUDENT"):
+        if getattr(request.user, "student", None) != student:
+            return Response(
+                {"error": {"code": "FORBIDDEN", "message": "You can only access your own transcript"}},
+                status=403,
+            )
+    elif not (in_group(request.user, "FINANCE") or in_group(request.user, "ADMIN") or request.user.is_superuser):
+        # Non-student users must have FINANCE or ADMIN role to view transcripts
         return Response(
-            {"error": {"code": "FORBIDDEN", "message": "You can only access your own transcript"}},
+            {"error": {"code": "FORBIDDEN", "message": "You do not have permission to view this transcript"}},
             status=403,
         )
 

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -122,7 +124,7 @@ class Voucher(TimeStampedModel):
     total_amount = models.DecimalField(
         max_digits=12,
         decimal_places=2,
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(0), MaxValueValidator(Decimal("9999999999.99"))],
         help_text="Snapshot total for printing (truth derived from ledger)",
     )
     notes = models.TextField(blank=True)

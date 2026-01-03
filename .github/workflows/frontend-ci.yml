@@ -27,12 +27,16 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
         run: npm ci
+      - name: Type Check
+        run: npm run type-check
       - name: Lint
         run: npm run lint
       - name: Test
         run: npm test -- --run
       - name: Build
         run: npm run build
+        env:
+          VITE_API_URL: /
       - name: Upload production build
         uses: actions/upload-artifact@v4
         with:

@@ -36,7 +36,7 @@ import { VouchersPage } from '@/pages/finance/VouchersPage'
 import { PaymentsPage } from '@/pages/finance/PaymentsPage'
 import { TimetablePage } from '@/features/timetable/TimetablePage'
 import { ProfilePage } from '@/pages/ProfilePage'
-import { UnauthorizedPage } from '@/pages/UnauthorizedPage'
+// UnauthorizedPage is imported dynamically in ProtectedRoute to avoid circular dependencies
 import { UsersPage } from '@/pages/admin/UsersPage'
 import { RolesPage } from '@/pages/admin/RolesPage'
 import { ProgramsPage } from '@/pages/academics/ProgramsPage'

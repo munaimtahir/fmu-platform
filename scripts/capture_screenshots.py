@@ -103,99 +103,184 @@ async def login(page: Page, username: str, password: str, base_url: str) -> bool
     """Login to the application."""
     try:
         login_url = f"{base_url}/login"
-        await page.goto(login_url, wait_until="networkidle")
+        print(f"  Navigating to login page...")
+        await page.goto(login_url, wait_until="networkidle", timeout=30000)
         
-        # Wait for form to be ready
-        await page.wait_for_selector('input[type="password"]', timeout=5000)
+        # Wait for form to be ready - wait for the identifier input specifically
+        print(f"  Waiting for login form...")
+        try:
+            # Wait for the identifier input (react-hook-form uses name="identifier")
+            await page.wait_for_selector('input[name="identifier"]', timeout=10000)
+        except:
+            # Fallback: wait for any password input
+            await page.wait_for_selector('input[type="password"]', timeout=10000)
         
-        # Try multiple selectors for the identifier field
+        # Small delay to ensure form is fully rendered
+        await page.wait_for_timeout(500)
+        
+        # Fill identifier field - prioritize the name attribute since it's react-hook-form
+        print(f"  Filling username/identifier...")
         identifier_selectors = [
-            'input[name="identifier"]',
-            'input[type="email"]',
-            'input[type="text"]',
-            'input[placeholder*="email" i], input[placeholder*="username" i]',
+            'input[name="identifier"]',  # Primary selector for react-hook-form
+            'input[type="text"]:not([type="password"])',  # Text input that's not password
+            'input[autocomplete="username"]',
         ]
         
         identifier_filled = False
         for selector in identifier_selectors:
             try:
-                await page.fill(selector, username)
-                identifier_filled = True
-                break
-            except:
+                element = await page.query_selector(selector)
+                if element:
+                    await element.fill('')
+                    await element.type(username, delay=50)
+                    identifier_filled = True
+                    print(f"  ✓ Filled identifier using: {selector}")
+                    break
+            except Exception as e:
                 continue
         
         if not identifier_filled:
-            # Fallback: find first text input
-            inputs = await page.query_selector_all('input[type="text"], input[type="email"]')
-            if inputs:
-                await inputs[0].fill(username)
-                identifier_filled = True
+            # Last resort: find first visible text input
+            inputs = await page.query_selector_all('input[type="text"]')
+            for inp in inputs:
+                try:
+                    is_visible = await inp.is_visible()
+                    if is_visible:
+                        await inp.fill('')
+                        await inp.type(username, delay=50)
+                        identifier_filled = True
+                        break
+                except:
+                    continue
         
         if not identifier_filled:
             print(f"  ✗ Could not find identifier input field")
             return False
         
-        # Fill password
-        await page.fill('input[type="password"]', password)
+        # Fill password field
+        print(f"  Filling password...")
+        password_filled = False
+        try:
+            password_input = await page.query_selector('input[type="password"]')
+            if password_input:
+                await password_input.fill('')
+                await password_input.type(password, delay=50)
+                password_filled = True
+        except Exception as e:
+            print(f"  ⚠️  Error filling password: {e}")
         
-        # Submit form - try multiple selectors
+        if not password_filled:
+            print(f"  ✗ Could not find password input field")
+            return False
+        
+        # Wait a bit before submitting
+        await page.wait_for_timeout(300)
+        
+        # Submit form - try multiple approaches
+        print(f"  Submitting login form...")
+        submitted = False
+        
+        # Try clicking the submit button by text content
         submit_selectors = [
-            'button[type="submit"]',
-            'form button[type="submit"]',
-            'button:has-text("Login")',
-            'button:has-text("Sign in")',
-            'button:has-text("Sign In")',
+            ('button[type="submit"]', 'button type="submit"'),
+            ('button:has-text("Sign In")', 'button with "Sign In" text'),
+            ('button:has-text("Sign in")', 'button with "Sign in" text'),
+            ('button:has-text("Login")', 'button with "Login" text'),
         ]
         
-        submitted = False
-        for selector in submit_selectors:
+        for selector, desc in submit_selectors:
             try:
-                # Wait for button to be visible and enabled
-                await page.wait_for_selector(selector, state="visible", timeout=2000)
-                await page.click(selector)
-                submitted = True
-                break
+                button = await page.query_selector(selector)
+                if button:
+                    is_visible = await button.is_visible()
+                    is_enabled = await button.is_enabled()
+                    if is_visible and is_enabled:
+                        await button.click()
+                        submitted = True
+                        print(f"  ✓ Clicked submit button ({desc})")
+                        break
             except:
                 continue
         
         if not submitted:
-            # Fallback: submit the form directly or press Enter
+            # Try form submit
             try:
                 form = await page.query_selector('form')
                 if form:
                     await form.evaluate('form => form.requestSubmit()')
                     submitted = True
+                    print(f"  ✓ Submitted via form.requestSubmit()")
             except:
                 pass
-            
-            if not submitted:
-                # Last resort: press Enter on password field
+        
+        if not submitted:
+            # Last resort: press Enter on password field
+            try:
                 await page.press('input[type="password"]', 'Enter')
+                submitted = True
+                print(f"  ✓ Submitted via Enter key")
+            except:
+                pass
         
-        # Wait for navigation or error
+        if not submitted:
+            print(f"  ✗ Could not submit form")
+            return False
+        
+        # Wait for navigation - the app should redirect to /dashboard after login
+        print(f"  Waiting for login to complete...")
         try:
-            await page.wait_for_load_state("networkidle", timeout=10000)
+            # Wait for URL to change away from /login or wait for dashboard to load
+            await page.wait_for_function(
+                '() => !window.location.pathname.includes("/login")',
+                timeout=15000
+            )
         except:
-            # Sometimes the page doesn't fully load, wait a bit more
-            await page.wait_for_timeout(2000)
+            # If that doesn't work, wait for network to be idle and check URL
+            try:
+                await page.wait_for_load_state("networkidle", timeout=10000)
+            except:
+                await page.wait_for_timeout(3000)
         
-        # Check if login was successful (should redirect away from login page)
+        # Check if login was successful - verify we're not on login page
         current_url = page.url
+        print(f"  Current URL after login attempt: {current_url}")
+        
         if "/login" not in current_url:
-            print(f"  ✓ Login successful")
+            print(f"  ✓ Login successful - redirected to: {current_url}")
+            # Wait for page to fully load
+            await page.wait_for_timeout(1500)
             return True
         else:
             # Check for error messages
-            error_elements = await page.query_selector_all('[role="alert"], .error, .alert-error')
-            if error_elements:
-                error_text = await error_elements[0].inner_text()
-                print(f"  ✗ Login failed: {error_text[:100]}")
-            else:
-                print(f"  ✗ Login failed - still on login page")
+            try:
+                error_selectors = [
+                    '[role="alert"]',
+                    '.error',
+                    '.alert-error',
+                    '[class*="error"]',
+                    '[class*="Error"]'
+                ]
+                for selector in error_selectors:
+                    error_elements = await page.query_selector_all(selector)
+                    if error_elements:
+                        for elem in error_elements:
+                            try:
+                                error_text = await elem.inner_text()
+                                if error_text and len(error_text.strip()) > 0:
+                                    print(f"  ✗ Login failed: {error_text[:150]}")
+                                    return False
+                            except:
+                                continue
+            except:
+                pass
+            
+            print(f"  ✗ Login failed - still on login page")
             return False
+            
     except Exception as e:
-        print(f"  ✗ Login error: {e}")
+        print(f"  ✗ Login error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
@@ -325,7 +410,7 @@ async def main():
                 fail_count += 1
                 continue
             
-            success = await capture_screenshot(page, route, output_dir, args.url, args.wait)
+            success = await capture_screenshot(page, route, output_dir, args.url, args.wait, requires_auth)
             if success:
                 success_count += 1
             else:

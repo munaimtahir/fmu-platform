@@ -35,6 +35,20 @@ import { StudentStatementPage } from '@/pages/finance/StudentStatementPage'
 import { VouchersPage } from '@/pages/finance/VouchersPage'
 import { PaymentsPage } from '@/pages/finance/PaymentsPage'
 import { TimetablePage } from '@/features/timetable/TimetablePage'
+import { ProfilePage } from '@/pages/ProfilePage'
+import { UnauthorizedPage } from '@/pages/UnauthorizedPage'
+import { UsersPage } from '@/pages/admin/UsersPage'
+import { RolesPage } from '@/pages/admin/RolesPage'
+import { ProgramsPage } from '@/pages/academics/ProgramsPage'
+import { BatchesPage } from '@/pages/academics/BatchesPage'
+import { AcademicPeriodsPage } from '@/pages/academics/AcademicPeriodsPage'
+import { GroupsPage } from '@/pages/academics/GroupsPage'
+import { DepartmentsPage } from '@/pages/academics/DepartmentsPage'
+import { ExamsPage } from '@/pages/exams/ExamsPage'
+import { ResultsPage } from '@/pages/results/ResultsPage'
+import { RequestsPage } from '@/pages/requests/RequestsPage'
+import { TranscriptsPage } from '@/pages/transcripts/TranscriptsPage'
+// UnauthorizedPage is imported dynamically in ProtectedRoute to avoid circular dependencies
 
 /**
  * Application routes configuration
@@ -311,6 +325,102 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute allowedRoles={['Admin', 'Finance', 'Student']}>
         <StudentStatementPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/profile',
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/admin/users',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin']} path="/admin/users">
+        <UsersPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/admin/roles',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin']} path="/admin/roles">
+        <RolesPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/academics/programs',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar']} path="/academics/programs">
+        <ProgramsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/academics/batches',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar']} path="/academics/batches">
+        <BatchesPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/academics/periods',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar']} path="/academics/periods">
+        <AcademicPeriodsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/academics/groups',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar']} path="/academics/groups">
+        <GroupsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/academics/departments',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar']} path="/academics/departments">
+        <DepartmentsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/exams',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Faculty', 'ExamCell']} path="/exams">
+        <ExamsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/results',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Faculty', 'Student', 'ExamCell']} path="/results">
+        <ResultsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/requests',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Student']} path="/requests">
+        <RequestsPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/transcripts',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar', 'Student']} path="/transcripts">
+        <TranscriptsPage />
       </ProtectedRoute>
     ),
   },

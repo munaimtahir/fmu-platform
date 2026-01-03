@@ -101,3 +101,36 @@ jobs:
             backend/htmlcov
             backend/coverage.xml
           if-no-files-found: error
+
+  regression:
+    name: Regression Tests (System Contracts)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run regression tests
+        env:
+          DJANGO_SECRET_KEY: test-secret-key
+          DJANGO_DEBUG: 'False'
+          DB_ENGINE: django.db.backends.sqlite3
+          DB_NAME: /tmp/test_db.sqlite3
+          DB_HOST: ''
+          DB_PORT: '0'
+        run: pytest tests/regression/ -v --tb=short
+      - name: Fail if regression tests fail
+        if: failure()
+        run: |
+          echo "ERROR: Regression tests failed. System contracts violated."
+          echo "See SYSTEM_CONTRACTS.md for contract definitions."
+          exit 1

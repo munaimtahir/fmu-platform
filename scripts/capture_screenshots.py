@@ -289,7 +289,8 @@ async def capture_screenshot(
     route: str,
     output_dir: Path,
     base_url: str,
-    wait_time: int = 2000
+    wait_time: int = 2000,
+    requires_auth: bool = False
 ) -> bool:
     """Capture a screenshot of a specific route."""
     try:

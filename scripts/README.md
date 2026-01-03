@@ -27,6 +27,12 @@ This directory contains utility scripts for testing, validation, and deployment 
 ### Maintenance Scripts
 - **`restore.sh`** - Restore application from backup
 
+### Documentation Scripts
+- **`capture_screenshots.py`** - Automated screenshot capture for all dashboard and module pages
+  - See [SCREENSHOT_GUIDE.md](./SCREENSHOT_GUIDE.md) for detailed usage instructions
+  - Requires: `pip install playwright && playwright install chromium`
+  - Usage: `python scripts/capture_screenshots.py --url http://localhost:5173 --output screenshots/ --username admin --password admin123`
+
 ## Usage
 
 All scripts should be run from the project root directory:

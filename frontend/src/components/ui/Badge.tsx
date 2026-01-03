@@ -4,7 +4,7 @@ export interface BadgeProps {
   /** The content to be rendered inside the badge. */
   children: React.ReactNode
   /** The color scheme of the badge. */
-  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger'
+  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary'
   /** Additional CSS classes to apply to the badge. */
   className?: string
 }
@@ -33,6 +33,8 @@ export const Badge: React.FC<BadgeProps> = ({
     success: 'bg-emerald-100 text-emerald-800',
     warning: 'bg-yellow-100 text-yellow-800',
     danger: 'bg-red-100 text-red-800',
+    info: 'bg-blue-100 text-blue-800',
+    secondary: 'bg-gray-100 text-gray-800',
   }
 
   return (

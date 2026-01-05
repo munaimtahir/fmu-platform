@@ -42,17 +42,21 @@ class Migration(migrations.Migration):
             """,
             reverse_sql="ALTER INDEX IF EXISTS admissions__status_292cc2_idx RENAME TO admissions_a_status_9c4e5f_idx;",
         ),
-        migrations.AddField(
-            model_name="student",
-            name="batch_year",
-            field=models.PositiveSmallIntegerField(
-                default=2029,
-                help_text="Graduating year (batch year). For example, for MBBS 5-year program, if admitted in 2024, batch_year would be 2029",
-                validators=[
-                    django.core.validators.MinValueValidator(2000),
-                    django.core.validators.MaxValueValidator(2100),
-                ],
-            ),
+        # Add batch_year field only if it doesn't exist (handles case where 0007_add_student_fields already added it)
+        migrations.RunSQL(
+            sql="""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name='admissions_student' AND column_name='batch_year') THEN
+                    ALTER TABLE admissions_student 
+                    ADD COLUMN batch_year SMALLINT NOT NULL DEFAULT 2029
+                    CHECK (batch_year >= 2000 AND batch_year <= 2100);
+                    COMMENT ON COLUMN admissions_student.batch_year IS 'Graduating year (batch year). For example, for MBBS 5-year program, if admitted in 2024, batch_year would be 2029';
+                END IF;
+            END $$;
+            """,
+            reverse_sql="ALTER TABLE admissions_student DROP COLUMN IF EXISTS batch_year;",
         ),
         migrations.AddField(
             model_name="student",

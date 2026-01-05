@@ -30,16 +30,32 @@ class Migration(migrations.Migration):
             name="template",
         ),
         migrations.RemoveField(
-            model_name="studentledgeritem",
-            name="charge",
-        ),
-        migrations.RemoveField(
             model_name="paymentlog",
             name="received_by",
         ),
-        migrations.AlterUniqueTogether(
-            name="studentledgeritem",
-            unique_together=None,
+        # Drop unique_together constraint before removing charge field
+        migrations.RunSQL(
+            sql="""
+            DO $$
+            DECLARE
+                constraint_name TEXT;
+            BEGIN
+                SELECT conname INTO constraint_name
+                FROM pg_constraint
+                WHERE conrelid = 'finance_studentledgeritem'::regclass
+                AND contype = 'u'
+                AND array_length(conkey, 1) = 2;
+                
+                IF constraint_name IS NOT NULL THEN
+                    EXECUTE 'ALTER TABLE finance_studentledgeritem DROP CONSTRAINT ' || constraint_name;
+                END IF;
+            END $$;
+            """,
+            reverse_sql="-- Cannot reverse unique constraint drop",
+        ),
+        migrations.RemoveField(
+            model_name="studentledgeritem",
+            name="charge",
         ),
         migrations.RemoveField(
             model_name="studentledgeritem",

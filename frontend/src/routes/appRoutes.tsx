@@ -40,6 +40,9 @@ import { ProfilePage } from '@/pages/ProfilePage'
 import { UsersPage } from '@/pages/admin/UsersPage'
 import { RolesPage } from '@/pages/admin/RolesPage'
 import { ProgramsPage } from '@/pages/academics/ProgramsPage'
+import { ProgramsListPage } from '@/pages/academics/ProgramsListPage'
+import { ProgramDetailPage } from '@/pages/academics/ProgramDetailPage'
+import { ProgramFormPage } from '@/pages/academics/ProgramFormPage'
 import { BatchesPage } from '@/pages/academics/BatchesPage'
 import { AcademicPeriodsPage } from '@/pages/academics/AcademicPeriodsPage'
 import { GroupsPage } from '@/pages/academics/GroupsPage'
@@ -355,7 +358,31 @@ export const router = createBrowserRouter([
   {
     path: '/academics/programs',
     element: (
-      <ProtectedRoute allowedRoles={['Admin', 'Registrar']} path="/academics/programs">
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar', 'Coordinator']}>
+        <ProgramsListPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/academics/programs/new',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar', 'Coordinator']}>
+        <ProgramFormPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/academics/programs/:id',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar', 'Coordinator']}>
+        <ProgramDetailPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/academics/programs-legacy',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar']}>
         <ProgramsPage />
       </ProtectedRoute>
     ),

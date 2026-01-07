@@ -10,8 +10,9 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from core.permissions import PermissionTaskRequired, has_permission_task
+
 from sims_backend.academics.models import Program
-from sims_backend.common_permissions import IsFinance, in_group
 from sims_backend.finance.models import (
     Adjustment,
     FeePlan,
@@ -56,29 +57,49 @@ from sims_backend.finance.services import (
 from sims_backend.students.models import Student
 
 
-def _finance_only(user):
-    return in_group(user, "FINANCE") or in_group(user, "ADMIN") or user.is_superuser
-
-
 class FeeTypeViewSet(viewsets.ModelViewSet):
     queryset = FeeType.objects.all()
     serializer_class = FeeTypeSerializer
-    permission_classes = [IsAuthenticated, IsFinance]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ["code", "name"]
     ordering_fields = ["code", "name"]
     ordering = ["code"]
+    required_tasks = ["finance.fee_types.view"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["finance.fee_types.view"]
+        elif self.action == "create":
+            self.required_tasks = ["finance.fee_types.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["finance.fee_types.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["finance.fee_types.delete"]
+        return super().get_permissions()
 
 
 class FeePlanViewSet(viewsets.ModelViewSet):
     queryset = FeePlan.objects.select_related("program", "term", "fee_type").all()
     serializer_class = FeePlanSerializer
-    permission_classes = [IsAuthenticated, IsFinance]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["program", "term", "fee_type", "is_active"]
     search_fields = ["program__name", "term__name", "fee_type__code"]
     ordering_fields = ["program", "term", "fee_type"]
     ordering = ["program", "term"]
+    required_tasks = ["finance.fee_plans.view"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["finance.fee_plans.view"]
+        elif self.action == "create":
+            self.required_tasks = ["finance.fee_plans.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["finance.fee_plans.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["finance.fee_plans.delete"]
+        return super().get_permissions()
 
 
 class VoucherViewSet(viewsets.ModelViewSet):
@@ -88,22 +109,42 @@ class VoucherViewSet(viewsets.ModelViewSet):
         .all()
     )
     serializer_class = VoucherSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["student", "term", "status"]
     search_fields = ["voucher_no", "student__reg_no", "student__name"]
     ordering_fields = ["issue_date", "due_date", "total_amount"]
     ordering = ["-issue_date"]
+    required_tasks = ["finance.vouchers.view"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve", "pdf"]:
+            self.required_tasks = ["finance.vouchers.view"]
+        elif self.action == "create":
+            self.required_tasks = ["finance.vouchers.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["finance.vouchers.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["finance.vouchers.delete"]
+        elif self.action == "generate":
+            self.required_tasks = ["finance.vouchers.generate"]
+        elif self.action == "reconcile":
+            self.required_tasks = ["finance.vouchers.reconcile"]
+        return super().get_permissions()
 
     def get_queryset(self):
+        """Object-level permission: Students can view own vouchers."""
         qs = super().get_queryset()
         user = self.request.user
-        if in_group(user, "STUDENT") and not _finance_only(user):
-            student = getattr(user, "student", None)
-            if not student:
-                return qs.none()
-            qs = qs.filter(student=student)
-        return qs
+
+        # If user has permission to view all, return all
+        if has_permission_task(user, "finance.vouchers.view"):
+            return qs
+
+        # Otherwise, return only own vouchers
+        if hasattr(user, "student"):
+            return qs.filter(student=user.student)
+        return qs.none()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -113,8 +154,6 @@ class VoucherViewSet(viewsets.ModelViewSet):
         return context
 
     def create(self, request, *args, **kwargs):
-        if not _finance_only(request.user):
-            raise PermissionDenied("Only finance/admin can create vouchers.")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(voucher_no=create_voucher_number(), created_by=request.user)
@@ -123,8 +162,6 @@ class VoucherViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="generate")
     def generate(self, request):
-        if not _finance_only(request.user):
-            raise PermissionDenied("Only finance/admin can generate vouchers.")
         serializer = VoucherGenerationRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -181,8 +218,6 @@ class VoucherViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="reconcile")
     def reconcile(self, request, pk=None):
-        if not _finance_only(request.user):
-            raise PermissionDenied("Only finance/admin can reconcile vouchers.")
         voucher = self.get_object()
         reconcile_voucher_status(voucher)
         return Response(VoucherSerializer(voucher).data)
@@ -191,26 +226,44 @@ class VoucherViewSet(viewsets.ModelViewSet):
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.select_related("student", "term", "voucher", "received_by").all()
     serializer_class = PaymentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["student", "term", "status", "method"]
     search_fields = ["receipt_no", "student__reg_no"]
     ordering_fields = ["received_at", "amount"]
     ordering = ["-received_at"]
+    required_tasks = ["finance.payments.view"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve", "pdf"]:
+            self.required_tasks = ["finance.payments.view"]
+        elif self.action == "create":
+            self.required_tasks = ["finance.payments.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["finance.payments.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["finance.payments.delete"]
+        elif self.action == "verify":
+            self.required_tasks = ["finance.payments.verify"]
+        elif self.action == "reverse":
+            self.required_tasks = ["finance.payments.reverse"]
+        return super().get_permissions()
 
     def get_queryset(self):
+        """Object-level permission: Students can view own payments."""
         qs = super().get_queryset()
         user = self.request.user
-        if in_group(user, "STUDENT") and not _finance_only(user):
-            student = getattr(user, "student", None)
-            if not student:
-                return qs.none()
-            qs = qs.filter(student=student)
-        return qs
+
+        # If user has permission to view all, return all
+        if has_permission_task(user, "finance.payments.view"):
+            return qs
+
+        # Otherwise, return only own payments
+        if hasattr(user, "student"):
+            return qs.filter(student=user.student)
+        return qs.none()
 
     def create(self, request, *args, **kwargs):
-        if not _finance_only(request.user):
-            raise PermissionDenied("Only finance/admin can log payments.")
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -235,8 +288,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="verify")
     def verify(self, request, pk=None):
-        if not _finance_only(request.user):
-            raise PermissionDenied("Only finance/admin can verify payments.")
         payment = self.get_object()
         serializer = PaymentVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -255,8 +306,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=["post"], url_path="reverse")
     def reverse(self, request, pk=None):
-        if not _finance_only(request.user):
-            raise PermissionDenied("Only finance/admin can reverse payments.")
         payment = self.get_object()
         reason = request.data.get("reason", "")
         if not reason:
@@ -271,52 +320,71 @@ class PaymentViewSet(viewsets.ModelViewSet):
 class LedgerEntryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = LedgerEntry.objects.select_related("student", "term", "voucher").all()
     serializer_class = LedgerEntrySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["student", "term", "entry_type", "reference_type"]
     search_fields = ["student__reg_no", "voucher__voucher_no", "reference_id"]
     ordering_fields = ["created_at", "amount"]
     ordering = ["-created_at"]
+    required_tasks = ["finance.ledger_entries.view"]
 
     def get_queryset(self):
+        """Object-level permission: Students can view own ledger entries."""
         qs = super().get_queryset()
         user = self.request.user
-        if in_group(user, "STUDENT") and not _finance_only(user):
-            student = getattr(user, "student", None)
-            if not student:
-                return qs.none()
-            qs = qs.filter(student=student)
-        return qs
+
+        # If user has permission to view all, return all
+        if has_permission_task(user, "finance.ledger_entries.view"):
+            return qs
+
+        # Otherwise, return only own ledger entries
+        if hasattr(user, "student"):
+            return qs.filter(student=user.student)
+        return qs.none()
 
 
 class AdjustmentViewSet(viewsets.ModelViewSet):
     queryset = Adjustment.objects.select_related("student", "term", "requested_by", "approved_by").all()
     serializer_class = AdjustmentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["student", "term", "kind", "status"]
     ordering_fields = ["created_at", "amount"]
     ordering = ["-created_at"]
+    required_tasks = ["finance.adjustments.view"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["finance.adjustments.view"]
+        elif self.action == "create":
+            self.required_tasks = ["finance.adjustments.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["finance.adjustments.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["finance.adjustments.delete"]
+        elif self.action == "approve":
+            self.required_tasks = ["finance.adjustments.approve"]
+        return super().get_permissions()
 
     def get_queryset(self):
+        """Object-level permission: Students can view own adjustments."""
         qs = super().get_queryset()
         user = self.request.user
-        if in_group(user, "STUDENT") and not _finance_only(user):
-            student = getattr(user, "student", None)
-            if not student:
-                return qs.none()
-            qs = qs.filter(student=student)
-        return qs
+
+        # If user has permission to view all, return all
+        if has_permission_task(user, "finance.adjustments.view"):
+            return qs
+
+        # Otherwise, return only own adjustments
+        if hasattr(user, "student"):
+            return qs.filter(student=user.student)
+        return qs.none()
 
     def perform_create(self, serializer):
-        if not _finance_only(self.request.user):
-            raise PermissionDenied("Only finance/admin can request adjustments.")
         serializer.save(requested_by=self.request.user)
 
     @action(detail=True, methods=["post"], url_path="approve")
     def approve(self, request, pk=None):
-        if not _finance_only(request.user):
-            raise PermissionDenied("Only finance/admin can approve adjustments.")
         adjustment = self.get_object()
         serializer = AdjustmentApproveSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -334,15 +402,32 @@ class AdjustmentViewSet(viewsets.ModelViewSet):
 class FinancePolicyViewSet(viewsets.ModelViewSet):
     queryset = FinancePolicy.objects.select_related("fee_type").all()
     serializer_class = FinancePolicySerializer
-    permission_classes = [IsAuthenticated, IsFinance]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["is_active", "fee_type"]
     search_fields = ["rule_key", "description"]
     ordering_fields = ["rule_key"]
+    required_tasks = ["finance.policies.view"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["finance.policies.view"]
+        elif self.action == "create":
+            self.required_tasks = ["finance.policies.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["finance.policies.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["finance.policies.delete"]
+        return super().get_permissions()
 
 
 class StudentFinanceSummaryViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["finance.summary.view"]
+
+    def get_permissions(self):
+        self.required_tasks = ["finance.summary.view"]
+        return super().get_permissions()
 
     def retrieve(self, request, pk=None):
         try:
@@ -351,8 +436,9 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
             return Response({"error": {"code": "STUDENT_NOT_FOUND", "message": "Student not found"}}, status=404)
 
         user = request.user
-        if in_group(user, "STUDENT") and not _finance_only(user):
-            if getattr(user, "student", None) != student:
+        # Object-level permission: Students can view own summary
+        if not has_permission_task(user, "finance.summary.view"):
+            if hasattr(user, "student") and user.student != student:
                 raise PermissionDenied("You can only view your own finance summary.")
 
         from sims_backend.academics.models import AcademicPeriod
@@ -396,8 +482,9 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
             return Response({"error": {"code": "STUDENT_NOT_FOUND", "message": "Student not found"}}, status=404)
         
         user = request.user
-        if in_group(user, "STUDENT") and not _finance_only(user):
-            if getattr(user, "student", None) != student:
+        # Object-level permission: Students can view own statement
+        if not has_permission_task(user, "finance.summary.view"):
+            if hasattr(user, "student") and user.student != student:
                 raise PermissionDenied("You can only view your own statement.")
         
         from sims_backend.academics.models import AcademicPeriod
@@ -420,8 +507,9 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
             return Response({"error": {"code": "STUDENT_NOT_FOUND", "message": "Student not found"}}, status=404)
         
         user = request.user
-        if in_group(user, "STUDENT") and not _finance_only(user):
-            if getattr(user, "student", None) != student:
+        # Object-level permission: Students can view own statement
+        if not has_permission_task(user, "finance.summary.view"):
+            if hasattr(user, "student") and user.student != student:
                 raise PermissionDenied("You can only view your own statement.")
         
         from sims_backend.academics.models import AcademicPeriod
@@ -443,7 +531,12 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
 
 
 class FinanceReportViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated, IsFinance]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["finance.reports.view"]
+
+    def get_permissions(self):
+        self.required_tasks = ["finance.reports.view"]
+        return super().get_permissions()
 
     @action(detail=False, methods=["post"], url_path="defaulters")
     def defaulters(self, request):
@@ -545,43 +638,3 @@ class FinanceReportViewSet(viewsets.ViewSet):
             return response
         
         return Response(report)
-    
-    @action(detail=False, methods=["post"], url_path="defaulters")
-    def defaulters(self, request):
-        serializer = DefaultersReportSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        program_id = serializer.validated_data.get("program_id")
-        term_id = serializer.validated_data["term_id"]
-        min_outstanding = Decimal(serializer.validated_data.get("min_outstanding") or 0)
-        program = Program.objects.filter(id=program_id).first() if program_id else None
-
-        from sims_backend.academics.models import AcademicPeriod
-
-        try:
-            term = AcademicPeriod.objects.get(id=term_id)
-        except AcademicPeriod.DoesNotExist:
-            return Response({"error": {"code": "TERM_NOT_FOUND", "message": "Invalid term"}}, status=404)
-
-        rows = defaulters(program, term, min_outstanding)
-        
-        # CSV export
-        if request.query_params.get("format") == "csv":
-            import csv
-            from django.http import HttpResponse
-            response = HttpResponse(content_type="text/csv")
-            response["Content-Disposition"] = f'attachment; filename="defaulters_{term.name}.csv"'
-            writer = csv.writer(response)
-            writer.writerow(["Reg No", "Name", "Outstanding", "Overdue Days", "Latest Voucher", "Phone", "Email"])
-            for row in rows:
-                writer.writerow([
-                    row["reg_no"],
-                    row["name"],
-                    row["outstanding"],
-                    row.get("overdue_days", 0),
-                    row.get("latest_voucher_no", ""),
-                    row.get("phone", ""),
-                    row.get("email", ""),
-                ])
-            return response
-        
-        return Response({"rows": rows})

@@ -1,0 +1,19 @@
+{
+  "include": [
+    "**/*.py"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    "**/migrations",
+    "**/venv",
+    "**/.venv",
+    "**/node_modules"
+  ],
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Linux",
+  "typeCheckingMode": "basic",
+  "venvPath": ".",
+  "venv": "venv"
+}

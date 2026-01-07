@@ -3,12 +3,14 @@
 import logging
 
 from django.db.models import Sum
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -24,10 +26,16 @@ from sims_backend.timetable.models import Session
 from .serializers import (
     AUTH_ERROR_CODES,
     EmailTokenObtainPairSerializer,
+    RoleSerializer,
+    RoleTaskAssignmentSerializer,
+    PermissionTaskSerializer,
     TokenRefreshSerializer,
     UnifiedLoginSerializer,
+    UserMeSerializer,
     UserSerializer,
+    UserTaskAssignmentSerializer,
 )
+from .permissions import PermissionTaskRequired
 
 logger = logging.getLogger(__name__)
 
@@ -340,3 +348,149 @@ def dashboard_stats(request):
 
 # Note: Eligibility computation explicitly excluded from MVP scope
 # Helper functions removed - can be re-implemented later if needed
+
+
+# Core RBAC Viewsets
+
+class RoleViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing roles.
+    
+    Permissions:
+    - list/create/update/delete: core.roles.*
+    """
+    from core.models import Role
+    
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ["name", "description"]
+    filterset_fields = ["is_system_role"]
+    
+    required_tasks = ["core.roles.view", "core.roles.create", "core.roles.update", "core.roles.delete"]
+    
+    def get_permissions(self):
+        """Override to set required_tasks based on action."""
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["core.roles.view"]
+        elif self.action == "create":
+            self.required_tasks = ["core.roles.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["core.roles.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["core.roles.delete"]
+        return super().get_permissions()
+    
+    def destroy(self, request, *args, **kwargs):
+        """Prevent deletion of system roles."""
+        instance = self.get_object()
+        if instance.is_system_role:
+            return Response(
+                {"error": "Cannot delete system roles"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().destroy(request, *args, **kwargs)
+
+
+class PermissionTaskViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for viewing permission tasks (read-only).
+    
+    Permissions:
+    - list/retrieve: core.permission_tasks.view
+    """
+    from core.models import PermissionTask
+    
+    queryset = PermissionTask.objects.all()
+    serializer_class = PermissionTaskSerializer
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ["code", "name", "description"]
+    filterset_fields = ["module"]
+    
+    required_tasks = ["core.permission_tasks.view"]
+
+
+class RoleTaskAssignmentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing role-task assignments.
+    
+    Permissions:
+    - list/create/delete: core.role_task_assignments.*
+    """
+    from core.models import RoleTaskAssignment
+    
+    queryset = RoleTaskAssignment.objects.all().select_related("role", "task")
+    serializer_class = RoleTaskAssignmentSerializer
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["role", "task"]
+    
+    required_tasks = ["core.role_task_assignments.view", "core.role_task_assignments.create", "core.role_task_assignments.delete"]
+    
+    def get_permissions(self):
+        """Override to set required_tasks based on action."""
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["core.role_task_assignments.view"]
+        elif self.action == "create":
+            self.required_tasks = ["core.role_task_assignments.create"]
+        elif self.action == "destroy":
+            self.required_tasks = ["core.role_task_assignments.delete"]
+        return super().get_permissions()
+
+
+class UserTaskAssignmentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing user-task assignments.
+    
+    Permissions:
+    - list/create/delete: core.user_task_assignments.*
+    - Object-level: Users can view their own assignments
+    """
+    from core.models import UserTaskAssignment
+    
+    queryset = UserTaskAssignment.objects.all().select_related("user", "task", "granted_by")
+    serializer_class = UserTaskAssignmentSerializer
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["user", "task"]
+    
+    required_tasks = ["core.user_task_assignments.view", "core.user_task_assignments.create", "core.user_task_assignments.delete"]
+    
+    def get_permissions(self):
+        """Override to set required_tasks based on action."""
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["core.user_task_assignments.view"]
+        elif self.action == "create":
+            self.required_tasks = ["core.user_task_assignments.create"]
+        elif self.action == "destroy":
+            self.required_tasks = ["core.user_task_assignments.delete"]
+        return super().get_permissions()
+    
+    def get_queryset(self):
+        """Object-level permission: users can view their own assignments."""
+        qs = super().get_queryset()
+        user = self.request.user
+        
+        # If user has permission to view all, return all
+        from core.permissions import has_permission_task
+        if has_permission_task(user, "core.user_task_assignments.view"):
+            return qs
+        
+        # Otherwise, return only own assignments
+        return qs.filter(user=user)
+
+
+class UserMeViewSet(viewsets.ViewSet):
+    """
+    ViewSet for /api/core/users/me/ endpoint.
+    
+    Returns current user info with roles and permission tasks.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def list(self, request):
+        """GET /api/core/users/me/"""
+        serializer = UserMeSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

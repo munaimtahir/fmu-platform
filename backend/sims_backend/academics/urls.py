@@ -4,12 +4,14 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     AcademicPeriodViewSet,
     BatchViewSet,
+    CourseViewSet,
     DepartmentViewSet,
     GroupViewSet,
     LearningBlockViewSet,
     ModuleViewSet,
     PeriodViewSet,
     ProgramViewSet,
+    SectionViewSet,
     TrackViewSet,
 )
 
@@ -17,6 +19,8 @@ router = DefaultRouter()
 router.register(r"programs", ProgramViewSet, basename="program")
 router.register(r"batches", BatchViewSet, basename="batch")
 router.register(r"academic-periods", AcademicPeriodViewSet, basename="academic-period")
+router.register(r"courses", CourseViewSet, basename="course")
+router.register(r"sections", SectionViewSet, basename="section")
 router.register(r"groups", GroupViewSet, basename="group")
 router.register(r"departments", DepartmentViewSet, basename="department")
 # New Academics Module endpoints

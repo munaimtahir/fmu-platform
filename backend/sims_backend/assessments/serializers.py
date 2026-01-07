@@ -9,7 +9,7 @@ class AssessmentSerializer(serializers.ModelSerializer):
         fields = ["id", "section", "type", "weight"]
 
     def validate(self, data):
-        """Validate assessment weight doesn't exceed 100% for section"""
+        """Validate assessment weight must sum to exactly 100% for section"""
         # Get section from data or from instance if updating
         section = data.get("section")
         if not section and self.instance:
@@ -27,10 +27,10 @@ class AssessmentSerializer(serializers.ModelSerializer):
 
             total_weight = sum(a.weight for a in existing_assessments) + weight
 
-            if total_weight > 100:
+            if total_weight != 100:
                 raise serializers.ValidationError(
                     {
-                        "weight": f"Total weight for section cannot exceed 100%. Current total: {total_weight}%"
+                        "weight": f"Total weight for section must equal exactly 100%. Current total: {total_weight}%"
                     }
                 )
         return data

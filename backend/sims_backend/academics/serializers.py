@@ -3,12 +3,14 @@ from rest_framework import serializers
 from sims_backend.academics.models import (
     AcademicPeriod,
     Batch,
+    Course,
     Department,
     Group,
     LearningBlock,
     Module,
     Period,
     Program,
+    Section,
     Track,
 )
 from sims_backend.academics.services import (
@@ -214,3 +216,60 @@ class LearningBlockSerializer(serializers.ModelSerializer):
             LearningBlockService.validate_overlap(block, track, start_date, end_date, exclude_id)
         
         return data
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source='department.name', read_only=True)
+    academic_period_name = serializers.CharField(source='academic_period.name', read_only=True)
+
+    class Meta:
+        model = Course
+        fields = [
+            'id',
+            'code',
+            'name',
+            'department',
+            'department_name',
+            'academic_period',
+            'academic_period_name',
+            'credits',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    course_code = serializers.CharField(source='course.code', read_only=True)
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    academic_period_name = serializers.CharField(source='academic_period.name', read_only=True)
+    faculty_username = serializers.CharField(source='faculty.username', read_only=True)
+    group_name = serializers.CharField(source='group.name', read_only=True)
+    enrolled_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Section
+        fields = [
+            'id',
+            'course',
+            'course_code',
+            'course_name',
+            'name',
+            'academic_period',
+            'academic_period_name',
+            'faculty',
+            'faculty_username',
+            'group',
+            'group_name',
+            'capacity',
+            'enrolled_count',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+    def get_enrolled_count(self, obj):
+        """Get count of enrolled students for this section."""
+        # This will be computed from enrollment module
+        from sims_backend.enrollment.models import Enrollment
+        return Enrollment.objects.filter(section=obj).count() if hasattr(obj, 'id') else 0

@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     # Core app (shared models and utilities)
     "core",
     # SIMS domain apps (must be these module paths)
+    "sims_backend.people",
     "sims_backend.academics",
     "sims_backend.students",
     "sims_backend.timetable",
@@ -118,8 +119,9 @@ INSTALLED_APPS = [
     "sims_backend.admissions",  # Used for student records and applications
     "sims_backend.enrollment",  # Re-enabled for demo scenarios
     "sims_backend.assessments",  # Re-enabled for demo scenarios
-    # "sims_backend.requests",
-    # "sims_backend.transcripts",
+    "sims_backend.requests",  # Requests workflow module
+    "sims_backend.documents",  # Document generation
+    "sims_backend.notifications",  # Notification service
     "apps.intake",
 ]
 

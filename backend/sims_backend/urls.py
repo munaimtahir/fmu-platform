@@ -79,6 +79,10 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="api-schema"),
         name="redoc",
     ),
+    # Core RBAC
+    path("", include("core.urls")),
+    # People (identity)
+    path("", include("sims_backend.people.urls")),
     # MVP apps
     path("", include("sims_backend.academics.urls")),
     path("", include("sims_backend.students.urls")),
@@ -91,9 +95,9 @@ urlpatterns = [
     path("", include("sims_backend.transcripts.urls")),
     # Legacy apps (to be removed) - commented out for MVP migration
     path("api/", include("sims_backend.admissions.urls")),  # Enabled for student application form
-    # path("", include("sims_backend.enrollment.urls")),
-    # path("", include("sims_backend.assessments.urls")),
-    # path("", include("sims_backend.requests.urls")),
+    path("", include("sims_backend.enrollment.urls")),
+    path("", include("sims_backend.assessments.urls")),
+    path("", include("sims_backend.requests.urls")),
 ]
 
 # Static files in DEBUG mode

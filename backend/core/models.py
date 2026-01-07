@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.conf import settings
 from django.db import models
+from django.core.exceptions import ValidationError
 
 
 class TimeStampedModel(models.Model):
@@ -90,3 +91,134 @@ class FacultyProfile(TimeStampedModel):
     def __str__(self) -> str:
         dept_name = self.department.name if self.department else "No department"
         return f"Faculty profile for {self.user.username} ({dept_name})"
+
+
+class Role(TimeStampedModel):
+    """Role model for RBAC system"""
+
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text="Role name (e.g., Admin, Student, Faculty)",
+    )
+    description = models.TextField(
+        blank=True,
+        help_text="Description of the role's purpose and responsibilities",
+    )
+    is_system_role = models.BooleanField(
+        default=False,
+        help_text="True for built-in system roles that cannot be deleted",
+    )
+
+    class Meta:
+        ordering = ["name"]
+        indexes = [
+            models.Index(fields=["name"]),
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+    def clean(self):
+        if self.is_system_role and self.pk:
+            # Prevent renaming system roles
+            original = Role.objects.get(pk=self.pk)
+            if original.name != self.name:
+                raise ValidationError("Cannot rename system roles")
+
+    def delete(self, *args, **kwargs):
+        if self.is_system_role:
+            raise ValidationError("Cannot delete system roles")
+        super().delete(*args, **kwargs)
+
+
+class PermissionTask(TimeStampedModel):
+    """Permission task model for task-based RBAC"""
+
+    code = models.CharField(
+        max_length=200,
+        unique=True,
+        help_text="Unique task code (e.g., 'students.view', 'enrollment.create')",
+    )
+    name = models.CharField(
+        max_length=255,
+        help_text="Human-readable task name",
+    )
+    description = models.TextField(
+        blank=True,
+        help_text="Description of what this permission task allows",
+    )
+    module = models.CharField(
+        max_length=100,
+        help_text="Module this task belongs to (e.g., 'students', 'enrollment')",
+    )
+
+    class Meta:
+        ordering = ["module", "code"]
+        indexes = [
+            models.Index(fields=["module"]),
+            models.Index(fields=["code"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.code} ({self.name})"
+
+
+class RoleTaskAssignment(TimeStampedModel):
+    """Assignment of permission tasks to roles"""
+
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.CASCADE,
+        related_name="task_assignments",
+        help_text="Role being assigned tasks",
+    )
+    task = models.ForeignKey(
+        PermissionTask,
+        on_delete=models.CASCADE,
+        related_name="role_assignments",
+        help_text="Permission task being assigned",
+    )
+
+    class Meta:
+        unique_together = [["role", "task"]]
+        indexes = [
+            models.Index(fields=["role", "task"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.role.name} → {self.task.code}"
+
+
+class UserTaskAssignment(TimeStampedModel):
+    """Direct assignment of permission tasks to users (override role defaults)"""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="task_assignments",
+        help_text="User being assigned a task",
+    )
+    task = models.ForeignKey(
+        PermissionTask,
+        on_delete=models.CASCADE,
+        related_name="user_assignments",
+        help_text="Permission task being assigned",
+    )
+    granted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="granted_task_assignments",
+        help_text="User who granted this task",
+    )
+
+    class Meta:
+        unique_together = [["user", "task"]]
+        indexes = [
+            models.Index(fields=["user", "task"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user.username} → {self.task.code}"

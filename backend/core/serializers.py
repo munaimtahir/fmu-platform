@@ -232,3 +232,143 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
             return data
         else:
             raise AuthenticationFailed("Must include 'email' and 'password'.")
+
+
+# Core module serializers for RBAC system
+
+class PermissionTaskSerializer(serializers.ModelSerializer):
+    """Serializer for PermissionTask model."""
+    
+    class Meta:
+        from core.models import PermissionTask
+        model = PermissionTask
+        fields = ["id", "code", "name", "description", "module", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    """Serializer for Role model."""
+    
+    task_assignments = serializers.SerializerMethodField()
+    
+    class Meta:
+        from core.models import Role
+        model = Role
+        fields = ["id", "name", "description", "is_system_role", "task_assignments", "created_at", "updated_at"]
+        read_only_fields = ["id", "is_system_role", "created_at", "updated_at"]
+    
+    def get_task_assignments(self, obj):
+        """Get list of permission tasks assigned to this role."""
+        from core.models import RoleTaskAssignment
+        assignments = RoleTaskAssignment.objects.filter(role=obj).select_related("task")
+        return [
+            {
+                "id": a.id,
+                "task": {
+                    "id": a.task.id,
+                    "code": a.task.code,
+                    "name": a.task.name,
+                },
+                "created_at": a.created_at.isoformat(),
+            }
+            for a in assignments
+        ]
+    
+    def validate_name(self, value):
+        """Validate role name."""
+        if self.instance and self.instance.is_system_role:
+            if value != self.instance.name:
+                raise serializers.ValidationError("Cannot rename system roles")
+        return value
+
+
+class RoleTaskAssignmentSerializer(serializers.ModelSerializer):
+    """Serializer for RoleTaskAssignment model."""
+    
+    role = RoleSerializer(read_only=True)
+    task = PermissionTaskSerializer(read_only=True)
+    role_id = serializers.IntegerField(write_only=True)
+    task_id = serializers.IntegerField(write_only=True)
+    
+    class Meta:
+        from core.models import RoleTaskAssignment
+        model = RoleTaskAssignment
+        fields = ["id", "role", "task", "role_id", "task_id", "created_at", "updated_at"]
+        read_only_fields = ["id", "role", "task", "created_at", "updated_at"]
+    
+    def create(self, validated_data):
+        from core.models import Role, PermissionTask, RoleTaskAssignment
+        role = Role.objects.get(id=validated_data.pop("role_id"))
+        task = PermissionTask.objects.get(id=validated_data.pop("task_id"))
+        return RoleTaskAssignment.objects.create(role=role, task=task)
+
+
+class UserTaskAssignmentSerializer(serializers.ModelSerializer):
+    """Serializer for UserTaskAssignment model."""
+    
+    user = UserSerializer(read_only=True)
+    task = PermissionTaskSerializer(read_only=True)
+    granted_by = UserSerializer(read_only=True)
+    user_id = serializers.IntegerField(write_only=True)
+    task_id = serializers.IntegerField(write_only=True)
+    
+    class Meta:
+        from core.models import UserTaskAssignment
+        model = UserTaskAssignment
+        fields = ["id", "user", "task", "granted_by", "user_id", "task_id", "created_at", "updated_at"]
+        read_only_fields = ["id", "user", "task", "granted_by", "created_at", "updated_at"]
+    
+    def create(self, validated_data):
+        from core.models import PermissionTask, UserTaskAssignment
+        user = User.objects.get(id=validated_data.pop("user_id"))
+        task = PermissionTask.objects.get(id=validated_data.pop("task_id"))
+        granted_by = self.context["request"].user
+        return UserTaskAssignment.objects.create(user=user, task=task, granted_by=granted_by)
+
+
+class UserMeSerializer(serializers.ModelSerializer):
+    """Serializer for /api/core/users/me/ endpoint."""
+    
+    roles = serializers.SerializerMethodField()
+    tasks = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "first_name", "last_name", "is_active", "roles", "tasks", "profile"]
+        read_only_fields = fields
+    
+    def get_roles(self, obj):
+        """Get user's roles."""
+        from core.permissions import get_user_roles
+        roles = get_user_roles(obj)
+        return [{"id": r.id, "name": r.name, "description": r.description} for r in roles]
+    
+    def get_tasks(self, obj):
+        """Get user's permission tasks (both direct and via roles)."""
+        from core.models import PermissionTask, UserTaskAssignment, RoleTaskAssignment, Role
+        from core.permissions import get_user_roles
+        
+        # Direct assignments
+        direct_tasks = UserTaskAssignment.objects.filter(user=obj).values_list("task__code", flat=True)
+        
+        # Role-based assignments
+        user_roles = get_user_roles(obj)
+        role_task_codes = RoleTaskAssignment.objects.filter(
+            role__in=user_roles
+        ).values_list("task__code", flat=True)
+        
+        # Combine and get unique tasks
+        all_task_codes = set(direct_tasks) | set(role_task_codes)
+        tasks = PermissionTask.objects.filter(code__in=all_task_codes)
+        
+        return [{"id": t.id, "code": t.code, "name": t.name, "module": t.module} for t in tasks]
+    
+    def get_profile(self, obj):
+        """Get user's profile if exists."""
+        if hasattr(obj, "profile"):
+            return {
+                "phone": obj.profile.phone,
+                "date_of_birth": obj.profile.date_of_birth.isoformat() if obj.profile.date_of_birth else None,
+            }
+        return None

@@ -98,18 +98,18 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({ depart
           />
           <Select
             label="Parent Department (Optional)"
-            value={parent}
-            onChange={(e) => setParent(e.target.value ? Number(e.target.value) : '')}
-          >
-            <option value="">None (Top-level)</option>
-            {availableParents.map((dept) => (
-              <option key={dept.id} value={dept.id}>
-                {dept.name}
-              </option>
-            ))}
-          </Select>
+            value={parent ? String(parent) : ''}
+            onChange={(value) => setParent(value ? Number(value) : '')}
+            options={[
+              { value: '', label: 'None (Top-level)' },
+              ...availableParents.map((dept) => ({
+                value: String(dept.id),
+                label: dept.name,
+              })),
+            ]}
+          />
           <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+            <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>

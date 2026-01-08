@@ -53,7 +53,7 @@ export const ProgramFormPage: React.FC = () => {
         title="Create Program"
         description="Create a new academic program"
         actions={
-          <Button variant="outline" onClick={() => navigate('/academics/programs')}>
+          <Button variant="ghost" onClick={() => navigate('/academics/programs')}>
             Cancel
           </Button>
         }
@@ -75,19 +75,20 @@ export const ProgramFormPage: React.FC = () => {
             <Select
               label="Structure Type"
               value={structureType}
-              onChange={(e) => setStructureType(e.target.value as any)}
+              onChange={(value) => setStructureType(value as 'YEARLY' | 'SEMESTER' | 'CUSTOM')}
+              options={[
+                { value: 'YEARLY', label: 'Yearly' },
+                { value: 'SEMESTER', label: 'Semester' },
+                { value: 'CUSTOM', label: 'Custom' },
+              ]}
               required
-            >
-              <option value="YEARLY">Yearly</option>
-              <option value="SEMESTER">Semester</option>
-              <option value="CUSTOM">Custom</option>
-            </Select>
+            />
             {structureType === 'CUSTOM' && (
               <>
                 <Input
                   label="Period Length (Months)"
                   type="number"
-                  value={periodLengthMonths}
+                  value={periodLengthMonths === '' ? '' : String(periodLengthMonths)}
                   onChange={(e) => setPeriodLengthMonths(e.target.value ? Number(e.target.value) : '')}
                   min={1}
                   required
@@ -95,7 +96,7 @@ export const ProgramFormPage: React.FC = () => {
                 <Input
                   label="Total Periods"
                   type="number"
-                  value={totalPeriods}
+                  value={totalPeriods === '' ? '' : String(totalPeriods)}
                   onChange={(e) => setTotalPeriods(e.target.value ? Number(e.target.value) : '')}
                   min={1}
                   required
@@ -115,7 +116,7 @@ export const ProgramFormPage: React.FC = () => {
               </label>
             </div>
             <div className="flex gap-2 justify-end">
-              <Button type="button" variant="outline" onClick={() => navigate('/academics/programs')}>
+              <Button type="button" variant="ghost" onClick={() => navigate('/academics/programs')}>
                 Cancel
               </Button>
               <Button type="submit" disabled={createMutation.isPending}>

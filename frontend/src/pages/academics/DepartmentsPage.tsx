@@ -57,7 +57,7 @@ export const DepartmentsPage: React.FC = () => {
           <div className="flex gap-2">
             <Button
               size="sm"
-              variant="outline"
+              variant="ghost"
               onClick={() => {
                 setEditingDepartment(row.original)
                 setIsFormOpen(true)
@@ -67,7 +67,7 @@ export const DepartmentsPage: React.FC = () => {
             </Button>
             <Button
               size="sm"
-              variant="destructive"
+              variant="danger"
               onClick={() => {
                 if (confirm('Delete this department?')) {
                   deleteMutation.mutate(row.original.id)
@@ -132,14 +132,13 @@ export const DepartmentsPage: React.FC = () => {
             icon="🏢"
             title="No departments found"
             description={search ? 'Try adjusting your search' : 'No departments have been created yet'}
-            action={
-              <Button onClick={() => {
+            action={{
+              label: 'Create First Department',
+              onClick: () => {
                 setEditingDepartment(null)
                 setIsFormOpen(true)
-              }}>
-                Create First Department
-              </Button>
-            }
+              },
+            }}
           />
         ) : (
           <DataTable

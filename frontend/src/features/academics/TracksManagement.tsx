@@ -59,7 +59,7 @@ export const TracksManagement: React.FC<TracksManagementProps> = ({ programId })
           icon="🎯"
           title="No tracks found"
           description="Create tracks to organize parallel learning paths"
-          action={<Button onClick={handleCreate}>Create First Track</Button>}
+          action={{ label: 'Create First Track', onClick: handleCreate }}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -69,12 +69,12 @@ export const TracksManagement: React.FC<TracksManagementProps> = ({ programId })
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-semibold">{track.name}</h4>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(track)}>
+                    <Button size="sm" variant="ghost" onClick={() => handleEdit(track)}>
                       Edit
                     </Button>
                     <Button
                       size="sm"
-                      variant="destructive"
+                      variant="danger"
                       onClick={() => {
                         if (confirm('Delete this track?')) {
                           deleteMutation.mutate(track.id)

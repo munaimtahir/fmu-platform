@@ -66,12 +66,12 @@ export const ModulesList: React.FC<ModulesListProps> = ({ blockId }) => {
                 )}
               </div>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => handleEdit(module)}>
+                <Button size="sm" variant="ghost" onClick={() => handleEdit(module)}>
                   Edit
                 </Button>
                 <Button
                   size="sm"
-                  variant="destructive"
+                  variant="danger"
                   onClick={() => {
                     if (confirm('Delete this module?')) {
                       deleteMutation.mutate(module.id)

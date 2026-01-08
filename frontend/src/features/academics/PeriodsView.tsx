@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { academicsNewService, type Period, type Track, type LearningBlock } from '@/services/academicsNew'
+import { academicsNewService, type Period, type Track } from '@/services/academicsNew'
 import { BlocksView } from './BlocksView'
 import { BlockFormModal } from './BlockFormModal'
 

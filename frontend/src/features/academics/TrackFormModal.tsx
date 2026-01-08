@@ -72,7 +72,7 @@ export const TrackFormModal: React.FC<TrackFormModalProps> = ({ programId, track
             rows={3}
           />
           <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+            <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>

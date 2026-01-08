@@ -96,6 +96,14 @@ class AcademicPeriod(TimeStampedModel):
         (PERIOD_TYPE_MODULE, "Module"),
     ]
 
+    STATUS_OPEN = "OPEN"
+    STATUS_CLOSED = "CLOSED"
+
+    STATUS_CHOICES = [
+        (STATUS_OPEN, "Open"),
+        (STATUS_CLOSED, "Closed"),
+    ]
+
     period_type = models.CharField(
         max_length=16,
         choices=PERIOD_TYPE_CHOICES,
@@ -123,9 +131,23 @@ class AcademicPeriod(TimeStampedModel):
         blank=True,
         help_text="Period end date",
     )
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_OPEN,
+        help_text="Period status (OPEN allows enrollment, CLOSED blocks it)",
+    )
+    is_enrollment_open = models.BooleanField(
+        default=True,
+        help_text="Whether enrollment is open for this period",
+    )
 
     class Meta:
         ordering = ["period_type", "name"]
+        indexes = [
+            models.Index(fields=["status"]),
+            models.Index(fields=["period_type", "status"]),
+        ]
 
     def __str__(self):
         parent_str = f" ({self.parent_period})" if self.parent_period else ""

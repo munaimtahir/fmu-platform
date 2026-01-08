@@ -6,6 +6,14 @@ This document defines which modules are **canonical** (official, production-read
 
 These modules are the **source of truth** and should be used for all new development and production operations:
 
+### Identity & Auth
+- **Modules**: `core`, `people`
+- **Purpose**: 
+  - `core`: RBAC system with task-based permissions, user management
+  - `people`: Normalized identity and contact data (Person, ContactInfo, Address, IdentityDocument)
+- **Data Integrity**: Unified auth endpoints are canonical (`/api/auth/login`, `/api/auth/refresh`, `/api/auth/me`)
+- **Notes**: Students, faculty, and staff reference shared person records from `people` module
+
 ### Student Registry
 - **Module**: `students`
 - **Purpose**: Enrolled student registry (official student records)
@@ -63,15 +71,17 @@ These modules are **legacy** and should NOT be used for new development. They ar
 
 ## Data Integrity Rules
 
-1. **Students Registry**: `students` is the enrolled student registry. All student enrollment status must be managed through this module.
+1. **Identity & Auth**: `core` provides RBAC and user management. `people` provides normalized identity data that all other modules reference.
 
-2. **Exams & Results**: `exams` + `results` are the official marks/publishing system. All grade publishing must go through `results`.
+2. **Students Registry**: `students` is the enrolled student registry. All student enrollment status must be managed through this module.
 
-3. **Transcripts**: `transcripts` must read official grades from `results` only. Do not read from legacy assessment modules.
+3. **Exams & Results**: `exams` + `results` are the official marks/publishing system. All grade publishing must go through `results`.
 
-4. **Intake**: `apps.intake` is the public apply workflow. Use this for student application submissions.
+4. **Transcripts**: `transcripts` must read official grades from `results` only. Do not read from legacy assessment modules.
 
-5. **Academic Structure**: `academics` is the canonical source for all academic structure (programs, courses, sections, etc.).
+5. **Intake**: `apps.intake` is the public apply workflow. Use this for student application submissions.
+
+6. **Academic Structure**: `academics` is the canonical source for all academic structure (programs, courses, sections, etc.).
 
 ## Enforcement
 
@@ -91,6 +101,11 @@ These modules are **legacy** and should NOT be used for new development. They ar
 1. **Phase 1 (Current)**: Hide from UI, gate routes, block writes
 2. **Phase 2 (Future)**: Migrate any remaining data from legacy to canonical modules
 3. **Phase 3 (Future)**: Remove legacy code entirely after migration verification
+
+## UI Canonical Screens
+
+- Keep: dashboards, students, academics, attendance, exams, results, transcripts, finance, audit, apply
+- Remove from navigation: legacy screens and overlapping flows
 
 ## Notes
 

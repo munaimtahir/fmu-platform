@@ -58,62 +58,73 @@ class Migration(migrations.Migration):
             """,
             reverse_sql="ALTER TABLE admissions_student DROP COLUMN IF EXISTS batch_year;",
         ),
-        migrations.AddField(
-            model_name="student",
-            name="current_year",
-            field=models.PositiveSmallIntegerField(
-                default=1,
-                help_text="Current academic year in the program (1-10)",
-                validators=[
-                    django.core.validators.MinValueValidator(1),
-                    django.core.validators.MaxValueValidator(10),
-                ],
-            ),
+        # Add current_year field only if it doesn't exist (handles case where 0007_add_student_fields already added it)
+        migrations.RunSQL(
+            sql="""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name='admissions_student' AND column_name='current_year') THEN
+                    ALTER TABLE admissions_student 
+                    ADD COLUMN current_year SMALLINT NOT NULL DEFAULT 1
+                    CHECK (current_year >= 1 AND current_year <= 10);
+                    COMMENT ON COLUMN admissions_student.current_year IS 'Current academic year in the program (1-10)';
+                END IF;
+            END $$;
+            """,
+            reverse_sql="ALTER TABLE admissions_student DROP COLUMN IF EXISTS current_year;",
         ),
-        migrations.AddField(
-            model_name="student",
-            name="date_of_birth",
-            field=models.DateField(
-                blank=True, help_text="Student date of birth", null=True
-            ),
-        ),
-        migrations.AddField(
-            model_name="student",
-            name="email",
-            field=models.EmailField(
-                blank=True, help_text="Student email address", max_length=254
-            ),
-        ),
-        migrations.AddField(
-            model_name="student",
-            name="phone",
-            field=models.CharField(
-                blank=True, help_text="Student phone number", max_length=20
-            ),
-        ),
-        migrations.AddField(
-            model_name="studentapplication",
-            name="date_of_birth",
-            field=models.DateField(default="2000-01-01", help_text="Date of birth"),
-        ),
-        migrations.AddField(
-            model_name="studentapplication",
-            name="reviewed_at",
-            field=models.DateTimeField(
-                blank=True, help_text="When the application was reviewed", null=True
-            ),
-        ),
-        migrations.AddField(
-            model_name="studentapplication",
-            name="reviewed_by",
-            field=models.ForeignKey(
-                blank=True,
-                help_text="Admin user who reviewed this application",
-                null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                related_name="reviewed_applications",
-                to=settings.AUTH_USER_MODEL,
-            ),
+        # Add fields only if they don't exist (handles case where 0007_add_student_fields already added them)
+        migrations.RunSQL(
+            sql="""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name='admissions_student' AND column_name='date_of_birth') THEN
+                    ALTER TABLE admissions_student 
+                    ADD COLUMN date_of_birth DATE NULL;
+                    COMMENT ON COLUMN admissions_student.date_of_birth IS 'Student date of birth';
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name='admissions_student' AND column_name='email') THEN
+                    ALTER TABLE admissions_student 
+                    ADD COLUMN email VARCHAR(254) NOT NULL DEFAULT '';
+                    COMMENT ON COLUMN admissions_student.email IS 'Student email address';
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name='admissions_student' AND column_name='phone') THEN
+                    ALTER TABLE admissions_student 
+                    ADD COLUMN phone VARCHAR(20) NOT NULL DEFAULT '';
+                    COMMENT ON COLUMN admissions_student.phone IS 'Student phone number';
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name='admissions_studentapplication' AND column_name='date_of_birth') THEN
+                    ALTER TABLE admissions_studentapplication 
+                    ADD COLUMN date_of_birth DATE NOT NULL DEFAULT '2000-01-01';
+                    COMMENT ON COLUMN admissions_studentapplication.date_of_birth IS 'Date of birth';
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name='admissions_studentapplication' AND column_name='reviewed_at') THEN
+                    ALTER TABLE admissions_studentapplication 
+                    ADD COLUMN reviewed_at TIMESTAMP NULL;
+                    COMMENT ON COLUMN admissions_studentapplication.reviewed_at IS 'When the application was reviewed';
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                              WHERE table_name='admissions_studentapplication' AND column_name='reviewed_by_id') THEN
+                    ALTER TABLE admissions_studentapplication 
+                    ADD COLUMN reviewed_by_id INTEGER NULL REFERENCES auth_user(id) ON DELETE SET NULL;
+                    COMMENT ON COLUMN admissions_studentapplication.reviewed_by_id IS 'Admin user who reviewed this application';
+                END IF;
+            END $$;
+            """,
+            reverse_sql="""
+            ALTER TABLE admissions_student DROP COLUMN IF EXISTS date_of_birth;
+            ALTER TABLE admissions_student DROP COLUMN IF EXISTS email;
+            ALTER TABLE admissions_student DROP COLUMN IF EXISTS phone;
+            ALTER TABLE admissions_studentapplication DROP COLUMN IF EXISTS date_of_birth;
+            ALTER TABLE admissions_studentapplication DROP COLUMN IF EXISTS reviewed_at;
+            ALTER TABLE admissions_studentapplication DROP COLUMN IF EXISTS reviewed_by_id;
+            """,
         ),
         migrations.AlterField(
             model_name="student",
@@ -341,24 +352,30 @@ class Migration(migrations.Migration):
                 help_text="The timestamp when the record was last updated.",
             ),
         ),
-        migrations.AddIndex(
-            model_name="student",
-            index=models.Index(
-                fields=["program", "batch_year"], name="admissions__program_787757_idx"
-            ),
-        ),
-        migrations.AddIndex(
-            model_name="student",
-            index=models.Index(fields=["status"], name="admissions__status_32fe57_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="studentapplication",
-            index=models.Index(fields=["status"], name="admissions__status_e024df_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="studentapplication",
-            index=models.Index(
-                fields=["program", "batch_year"], name="admissions__program_adb184_idx"
-            ),
+        # Add indexes only if they don't exist (handles case where 0007_add_student_fields already created them)
+        migrations.RunSQL(
+            sql="""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'admissions__program_787757_idx') THEN
+                    CREATE INDEX admissions__program_787757_idx ON admissions_student(program_id, batch_year);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'admissions__status_32fe57_idx') THEN
+                    CREATE INDEX admissions__status_32fe57_idx ON admissions_student(status);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'admissions__status_e024df_idx') THEN
+                    CREATE INDEX admissions__status_e024df_idx ON admissions_studentapplication(status);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'admissions__program_adb184_idx') THEN
+                    CREATE INDEX admissions__program_adb184_idx ON admissions_studentapplication(program_id, batch_year);
+                END IF;
+            END $$;
+            """,
+            reverse_sql="""
+            DROP INDEX IF EXISTS admissions__program_787757_idx;
+            DROP INDEX IF EXISTS admissions__status_32fe57_idx;
+            DROP INDEX IF EXISTS admissions__status_e024df_idx;
+            DROP INDEX IF EXISTS admissions__program_adb184_idx;
+            """,
         ),
     ]

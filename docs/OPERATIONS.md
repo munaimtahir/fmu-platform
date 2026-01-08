@@ -453,6 +453,48 @@ find /backups -type f -mtime +30 -delete
   trivy image sims-backend:latest
   ```
 
+## Legacy Module Configuration
+
+### Environment Flags
+
+The platform includes two environment flags to control legacy module behavior:
+
+#### ENABLE_LEGACY_MODULES
+- **Default**: `false`
+- **Purpose**: Controls whether legacy endpoints are mounted at all
+- **When `false`**: Legacy routes are not included in URL routing (recommended for production)
+- **When `true`**: Legacy routes are mounted under `/api/legacy/` prefix
+- **Production Recommendation**: Set to `false` to prevent legacy code from being accessible
+
+#### ALLOW_LEGACY_WRITES
+- **Default**: `false`
+- **Purpose**: Controls whether write operations (POST/PUT/PATCH/DELETE) are allowed on legacy endpoints
+- **When `false`**: All write operations on `/api/legacy/` endpoints are blocked (recommended)
+- **When `true`**: Write operations are allowed (NOT recommended for production)
+- **Note**: Only applies if `ENABLE_LEGACY_MODULES=true`
+- **Production Recommendation**: Set to `false` to prevent data corruption from legacy modules
+
+### Configuration Example
+
+```bash
+# Production settings (recommended)
+ENABLE_LEGACY_MODULES=false
+ALLOW_LEGACY_WRITES=false
+
+# Development/testing (if legacy compatibility needed)
+ENABLE_LEGACY_MODULES=true
+ALLOW_LEGACY_WRITES=false  # Still block writes for safety
+```
+
+### Legacy Module List
+
+The following modules are considered legacy and are gated behind these flags:
+- `enrollment` - Use `students` enrollment features instead
+- `assessments` - Use `exams` + `results` instead
+- `requests` - Administrative requests (may be re-evaluated later)
+
+See [Canonical Modules Documentation](CANONICAL_MODULES.md) for full details on canonical vs legacy modules.
+
 ## Contact
 
 - **Triage channel:** #ops-fmu

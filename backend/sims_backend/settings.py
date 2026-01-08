@@ -133,6 +133,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.BlockLegacyWritesMiddleware",  # Block legacy writes before audit
     "sims_backend.audit.middleware.WriteAuditMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
@@ -270,6 +271,18 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@sims.edu"
 )
+
+# -------------------------------------------------------------------
+# Legacy Module Configuration
+# -------------------------------------------------------------------
+# ENABLE_LEGACY_MODULES: Controls whether legacy endpoints are mounted at all
+# When False (default), legacy routes are not included in URL routing
+ENABLE_LEGACY_MODULES = os.getenv("ENABLE_LEGACY_MODULES", "False").lower() == "true"
+
+# ALLOW_LEGACY_WRITES: Controls whether write operations (POST/PUT/PATCH/DELETE) 
+# are allowed on legacy endpoints (only applies if ENABLE_LEGACY_MODULES=True)
+# When False (default), all write operations on /api/legacy/ endpoints are blocked
+ALLOW_LEGACY_WRITES = os.getenv("ALLOW_LEGACY_WRITES", "False").lower() == "true"
 
 # Jazzmin Admin Theme Configuration
 # Django-jazzmin automatically discovers these settings from this module

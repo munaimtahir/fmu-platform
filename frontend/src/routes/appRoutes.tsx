@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute'
+import { LegacyRouteGuard } from '@/components/layout/LegacyRouteGuard'
 import { DashboardHome } from '@/pages/DashboardHome'
 import { AdminDashboard } from '@/pages/dashboards/AdminDashboard'
 import { RegistrarDashboard } from '@/pages/dashboards/RegistrarDashboard'
@@ -215,7 +216,9 @@ export const router = createBrowserRouter([
     path: '/assessments',
     element: (
       <ProtectedRoute allowedRoles={['Admin', 'Faculty']}>
-        <AssessmentsPage />
+        <LegacyRouteGuard>
+          <AssessmentsPage />
+        </LegacyRouteGuard>
       </ProtectedRoute>
     ),
   },
@@ -231,7 +234,9 @@ export const router = createBrowserRouter([
     path: '/enrollment/bulk',
     element: (
       <ProtectedRoute allowedRoles={['Admin', 'Registrar']}>
-        <BulkEnrollmentPage />
+        <LegacyRouteGuard>
+          <BulkEnrollmentPage />
+        </LegacyRouteGuard>
       </ProtectedRoute>
     ),
   },
@@ -383,7 +388,9 @@ export const router = createBrowserRouter([
     path: '/academics/programs-legacy',
     element: (
       <ProtectedRoute allowedRoles={['Admin', 'Registrar']}>
-        <ProgramsPage />
+        <LegacyRouteGuard>
+          <ProgramsPage />
+        </LegacyRouteGuard>
       </ProtectedRoute>
     ),
   },
@@ -439,7 +446,9 @@ export const router = createBrowserRouter([
     path: '/requests',
     element: (
       <ProtectedRoute allowedRoles={['Admin', 'Student']} path="/requests">
-        <RequestsPage />
+        <LegacyRouteGuard>
+          <RequestsPage />
+        </LegacyRouteGuard>
       </ProtectedRoute>
     ),
   },

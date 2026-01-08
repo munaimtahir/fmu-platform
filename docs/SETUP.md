@@ -225,7 +225,13 @@ EMAIL_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your-email@example.com
 EMAIL_HOST_PASSWORD=your-email-password
+
+# Legacy Module Configuration (recommended production values)
+ENABLE_LEGACY_MODULES=false
+ALLOW_LEGACY_WRITES=false
 ```
+
+**Note**: See [Canonical Modules Documentation](../docs/CANONICAL_MODULES.md) and [Operations Documentation](../docs/OPERATIONS.md) for details on legacy module flags.
 
 ### Production Checklist
 

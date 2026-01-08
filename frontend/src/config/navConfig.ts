@@ -60,22 +60,20 @@ export const navigationConfig: NavigationItem[] = [
       { label: 'Students', path: '/students', roles: ['Admin', 'Registrar'] },
       { label: 'Courses', path: '/courses', roles: ['Admin', 'Registrar', 'Faculty'] },
       { label: 'Sections', path: '/sections', roles: ['Admin', 'Registrar', 'Faculty'] },
-      { label: 'Programs (New)', path: '/academics/programs', roles: ['Admin', 'Registrar', 'Coordinator'] },
-      { label: 'Programs (Legacy)', path: '/academics/programs-legacy', roles: ['Admin', 'Registrar'] },
+      { label: 'Programs', path: '/academics/programs', roles: ['Admin', 'Registrar', 'Coordinator'] },
       { label: 'Batches', path: '/academics/batches', roles: ['Admin', 'Registrar'] },
       { label: 'Academic Periods', path: '/academics/periods', roles: ['Admin', 'Registrar'] },
       { label: 'Groups', path: '/academics/groups', roles: ['Admin', 'Registrar'] },
       { label: 'Departments', path: '/academics/departments', roles: ['Admin', 'Registrar'] },
     ],
   },
-  // Timetable & Enrollment group
+  // Timetable group
   {
-    label: 'Timetable & Enrollment',
+    label: 'Timetable',
     icon: '📅',
     roles: ['Admin', 'Faculty', 'Registrar', 'Coordinator'],
     items: [
       { label: 'Timetable', path: '/timetable', roles: ['Admin', 'Faculty', 'Registrar', 'Coordinator'] },
-      { label: 'Bulk Enrollment', path: '/enrollment/bulk', roles: ['Admin', 'Registrar'] },
     ],
   },
   // Attendance group
@@ -89,16 +87,17 @@ export const navigationConfig: NavigationItem[] = [
       { label: 'Eligibility Report', path: '/attendance/eligibility', roles: ['Admin', 'Registrar'] },
     ],
   },
-  // Assessments & Results group
+  // Exams & Results group
   {
-    label: 'Assessments & Results',
+    label: 'Exams & Results',
     icon: '📋',
     roles: ['Admin', 'Faculty', 'Student', 'ExamCell'],
     items: [
-      { label: 'Assessments', path: '/assessments', roles: ['Admin', 'Faculty'] },
+      { label: 'Exams', path: '/exams', roles: ['Admin', 'Faculty', 'ExamCell'] },
       { label: 'Gradebook', path: '/gradebook', roles: ['Admin', 'Faculty', 'Student'] },
       { label: 'Results', path: '/results', roles: ['Admin', 'Faculty', 'Student', 'ExamCell'] },
       { label: 'Publish Results', path: '/examcell/publish', roles: ['Admin', 'ExamCell'] },
+      { label: 'Transcripts', path: '/transcripts', roles: ['Admin', 'Registrar', 'Student'] },
     ],
   },
   // Finance group
@@ -153,10 +152,11 @@ export const routePolicy: Record<string, string[]> = {
   '/attendance': ['Admin', 'Faculty'],
   '/attendance/bulk': ['Admin', 'Faculty'],
   '/attendance/eligibility': ['Admin', 'Registrar'],
-  '/assessments': ['Admin', 'Faculty'],
+  '/exams': ['Admin', 'Faculty', 'ExamCell'],
   '/gradebook': ['Admin', 'Faculty', 'Student'],
   '/results': ['Admin', 'Faculty', 'Student', 'ExamCell'],
   '/examcell/publish': ['Admin', 'ExamCell'],
+  '/transcripts': ['Admin', 'Registrar', 'Student'],
   '/finance': ['Admin', 'Finance'],
   '/finance/fee-plans': ['Admin', 'Finance'],
   '/finance/vouchers': ['Admin', 'Finance'],
@@ -173,7 +173,26 @@ export const routePolicy: Record<string, string[]> = {
   '/admin/students/import': ['Admin', 'Coordinator'],
   '/profile': [],
   '/requests': ['Admin', 'Student'],
-  '/transcripts': ['Admin', 'Registrar', 'Student'],
+}
+
+/**
+ * Legacy routes that should be hidden from navigation and gated
+ * These routes are deprecated and should not be used for new development
+ */
+export const LEGACY_ROUTES: Set<string> = new Set([
+  '/assessments',
+  '/requests',
+  '/enrollment/bulk',
+  '/academics/programs-legacy',
+])
+
+/**
+ * Check if a route is a legacy route
+ */
+export function isLegacyRoute(routePath: string): boolean {
+  return LEGACY_ROUTES.has(routePath) || routePath.startsWith('/assessments/') || 
+         routePath.startsWith('/requests/') || routePath.startsWith('/enrollment/') ||
+         routePath.startsWith('/academics/programs-legacy')
 }
 
 /**

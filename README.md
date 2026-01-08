@@ -172,6 +172,7 @@ The codebase is thoroughly documented with docstrings (Python) and JSDoc comment
 
 ### Key Documents
 
+- **[Canonical Modules](docs/CANONICAL_MODULES.md)**: Defines which modules are canonical (official) vs legacy (deprecated)
 - **[DEMO_SCRIPT.md](DEMO_SCRIPT.md)**: Step-by-step demo presentation guide
 - **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)**: High-level project overview
 - **[CURRENT_STATUS.md](CURRENT_STATUS.md)**: Latest development progress

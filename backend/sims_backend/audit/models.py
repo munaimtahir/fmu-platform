@@ -8,7 +8,24 @@ from django.utils import timezone
 
 
 class AuditLog(models.Model):
-    """Immutable log of write operations performed via the API."""
+    """
+    Immutable log of write operations performed via the API.
+    Also referred to as AuditEvent in the spec.
+    """
+
+    ACTION_CREATE = "create"
+    ACTION_UPDATE = "update"
+    ACTION_DELETE = "delete"
+    ACTION_STATE_TRANSITION = "state_transition"
+    ACTION_SPECIAL = "special_action"
+
+    ACTION_CHOICES = [
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+        (ACTION_STATE_TRANSITION, "State Transition"),
+        (ACTION_SPECIAL, "Special Action"),
+    ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
@@ -26,21 +43,53 @@ class AuditLog(models.Model):
     )
     path = models.TextField(help_text="Request path")
     status_code = models.PositiveIntegerField(help_text="HTTP status code")
+    entity = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Entity/model name (if applicable)",
+    )
+    entity_id = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Entity object ID (if applicable)",
+    )
+    action = models.CharField(
+        max_length=32,
+        choices=ACTION_CHOICES,
+        default=ACTION_CREATE,
+        help_text="Type of action performed",
+    )
+    summary = models.TextField(help_text="Action summary")
+    metadata = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="Additional metadata (request data, old/new values, etc.)",
+    )
+    ip_address = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+        help_text="IP address of the request",
+    )
+    user_agent = models.CharField(
+        max_length=512,
+        blank=True,
+        help_text="User agent string",
+    )
+    # Legacy field - kept for backward compatibility
     model = models.CharField(
         max_length=255,
         blank=True,
-        help_text="Model name (if applicable)",
+        help_text="Model name (deprecated, use entity instead)",
     )
     object_id = models.CharField(
         max_length=255,
         blank=True,
-        help_text="Object ID (if applicable)",
+        help_text="Object ID (deprecated, use entity_id instead)",
     )
-    summary = models.TextField(help_text="Action summary")
     request_data = models.JSONField(
         null=True,
         blank=True,
-        help_text="Request data (JSON)",
+        help_text="Request data (deprecated, use metadata instead)",
     )
 
     class Meta:
@@ -48,7 +97,12 @@ class AuditLog(models.Model):
         indexes = [
             models.Index(fields=["timestamp"]),
             models.Index(fields=["actor", "timestamp"]),
-            models.Index(fields=["model", "object_id"]),
+            models.Index(fields=["entity", "entity_id"]),
+            models.Index(fields=["action"]),
+        ]
+        # Prevent modifications
+        permissions = [
+            ("view_auditlog", "Can view audit log"),
         ]
 
     def __str__(self) -> str:

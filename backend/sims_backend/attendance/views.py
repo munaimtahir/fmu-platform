@@ -1,31 +1,19 @@
+import csv
+
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from core.permissions import PermissionTaskRequired, has_permission_task
+
 from sims_backend.attendance.models import Attendance
 from sims_backend.attendance.serializers import AttendanceSerializer
-from sims_backend.common_permissions import in_group
+from sims_backend.attendance.utils import check_eligibility
 from sims_backend.timetable.models import Session
-
-
-class CanMarkAttendance(permissions.BasePermission):
-    """
-    Allows access to mark attendance for Admin, Coordinator, Faculty, and Office Assistant.
-    """
-    def has_permission(self, request, view):
-        user = request.user
-        if not user or not user.is_authenticated:
-            return False
-        return (
-            user.is_superuser or
-            in_group(user, 'ADMIN') or
-            in_group(user, 'COORDINATOR') or
-            in_group(user, 'FACULTY') or
-            in_group(user, 'OFFICE_ASSISTANT')
-        )
 
 
 class AttendanceViewSet(viewsets.ModelViewSet):
@@ -33,48 +21,74 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         'session', 'student', 'marked_by', 'session__department'
     ).all()
     serializer_class = AttendanceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['session', 'student', 'status']
     search_fields = ['student__reg_no', 'student__name']
     ordering_fields = ['marked_at']
     ordering = ['-marked_at']
+    required_tasks = ['attendance.attendances.view']
 
     def get_permissions(self):
-        # Faculty and OfficeAssistant can mark attendance
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [CanMarkAttendance()]
-        return [IsAuthenticated()]
+        if self.action in ['list', 'retrieve']:
+            self.required_tasks = ['attendance.attendances.view']
+        elif self.action in ['create', 'update', 'partial_update']:
+            self.required_tasks = ['attendance.attendances.create']
+        elif self.action == 'destroy':
+            self.required_tasks = ['attendance.attendances.delete']
+        elif self.action in ['mark_session_attendance']:
+            self.required_tasks = ['attendance.attendances.create']
+        elif self.action == 'eligibility':
+            self.required_tasks = ['attendance.eligibility.view']
+        elif self.action == 'export':
+            self.required_tasks = ['attendance.attendances.export']
+        return super().get_permissions()
 
     def get_queryset(self):
+        """Object-level permission: Students see own, Faculty see own sections."""
         queryset = super().get_queryset()
         user = self.request.user
 
+        # If user has permission to view all, return all
+        if has_permission_task(user, 'attendance.attendances.view'):
+            return queryset
+
         # Students can only see their own attendance
-        if in_group(user, 'STUDENT') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
-            # Filter to student's own records via user link
-            student = getattr(user, 'student', None)
-            if student:
-                queryset = queryset.filter(student=student)
-            else:
-                # No student record linked, return empty queryset
-                queryset = queryset.none()
+        if hasattr(user, 'student'):
+            return queryset.filter(student=user.student)
 
         # Faculty can see attendance for their sessions
-        elif in_group(user, 'FACULTY') and not (in_group(user, 'ADMIN') or in_group(user, 'COORDINATOR')):
-            queryset = queryset.filter(session__faculty=user)
-
-        return queryset
+        return queryset.filter(session__faculty=user)
 
     @action(detail=False, methods=['post'], url_path='sessions/(?P<session_id>[^/.]+)/mark')
     def mark_session_attendance(self, request, session_id=None):
-        """Mark attendance for all students in a session"""
+        """Mark attendance for all students in a session."""
         try:
             session = Session.objects.get(id=session_id)
         except Session.DoesNotExist:
-            return Response({'error': 'Session not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {'error': {'code': 'NOT_FOUND', 'message': 'Session not found'}},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-        attendance_data = request.data.get('attendance', [])  # List of {student_id, status}
+        # Validate date (same-day edit rules enforced in service layer)
+        from sims_backend.attendance.services.input_methods import (
+            _validate_date, _require_session_access
+        )
+        from datetime import date
+
+        try:
+            _require_session_access(request.user, session)
+            target_date = request.data.get('date')
+            if target_date:
+                _validate_date(session, date.fromisoformat(target_date), request.user)
+        except (PermissionError, ValueError) as e:
+            return Response(
+                {'error': {'code': 'VALIDATION_ERROR', 'message': str(e)}},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        attendance_data = request.data.get('attendance', [])
 
         created_count = 0
         updated_count = 0
@@ -104,3 +118,58 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             'updated': updated_count,
             'total': len(attendance_data)
         }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='eligibility')
+    def eligibility(self, request):
+        """Check eligibility for a student in a section."""
+        student_id = request.query_params.get('student_id')
+        section_id = request.query_params.get('section_id')
+        threshold = float(request.query_params.get('threshold', 75.0))
+
+        if not student_id or not section_id:
+            return Response(
+                {'error': {'code': 'MISSING_PARAMS', 'message': 'student_id and section_id are required'}},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            result = check_eligibility(
+                student_id=int(student_id),
+                section_id=int(section_id),
+                threshold=threshold
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {'error': {'code': 'ERROR', 'message': str(e)}},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=False, methods=['get'], url_path='export')
+    def export(self, request):
+        """Export attendance records as CSV."""
+        # Apply filters
+        queryset = self.filter_queryset(self.get_queryset())
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="attendance_export.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'ID', 'Student Reg No', 'Student Name', 'Session', 'Status',
+            'Marked By', 'Marked At', 'Created At'
+        ])
+
+        for attendance in queryset[:10000]:  # Limit to 10k records
+            writer.writerow([
+                attendance.id,
+                attendance.student.reg_no,
+                attendance.student.name,
+                str(attendance.session),
+                attendance.status,
+                attendance.marked_by.username if attendance.marked_by else '',
+                attendance.marked_at.isoformat() if attendance.marked_at else '',
+                attendance.created_at.isoformat(),
+            ])
+
+        return response

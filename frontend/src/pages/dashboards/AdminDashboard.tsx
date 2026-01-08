@@ -186,25 +186,35 @@ export const AdminDashboard = () => {
           </Card>
         </div>
 
-        {/* Quick Actions */}
+        {/* Module Entry Points */}
         <Card>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Quick Actions
+            Module Entry Points
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
-              { label: 'Add Student', icon: '➕' },
-              { label: 'Create Course', icon: '📝' },
-              { label: 'Manage Users', icon: '👤' },
-              { label: 'View Reports', icon: '📊' },
-            ].map((action, index) => (
-              <button
+              { label: 'Core (Users & Roles)', icon: '👤', path: '/admin/users' },
+              { label: 'Audit Logs', icon: '📋', path: '/admin/audit' },
+              { label: 'People (Identity)', icon: '🆔', path: '/people' },
+              { label: 'Academics', icon: '📚', path: '/academics/programs' },
+              { label: 'Students', icon: '👥', path: '/students' },
+              { label: 'Requests', icon: '📝', path: '/requests' },
+              { label: 'Enrollment', icon: '📅', path: '/enrollment/bulk' },
+              { label: 'Finance', icon: '💰', path: '/finance' },
+              { label: 'Attendance', icon: '✅', path: '/attendance' },
+              { label: 'Assessments', icon: '📊', path: '/assessments' },
+              { label: 'Results', icon: '📈', path: '/results' },
+              { label: 'Documents', icon: '📄', path: '/documents' },
+              { label: 'Notifications', icon: '🔔', path: '/notifications' },
+            ].map((module, index) => (
+              <a
                 key={index}
-                className="p-4 border border-gray-200 rounded-2xl hover:border-[#3B82F6] hover:bg-blue-50 transition-all duration-150 text-center"
+                href={module.path}
+                className="p-4 border border-gray-200 rounded-2xl hover:border-[#3B82F6] hover:bg-blue-50 transition-all duration-150 text-center cursor-pointer"
               >
-                <div className="text-3xl mb-2">{action.icon}</div>
-                <p className="text-sm font-medium text-gray-900">{action.label}</p>
-              </button>
+                <div className="text-3xl mb-2">{module.icon}</div>
+                <p className="text-sm font-medium text-gray-900">{module.label}</p>
+              </a>
             ))}
           </div>
         </Card>

@@ -18,8 +18,16 @@ class AuditLogSerializer(serializers.ModelSerializer):
             "method",
             "path",
             "status_code",
+            "entity",
+            "entity_id",
+            "action",
+            "summary",
+            "metadata",
+            "ip_address",
+            "user_agent",
+            # Legacy fields for backward compatibility
             "model",
             "object_id",
-            "summary",
+            "request_data",
         ]
         read_only_fields = fields

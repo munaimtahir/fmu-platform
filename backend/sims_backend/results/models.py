@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from core.models import TimeStampedModel
 
@@ -67,6 +69,32 @@ class ResultHeader(TimeStampedModel):
         default=STATUS_DRAFT,
         help_text="Workflow status",
     )
+    published_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the result was published",
+    )
+    published_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="published_results",
+        help_text="User who published the result",
+    )
+    frozen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the result was frozen",
+    )
+    frozen_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="frozen_results",
+        help_text="User who froze the result",
+    )
 
     class Meta:
         unique_together = [("exam", "student")]
@@ -79,6 +107,54 @@ class ResultHeader(TimeStampedModel):
 
     def __str__(self):
         return f"{self.student.reg_no} - {self.exam.title} ({self.get_status_display()})"
+
+    @property
+    def is_editable(self) -> bool:
+        """Check if the result can be edited."""
+        return self.status == self.STATUS_DRAFT
+
+    @property
+    def is_publishable(self) -> bool:
+        """Check if the result can be published."""
+        return self.status in [self.STATUS_DRAFT, self.STATUS_VERIFIED]
+
+    @property
+    def is_freezable(self) -> bool:
+        """Check if the result can be frozen."""
+        return self.status == self.STATUS_PUBLISHED
+
+    def publish(self, user) -> None:
+        """Publish the result."""
+        if not self.is_publishable:
+            raise ResultError(
+                code="NOT_PUBLISHABLE",
+                message=f"Cannot publish result with status {self.status}"
+            )
+        self.status = self.STATUS_PUBLISHED
+        self.published_at = timezone.now()
+        self.published_by = user
+        self.save()
+
+    def freeze(self, user) -> None:
+        """Freeze the result (make immutable)."""
+        if not self.is_freezable:
+            raise ResultError(
+                code="NOT_FREEZABLE",
+                message=f"Cannot freeze result with status {self.status}"
+            )
+        self.status = self.STATUS_FROZEN
+        self.frozen_at = timezone.now()
+        self.frozen_by = user
+        self.save()
+
+
+class ResultError(Exception):
+    """Exception for result-related errors."""
+
+    def __init__(self, code: str, message: str):
+        self.code = code
+        self.message = message
+        super().__init__(message)
 
 
 class ResultComponentEntry(TimeStampedModel):

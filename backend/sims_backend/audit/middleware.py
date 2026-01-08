@@ -65,6 +65,24 @@ class WriteAuditMiddleware:
         except Exception:
             request_data = {}
 
+        # Get IP address
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+        if x_forwarded_for:
+            ip_address = x_forwarded_for.split(",")[0].strip()
+        else:
+            ip_address = request.META.get("REMOTE_ADDR")
+
+        # Get user agent
+        user_agent = request.META.get("HTTP_USER_AGENT", "")[:512]
+
+        # Determine action type
+        action_type = {
+            "POST": AuditLog.ACTION_CREATE,
+            "PUT": AuditLog.ACTION_UPDATE,
+            "PATCH": AuditLog.ACTION_UPDATE,
+            "DELETE": AuditLog.ACTION_DELETE,
+        }.get(method, AuditLog.ACTION_SPECIAL)
+
         AuditLog.objects.create(
             actor=(
                 request.user
@@ -74,9 +92,16 @@ class WriteAuditMiddleware:
             method=method,
             path=request.path,
             status_code=status_code,
+            entity=model_label,
+            entity_id=object_id,
+            action=action_type,
+            summary=summary,
+            metadata=request_data,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            # Legacy fields for backward compatibility
             model=model_label,
             object_id=object_id,
-            summary=summary,
             request_data=request_data,
             timestamp=timezone.now(),
         )

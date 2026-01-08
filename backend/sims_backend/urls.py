@@ -79,6 +79,10 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="api-schema"),
         name="redoc",
     ),
+    # Core RBAC
+    path("", include("core.urls")),
+    # People (identity)
+    path("", include("sims_backend.people.urls")),
     # MVP apps
     path("", include("sims_backend.academics.urls")),
     path("", include("sims_backend.students.urls")),

@@ -31,7 +31,16 @@ class UserSerializer(serializers.ModelSerializer):
 
     full_name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
-    student_id = serializers.IntegerField(source="student.id", read_only=True, required=False)
+    student_id = serializers.SerializerMethodField()
+    
+    def get_student_id(self, obj):
+        """Get student ID if user has an associated student record."""
+        try:
+            if hasattr(obj, 'student') and obj.student:
+                return obj.student.id
+        except Exception:
+            pass
+        return None
 
     class Meta:
         model = User

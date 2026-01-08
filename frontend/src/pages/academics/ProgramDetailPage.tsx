@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { ErrorState } from '@/components/shared/ErrorState'
-import { academicsNewService, type Program, type Period, type Track } from '@/services/academicsNew'
+import { academicsNewService } from '@/services/academicsNew'
 import { TracksManagement } from '@/features/academics/TracksManagement'
 import { PeriodsView } from '@/features/academics/PeriodsView'
 
@@ -82,7 +82,7 @@ export const ProgramDetailPage: React.FC = () => {
         description={program.description}
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate('/academics/programs')}>
+            <Button variant="ghost" onClick={() => navigate('/academics/programs')}>
               Back to List
             </Button>
             {canFinalize && (

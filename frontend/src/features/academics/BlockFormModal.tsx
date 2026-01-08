@@ -3,8 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
-import { DatePicker } from '@/components/ui/DatePicker'
-import { academicsNewService, type LearningBlock, type Department } from '@/services/academicsNew'
+import { academicsNewService, type LearningBlock } from '@/services/academicsNew'
 
 interface BlockFormModalProps {
   block?: LearningBlock | null
@@ -104,12 +103,13 @@ export const BlockFormModal: React.FC<BlockFormModalProps> = ({
           <Select
             label="Block Type"
             value={blockType}
-            onChange={(e) => setBlockType(e.target.value as any)}
+            onChange={(value) => setBlockType(value as 'INTEGRATED_BLOCK' | 'ROTATION_BLOCK')}
+            options={[
+              { value: 'INTEGRATED_BLOCK', label: 'Integrated Block' },
+              { value: 'ROTATION_BLOCK', label: 'Rotation Block' },
+            ]}
             required
-          >
-            <option value="INTEGRATED_BLOCK">Integrated Block</option>
-            <option value="ROTATION_BLOCK">Rotation Block</option>
-          </Select>
+          />
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Start Date</label>
@@ -136,38 +136,38 @@ export const BlockFormModal: React.FC<BlockFormModalProps> = ({
             <>
               <Select
                 label="Primary Department"
-                value={primaryDepartment}
-                onChange={(e) => {
-                  setPrimaryDepartment(e.target.value ? Number(e.target.value) : '')
+                value={primaryDepartment ? String(primaryDepartment) : ''}
+                onChange={(value) => {
+                  setPrimaryDepartment(value ? Number(value) : '')
                   setSubDepartment('')
                 }}
+                options={[
+                  { value: '', label: 'Select Department' },
+                  ...(departments?.filter((d) => !d.parent).map((dept) => ({
+                    value: String(dept.id),
+                    label: dept.name,
+                  })) || []),
+                ]}
                 required
-              >
-                <option value="">Select Department</option>
-                {departments?.filter((d) => !d.parent).map((dept) => (
-                  <option key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </option>
-                ))}
-              </Select>
+              />
               {primaryDepartment && filteredSubDepartments.length > 0 && (
                 <Select
                   label="Sub Department (Optional)"
-                  value={subDepartment}
-                  onChange={(e) => setSubDepartment(e.target.value ? Number(e.target.value) : '')}
-                >
-                  <option value="">None</option>
-                  {filteredSubDepartments.map((dept) => (
-                    <option key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </option>
-                  ))}
-                </Select>
+                  value={subDepartment ? String(subDepartment) : ''}
+                  onChange={(value) => setSubDepartment(value ? Number(value) : '')}
+                  options={[
+                    { value: '', label: 'None' },
+                    ...filteredSubDepartments.map((dept) => ({
+                      value: String(dept.id),
+                      label: dept.name,
+                    })),
+                  ]}
+                />
               )}
             </>
           )}
           <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+            <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>

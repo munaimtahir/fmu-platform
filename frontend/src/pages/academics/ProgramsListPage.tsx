@@ -78,14 +78,14 @@ export const ProgramsListPage: React.FC = () => {
           <div className="flex gap-2">
             <Button
               size="sm"
-              variant="outline"
+              variant="ghost"
               onClick={() => navigate(`/academics/programs/${row.original.id}`)}
             >
               View
             </Button>
             <Button
               size="sm"
-              variant="destructive"
+              variant="danger"
               onClick={() => {
                 if (confirm('Are you sure you want to delete this program?')) {
                   deleteMutation.mutate(row.original.id)
@@ -147,11 +147,10 @@ export const ProgramsListPage: React.FC = () => {
             icon="📚"
             title="No programs found"
             description={search ? 'Try adjusting your search' : 'No programs have been created yet'}
-            action={
-              <Button onClick={() => navigate('/academics/programs/new')}>
-                Create First Program
-              </Button>
-            }
+            action={{
+              label: 'Create First Program',
+              onClick: () => navigate('/academics/programs/new'),
+            }}
           />
         ) : (
           <DataTable data={programs} columns={columns} />

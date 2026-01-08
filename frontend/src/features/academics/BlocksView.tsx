@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
-import { academicsNewService, type LearningBlock, type Module } from '@/services/academicsNew'
+import { academicsNewService, type LearningBlock } from '@/services/academicsNew'
 import { BlockFormModal } from './BlockFormModal'
 import { ModulesList } from './ModulesList'
 
@@ -66,12 +66,12 @@ export const BlocksView: React.FC<BlocksViewProps> = ({ blocks }) => {
               )}
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => handleEdit(block)}>
+              <Button size="sm" variant="ghost" onClick={() => handleEdit(block)}>
                 Edit
               </Button>
               <Button
                 size="sm"
-                variant="destructive"
+                variant="danger"
                 onClick={() => {
                   if (confirm('Delete this block?')) {
                     deleteMutation.mutate(block.id)

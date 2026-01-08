@@ -100,10 +100,7 @@ class AuditLog(models.Model):
             models.Index(fields=["entity", "entity_id"]),
             models.Index(fields=["action"]),
         ]
-        # Prevent modifications
-        permissions = [
-            ("view_auditlog", "Can view audit log"),
-        ]
+        # Note: Django automatically creates view_auditlog permission, so no need to define it here
 
     def __str__(self) -> str:
         return self.summary

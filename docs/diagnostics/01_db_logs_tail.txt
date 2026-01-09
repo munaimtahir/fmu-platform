@@ -1,0 +1,140 @@
+The files belonging to this database system will be owned by user "postgres".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "en_US.utf8".
+The default database encoding has accordingly been set to "UTF8".
+The default text search configuration will be set to "english".
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /var/lib/postgresql/data ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 100
+selecting default shared_buffers ... 128MB
+selecting default time zone ... UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+sh: locale: not found
+2026-01-08 21:52:27.883 UTC [35] WARNING:  no usable system locales were found
+performing post-bootstrap initialization ... ok
+initdb: warning: enabling "trust" authentication for local connections
+initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+syncing data to disk ... ok
+
+
+Success. You can now start the database server using:
+
+    pg_ctl -D /var/lib/postgresql/data -l logfile start
+
+waiting for server to start....2026-01-08 21:52:28.893 UTC [41] LOG:  starting PostgreSQL 16.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-01-08 21:52:28.895 UTC [41] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-01-08 21:52:28.904 UTC [44] LOG:  database system was shut down at 2026-01-08 21:52:28 UTC
+2026-01-08 21:52:28.913 UTC [41] LOG:  database system is ready to accept connections
+ done
+server started
+CREATE DATABASE
+
+
+/usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+
+2026-01-08 21:52:29.081 UTC [41] LOG:  received fast shutdown request
+waiting for server to shut down....2026-01-08 21:52:29.084 UTC [41] LOG:  aborting any active transactions
+2026-01-08 21:52:29.091 UTC [41] LOG:  background worker "logical replication launcher" (PID 47) exited with exit code 1
+2026-01-08 21:52:29.092 UTC [42] LOG:  shutting down
+2026-01-08 21:52:29.094 UTC [42] LOG:  checkpoint starting: shutdown immediate
+2026-01-08 21:52:29.145 UTC [42] LOG:  checkpoint complete: wrote 926 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.024 s, sync=0.020 s, total=0.053 s; sync files=301, longest=0.002 s, average=0.001 s; distance=4272 kB, estimate=4272 kB; lsn=0/191E928, redo lsn=0/191E928
+2026-01-08 21:52:29.157 UTC [41] LOG:  database system is shut down
+ done
+server stopped
+
+PostgreSQL init process complete; ready for start up.
+
+2026-01-08 21:52:29.229 UTC [1] LOG:  starting PostgreSQL 16.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-01-08 21:52:29.230 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-01-08 21:52:29.230 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-01-08 21:52:29.234 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-01-08 21:52:29.242 UTC [57] LOG:  database system was shut down at 2026-01-08 21:52:29 UTC
+2026-01-08 21:52:29.253 UTC [1] LOG:  database system is ready to accept connections
+2026-01-08 21:52:41.626 UTC [61] ERROR:  relation "auth_user" does not exist at character 280
+2026-01-08 21:52:41.626 UTC [61] STATEMENT:  SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE "auth_user"."id" = 1 LIMIT 21
+2026-01-08 21:52:48.406 UTC [62] ERROR:  relation "auth_user" does not exist at character 280
+2026-01-08 21:52:48.406 UTC [62] STATEMENT:  SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE (UPPER("auth_user"."username"::text) = UPPER('admin') OR UPPER("auth_user"."email"::text) = UPPER('admin')) ORDER BY "auth_user"."id" ASC LIMIT 1
+2026-01-08 21:53:07.749 UTC [64] ERROR:  relation "auth_user" does not exist at character 280
+2026-01-08 21:53:07.749 UTC [64] STATEMENT:  SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE (UPPER("auth_user"."username"::text) = UPPER('munaim') OR UPPER("auth_user"."email"::text) = UPPER('munaim')) ORDER BY "auth_user"."id" ASC LIMIT 1
+2026-01-08 21:53:21.742 UTC [66] ERROR:  relation "auth_user" does not exist at character 280
+2026-01-08 21:53:21.742 UTC [66] STATEMENT:  SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE (UPPER("auth_user"."username"::text) = UPPER('munaim') OR UPPER("auth_user"."email"::text) = UPPER('munaim')) ORDER BY "auth_user"."id" ASC LIMIT 1
+2026-01-08 21:54:16.016 UTC [69] ERROR:  relation "auth_user" does not exist at character 280
+2026-01-08 21:54:16.016 UTC [69] STATEMENT:  SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE (UPPER("auth_user"."username"::text) = UPPER('admin') OR UPPER("auth_user"."email"::text) = UPPER('admin')) ORDER BY "auth_user"."id" ASC LIMIT 1
+2026-01-08 21:54:41.051 UTC [72] ERROR:  relation "auth_user" does not exist at character 280
+2026-01-08 21:54:41.051 UTC [72] STATEMENT:  SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE (UPPER("auth_user"."username"::text) = UPPER('admin') OR UPPER("auth_user"."email"::text) = UPPER('admin')) ORDER BY "auth_user"."id" ASC LIMIT 1
+2026-01-08 21:55:18.500 UTC [74] ERROR:  relation "auth_user" does not exist at character 280
+2026-01-08 21:55:18.500 UTC [74] STATEMENT:  SELECT "auth_user"."id", "auth_user"."password", "auth_user"."last_login", "auth_user"."is_superuser", "auth_user"."username", "auth_user"."first_name", "auth_user"."last_name", "auth_user"."email", "auth_user"."is_staff", "auth_user"."is_active", "auth_user"."date_joined" FROM "auth_user" WHERE (UPPER("auth_user"."username"::text) = UPPER('admin') OR UPPER("auth_user"."email"::text) = UPPER('admin')) ORDER BY "auth_user"."id" ASC LIMIT 1
+2026-01-08 21:56:23.180 UTC [1] LOG:  received fast shutdown request
+2026-01-08 21:56:23.183 UTC [1] LOG:  aborting any active transactions
+2026-01-08 21:56:23.191 UTC [1] LOG:  background worker "logical replication launcher" (PID 60) exited with exit code 1
+2026-01-08 21:56:23.202 UTC [55] LOG:  shutting down
+2026-01-08 21:56:23.207 UTC [55] LOG:  checkpoint starting: shutdown immediate
+2026-01-08 21:56:23.228 UTC [55] LOG:  checkpoint complete: wrote 45 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.009 s, sync=0.003 s, total=0.026 s; sync files=12, longest=0.002 s, average=0.001 s; distance=260 kB, estimate=260 kB; lsn=0/195FBD0, redo lsn=0/195FBD0
+2026-01-08 21:56:23.241 UTC [1] LOG:  database system is shut down
+
+PostgreSQL Database directory appears to contain a database; Skipping initialization
+
+2026-01-08 21:56:24.290 UTC [1] LOG:  starting PostgreSQL 16.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-01-08 21:56:24.290 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-01-08 21:56:24.290 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-01-08 21:56:24.294 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-01-08 21:56:24.301 UTC [29] LOG:  database system was shut down at 2026-01-08 21:56:23 UTC
+2026-01-08 21:56:24.310 UTC [1] LOG:  database system is ready to accept connections
+2026-01-08 22:01:24.376 UTC [27] LOG:  checkpoint starting: time
+2026-01-08 22:01:57.031 UTC [27] LOG:  checkpoint complete: wrote 328 buffers (2.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=32.602 s, sync=0.038 s, total=32.656 s; sync files=466, longest=0.003 s, average=0.001 s; distance=2575 kB, estimate=2575 kB; lsn=0/1BE3958, redo lsn=0/1BE3920
+2026-01-08 22:02:48.189 UTC [1] LOG:  received fast shutdown request
+2026-01-08 22:02:48.193 UTC [1] LOG:  aborting any active transactions
+2026-01-08 22:02:48.202 UTC [1] LOG:  background worker "logical replication launcher" (PID 32) exited with exit code 1
+2026-01-08 22:02:48.210 UTC [27] LOG:  shutting down
+2026-01-08 22:02:48.228 UTC [27] LOG:  checkpoint starting: shutdown immediate
+2026-01-08 22:02:48.242 UTC [27] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.005 s, total=0.032 s; sync files=4, longest=0.003 s, average=0.002 s; distance=6 kB, estimate=2318 kB; lsn=0/1BE5370, redo lsn=0/1BE5370
+2026-01-08 22:02:48.261 UTC [1] LOG:  database system is shut down
+
+PostgreSQL Database directory appears to contain a database; Skipping initialization
+
+2026-01-08 22:02:49.078 UTC [1] LOG:  starting PostgreSQL 16.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-01-08 22:02:49.079 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-01-08 22:02:49.079 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-01-08 22:02:49.083 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-01-08 22:02:49.095 UTC [29] LOG:  database system was shut down at 2026-01-08 22:02:48 UTC
+2026-01-08 22:02:49.110 UTC [1] LOG:  database system is ready to accept connections
+2026-01-08 22:04:13.930 UTC [38] ERROR:  column students_student.person_id does not exist at character 129
+2026-01-08 22:04:13.930 UTC [38] STATEMENT:  SELECT "students_student"."id", "students_student"."created_at", "students_student"."updated_at", "students_student"."user_id", "students_student"."person_id", "students_student"."reg_no", "students_student"."name", "students_student"."program_id", "students_student"."batch_id", "students_student"."group_id", "students_student"."status", "students_student"."email", "students_student"."phone", "students_student"."date_of_birth", "students_student"."enrollment_year", "students_student"."expected_graduation_year", "students_student"."actual_graduation_year" FROM "students_student" WHERE "students_student"."user_id" = 1 LIMIT 21
+2026-01-08 22:04:14.233 UTC [39] ERROR:  column students_student.person_id does not exist at character 129
+2026-01-08 22:04:14.233 UTC [39] STATEMENT:  SELECT "students_student"."id", "students_student"."created_at", "students_student"."updated_at", "students_student"."user_id", "students_student"."person_id", "students_student"."reg_no", "students_student"."name", "students_student"."program_id", "students_student"."batch_id", "students_student"."group_id", "students_student"."status", "students_student"."email", "students_student"."phone", "students_student"."date_of_birth", "students_student"."enrollment_year", "students_student"."expected_graduation_year", "students_student"."actual_graduation_year" FROM "students_student" WHERE "students_student"."user_id" = 1 LIMIT 21
+2026-01-08 22:04:19.910 UTC [41] ERROR:  column students_student.person_id does not exist at character 129
+2026-01-08 22:04:19.910 UTC [41] STATEMENT:  SELECT "students_student"."id", "students_student"."created_at", "students_student"."updated_at", "students_student"."user_id", "students_student"."person_id", "students_student"."reg_no", "students_student"."name", "students_student"."program_id", "students_student"."batch_id", "students_student"."group_id", "students_student"."status", "students_student"."email", "students_student"."phone", "students_student"."date_of_birth", "students_student"."enrollment_year", "students_student"."expected_graduation_year", "students_student"."actual_graduation_year" FROM "students_student" WHERE "students_student"."user_id" = 1 LIMIT 21
+2026-01-08 22:04:30.492 UTC [44] ERROR:  column students_student.person_id does not exist at character 129
+2026-01-08 22:04:30.492 UTC [44] STATEMENT:  SELECT "students_student"."id", "students_student"."created_at", "students_student"."updated_at", "students_student"."user_id", "students_student"."person_id", "students_student"."reg_no", "students_student"."name", "students_student"."program_id", "students_student"."batch_id", "students_student"."group_id", "students_student"."status", "students_student"."email", "students_student"."phone", "students_student"."date_of_birth", "students_student"."enrollment_year", "students_student"."expected_graduation_year", "students_student"."actual_graduation_year" FROM "students_student" WHERE "students_student"."user_id" = 1 LIMIT 21
+2026-01-08 22:06:56.234 UTC [58] ERROR:  column students_student.person_id does not exist at character 129
+2026-01-08 22:06:56.234 UTC [58] STATEMENT:  SELECT "students_student"."id", "students_student"."created_at", "students_student"."updated_at", "students_student"."user_id", "students_student"."person_id", "students_student"."reg_no", "students_student"."name", "students_student"."program_id", "students_student"."batch_id", "students_student"."group_id", "students_student"."status", "students_student"."email", "students_student"."phone", "students_student"."date_of_birth", "students_student"."enrollment_year", "students_student"."expected_graduation_year", "students_student"."actual_graduation_year" FROM "students_student" WHERE "students_student"."user_id" = 1 LIMIT 21
+2026-01-08 22:06:56.569 UTC [59] ERROR:  column students_student.person_id does not exist at character 129
+2026-01-08 22:06:56.569 UTC [59] STATEMENT:  SELECT "students_student"."id", "students_student"."created_at", "students_student"."updated_at", "students_student"."user_id", "students_student"."person_id", "students_student"."reg_no", "students_student"."name", "students_student"."program_id", "students_student"."batch_id", "students_student"."group_id", "students_student"."status", "students_student"."email", "students_student"."phone", "students_student"."date_of_birth", "students_student"."enrollment_year", "students_student"."expected_graduation_year", "students_student"."actual_graduation_year" FROM "students_student" WHERE "students_student"."user_id" = 1 LIMIT 21
+2026-01-08 22:07:13.070 UTC [63] ERROR:  column academics_academicperiod.status does not exist at character 404
+2026-01-08 22:07:13.070 UTC [63] STATEMENT:  DECLARE "_django_curs_135259474586496_sync_1" NO SCROLL CURSOR WITH HOLD FOR SELECT "academics_academicperiod"."id", "academics_academicperiod"."created_at", "academics_academicperiod"."updated_at", "academics_academicperiod"."period_type", "academics_academicperiod"."name", "academics_academicperiod"."parent_period_id", "academics_academicperiod"."start_date", "academics_academicperiod"."end_date", "academics_academicperiod"."status", "academics_academicperiod"."is_enrollment_open" FROM "academics_academicperiod" ORDER BY "academics_academicperiod"."period_type" ASC, "academics_academicperiod"."name" ASC
+2026-01-08 22:07:13.071 UTC [63] ERROR:  cursor "_django_curs_135259474586496_sync_1" does not exist
+2026-01-08 22:07:13.071 UTC [63] STATEMENT:  CLOSE "_django_curs_135259474586496_sync_1"
+2026-01-08 22:07:13.383 UTC [64] ERROR:  column academics_academicperiod.status does not exist at character 404
+2026-01-08 22:07:13.383 UTC [64] STATEMENT:  DECLARE "_django_curs_135259474586496_sync_2" NO SCROLL CURSOR WITH HOLD FOR SELECT "academics_academicperiod"."id", "academics_academicperiod"."created_at", "academics_academicperiod"."updated_at", "academics_academicperiod"."period_type", "academics_academicperiod"."name", "academics_academicperiod"."parent_period_id", "academics_academicperiod"."start_date", "academics_academicperiod"."end_date", "academics_academicperiod"."status", "academics_academicperiod"."is_enrollment_open" FROM "academics_academicperiod" ORDER BY "academics_academicperiod"."period_type" ASC, "academics_academicperiod"."name" ASC
+2026-01-08 22:07:13.384 UTC [64] ERROR:  cursor "_django_curs_135259474586496_sync_2" does not exist
+2026-01-08 22:07:13.384 UTC [64] STATEMENT:  CLOSE "_django_curs_135259474586496_sync_2"
+2026-01-08 22:07:13.474 UTC [65] ERROR:  column academics_academicperiod.status does not exist at character 404
+2026-01-08 22:07:13.474 UTC [65] STATEMENT:  DECLARE "_django_curs_135259474586496_sync_1" NO SCROLL CURSOR WITH HOLD FOR SELECT "academics_academicperiod"."id", "academics_academicperiod"."created_at", "academics_academicperiod"."updated_at", "academics_academicperiod"."period_type", "academics_academicperiod"."name", "academics_academicperiod"."parent_period_id", "academics_academicperiod"."start_date", "academics_academicperiod"."end_date", "academics_academicperiod"."status", "academics_academicperiod"."is_enrollment_open" FROM "academics_academicperiod" ORDER BY "academics_academicperiod"."period_type" ASC, "academics_academicperiod"."name" ASC
+2026-01-08 22:07:13.474 UTC [65] ERROR:  cursor "_django_curs_135259474586496_sync_1" does not exist
+2026-01-08 22:07:13.474 UTC [65] STATEMENT:  CLOSE "_django_curs_135259474586496_sync_1"
+2026-01-08 22:07:49.193 UTC [27] LOG:  checkpoint starting: time
+2026-01-08 22:07:51.918 UTC [27] LOG:  checkpoint complete: wrote 30 buffers (0.2%); 0 WAL file(s) added, 0 removed, 0 recycled; write=2.713 s, sync=0.004 s, total=2.726 s; sync files=18, longest=0.002 s, average=0.001 s; distance=12 kB, estimate=12 kB; lsn=0/1BE8588, redo lsn=0/1BE8550
+2026-01-08 22:08:04.460 UTC [68] ERROR:  column students_student.person_id does not exist at character 129
+2026-01-08 22:08:04.460 UTC [68] STATEMENT:  SELECT "students_student"."id", "students_student"."created_at", "students_student"."updated_at", "students_student"."user_id", "students_student"."person_id", "students_student"."reg_no", "students_student"."name", "students_student"."program_id", "students_student"."batch_id", "students_student"."group_id", "students_student"."status", "students_student"."email", "students_student"."phone", "students_student"."date_of_birth", "students_student"."enrollment_year", "students_student"."expected_graduation_year", "students_student"."actual_graduation_year" FROM "students_student" WHERE "students_student"."user_id" = 1 LIMIT 21
+2026-01-08 22:08:18.581 UTC [73] ERROR:  column academics_program.structure_type does not exist at character 275
+2026-01-08 22:08:18.581 UTC [73] STATEMENT:  DECLARE "_django_curs_135259474586496_sync_3" NO SCROLL CURSOR WITH HOLD FOR SELECT "academics_program"."id", "academics_program"."created_at", "academics_program"."updated_at", "academics_program"."name", "academics_program"."description", "academics_program"."is_active", "academics_program"."structure_type", "academics_program"."is_finalized", "academics_program"."period_length_months", "academics_program"."total_periods" FROM "academics_program" ORDER BY "academics_program"."name" ASC
+2026-01-08 22:08:18.582 UTC [73] ERROR:  cursor "_django_curs_135259474586496_sync_3" does not exist
+2026-01-08 22:08:18.582 UTC [73] STATEMENT:  CLOSE "_django_curs_135259474586496_sync_3"
+2026-01-08 22:08:34.639 UTC [78] ERROR:  column "structure_type" of relation "academics_program" does not exist at character 98
+2026-01-08 22:08:34.639 UTC [78] STATEMENT:  INSERT INTO "academics_program" ("created_at", "updated_at", "name", "description", "is_active", "structure_type", "is_finalized", "period_length_months", "total_periods") VALUES ('2026-01-08T22:08:34.638945+00:00'::timestamptz, '2026-01-08T22:08:34.638966+00:00'::timestamptz, 'mbbs', '', true, 'YEARLY', false, NULL, NULL) RETURNING "academics_program"."id"

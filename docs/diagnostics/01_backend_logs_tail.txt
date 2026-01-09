@@ -1,0 +1,55 @@
+Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+
+0 static files copied to '/app/staticfiles', 219 unmodified.
+[2026-01-08 21:52:29 +0000] [1] [INFO] Starting gunicorn 21.2.0
+[2026-01-08 21:52:29 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+[2026-01-08 21:52:29 +0000] [1] [INFO] Using worker: sync
+[2026-01-08 21:52:29 +0000] [8] [INFO] Booting worker with pid: 8
+[2026-01-08 21:52:29 +0000] [9] [INFO] Booting worker with pid: 9
+[2026-01-08 21:52:29 +0000] [10] [INFO] Booting worker with pid: 10
+[2026-01-08 21:56:23 +0000] [1] [INFO] Handling signal: term
+[2026-01-08 21:56:23 +0000] [8] [INFO] Worker exiting (pid: 8)
+[2026-01-08 21:56:23 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2026-01-08 21:56:23 +0000] [9] [INFO] Worker exiting (pid: 9)
+[2026-01-08 21:56:24 +0000] [1] [INFO] Shutting down: Master
+Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+
+0 static files copied to '/app/staticfiles', 219 unmodified.
+[2026-01-08 21:56:26 +0000] [1] [INFO] Starting gunicorn 21.2.0
+[2026-01-08 21:56:26 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+[2026-01-08 21:56:26 +0000] [1] [INFO] Using worker: sync
+[2026-01-08 21:56:26 +0000] [8] [INFO] Booting worker with pid: 8
+[2026-01-08 21:56:26 +0000] [9] [INFO] Booting worker with pid: 9
+[2026-01-08 21:56:26 +0000] [10] [INFO] Booting worker with pid: 10
+[2026-01-08 22:01:07 +0000] [1] [INFO] Handling signal: term
+[2026-01-08 22:01:07 +0000] [9] [INFO] Worker exiting (pid: 9)
+[2026-01-08 22:01:07 +0000] [8] [INFO] Worker exiting (pid: 8)
+[2026-01-08 22:01:07 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2026-01-08 22:01:08 +0000] [1] [INFO] Shutting down: Master
+Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+
+0 static files copied to '/app/staticfiles', 219 unmodified.
+[2026-01-08 22:01:10 +0000] [1] [INFO] Starting gunicorn 21.2.0
+[2026-01-08 22:01:10 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+[2026-01-08 22:01:10 +0000] [1] [INFO] Using worker: sync
+[2026-01-08 22:01:10 +0000] [8] [INFO] Booting worker with pid: 8
+[2026-01-08 22:01:10 +0000] [9] [INFO] Booting worker with pid: 9
+[2026-01-08 22:01:10 +0000] [10] [INFO] Booting worker with pid: 10
+[2026-01-08 22:02:48 +0000] [1] [INFO] Handling signal: term
+[2026-01-08 22:02:48 +0000] [9] [INFO] Worker exiting (pid: 9)
+[2026-01-08 22:02:48 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2026-01-08 22:02:48 +0000] [8] [INFO] Worker exiting (pid: 8)
+[2026-01-08 22:02:48 +0000] [1] [INFO] Shutting down: Master
+Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+
+0 static files copied to '/app/staticfiles', 219 unmodified.
+[2026-01-08 22:02:51 +0000] [1] [INFO] Starting gunicorn 21.2.0
+[2026-01-08 22:02:51 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
+[2026-01-08 22:02:51 +0000] [1] [INFO] Using worker: sync
+[2026-01-08 22:02:51 +0000] [8] [INFO] Booting worker with pid: 8
+[2026-01-08 22:02:51 +0000] [9] [INFO] Booting worker with pid: 9
+[2026-01-08 22:02:51 +0000] [10] [INFO] Booting worker with pid: 10

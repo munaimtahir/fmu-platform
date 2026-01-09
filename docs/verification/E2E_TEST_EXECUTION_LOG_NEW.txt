@@ -1,0 +1,731 @@
+
+Running 11 tests using 2 workers
+
+Login may have failed, continuing anyway...
+(node:1896007) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Login may have failed, continuing anyway...
+(node:1896006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   1 [chromium] › e2e/academics-crud.spec.ts:33:3 › Academics Hierarchy CRUD › should create a new Program
+  ✓   2 [chromium] › e2e/academics-crud.spec.ts:73:3 › Academics Hierarchy CRUD › should navigate to academics pages (23.0s)
+Login failed. Current URL: http://127.0.0.1:8080/login
+Page contains error: [33mfalse[39m
+Error message: Authentication FailedRequest failed with status code 405
+Login may have failed, continuing anyway...
+  ✘   4 [chromium] › e2e/auth.spec.ts:4:3 › Authentication Flow › should login successfully with valid credentials (12.3s)
+  ✓   3 [chromium] › e2e/academics-crud.spec.ts:115:3 › Academics Hierarchy CRUD › should verify data persists after reload (17.9s)
+  ✓   5 [chromium] › e2e/auth.spec.ts:75:3 › Authentication Flow › should redirect to login when accessing protected route (722ms)
+  ✓   7 [chromium] › e2e/auth.spec.ts:53:3 › Authentication Flow › should show error with invalid credentials (3.3s)
+Login may have failed, continuing anyway...
+  -   6 [chromium] › e2e/reload-persistence.spec.ts:33:3 › Reload Persistence › should maintain authentication after reload
+Login may have failed, continuing anyway...
+(node:1896762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [chromium] › e2e/reload-persistence.spec.ts:56:3 › Reload Persistence › should persist data across page reloads (18.1s)
+Login may have failed, continuing anyway...
+  ✓   9 [chromium] › e2e/students-crud.spec.ts:33:3 › Student CRUD Operations › should navigate to students page (17.4s)
+Login may have failed, continuing anyway...
+  -  10 [chromium] › e2e/students-crud.spec.ts:64:3 › Student CRUD Operations › should create a new student
+Login may have failed, continuing anyway...
+  ✓  11 [chromium] › e2e/students-crud.spec.ts:98:3 › Student CRUD Operations › should verify student data persists after reload (17.2s)
+
+
+  1) [chromium] › e2e/auth.spec.ts:4:3 › Authentication Flow › should login successfully with valid credentials 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      29 |     // Wait for navigation to dashboard or check for error
+      30 |     try {
+    > 31 |       await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                  ^
+      32 |       expect(page.url()).toContain('/dashboard');
+      33 |     } catch (error) {
+      34 |       // If navigation fails, check what happened
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts:31:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/auth.spec.ts:4:3 › Authentication Flow › should login successfully with valid credentials 
+  3 skipped
+  7 passed (1.5m)
+{
+  "config": {
+    "configFile": "/home/munaim/srv/apps/fmu-platform/frontend/playwright.config.ts",
+    "rootDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 2,
+    "webServer": {
+      "command": "echo \"Frontend should be running on http://127.0.0.1:8080\"",
+      "url": "http://127.0.0.1:8080",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "academics-crud.spec.ts",
+      "file": "academics-crud.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Academics Hierarchy CRUD",
+          "file": "academics-crud.spec.ts",
+          "line": 28,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should create a new Program",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Create button not found - may need authentication or page structure different",
+                      "location": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                        "line": 69,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 18568,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Login may have failed, continuing anyway...\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "(node:1896006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:31:55.769Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Create button not found - may need authentication or page structure different",
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                            "line": 69,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8265587b4aa0c977e52f-db1227d1b49468c1050d",
+              "file": "academics-crud.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "should navigate to academics pages",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 23011,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Login may have failed, continuing anyway...\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "(node:1896007) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:31:55.775Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8265587b4aa0c977e52f-a48199e9da06d89b8fff",
+              "file": "academics-crud.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "should verify data persists after reload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 17945,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Login may have failed, continuing anyway...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:32:14.702Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8265587b4aa0c977e52f-124474b876ce575096c2",
+              "file": "academics-crud.spec.ts",
+              "line": 115,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication Flow",
+          "file": "auth.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should login successfully with valid credentials",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 12258,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts:31:18",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts",
+                          "column": 18,
+                          "line": 31
+                        },
+                        "snippet": "  29 |     // Wait for navigation to dashboard or check for error\n  30 |     try {\n> 31 |       await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                  ^\n  32 |       expect(page.url()).toContain('/dashboard');\n  33 |     } catch (error) {\n  34 |       // If navigation fails, check what happened"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts",
+                            "column": 18,
+                            "line": 31
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  29 |     // Wait for navigation to dashboard or check for error\n  30 |     try {\n> 31 |       await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                  ^\n  32 |       expect(page.url()).toContain('/dashboard');\n  33 |     } catch (error) {\n  34 |       // If navigation fails, check what happened\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts:31:18"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Login failed. Current URL: http://127.0.0.1:8080/login\n"
+                        },
+                        {
+                          "text": "Page contains error: \u001b[33mfalse\u001b[39m\n"
+                        },
+                        {
+                          "text": "Error message: Authentication FailedRequest failed with status code 405\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:32:19.116Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts",
+                        "column": 18,
+                        "line": 31
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-efd14549b37f77aa6096",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should show error with invalid credentials",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3302,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:32:33.715Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-32f56b95de6bdc3a9955",
+              "file": "auth.spec.ts",
+              "line": 53,
+              "column": 3
+            },
+            {
+              "title": "should redirect to login when accessing protected route",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 722,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:32:32.728Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-dfabddc1b26dccd015b0",
+              "file": "auth.spec.ts",
+              "line": 75,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "reload-persistence.spec.ts",
+      "file": "reload-persistence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Reload Persistence",
+          "file": "reload-persistence.spec.ts",
+          "line": 28,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should maintain authentication after reload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Not authenticated - login failed",
+                      "location": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts",
+                        "line": 40,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 17464,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Login may have failed, continuing anyway...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:32:33.505Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Not authenticated - login failed",
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts",
+                            "line": 40,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "f55be3b54f85afd0679d-477ee75973eb7b910b5a",
+              "file": "reload-persistence.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "should persist data across page reloads",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 18062,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Login may have failed, continuing anyway...\n"
+                        }
+                      ],
+                      "stderr": [
+                        {
+                          "text": "(node:1896762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:32:37.241Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f55be3b54f85afd0679d-3b16ee908544bbed7e57",
+              "file": "reload-persistence.spec.ts",
+              "line": 56,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "students-crud.spec.ts",
+      "file": "students-crud.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Student CRUD Operations",
+          "file": "students-crud.spec.ts",
+          "line": 28,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should navigate to students page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 17407,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Login may have failed, continuing anyway...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:32:51.018Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "18d66b3845efa5649363-4c3e147d239b5dd3efd8",
+              "file": "students-crud.spec.ts",
+              "line": 33,
+              "column": 3
+            },
+            {
+              "title": "should create a new student",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Create button not found - may need authentication or page structure different",
+                      "location": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                        "line": 94,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "skipped",
+                      "duration": 17879,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Login may have failed, continuing anyway...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:32:55.362Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Create button not found - may need authentication or page structure different",
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                            "line": 94,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "18d66b3845efa5649363-4999e56ef0b2090870fa",
+              "file": "students-crud.spec.ts",
+              "line": 64,
+              "column": 3
+            },
+            {
+              "title": "should verify student data persists after reload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 17213,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Login may have failed, continuing anyway...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:33:08.465Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "18d66b3845efa5649363-f9b7a06cc520a331823b",
+              "file": "students-crud.spec.ts",
+              "line": 98,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-09T11:31:53.367Z",
+    "duration": 92419.413,
+    "expected": 7,
+    "skipped": 3,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

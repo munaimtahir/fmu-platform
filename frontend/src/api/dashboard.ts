@@ -30,6 +30,40 @@ export interface DashboardStats {
 }
 
 /**
+ * Admin dashboard data structure
+ */
+export interface AdminDashboardData {
+  counts: {
+    students: number
+    faculty: number
+    programs: number
+    courses: number
+  }
+  attendance_stats: {
+    last_7_days: {
+      total_marked: number
+      absent_percent: number
+      late_percent: number
+      missing_entries: number
+    }
+  }
+  recent_activity: Array<{
+    id: string
+    actor: string
+    action: string
+    entity: string
+    timestamp: string
+    summary: string
+  }>
+  system: {
+    app_version: string
+    server_time: string
+    env_label: string
+    django_version: string
+  }
+}
+
+/**
  * An object containing API methods related to the dashboard.
  */
 export const dashboardApi = {
@@ -40,6 +74,15 @@ export const dashboardApi = {
    */
   getStats: async (): Promise<DashboardStats> => {
     const response = await api.get<DashboardStats>('/api/dashboard/stats/')
+    return response.data
+  },
+  /**
+   * Fetches the admin dashboard overview data.
+   *
+   * @returns {Promise<AdminDashboardData>} A promise that resolves with the admin dashboard data.
+   */
+  getAdminDashboard: async (): Promise<AdminDashboardData> => {
+    const response = await api.get<AdminDashboardData>('/api/admin/dashboard/')
     return response.data
   },
 }

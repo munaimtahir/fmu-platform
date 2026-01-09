@@ -184,7 +184,7 @@ export const LEGACY_ROUTES: Set<string> = new Set([])
 /**
  * Check if a route is a legacy route (always returns false now)
  */
-export function isLegacyRoute(routePath: string): boolean {
+export function isLegacyRoute(_routePath: string): boolean {
   return false  // All legacy routes have been removed
 }
 

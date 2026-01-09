@@ -40,7 +40,7 @@ import { ProfilePage } from '@/pages/ProfilePage'
 // UnauthorizedPage is imported dynamically in ProtectedRoute to avoid circular dependencies
 import { UsersPage } from '@/pages/admin/UsersPage'
 import { RolesPage } from '@/pages/admin/RolesPage'
-import { ProgramsPage } from '@/pages/academics/ProgramsPage'
+// ProgramsPage removed - using ProgramsListPage instead
 import { ProgramsListPage } from '@/pages/academics/ProgramsListPage'
 import { ProgramDetailPage } from '@/pages/academics/ProgramDetailPage'
 import { ProgramFormPage } from '@/pages/academics/ProgramFormPage'

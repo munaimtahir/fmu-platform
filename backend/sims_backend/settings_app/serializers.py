@@ -26,20 +26,24 @@ class AppSettingSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         """Validate key and value."""
-        key = data.get("key")
+        # For updates, key comes from instance, not data
+        key = data.get("key") or (self.instance.key if self.instance else None)
         value = data.get("value_json")
         value_type = data.get("value_type")
+        
+        if not key:
+            raise serializers.ValidationError("Key is required")
         
         if key not in AppSetting.ALLOWED_KEYS:
             raise serializers.ValidationError(f"Key '{key}' is not in the allowlist.")
         
         key_config = AppSetting.ALLOWED_KEYS[key]
-        if value_type != key_config["type"]:
+        if value_type and value_type != key_config["type"]:
             raise serializers.ValidationError(
                 f"Value type must be '{key_config['type']}' for key '{key}'"
             )
         
-        if not key_config["validation"](value):
+        if value is not None and not key_config["validation"](value):
             raise serializers.ValidationError(f"Invalid value for key '{key}'")
         
         return data

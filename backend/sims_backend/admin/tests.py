@@ -11,6 +11,9 @@ from sims_backend.students.models import Student
 User = get_user_model()
 
 
+# api_client and admin_user fixtures are provided by tests/conftest.py
+
+
 @pytest.mark.django_db
 class TestAdminDashboard:
     """Test admin dashboard endpoint."""

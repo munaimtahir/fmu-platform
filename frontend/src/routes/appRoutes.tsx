@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute'
-import { LegacyRouteGuard } from '@/components/layout/LegacyRouteGuard'
+// LegacyRouteGuard removed - all legacy routes have been deleted
 import { DashboardHome } from '@/pages/DashboardHome'
 import { AdminDashboard } from '@/pages/dashboards/AdminDashboard'
 import { RegistrarDashboard } from '@/pages/dashboards/RegistrarDashboard'
@@ -20,8 +20,8 @@ import { StudentsImportPage } from '@/pages/admin/StudentsImportPage'
 import { StudentsPage } from '@/features/students/StudentsPage'
 import { CoursesPage } from '@/features/courses/CoursesPage'
 import { SectionsPage } from '@/features/sections/SectionsPage'
-import { AssessmentsPage } from '@/features/assessments/AssessmentsPage'
-import { BulkEnrollmentPage } from '@/features/enrollment/BulkEnrollmentPage'
+// Legacy assessments removed
+// Legacy enrollment removed
 import { BulkAttendancePage } from '@/features/attendance/BulkAttendancePage'
 import { AnalyticsDashboard } from '@/features/analytics/AnalyticsDashboard'
 import { StudentApplicationPage } from '@/pages/StudentApplicationPage'
@@ -50,7 +50,7 @@ import { GroupsPage } from '@/pages/academics/GroupsPage'
 import { DepartmentsPage } from '@/pages/academics/DepartmentsPage'
 import { ExamsPage } from '@/pages/exams/ExamsPage'
 import { ResultsPage } from '@/pages/results/ResultsPage'
-import { RequestsPage } from '@/pages/requests/RequestsPage'
+// Legacy requests removed
 import { TranscriptsPage } from '@/pages/transcripts/TranscriptsPage'
 // UnauthorizedPage is imported dynamically in ProtectedRoute to avoid circular dependencies
 
@@ -212,16 +212,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  {
-    path: '/assessments',
-    element: (
-      <ProtectedRoute allowedRoles={['Admin', 'Faculty']}>
-        <LegacyRouteGuard>
-          <AssessmentsPage />
-        </LegacyRouteGuard>
-      </ProtectedRoute>
-    ),
-  },
+  // Legacy assessments route removed
   {
     path: '/timetable',
     element: (
@@ -230,16 +221,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  {
-    path: '/enrollment/bulk',
-    element: (
-      <ProtectedRoute allowedRoles={['Admin', 'Registrar']}>
-        <LegacyRouteGuard>
-          <BulkEnrollmentPage />
-        </LegacyRouteGuard>
-      </ProtectedRoute>
-    ),
-  },
+  // Legacy enrollment route removed
   {
     path: '/attendance/bulk',
     element: (
@@ -384,16 +366,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  {
-    path: '/academics/programs-legacy',
-    element: (
-      <ProtectedRoute allowedRoles={['Admin', 'Registrar']}>
-        <LegacyRouteGuard>
-          <ProgramsPage />
-        </LegacyRouteGuard>
-      </ProtectedRoute>
-    ),
-  },
+  // Legacy programs-legacy route removed
   {
     path: '/academics/batches',
     element: (
@@ -442,16 +415,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-  {
-    path: '/requests',
-    element: (
-      <ProtectedRoute allowedRoles={['Admin', 'Student']} path="/requests">
-        <LegacyRouteGuard>
-          <RequestsPage />
-        </LegacyRouteGuard>
-      </ProtectedRoute>
-    ),
-  },
+  // Legacy requests route removed
   {
     path: '/transcripts',
     element: (

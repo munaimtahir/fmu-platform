@@ -5,7 +5,7 @@ from typing import Any
 
 from django.core.mail import send_mail
 
-from sims_backend.admissions.models import Student
+from sims_backend.students.models import Student
 
 from .views import generate_transcript_pdf
 

@@ -100,23 +100,7 @@ export const AdminDashboard = () => {
             </div>
           </Card>
 
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Pending Requests</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.pending_requests ?? 0}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-2xl">
-                📝
-              </div>
-            </div>
-            <div className="mt-4 flex items-center gap-2">
-              <Badge variant="warning">Needs Review</Badge>
-              <span className="text-xs text-gray-500">document requests</span>
-            </div>
-          </Card>
+          {/* Legacy requests module removed */}
 
           <Card>
             <div className="flex items-center justify-between">
@@ -154,36 +138,7 @@ export const AdminDashboard = () => {
 
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Recent Enrollments
-            </h2>
-            <div className="space-y-3">
-              <p className="text-sm text-gray-500">
-                Enrollment data will be displayed here
-              </p>
-            </div>
-          </Card>
-
-          <Card>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Pending Actions
-            </h2>
-            <div className="space-y-3">
-              {stats.pending_requests !== undefined && stats.pending_requests > 0 && (
-                <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                    <p className="text-sm font-medium text-gray-900">Review Document Requests</p>
-                  </div>
-                  <Badge variant="primary">{stats.pending_requests}</Badge>
-                </div>
-              )}
-              {(!stats.pending_requests || stats.pending_requests === 0) && (
-                <p className="text-sm text-gray-500">No pending actions</p>
-              )}
-            </div>
-          </Card>
+          {/* Legacy enrollment and requests modules removed */}
         </div>
 
         {/* Module Entry Points */}
@@ -198,14 +153,9 @@ export const AdminDashboard = () => {
               { label: 'People (Identity)', icon: '🆔', path: '/people' },
               { label: 'Academics', icon: '📚', path: '/academics/programs' },
               { label: 'Students', icon: '👥', path: '/students' },
-              { label: 'Requests', icon: '📝', path: '/requests' },
-              { label: 'Enrollment', icon: '📅', path: '/enrollment/bulk' },
               { label: 'Finance', icon: '💰', path: '/finance' },
               { label: 'Attendance', icon: '✅', path: '/attendance' },
-              { label: 'Assessments', icon: '📊', path: '/assessments' },
               { label: 'Results', icon: '📈', path: '/results' },
-              { label: 'Documents', icon: '📄', path: '/documents' },
-              { label: 'Notifications', icon: '🔔', path: '/notifications' },
             ].map((module, index) => (
               <a
                 key={index}

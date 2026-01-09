@@ -19,10 +19,8 @@ from sims_backend.academics.models import (
     Program,
     Section,
 )
-from sims_backend.admissions.models import Student
-from sims_backend.assessments.models import Assessment, AssessmentScore
 from sims_backend.attendance.models import Attendance
-from sims_backend.enrollment.models import Enrollment
+from sims_backend.students.models import Student
 from sims_backend.exams.models import Exam, ExamComponent
 from sims_backend.finance.models import FeePlan, FeeType, Voucher
 from sims_backend.finance.services import create_voucher_from_feeplan
@@ -204,15 +202,12 @@ class DemoScenarioGenerator:
         return faculty_users
 
     def create_demo_students(self, program, batch, groups, num_students=20):
-        """Create demo students with user accounts - creates both admissions and students records"""
+        """Create demo students with user accounts - creates canonical students records"""
         students = []
         student_logins = []
         student_group, _ = AuthGroup.objects.get_or_create(name="Student")
 
         current_year = date.today().year
-
-        # Import both Student models
-        from sims_backend.students.models import Student as StudentsStudent
 
         for i in range(num_students):
             reg_no = f"{self.demo_prefix}{current_year}-{program.name[:4].upper()}-{(i + 1):03d}"
@@ -241,14 +236,17 @@ class DemoScenarioGenerator:
             # Generate phone number in Pakistan format (13 chars: +92 + 10 digits)
             phone = fake.numerify(text='+92##########')
 
-            # Create admissions student record
-            admissions_student, _ = Student.objects.get_or_create(
+            # Create canonical student record
+            student, _ = Student.objects.get_or_create(
                 reg_no=reg_no,
                 defaults={
                     "name": name,
                     "program": program,
-                    "batch_year": current_year + self.DEFAULT_GRADUATING_YEARS_AHEAD,
-                    "current_year": 1,
+                    "batch": batch,
+                    "group": group,
+                    "status": Student.STATUS_ACTIVE,
+                    "enrollment_year": current_year,
+                    "expected_graduation_year": current_year + self.DEFAULT_GRADUATING_YEARS_AHEAD,
                     "status": Student.STATUS_ACTIVE,
                     "email": email,
                     "phone": phone,
@@ -256,23 +254,8 @@ class DemoScenarioGenerator:
                 },
             )
 
-            # Create students student record (for attendance/results)
-            students_student, _ = StudentsStudent.objects.get_or_create(
-                reg_no=reg_no,
-                defaults={
-                    "name": name,
-                    "program": program,
-                    "batch": batch,
-                    "group": group,
-                    "status": StudentsStudent.STATUS_ACTIVE,
-                    "email": email,
-                    "phone": phone,
-                    "date_of_birth": dob,
-                },
-            )
-
-            # Return students.Student instances for use in attendance/results
-            students.append(students_student)
+            # Return Student instances for use in attendance/results
+            students.append(student)
             student_logins.append(
                 {
                     "reg_no": reg_no,
@@ -287,51 +270,10 @@ class DemoScenarioGenerator:
         return students, student_logins
 
     def enroll_students_in_sections(self, students, sections, term_name):
-        """Enroll students in sections"""
-        enrollments = []
-
-        # Import admissions.Student for enrollment
-        from sims_backend.admissions.models import Student as AdmissionsStudent
-
-        for i, student in enumerate(students):
-            # Find matching admissions student
-            admissions_student = AdmissionsStudent.objects.filter(
-                reg_no=student.reg_no
-            ).first()
-
-            if not admissions_student:
-                # Create admissions student if doesn't exist
-                current_year = date.today().year
-                admissions_student = AdmissionsStudent.objects.create(
-                    reg_no=student.reg_no,
-                    name=student.name,
-                    program=student.program,
-                    batch_year=getattr(student.batch, 'start_year', current_year + 5),
-                    current_year=1,
-                    status=AdmissionsStudent.STATUS_ACTIVE,
-                    email=student.email,
-                    phone=getattr(student, 'phone', ''),
-                    date_of_birth=getattr(student, 'date_of_birth', None),
-                )
-
-            # Enroll in 1-2 sections
-            num_sections = 1 if i % 3 == 0 else 2
-            selected_sections = random.sample(sections, min(num_sections, len(sections)))
-
-            for section in selected_sections:
-                enrollment, created = Enrollment.objects.get_or_create(
-                    student=admissions_student,
-                    section=section,
-                    defaults={
-                        "term": term_name,
-                        "status": "enrolled",
-                    },
-                )
-                if created:
-                    enrollments.append(enrollment)
-
-        self.log(f"  ✓ Created {len(enrollments)} enrollments")
-        return enrollments
+        """Enroll students in sections - LEGACY FUNCTION DISABLED (enrollment module removed)"""
+        # Legacy enrollment module removed - enrollment tracking should be handled via students app
+        self.log(f"  ⚠ Enrollment function disabled - legacy enrollment module removed")
+        return []
 
     def create_attendance_records(self, students, sessions, attendance_percentage):
         """Create attendance records for students"""
@@ -357,43 +299,10 @@ class DemoScenarioGenerator:
         return attendance_records
 
     def create_assessment_scores(self, students, sections, score_range=(60, 95)):
-        """Create assessment scores for students"""
-        scores = []
-
-        # Get student registration numbers for filtering
-        student_reg_nos = [student.reg_no for student in students]
-
-        for section in sections:
-            # Create assessments for each section
-            quiz, _ = Assessment.objects.get_or_create(
-                section=section,
-                type="Quiz",
-                defaults={"weight": 10},
-            )
-            midterm, _ = Assessment.objects.get_or_create(
-                section=section,
-                type="Midterm",
-                defaults={"weight": 30},
-            )
-
-            # Get all enrollments for this section with related students
-            enrollments = Enrollment.objects.filter(
-                section=section, student__reg_no__in=student_reg_nos
-            ).select_related('student')
-
-            # Create scores for enrolled students
-            for enrollment in enrollments:
-                # Quiz score
-                score_val = random.uniform(*score_range)
-                quiz_score, created = AssessmentScore.objects.get_or_create(
-                    assessment=quiz,
-                    student=enrollment.student,
-                    defaults={"score": score_val, "max_score": 100},
-                )
-                if created:
-                    scores.append(quiz_score)
-
-        return scores
+        """Create assessment scores for students - LEGACY FUNCTION DISABLED (assessments module removed)"""
+        # Legacy assessments module removed - use exams and results modules instead
+        self.log(f"  ⚠ Assessment scores function disabled - legacy assessments module removed")
+        return []
 
     def create_exam_and_results(self, students, academic_period, department, status):
         """Create exam and result headers for students"""
@@ -534,8 +443,7 @@ class DemoScenarioGenerator:
             # First delete attendance which references students
             Attendance.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
 
-            # Delete enrollment which references students and sections
-            Enrollment.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
+            # Legacy enrollment module removed - no cleanup needed
 
             # Delete results and exams
             ResultComponentEntry.objects.filter(
@@ -550,8 +458,7 @@ class DemoScenarioGenerator:
             StudentLedgerItem.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
             Charge.objects.filter(title__startswith=self.demo_prefix).delete()
 
-            # Delete assessments
-            AssessmentScore.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
+            # Legacy assessments module removed - no cleanup needed
             Assessment.objects.filter(section__name__startswith=self.demo_prefix).delete()
 
             # Delete sessions before faculty users (to avoid protected foreign key error)

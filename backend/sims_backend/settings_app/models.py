@@ -127,11 +127,21 @@ class AppSetting(TimeStampedModel):
         if not key_config["validation"](value):
             raise ValueError(f"Invalid value for key '{key}'")
         
-        setting, created = cls.objects.get_or_create(key=key)
-        setting.value_json = value
-        setting.value_type = value_type
-        setting.description = key_config["description"]
-        if user:
-            setting.updated_by = user
-        setting.save()
+        setting, created = cls.objects.get_or_create(
+            key=key,
+            defaults={
+                "value_json": value,
+                "value_type": value_type,
+                "description": key_config["description"],
+                "updated_by": user,
+            }
+        )
+        if not created:
+            # Update existing setting
+            setting.value_json = value
+            setting.value_type = value_type
+            setting.description = key_config["description"]
+            if user:
+                setting.updated_by = user
+            setting.save()
         return setting

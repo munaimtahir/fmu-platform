@@ -7,7 +7,7 @@ import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Spinner } from '@/components/ui/Spinner'
-import { studentsService, coursesService, sectionsService, enrollmentService, attendanceService } from '@/services'
+import { studentsService, coursesService, sectionsService, attendanceService } from '@/services'
 
 export function AnalyticsDashboard() {
   // Fetch all data
@@ -26,10 +26,9 @@ export function AnalyticsDashboard() {
     queryFn: () => sectionsService.getAll({}),
   })
 
-  const { data: enrollmentsData, isLoading: enrollmentsLoading } = useQuery({
-    queryKey: ['enrollments'],
-    queryFn: () => enrollmentService.getAll({}),
-  })
+  // Legacy enrollment service removed - enrollment data not available
+  const enrollmentsData = { results: [], count: 0 }
+  const enrollmentsLoading = false
 
   const { data: attendanceData, isLoading: attendanceLoading } = useQuery({
     queryKey: ['attendance'],

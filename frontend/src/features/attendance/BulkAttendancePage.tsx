@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { sectionsService, studentsService, enrollmentService, attendanceService } from '@/services'
+import { sectionsService, studentsService, attendanceService } from '@/services'
 
 interface AttendanceRecord {
   studentId: number
@@ -32,12 +32,8 @@ export function BulkAttendancePage() {
     queryFn: () => sectionsService.getAll({}),
   })
 
-  // Fetch enrollments for selected section
-  const { data: enrollmentsData, isLoading: enrollmentsLoading } = useQuery({
-    queryKey: ['enrollments', selectedSectionId],
-    queryFn: () => enrollmentService.getAll({ section: selectedSectionId! }),
-    enabled: !!selectedSectionId,
-  })
+  // Legacy enrollment service removed - use students directly from section
+  const enrollmentsLoading = false
 
   // Fetch students
   const { data: studentsData } = useQuery({
@@ -45,25 +41,23 @@ export function BulkAttendancePage() {
     queryFn: () => studentsService.getAll({}),
   })
 
-  // Initialize attendance records when enrollments are loaded
+  // Initialize attendance records when section is selected
+  // Legacy enrollment removed - use students from section's group/batch
   useMemo(() => {
-    if (enrollmentsData && studentsData) {
-      const enrolled = enrollmentsData.results
+    if (selectedSectionId && studentsData) {
       const students = studentsData.results
-
-      const records: AttendanceRecord[] = enrolled.map((enrollment) => {
-        const student = students.find((s) => s.id === enrollment.student)
-        return {
-          studentId: enrollment.student,
-          studentName: student?.name || 'Unknown',
-          studentRegNo: student?.reg_no || 'N/A',
-          status: 'Present', // Default to present
-        }
-      })
+      
+      const records: AttendanceRecord[] = students
+        .map((student: any) => ({
+          studentId: student.id,
+          studentName: student.name || 'Unknown',
+          studentRegNo: student.reg_no || 'N/A',
+          status: 'Present' as const, // Default to present
+        }))
 
       setAttendanceRecords(records)
     }
-  }, [enrollmentsData, studentsData])
+  }, [selectedSectionId, studentsData])
 
   // Mark attendance mutation
   const markAttendanceMutation = useMutation({

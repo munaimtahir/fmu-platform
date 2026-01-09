@@ -40,6 +40,9 @@ import { ProfilePage } from '@/pages/ProfilePage'
 // UnauthorizedPage is imported dynamically in ProtectedRoute to avoid circular dependencies
 import { UsersPage } from '@/pages/admin/UsersPage'
 import { RolesPage } from '@/pages/admin/RolesPage'
+import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
+import { SyllabusManagerPage } from '@/pages/admin/SyllabusManagerPage'
+import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage'
 // ProgramsPage removed - using ProgramsListPage instead
 import { ProgramsListPage } from '@/pages/academics/ProgramsListPage'
 import { ProgramDetailPage } from '@/pages/academics/ProgramDetailPage'
@@ -323,6 +326,30 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ProfilePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/admin/dashboard',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin']} path="/admin/dashboard">
+        <AdminDashboardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/admin/syllabus',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin']} path="/admin/syllabus">
+        <SyllabusManagerPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/admin/settings',
+    element: (
+      <ProtectedRoute allowedRoles={['Admin']} path="/admin/settings">
+        <AdminSettingsPage />
       </ProtectedRoute>
     ),
   },

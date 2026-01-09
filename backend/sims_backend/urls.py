@@ -93,6 +93,10 @@ urlpatterns = [
     path("", include("sims_backend.finance.urls")),
     path("", include("sims_backend.audit.urls")),
     path("", include("sims_backend.transcripts.urls")),
+    # Admin control plane
+    path("", include("sims_backend.admin.urls")),
+    path("", include("sims_backend.syllabus.urls")),
+    path("", include("sims_backend.settings_app.urls")),
     # Legacy apps removed - see docs/legacy/LEGACY_DEFINITION.md
 ]
 

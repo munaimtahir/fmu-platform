@@ -1,0 +1,1211 @@
+
+Running 11 tests using 2 workers
+
+  ✘   2 [chromium] › e2e/academics-crud.spec.ts:49:3 › Academics Hierarchy CRUD › should navigate to academics pages (13.6s)
+  ✘   1 [chromium] › e2e/academics-crud.spec.ts:16:3 › Academics Hierarchy CRUD › should create a new Program (13.5s)
+  ✘   3 [chromium] › e2e/academics-crud.spec.ts:91:3 › Academics Hierarchy CRUD › should verify data persists after reload (12.3s)
+  ✘   4 [chromium] › e2e/auth.spec.ts:4:3 › Authentication Flow › should login successfully with valid credentials (12.4s)
+  ✓   6 [chromium] › e2e/auth.spec.ts:43:3 › Authentication Flow › should redirect to login when accessing protected route (1.1s)
+  ✘   5 [chromium] › e2e/auth.spec.ts:31:3 › Authentication Flow › should show error with invalid credentials (1.6s)
+  ✘   7 [chromium] › e2e/reload-persistence.spec.ts:16:3 › Reload Persistence › should maintain authentication after reload (11.7s)
+  ✘   8 [chromium] › e2e/reload-persistence.spec.ts:32:3 › Reload Persistence › should persist data across page reloads (12.7s)
+  ✘   9 [chromium] › e2e/students-crud.spec.ts:16:3 › Student CRUD Operations › should navigate to students page (12.0s)
+  ✘  10 [chromium] › e2e/students-crud.spec.ts:47:3 › Student CRUD Operations › should create a new student (12.2s)
+  ✘  11 [chromium] › e2e/students-crud.spec.ts:85:3 › Student CRUD Operations › should verify student data persists after reload (11.7s)
+
+
+  1) [chromium] › e2e/academics-crud.spec.ts:16:3 › Academics Hierarchy CRUD › should create a new Program 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |     await page.fill('input[name="password"]', password);
+      12 |     await page.click('button[type="submit"]');
+    > 13 |     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                ^
+      14 |   });
+      15 |
+      16 |   test('should create a new Program', async ({ page }) => {
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts:13:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/academics-crud-Academics-H-f8cfa-should-create-a-new-Program-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/academics-crud-Academics-H-f8cfa-should-create-a-new-Program-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/academics-crud-Academics-H-f8cfa-should-create-a-new-Program-chromium/error-context.md
+
+  2) [chromium] › e2e/academics-crud.spec.ts:49:3 › Academics Hierarchy CRUD › should navigate to academics pages 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |     await page.fill('input[name="password"]', password);
+      12 |     await page.click('button[type="submit"]');
+    > 13 |     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                ^
+      14 |   });
+      15 |
+      16 |   test('should create a new Program', async ({ page }) => {
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts:13:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/academics-crud-Academics-H-0e6b1-navigate-to-academics-pages-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/academics-crud-Academics-H-0e6b1-navigate-to-academics-pages-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/academics-crud-Academics-H-0e6b1-navigate-to-academics-pages-chromium/error-context.md
+
+  3) [chromium] › e2e/academics-crud.spec.ts:91:3 › Academics Hierarchy CRUD › should verify data persists after reload 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |     await page.fill('input[name="password"]', password);
+      12 |     await page.click('button[type="submit"]');
+    > 13 |     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                ^
+      14 |   });
+      15 |
+      16 |   test('should create a new Program', async ({ page }) => {
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts:13:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/academics-crud-Academics-H-fe0a9--data-persists-after-reload-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/academics-crud-Academics-H-fe0a9--data-persists-after-reload-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/academics-crud-Academics-H-fe0a9--data-persists-after-reload-chromium/error-context.md
+
+  4) [chromium] › e2e/auth.spec.ts:4:3 › Authentication Flow › should login successfully with valid credentials 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      23 |     
+      24 |     // Wait for navigation to dashboard
+    > 25 |     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                ^
+      26 |     
+      27 |     // Verify we're on dashboard
+      28 |     expect(page.url()).toContain('/dashboard');
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts:25:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/error-context.md
+
+  5) [chromium] › e2e/auth.spec.ts:31:3 › Authentication Flow › should show error with invalid credentials 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('text=/invalid|error|failed/i')
+    Expected: visible
+    Error: strict mode violation: locator('text=/invalid|error|failed/i') resolved to 3 elements:
+        1) <h3 class="text-sm font-medium mb-1">Authentication Failed</h3> aka getByRole('heading', { name: 'Authentication Failed' })
+        2) <div class="text-sm">Request failed with status code 405</div> aka getByRole('alert').getByText('Request failed with status')
+        3) <div role="status" aria-live="polite" class="go3958317564">Request failed with status code 405</div> aka getByRole('status')
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('text=/invalid|error|failed/i')[22m
+
+
+      38 |     
+      39 |     // Wait for error message
+    > 40 |     await expect(page.locator('text=/invalid|error|failed/i')).toBeVisible({ timeout: 5000 });
+         |                                                                ^
+      41 |   });
+      42 |
+      43 |   test('should redirect to login when accessing protected route', async ({ page }) => {
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts:40:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flow-s-22fb7-or-with-invalid-credentials-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/auth-Authentication-Flow-s-22fb7-or-with-invalid-credentials-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/auth-Authentication-Flow-s-22fb7-or-with-invalid-credentials-chromium/error-context.md
+
+  6) [chromium] › e2e/reload-persistence.spec.ts:16:3 › Reload Persistence › should maintain authentication after reload 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |     await page.fill('input[name="password"]', password);
+      12 |     await page.click('button[type="submit"]');
+    > 13 |     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                ^
+      14 |   });
+      15 |
+      16 |   test('should maintain authentication after reload', async ({ page }) => {
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts:13:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/reload-persistence-Reload--68357-authentication-after-reload-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/reload-persistence-Reload--68357-authentication-after-reload-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/reload-persistence-Reload--68357-authentication-after-reload-chromium/error-context.md
+
+  7) [chromium] › e2e/reload-persistence.spec.ts:32:3 › Reload Persistence › should persist data across page reloads 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |     await page.fill('input[name="password"]', password);
+      12 |     await page.click('button[type="submit"]');
+    > 13 |     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                ^
+      14 |   });
+      15 |
+      16 |   test('should maintain authentication after reload', async ({ page }) => {
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts:13:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/reload-persistence-Reload--a25e0-st-data-across-page-reloads-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/reload-persistence-Reload--a25e0-st-data-across-page-reloads-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/reload-persistence-Reload--a25e0-st-data-across-page-reloads-chromium/error-context.md
+
+  8) [chromium] › e2e/students-crud.spec.ts:16:3 › Student CRUD Operations › should navigate to students page 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |     await page.fill('input[name="password"]', password);
+      12 |     await page.click('button[type="submit"]');
+    > 13 |     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                ^
+      14 |   });
+      15 |
+      16 |   test('should navigate to students page', async ({ page }) => {
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts:13:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/students-crud-Student-CRUD-ef1a7-d-navigate-to-students-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/students-crud-Student-CRUD-ef1a7-d-navigate-to-students-page-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/students-crud-Student-CRUD-ef1a7-d-navigate-to-students-page-chromium/error-context.md
+
+  9) [chromium] › e2e/students-crud.spec.ts:47:3 › Student CRUD Operations › should create a new student 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |     await page.fill('input[name="password"]', password);
+      12 |     await page.click('button[type="submit"]');
+    > 13 |     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                ^
+      14 |   });
+      15 |
+      16 |   test('should navigate to students page', async ({ page }) => {
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts:13:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/students-crud-Student-CRUD-d89e3-should-create-a-new-student-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/students-crud-Student-CRUD-d89e3-should-create-a-new-student-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/students-crud-Student-CRUD-d89e3-should-create-a-new-student-chromium/error-context.md
+
+  10) [chromium] › e2e/students-crud.spec.ts:85:3 › Student CRUD Operations › should verify student data persists after reload 
+
+    TimeoutError: page.waitForURL: Timeout 10000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      11 |     await page.fill('input[name="password"]', password);
+      12 |     await page.click('button[type="submit"]');
+    > 13 |     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+         |                ^
+      14 |   });
+      15 |
+      16 |   test('should navigate to students page', async ({ page }) => {
+        at /home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts:13:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/students-crud-Student-CRUD-d22e2--data-persists-after-reload-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/students-crud-Student-CRUD-d22e2--data-persists-after-reload-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/students-crud-Student-CRUD-d22e2--data-persists-after-reload-chromium/error-context.md
+
+  10 failed
+    [chromium] › e2e/academics-crud.spec.ts:16:3 › Academics Hierarchy CRUD › should create a new Program 
+    [chromium] › e2e/academics-crud.spec.ts:49:3 › Academics Hierarchy CRUD › should navigate to academics pages 
+    [chromium] › e2e/academics-crud.spec.ts:91:3 › Academics Hierarchy CRUD › should verify data persists after reload 
+    [chromium] › e2e/auth.spec.ts:4:3 › Authentication Flow › should login successfully with valid credentials 
+    [chromium] › e2e/auth.spec.ts:31:3 › Authentication Flow › should show error with invalid credentials 
+    [chromium] › e2e/reload-persistence.spec.ts:16:3 › Reload Persistence › should maintain authentication after reload 
+    [chromium] › e2e/reload-persistence.spec.ts:32:3 › Reload Persistence › should persist data across page reloads 
+    [chromium] › e2e/students-crud.spec.ts:16:3 › Student CRUD Operations › should navigate to students page 
+    [chromium] › e2e/students-crud.spec.ts:47:3 › Student CRUD Operations › should create a new student 
+    [chromium] › e2e/students-crud.spec.ts:85:3 › Student CRUD Operations › should verify student data persists after reload 
+  1 passed (1.2m)
+{
+  "config": {
+    "configFile": "/home/munaim/srv/apps/fmu-platform/frontend/playwright.config.ts",
+    "rootDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 2,
+    "webServer": {
+      "command": "echo \"Frontend should be running on http://127.0.0.1:8080\"",
+      "url": "http://127.0.0.1:8080",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "academics-crud.spec.ts",
+      "file": "academics-crud.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Academics Hierarchy CRUD",
+          "file": "academics-crud.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should create a new Program",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 13533,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts:13:16",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                          "column": 16,
+                          "line": 13
+                        },
+                        "snippet": "  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should create a new Program', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                            "column": 16,
+                            "line": 13
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should create a new Program', async ({ page }) => {\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts:13:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:02.447Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/academics-crud-Academics-H-f8cfa-should-create-a-new-Program-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/academics-crud-Academics-H-f8cfa-should-create-a-new-Program-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/academics-crud-Academics-H-f8cfa-should-create-a-new-Program-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                        "column": 16,
+                        "line": 13
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8265587b4aa0c977e52f-db1227d1b49468c1050d",
+              "file": "academics-crud.spec.ts",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "should navigate to academics pages",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 13572,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts:13:16",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                          "column": 16,
+                          "line": 13
+                        },
+                        "snippet": "  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should create a new Program', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                            "column": 16,
+                            "line": 13
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should create a new Program', async ({ page }) => {\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts:13:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:02.451Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/academics-crud-Academics-H-0e6b1-navigate-to-academics-pages-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/academics-crud-Academics-H-0e6b1-navigate-to-academics-pages-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/academics-crud-Academics-H-0e6b1-navigate-to-academics-pages-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                        "column": 16,
+                        "line": 13
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8265587b4aa0c977e52f-a48199e9da06d89b8fff",
+              "file": "academics-crud.spec.ts",
+              "line": 49,
+              "column": 3
+            },
+            {
+              "title": "should verify data persists after reload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 12336,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts:13:16",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                          "column": 16,
+                          "line": 13
+                        },
+                        "snippet": "  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should create a new Program', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                            "column": 16,
+                            "line": 13
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should create a new Program', async ({ page }) => {\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts:13:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:19.026Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/academics-crud-Academics-H-fe0a9--data-persists-after-reload-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/academics-crud-Academics-H-fe0a9--data-persists-after-reload-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/academics-crud-Academics-H-fe0a9--data-persists-after-reload-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/academics-crud.spec.ts",
+                        "column": 16,
+                        "line": 13
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8265587b4aa0c977e52f-124474b876ce575096c2",
+              "file": "academics-crud.spec.ts",
+              "line": 91,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication Flow",
+          "file": "auth.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should login successfully with valid credentials",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 12433,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts:25:16",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts",
+                          "column": 16,
+                          "line": 25
+                        },
+                        "snippet": "  23 |     \n  24 |     // Wait for navigation to dashboard\n> 25 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  26 |     \n  27 |     // Verify we're on dashboard\n  28 |     expect(page.url()).toContain('/dashboard');"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts",
+                            "column": 16,
+                            "line": 25
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  23 |     \n  24 |     // Wait for navigation to dashboard\n> 25 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  26 |     \n  27 |     // Verify we're on dashboard\n  28 |     expect(page.url()).toContain('/dashboard');\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts:25:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:19.061Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/auth-Authentication-Flow-s-74377-ully-with-valid-credentials-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts",
+                        "column": 16,
+                        "line": 25
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-efd14549b37f77aa6096",
+              "file": "auth.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "should show error with invalid credentials",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 1617,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=/invalid|error|failed/i')\nExpected: visible\nError: strict mode violation: locator('text=/invalid|error|failed/i') resolved to 3 elements:\n    1) <h3 class=\"text-sm font-medium mb-1\">Authentication Failed</h3> aka getByRole('heading', { name: 'Authentication Failed' })\n    2) <div class=\"text-sm\">Request failed with status code 405</div> aka getByRole('alert').getByText('Request failed with status')\n    3) <div role=\"status\" aria-live=\"polite\" class=\"go3958317564\">Request failed with status code 405</div> aka getByRole('status')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=/invalid|error|failed/i')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=/invalid|error|failed/i')\nExpected: visible\nError: strict mode violation: locator('text=/invalid|error|failed/i') resolved to 3 elements:\n    1) <h3 class=\"text-sm font-medium mb-1\">Authentication Failed</h3> aka getByRole('heading', { name: 'Authentication Failed' })\n    2) <div class=\"text-sm\">Request failed with status code 405</div> aka getByRole('alert').getByText('Request failed with status')\n    3) <div role=\"status\" aria-live=\"polite\" class=\"go3958317564\">Request failed with status code 405</div> aka getByRole('status')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=/invalid|error|failed/i')\u001b[22m\n\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts:40:64",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts",
+                          "column": 64,
+                          "line": 40
+                        },
+                        "snippet": "  38 |     \n  39 |     // Wait for error message\n> 40 |     await expect(page.locator('text=/invalid|error|failed/i')).toBeVisible({ timeout: 5000 });\n     |                                                                ^\n  41 |   });\n  42 |\n  43 |   test('should redirect to login when accessing protected route', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts",
+                            "column": 64,
+                            "line": 40
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=/invalid|error|failed/i')\nExpected: visible\nError: strict mode violation: locator('text=/invalid|error|failed/i') resolved to 3 elements:\n    1) <h3 class=\"text-sm font-medium mb-1\">Authentication Failed</h3> aka getByRole('heading', { name: 'Authentication Failed' })\n    2) <div class=\"text-sm\">Request failed with status code 405</div> aka getByRole('alert').getByText('Request failed with status')\n    3) <div role=\"status\" aria-live=\"polite\" class=\"go3958317564\">Request failed with status code 405</div> aka getByRole('status')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=/invalid|error|failed/i')\u001b[22m\n\n\n  38 |     \n  39 |     // Wait for error message\n> 40 |     await expect(page.locator('text=/invalid|error|failed/i')).toBeVisible({ timeout: 5000 });\n     |                                                                ^\n  41 |   });\n  42 |\n  43 |   test('should redirect to login when accessing protected route', async ({ page }) => {\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts:40:64"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:33.429Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/auth-Authentication-Flow-s-22fb7-or-with-invalid-credentials-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/auth-Authentication-Flow-s-22fb7-or-with-invalid-credentials-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/auth-Authentication-Flow-s-22fb7-or-with-invalid-credentials-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/auth.spec.ts",
+                        "column": 64,
+                        "line": 40
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-32f56b95de6bdc3a9955",
+              "file": "auth.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "should redirect to login when accessing protected route",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1147,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:33.602Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d748ac400d08b85935ef-dfabddc1b26dccd015b0",
+              "file": "auth.spec.ts",
+              "line": 43,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "reload-persistence.spec.ts",
+      "file": "reload-persistence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Reload Persistence",
+          "file": "reload-persistence.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should maintain authentication after reload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11699,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts:13:16",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts",
+                          "column": 16,
+                          "line": 13
+                        },
+                        "snippet": "  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should maintain authentication after reload', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts",
+                            "column": 16,
+                            "line": 13
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should maintain authentication after reload', async ({ page }) => {\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts:13:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:35.156Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/reload-persistence-Reload--68357-authentication-after-reload-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/reload-persistence-Reload--68357-authentication-after-reload-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/reload-persistence-Reload--68357-authentication-after-reload-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts",
+                        "column": 16,
+                        "line": 13
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f55be3b54f85afd0679d-477ee75973eb7b910b5a",
+              "file": "reload-persistence.spec.ts",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "should persist data across page reloads",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 12712,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts:13:16",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts",
+                          "column": 16,
+                          "line": 13
+                        },
+                        "snippet": "  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should maintain authentication after reload', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts",
+                            "column": 16,
+                            "line": 13
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should maintain authentication after reload', async ({ page }) => {\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts:13:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:37.563Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/reload-persistence-Reload--a25e0-st-data-across-page-reloads-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/reload-persistence-Reload--a25e0-st-data-across-page-reloads-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/reload-persistence-Reload--a25e0-st-data-across-page-reloads-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/reload-persistence.spec.ts",
+                        "column": 16,
+                        "line": 13
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f55be3b54f85afd0679d-3b16ee908544bbed7e57",
+              "file": "reload-persistence.spec.ts",
+              "line": 32,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "students-crud.spec.ts",
+      "file": "students-crud.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Student CRUD Operations",
+          "file": "students-crud.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should navigate to students page",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11971,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts:13:16",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                          "column": 16,
+                          "line": 13
+                        },
+                        "snippet": "  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should navigate to students page', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                            "column": 16,
+                            "line": 13
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should navigate to students page', async ({ page }) => {\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts:13:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:48.505Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/students-crud-Student-CRUD-ef1a7-d-navigate-to-students-page-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/students-crud-Student-CRUD-ef1a7-d-navigate-to-students-page-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/students-crud-Student-CRUD-ef1a7-d-navigate-to-students-page-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                        "column": 16,
+                        "line": 13
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "18d66b3845efa5649363-4c3e147d239b5dd3efd8",
+              "file": "students-crud.spec.ts",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "should create a new student",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 12215,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts:13:16",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                          "column": 16,
+                          "line": 13
+                        },
+                        "snippet": "  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should navigate to students page', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                            "column": 16,
+                            "line": 13
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should navigate to students page', async ({ page }) => {\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts:13:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:28:52.671Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/students-crud-Student-CRUD-d89e3-should-create-a-new-student-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/students-crud-Student-CRUD-d89e3-should-create-a-new-student-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/students-crud-Student-CRUD-d89e3-should-create-a-new-student-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                        "column": 16,
+                        "line": 13
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "18d66b3845efa5649363-4999e56ef0b2090870fa",
+              "file": "students-crud.spec.ts",
+              "line": 47,
+              "column": 3
+            },
+            {
+              "title": "should verify student data persists after reload",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 11669,
+                      "error": {
+                        "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+                        "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts:13:16",
+                        "location": {
+                          "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                          "column": 16,
+                          "line": 13
+                        },
+                        "snippet": "  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should navigate to students page', async ({ page }) => {"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                            "column": 16,
+                            "line": 13
+                          },
+                          "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================\n\n  11 |     await page.fill('input[name=\"password\"]', password);\n  12 |     await page.click('button[type=\"submit\"]');\n> 13 |     await page.waitForURL(/\\/dashboard/, { timeout: 10000 });\n     |                ^\n  14 |   });\n  15 |\n  16 |   test('should navigate to students page', async ({ page }) => {\n    at /home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts:13:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-01-09T11:29:02.310Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/students-crud-Student-CRUD-d22e2--data-persists-after-reload-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/students-crud-Student-CRUD-d22e2--data-persists-after-reload-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/munaim/srv/apps/fmu-platform/frontend/test-results/students-crud-Student-CRUD-d22e2--data-persists-after-reload-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/munaim/srv/apps/fmu-platform/frontend/e2e/students-crud.spec.ts",
+                        "column": 16,
+                        "line": 13
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "18d66b3845efa5649363-f9b7a06cc520a331823b",
+              "file": "students-crud.spec.ts",
+              "line": 85,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-01-09T11:28:00.107Z",
+    "duration": 74188.082,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 10,
+    "flaky": 0
+  }
+}

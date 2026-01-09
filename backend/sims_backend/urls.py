@@ -93,23 +93,8 @@ urlpatterns = [
     path("", include("sims_backend.finance.urls")),
     path("", include("sims_backend.audit.urls")),
     path("", include("sims_backend.transcripts.urls")),
-    # Legacy apps - gated behind ENABLE_LEGACY_MODULES flag
-    # When enabled, legacy routes are mounted under /api/legacy/ prefix
-    # Note: admissions is kept at /api/ for student application form compatibility
-    path("api/", include("sims_backend.admissions.urls")),  # Enabled for student application form
+    # Legacy apps removed - see docs/legacy/LEGACY_DEFINITION.md
 ]
-
-# Legacy module routes (gated behind ENABLE_LEGACY_MODULES flag)
-# These routes are deprecated and should not be used for new development
-# See docs/CANONICAL_MODULES.md for canonical module alternatives
-# Note: Legacy modules include "api/" in their URL patterns, so they'll be mounted at
-# /api/legacy/api/... which is acceptable for legacy routes
-if settings.ENABLE_LEGACY_MODULES:
-    urlpatterns += [
-        path("api/legacy/", include("sims_backend.enrollment.urls")),
-        path("api/legacy/", include("sims_backend.assessments.urls")),
-        path("api/legacy/", include("sims_backend.requests.urls")),
-    ]
 
 # Static files in DEBUG mode
 if settings.DEBUG:

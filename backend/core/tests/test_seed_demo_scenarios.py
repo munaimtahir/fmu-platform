@@ -7,10 +7,9 @@ from io import StringIO
 from django.core.management import call_command
 from django.test import TestCase
 
-from sims_backend.admissions.models import Student
 from sims_backend.attendance.models import Attendance
-from sims_backend.enrollment.models import Enrollment
 from sims_backend.results.models import ResultHeader
+from sims_backend.students.models import Student
 
 
 class SeedDemoScenariosTests(TestCase):
@@ -60,16 +59,11 @@ class SeedDemoScenariosTests(TestCase):
 
         # Check that they have published results
         for student in students:
-            # Need to get matching student from students.Student model
-            from sims_backend.students.models import Student as StudentsStudent
-
-            matched_student = StudentsStudent.objects.filter(reg_no=student.reg_no).first()
-            if matched_student:
-                results = ResultHeader.objects.filter(
-                    student=matched_student,
-                    status=ResultHeader.STATUS_PUBLISHED,
-                )
-                self.assertGreater(results.count(), 0)
+            results = ResultHeader.objects.filter(
+                student=student,
+                status=ResultHeader.STATUS_PUBLISHED,
+            )
+            self.assertGreater(results.count(), 0)
 
     def test_low_attendance_bucket(self):
         """Test that LOW_ATTENDANCE_AT_RISK bucket has attendance below 75%"""
@@ -82,26 +76,20 @@ class SeedDemoScenariosTests(TestCase):
         self.assertEqual(len(students), 3)
 
         # Check attendance percentage - should be around 65% but with randomness
-        from sims_backend.students.models import Student as StudentsStudent
-
         for student in students:
-            matched_student = StudentsStudent.objects.filter(reg_no=student.reg_no).first()
-            if matched_student:
-                total_attendance = Attendance.objects.filter(student=matched_student).count()
-                if total_attendance > 0:
-                    present_count = Attendance.objects.filter(
-                        student=matched_student,
-                        status=Attendance.STATUS_PRESENT,
-                    ).count()
-                    attendance_percentage = (present_count / total_attendance) * 100
-                    # Due to randomness, we check that it's generally low (< 85%)
-                    self.assertLess(attendance_percentage, 85)
+            total_attendance = Attendance.objects.filter(student=student).count()
+            if total_attendance > 0:
+                present_count = Attendance.objects.filter(
+                    student=student,
+                    status=Attendance.STATUS_PRESENT,
+                ).count()
+                attendance_percentage = (present_count / total_attendance) * 100
+                # Due to randomness, we check that it's generally low (< 85%)
+                self.assertLess(attendance_percentage, 85)
 
     def test_enrollments_created(self):
-        """Test that students are enrolled in sections"""
+        """Test that students are enrolled in sections - LEGACY TEST DISABLED (enrollment module removed)"""
+        # Legacy enrollment module removed - enrollment tracking should be handled via students app
         call_command("seed_demo_scenarios", "--students", "20", stdout=StringIO())
-
-        enrollment_count = Enrollment.objects.filter(
-            student__reg_no__startswith="DEMO_"
-        ).count()
-        self.assertGreater(enrollment_count, 0)
+        # Test disabled - no enrollment module to test
+        self.assertTrue(True)  # Placeholder assertion

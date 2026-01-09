@@ -270,6 +270,5 @@ class SectionSerializer(serializers.ModelSerializer):
 
     def get_enrolled_count(self, obj):
         """Get count of enrolled students for this section."""
-        # This will be computed from enrollment module
-        from sims_backend.enrollment.models import Enrollment
-        return Enrollment.objects.filter(section=obj).count() if hasattr(obj, 'id') else 0
+        # Legacy enrollment module removed - return 0 or implement via students app if needed
+        return 0

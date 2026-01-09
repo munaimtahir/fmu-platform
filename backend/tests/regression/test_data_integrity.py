@@ -15,7 +15,7 @@ from rest_framework import status
 from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Program, Section
 from sims_backend.academics.models import Group as StudentGroup
 from sims_backend.attendance.models import Attendance
-from sims_backend.enrollment.models import Enrollment
+# Legacy enrollment module removed
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
 
@@ -152,59 +152,5 @@ class TestAttendanceUniqueness:
         assert count == 1, "Must have exactly one attendance record per student per session"
 
 
-@pytest.mark.django_db
-class TestEnrollmentUniqueness:
-    """Contract: One enrollment per student per section"""
-
-    def test_enrollment_duplicate_blocked_at_db_level(
-        self, setup_academic_structure, student1
-    ):
-        """Database constraint should prevent duplicate enrollment"""
-        section = setup_academic_structure["section"]
-
-        # Create first enrollment
-        Enrollment.objects.create(
-            student=student1,
-            section=section,
-            status=Enrollment.STATUS_ENROLLED,
-        )
-
-        # Attempt duplicate - should raise IntegrityError
-        with pytest.raises(IntegrityError):
-            Enrollment.objects.create(
-                student=student1,
-                section=section,
-                status=Enrollment.STATUS_ENROLLED,
-            )
-
-    def test_enrollment_duplicate_blocked_via_api(
-        self, api_client, admin_user, setup_academic_structure, student1
-    ):
-        """API should return 409 Conflict for duplicate enrollment"""
-        section = setup_academic_structure["section"]
-
-        api_client.force_authenticate(user=admin_user)
-
-        # Create first enrollment
-        response1 = api_client.post(
-            "/api/enrollment/",
-            {
-                "student": student1.id,
-                "section": section.id,
-                "status": Enrollment.STATUS_ENROLLED,
-            },
-        )
-        assert response1.status_code == status.HTTP_201_CREATED
-
-        # Attempt duplicate - should return 409 Conflict
-        response2 = api_client.post(
-            "/api/enrollment/",
-            {
-                "student": student1.id,
-                "section": section.id,
-                "status": Enrollment.STATUS_ENROLLED,
-            },
-        )
-        assert response2.status_code == status.HTTP_409_CONFLICT, (
-            "API must return 409 Conflict for duplicate enrollment"
-        )
+# Legacy enrollment tests removed - enrollment module has been removed
+# Enrollment tracking should be handled via students app if needed

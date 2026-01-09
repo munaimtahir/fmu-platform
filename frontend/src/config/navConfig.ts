@@ -148,7 +148,7 @@ export const routePolicy: Record<string, string[]> = {
   '/academics/groups': ['Admin', 'Registrar'],
   '/academics/departments': ['Admin', 'Registrar'],
   '/timetable': ['Admin', 'Faculty', 'Registrar', 'Coordinator'],
-  '/enrollment/bulk': ['Admin', 'Registrar'],
+  // Legacy enrollment route removed
   '/attendance': ['Admin', 'Faculty'],
   '/attendance/bulk': ['Admin', 'Faculty'],
   '/attendance/eligibility': ['Admin', 'Registrar'],
@@ -172,27 +172,20 @@ export const routePolicy: Record<string, string[]> = {
   '/admin/audit': ['Admin'],
   '/admin/students/import': ['Admin', 'Coordinator'],
   '/profile': [],
-  '/requests': ['Admin', 'Student'],
+  // Legacy requests route removed
 }
 
 /**
- * Legacy routes that should be hidden from navigation and gated
- * These routes are deprecated and should not be used for new development
+ * Legacy routes removed - all legacy modules have been permanently deleted
+ * See docs/legacy/LEGACY_DEFINITION.md for details
  */
-export const LEGACY_ROUTES: Set<string> = new Set([
-  '/assessments',
-  '/requests',
-  '/enrollment/bulk',
-  '/academics/programs-legacy',
-])
+export const LEGACY_ROUTES: Set<string> = new Set([])
 
 /**
- * Check if a route is a legacy route
+ * Check if a route is a legacy route (always returns false now)
  */
 export function isLegacyRoute(routePath: string): boolean {
-  return LEGACY_ROUTES.has(routePath) || routePath.startsWith('/assessments/') || 
-         routePath.startsWith('/requests/') || routePath.startsWith('/enrollment/') ||
-         routePath.startsWith('/academics/programs-legacy')
+  return false  // All legacy routes have been removed
 }
 
 /**

@@ -115,13 +115,7 @@ INSTALLED_APPS = [
     "sims_backend.results",
     "sims_backend.finance",
     "sims_backend.audit",
-    # Legacy apps - Re-enabled for demo scenario functionality
-    "sims_backend.admissions",  # Used for student records and applications
-    "sims_backend.enrollment",  # Re-enabled for demo scenarios
-    "sims_backend.assessments",  # Re-enabled for demo scenarios
-    "sims_backend.requests",  # Requests workflow module
-    "sims_backend.documents",  # Document generation
-    "sims_backend.notifications",  # Notification service
+    # Legacy apps removed - see docs/legacy/LEGACY_DEFINITION.md
     "apps.intake",
 ]
 
@@ -135,7 +129,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "core.middleware.BlockLegacyWritesMiddleware",  # Block legacy writes before audit
+    # Legacy middleware removed - legacy modules have been deleted
     "sims_backend.audit.middleware.WriteAuditMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
@@ -275,16 +269,10 @@ DEFAULT_FROM_EMAIL = os.getenv(
 )
 
 # -------------------------------------------------------------------
-# Legacy Module Configuration
+# Legacy Module Configuration - REMOVED
 # -------------------------------------------------------------------
-# ENABLE_LEGACY_MODULES: Controls whether legacy endpoints are mounted at all
-# When False (default), legacy routes are not included in URL routing
-ENABLE_LEGACY_MODULES = os.getenv("ENABLE_LEGACY_MODULES", "False").lower() == "true"
-
-# ALLOW_LEGACY_WRITES: Controls whether write operations (POST/PUT/PATCH/DELETE) 
-# are allowed on legacy endpoints (only applies if ENABLE_LEGACY_MODULES=True)
-# When False (default), all write operations on /api/legacy/ endpoints are blocked
-ALLOW_LEGACY_WRITES = os.getenv("ALLOW_LEGACY_WRITES", "False").lower() == "true"
+# Legacy modules (admissions, enrollment, assessments, requests, documents, notifications)
+# have been permanently removed. See docs/legacy/LEGACY_DEFINITION.md for details.
 
 # Jazzmin Admin Theme Configuration
 # Django-jazzmin automatically discovers these settings from this module

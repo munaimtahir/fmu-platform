@@ -95,7 +95,7 @@ export const StudentDashboard = () => {
         {/* Upcoming Exams */}
         <Card>
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Upcoming Assessments
+            Upcoming Exams
           </h2>
           <div className="space-y-3">
             {[

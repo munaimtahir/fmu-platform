@@ -69,22 +69,11 @@ export function Gradebook() {
     setError(null)
 
     try {
-      // Fetch assessments for section
-      const assessmentsRes = await api.get(
-        `/api/assessments/?section=${sectionId}`
-      )
-      const assessmentsData = assessmentsRes.data.results || assessmentsRes.data
-      setAssessments(assessmentsData)
-
-      // Fetch scores
-      const scoresRes = await api.get(
-        `/api/assessment-scores/?assessment__section=${sectionId}`
-      )
-      const scoresData = scoresRes.data.results || scoresRes.data
-      setScores(scoresData)
-
-      // Build gradebook
-      buildGradebook(assessmentsData, scoresData)
+      // Legacy assessments module removed - gradebook needs to be updated to use exams/results
+      // TODO: Update gradebook to use exams and results modules instead of assessments
+      setAssessments([])
+      setScores([])
+      setError('Gradebook temporarily disabled - legacy assessments module removed. Please use Results page instead.')
     } catch (err) {
       setError('Failed to load gradebook data')
       console.error(err)

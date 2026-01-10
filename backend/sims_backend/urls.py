@@ -1,7 +1,13 @@
+import os
+import subprocess
+import time
+
 import django_rq
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.core.management import call_command
+from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
 from drf_spectacular.views import (
@@ -20,32 +26,120 @@ from core.views import (
 )
 
 
-def health_check(request):
-    """Health check endpoint with service status"""
-    status = {"status": "ok", "service": "SIMS Backend", "components": {}}
+def _get_version():
+    """Get application version from git or environment variable."""
+    # Try to get from environment variable first
+    version = os.getenv("APP_VERSION", os.getenv("VERSION", "unknown"))
+    
+    if version == "unknown":
+        # Try to get git SHA
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                capture_output=True,
+                text=True,
+                timeout=2,
+                check=False,
+            )
+            if result.returncode == 0:
+                version = result.stdout.strip()[:8]  # Short SHA
+        except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.SubprocessError):
+            pass
+    
+    return version
 
-    # Check database
+
+def _check_migrations():
+    """Check if there are any pending migrations."""
     try:
+        # Use Django's migration loader to check for unapplied migrations
+        from django.db.migrations.loader import MigrationLoader
         from django.db import connection
+        
+        loader = MigrationLoader(connection)
+        unapplied = loader.graph.leaf_nodes() - loader.applied_migrations
+        
+        if unapplied:
+            return {"status": "fail", "pending_count": len(unapplied)}
+        return {"status": "ok"}
+    except Exception as e:
+        # If migration check fails, we still consider it a failure
+        return {"status": "fail", "error": str(e)}
 
+
+def health_check(request):
+    """
+    Canonical health/readiness endpoint.
+    
+    Returns:
+        - 200 OK if all checks pass (status: "ok")
+        - 200 OK with status: "degraded" if optional checks fail (Redis)
+        - Response JSON schema:
+          {
+            "status": "ok" | "degraded",
+            "checks": {
+              "db": {"status": "ok"|"fail", "latency_ms": number},
+              "migrations": {"status": "ok"|"fail"},
+              "redis": {"status": "ok"|"fail"|"skipped"}
+            },
+            "version": "<git sha or app version>"
+          }
+    """
+    response_data = {
+        "status": "ok",
+        "checks": {},
+        "version": _get_version(),
+    }
+    
+    # Check database connectivity and measure latency
+    db_status = "ok"
+    db_latency_ms = 0
+    try:
+        start_time = time.time()
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
-        status["components"]["database"] = "ok"
+        db_latency_ms = round((time.time() - start_time) * 1000, 2)
     except Exception as e:
-        status["components"]["database"] = f"error: {str(e)}"
-        status["status"] = "degraded"
-
-    # Check Redis/RQ
+        db_status = "fail"
+        response_data["status"] = "degraded"
+        response_data["checks"]["db"] = {
+            "status": db_status,
+            "latency_ms": 0,
+            "error": str(e),
+        }
+    else:
+        response_data["checks"]["db"] = {
+            "status": db_status,
+            "latency_ms": db_latency_ms,
+        }
+    
+    # Check migrations (only if DB is accessible)
+    if db_status == "ok":
+        migrations_check = _check_migrations()
+        response_data["checks"]["migrations"] = migrations_check
+        if migrations_check["status"] == "fail":
+            response_data["status"] = "degraded"
+    else:
+        response_data["checks"]["migrations"] = {"status": "fail", "error": "Database unreachable"}
+        response_data["status"] = "degraded"
+    
+    # Check Redis (optional - does not fail readiness)
+    redis_status = "skipped"
     try:
         queue = django_rq.get_queue("default")
         queue.connection.ping()
-        status["components"]["redis"] = "ok"
-        status["components"]["rq_queue"] = "ok"
+        redis_status = "ok"
     except Exception as e:
-        status["components"]["redis"] = f"error: {str(e)}"
-        status["status"] = "degraded"
-
-    return JsonResponse(status)
+        # Redis is optional, so we don't fail readiness if it's down
+        redis_status = "fail"
+        # Only mark as degraded if DB also failed (critical path issue)
+        # Otherwise Redis failure is acceptable for readiness
+    
+    response_data["checks"]["redis"] = {"status": redis_status}
+    
+    # Return 200 even if degraded (following Kubernetes readiness pattern)
+    # The status field indicates the actual health state
+    return JsonResponse(response_data, status=200)
 
 
 urlpatterns = [

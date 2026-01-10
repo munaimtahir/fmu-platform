@@ -2,6 +2,82 @@
 
 > **Live API Documentation**: See interactive ReDoc/Swagger at `/api/redoc` and `/api/docs`.
 
+## Health & Readiness
+
+### Health Endpoint
+
+The canonical health/readiness endpoint for service monitoring and readiness checks.
+
+**Endpoint:** `GET /api/health/`
+
+**Alternative Paths:**
+- `GET /health/` (legacy alias)
+- `GET /healthz/` (alternative alias)
+
+**Response Schema:**
+```json
+{
+  "status": "ok" | "degraded",
+  "checks": {
+    "db": {
+      "status": "ok" | "fail",
+      "latency_ms": 12.34
+    },
+    "migrations": {
+      "status": "ok" | "fail",
+      "pending_count": 0  // only present if status is "fail"
+    },
+    "redis": {
+      "status": "ok" | "fail" | "skipped"
+    }
+  },
+  "version": "abc12345"  // git SHA (first 8 chars) or APP_VERSION env var
+}
+```
+
+**Status Codes:**
+- `200 OK` - Endpoint is accessible (check `status` field for actual health)
+  - `"status": "ok"` - All critical checks passed (service ready)
+  - `"status": "degraded"` - Database or migrations check failed (service not ready)
+
+**Check Details:**
+- **db**: Database connectivity check with latency measurement (milliseconds)
+  - `"status": "ok"` - Database is accessible
+  - `"status": "fail"` - Database connection failed (includes `error` field)
+- **migrations**: Verifies all Django migrations are applied
+  - `"status": "ok"` - All migrations applied
+  - `"status": "fail"` - Pending migrations detected (includes `pending_count` or `error`)
+- **redis**: Redis/RQ queue check (optional - does not affect readiness)
+  - `"status": "ok"` - Redis is accessible
+  - `"status": "fail"` - Redis connection failed (but service still ready)
+  - `"status": "skipped"` - Redis check skipped
+
+**Version Field:**
+The `version` field contains:
+1. Value from `APP_VERSION` or `VERSION` environment variable (if set)
+2. Git SHA (first 8 characters) if available
+3. `"unknown"` if neither is available
+
+**Example Usage:**
+```bash
+# Basic health check
+curl http://localhost:8010/api/health/
+
+# Wait for readiness (useful in scripts/CI)
+timeout 120 bash -c 'until curl -sf http://localhost:8010/api/health/ | jq -e ".checks.db.status == \"ok\" and .checks.migrations.status == \"ok\""; do sleep 2; done'
+
+# Check health in Docker
+docker compose exec backend curl -s http://localhost:8000/api/health/ | jq
+```
+
+**Notes:**
+- This endpoint does NOT require authentication
+- Always returns HTTP 200 (check the `status` field for actual health)
+- Used by Docker Compose healthchecks, CI/CD pipelines, and monitoring tools
+- Redis failure does NOT cause readiness failure (Redis is optional)
+
+---
+
 ## Authentication
 
 ### JWT Authentication

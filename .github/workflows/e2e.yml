@@ -1,0 +1,169 @@
+name: E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - '.github/workflows/e2e.yml'
+      - 'scripts/e2e_run.sh'
+      - 'docker-compose*.yml'
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - '.github/workflows/e2e.yml'
+      - 'scripts/e2e_run.sh'
+      - 'docker-compose*.yml'
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create .env file for testing
+        run: |
+          cat > .env << EOF
+          # Django settings
+          DJANGO_SECRET_KEY=test-ci-secret-key-do-not-use-in-production
+          DJANGO_DEBUG=False
+          DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+          
+          # Database
+          DB_ENGINE=django.db.backends.postgresql
+          DB_NAME=fmu_platform
+          DB_USER=fmu_platform
+          DB_PASSWORD=test_password_ci
+          DB_HOST=db
+          DB_PORT=5432
+          
+          # PostgreSQL
+          POSTGRES_DB=fmu_platform
+          POSTGRES_USER=fmu_platform
+          POSTGRES_PASSWORD=test_password_ci
+          
+          # Redis
+          REDIS_HOST=redis
+          REDIS_PORT=6379
+          
+          # Frontend
+          VITE_API_URL=http://backend:8000/api
+          EOF
+
+      - name: Start docker compose services
+        run: |
+          docker compose up -d --build
+          echo "Waiting for services to start..."
+          sleep 15
+
+      - name: Wait for backend readiness
+        run: |
+          echo "Waiting for backend to be ready..."
+          timeout 120 bash -c 'until curl -sf http://localhost:8010/api/health/ | jq -e ".checks.db.status == \"ok\" and .checks.migrations.status == \"ok\""; do 
+            echo "Waiting for readiness... (attempt $((++attempt)))"
+            sleep 2
+          done' || {
+            echo "Backend failed to become ready. Showing logs:"
+            docker compose logs backend --tail=200
+            docker compose logs db --tail=50
+            exit 1
+          }
+
+      - name: Run migrations
+        run: |
+          docker compose exec -T backend python manage.py migrate --noinput || {
+            echo "Migrations failed. Showing logs:"
+            docker compose logs backend --tail=200
+            exit 1
+          }
+
+      - name: Seed demo data
+        run: |
+          docker compose exec -T backend python manage.py seed_demo_scenarios --students 20 || {
+            echo "Seeding failed (continuing anyway)..."
+          }
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Playwright dependencies
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E tests
+        working-directory: frontend
+        env:
+          BASE_URL: http://localhost:8080
+          PLAYWRIGHT_BASE_URL: http://localhost:8080
+        run: |
+          npx playwright test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results
+          path: frontend/e2e-results.json
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-screenshots
+          path: frontend/test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Show docker compose logs on failure
+        if: failure()
+        run: |
+          echo "=== Backend Logs ==="
+          docker compose logs backend --tail=200
+          echo "=== Frontend Logs ==="
+          docker compose logs frontend --tail=200
+          echo "=== Database Logs ==="
+          docker compose logs db --tail=100
+          echo "=== Redis Logs ==="
+          docker compose logs redis --tail=50 || true
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose down -v

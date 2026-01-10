@@ -1,0 +1,164 @@
+
+> sims_frontend@0.0.0 test
+> vitest run
+
+
+ RUN  v4.0.16 /workspace/frontend
+
+ ✓ src/features/auth/LoginPage.test.tsx (6 tests) 720ms
+ ✓ src/services/attendance.test.ts (3 tests) 4ms
+stderr | src/features/auth/ProtectedRoute.test.tsx > ProtectedRoute > should render children when authenticated
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/features/auth/ProtectedRoute.test.tsx (2 tests) 37ms
+ ✓ src/pages/attendance/AttendanceInputPage.test.tsx (2 tests) 322ms
+ ❯ src/api/axios.test.ts (6 tests | 1 failed) 8ms
+       ✓ should set and get tokens 1ms
+       ✓ should clear tokens 0ms
+       ✓ should retrieve tokens from localStorage 0ms
+       ✓ should use configured base URL 0ms
+       ✓ should have JSON content type header 0ms
+       × should not have /api suffix in base URL to avoid double /api paths 4ms
+ ✓ src/components/ui/Button.test.tsx (7 tests) 156ms
+ ✓ src/components/ui/Input.test.tsx (6 tests) 35ms
+ ✓ src/features/finance/VoucherGenerationForm.test.tsx (1 test) 94ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  e2e/academics-crud.spec.ts [ e2e/academics-crud.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:115:24
+ ❯ Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/academics-crud.spec.ts:28:6
+     26| }
+     27| 
+     28| test.describe('Academics Hierarchy CRUD', () => {
+       |      ^
+     29|   test.beforeEach(async ({ page }) => {
+     30|     await login(page);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  e2e/admin-screenshots.spec.ts [ e2e/admin-screenshots.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:115:24
+ ❯ Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/admin-screenshots.spec.ts:12:6
+     10| }
+     11| 
+     12| test.describe('Admin Runtime Screenshots', () => {
+       |      ^
+     13|   // Helper function to login
+     14|   async function loginAsAdmin(page: any) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  e2e/auth.spec.ts [ e2e/auth.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:115:24
+ ❯ Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/auth.spec.ts:3:6
+      1| import { test, expect } from '@playwright/test';
+      2| 
+      3| test.describe('Authentication Flow', () => {
+       |      ^
+      4|   test('should login successfully with valid credentials', async ({ pa…
+      5|     // Navigate to login page
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  e2e/reload-persistence.spec.ts [ e2e/reload-persistence.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:115:24
+ ❯ Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/reload-persistence.spec.ts:28:6
+     26| }
+     27| 
+     28| test.describe('Reload Persistence', () => {
+       |      ^
+     29|   test.beforeEach(async ({ page }) => {
+     30|     await login(page);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  e2e/students-crud.spec.ts [ e2e/students-crud.spec.ts ]
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:115:24
+ ❯ Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/students-crud.spec.ts:28:6
+     26| }
+     27| 
+     28| test.describe('Student CRUD Operations', () => {
+       |      ^
+     29|   test.beforeEach(async ({ page }) => {
+     30|     await login(page);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/api/axios.test.ts > axios setup and token management > API instance > should not have /api suffix in base URL to avoid double /api paths
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/api/axios.test.ts:57:40
+     55|       // This prevents URLs like http://localhost:81/api/api/students/
+     56|       const baseURL = api.defaults.baseURL || ''
+     57|       expect(baseURL.endsWith('/api')).toBe(false)
+       |                                        ^
+     58|     })
+     59|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  6 failed | 7 passed (13)
+      Tests  1 failed | 32 passed (33)
+   Start at  06:32:52
+   Duration  5.02s (transform 397ms, setup 1.22s, import 662ms, tests 1.38s, environment 4.53s)
+

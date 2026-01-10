@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "/home/munaim/srv/apps/fmu-platform/frontend/playwright.config.ts",
-    "rootDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
+    "configFile": "/workspace/frontend/playwright.config.ts",
+    "rootDir": "/workspace/frontend/e2e",
     "forbidOnly": false,
     "fullyParallel": true,
     "globalSetup": null,
@@ -35,13 +35,13 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
+        "outputDir": "/workspace/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {},
         "id": "chromium",
         "name": "chromium",
-        "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
+        "testDir": "/workspace/frontend/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -134,6 +134,243 @@
               "id": "8265587b4aa0c977e52f-124474b876ce575096c2",
               "file": "academics-crud.spec.ts",
               "line": 115,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "admin-screenshots.spec.ts",
+      "file": "admin-screenshots.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Admin Runtime Screenshots",
+          "file": "admin-screenshots.spec.ts",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "01 - Login Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-30378afbb2343f65fb61",
+              "file": "admin-screenshots.spec.ts",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "02 - Login and Main Dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-5002657a13d2e01d930a",
+              "file": "admin-screenshots.spec.ts",
+              "line": 45,
+              "column": 3
+            },
+            {
+              "title": "03 - Admin Dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-d5373a8d5aee8f7ee2f0",
+              "file": "admin-screenshots.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "04 - Students List",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-657f5b3ed9d3097f95d5",
+              "file": "admin-screenshots.spec.ts",
+              "line": 98,
+              "column": 3
+            },
+            {
+              "title": "05 - Courses List",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-b347a4b5e58b6af4d13d",
+              "file": "admin-screenshots.spec.ts",
+              "line": 108,
+              "column": 3
+            },
+            {
+              "title": "06 - Attendance Dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-1632b7c6c1e5fbea13e6",
+              "file": "admin-screenshots.spec.ts",
+              "line": 118,
+              "column": 3
+            },
+            {
+              "title": "07 - Finance Dashboard",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-c169bda7b1bcbc3f8c7f",
+              "file": "admin-screenshots.spec.ts",
+              "line": 128,
+              "column": 3
+            },
+            {
+              "title": "08 - Admin Users",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-febb2d6cde6cdd592cca",
+              "file": "admin-screenshots.spec.ts",
+              "line": 138,
+              "column": 3
+            },
+            {
+              "title": "09 - Programs List",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-dcc3d04af639f51affe2",
+              "file": "admin-screenshots.spec.ts",
+              "line": 148,
+              "column": 3
+            },
+            {
+              "title": "10 - Admin Settings",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-e15d1cd5cec163eaf5f8",
+              "file": "admin-screenshots.spec.ts",
+              "line": 158,
+              "column": 3
+            },
+            {
+              "title": "11 - Syllabus Manager",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4ca7704f8eeff07b0cf3-463f5cfd3a8057c88ae1",
+              "file": "admin-screenshots.spec.ts",
+              "line": 168,
               "column": 3
             }
           ]
@@ -354,10 +591,10 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-01-09T21:45:24.942Z",
-    "duration": 163.08100000000013,
+    "startTime": "2026-01-10T06:33:07.392Z",
+    "duration": 126.11500000000001,
     "expected": 0,
-    "skipped": 11,
+    "skipped": 22,
     "unexpected": 0,
     "flaky": 0
   }

@@ -82,7 +82,7 @@ find "$BACKUP_DIR" -name "fmu_platform_backup_*.dump*" \
 cat > "${BACKUP_DIR}/${BACKUP_FILE}.meta" <<EOF
 {
   "timestamp": "${TIMESTAMP}",
-  "size": "$(stat -f%z "${BACKUP_DIR}/${BACKUP_FILE}" 2>/dev/null || stat -c%s "${BACKUP_DIR}/${BACKUP_FILE}")",
+  "size": "$(stat -f "%z" "${BACKUP_DIR}/${BACKUP_FILE}" 2>/dev/null || stat -c "%s" "${BACKUP_DIR}/${BACKUP_FILE}")",
   "database": "${POSTGRES_DB:-fmu_platform}",
   "version": "$(docker compose exec -T backend python -c 'import django; print(django.VERSION)')"
 }
@@ -127,22 +127,31 @@ else
   RESTORE_FILE="$BACKUP_FILE"
 fi
 
+# Create safety backup of current database before restore
+BACKUP_TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+SAFETY_BACKUP_FILE="safety_before_restore_${POSTGRES_DB:-fmu_platform}_${BACKUP_TIMESTAMP}.dump"
+echo "📦 Creating safety backup of current database at ${SAFETY_BACKUP_FILE}..."
+if ! docker compose exec -T db pg_dump \
+  -U "${POSTGRES_USER:-fmu_platform}" \
+  -Fc \
+  -d "${POSTGRES_DB:-fmu_platform}" \
+  > "$SAFETY_BACKUP_FILE"; then
+  echo "❌ Failed to create safety backup. Aborting restore to avoid data loss."
+  echo "▶️  Restarting backend..."
+  docker compose start backend
+  exit 1
+fi
+
 # Stop backend to prevent connections
 echo "⏸️  Stopping backend..."
 docker compose stop backend
 
-# Drop and recreate database
-echo "🗑️  Dropping existing database..."
-docker compose exec -T db psql -U "${POSTGRES_USER:-fmu_platform}" <<SQL
-DROP DATABASE IF EXISTS ${POSTGRES_DB:-fmu_platform};
-CREATE DATABASE ${POSTGRES_DB:-fmu_platform};
-SQL
-
-# Restore from backup
+# Restore from backup using granular object-level clean-up
 echo "📥 Restoring database..."
 docker compose exec -T db pg_restore \
   -U "${POSTGRES_USER:-fmu_platform}" \
   -d "${POSTGRES_DB:-fmu_platform}" \
+  --clean --if-exists --single-transaction \
   -Fc \
   < "$RESTORE_FILE"
 

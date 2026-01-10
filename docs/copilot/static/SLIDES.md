@@ -433,7 +433,7 @@ A: Yes, role-based access controls and audit logging protect sensitive informati
 
 **For More Information:**
 
-Review detailed documents in `docs/admin-report/`:
+Review detailed documents in `docs/copilot/static/`:
 - System Overview
 - User Roles & Features
 - Current Status & Readiness

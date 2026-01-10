@@ -25,6 +25,7 @@ The application lacks a dedicated `/api/health/` or `/api/readiness/` endpoint f
 ```python
 # backend/core/views.py
 from django.db import connection
+from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -62,11 +63,47 @@ def readiness_check(request):
     Readiness check endpoint for orchestration.
     Returns 200 if service is ready to accept traffic.
     """
+    from django.conf import settings
+    
+    def check_database():
+        """Check if database is accessible."""
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+            return True
+        except Exception:
+            return False
+    
+    def check_migrations():
+        """Check if all migrations are applied."""
+        try:
+            from django.db.migrations.executor import MigrationExecutor
+            from django.db import connections
+            executor = MigrationExecutor(connections['default'])
+            plan = executor.migration_plan(executor.loader.graph.leaf_nodes())
+            return len(plan) == 0
+        except Exception:
+            return False
+    
+    def check_redis():
+        """Check if Redis is accessible (if configured)."""
+        try:
+            import redis
+            redis_url = getattr(settings, 'REDIS_URL', None)
+            if not redis_url:
+                return True  # Redis not configured, skip check
+            r = redis.from_url(redis_url)
+            r.ping()
+            return True
+        except Exception:
+            return False
+    
     # Check critical dependencies
+    redis_enabled = hasattr(settings, 'REDIS_URL') and settings.REDIS_URL
     checks = {
         'database': check_database(),
         'migrations': check_migrations(),
-        'redis': check_redis() if REDIS_ENABLED else True
+        'redis': check_redis() if redis_enabled else True
     }
     
     all_ready = all(checks.values())

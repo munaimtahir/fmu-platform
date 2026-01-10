@@ -37,6 +37,7 @@ While the database enforces referential integrity through foreign keys and const
 # backend/core/management/commands/check_data_integrity.py
 from django.core.management.base import BaseCommand
 from django.db.models import Count, Q
+from django.utils import timezone
 from sims_backend.students.models import Student
 from sims_backend.academics.models import Program, Batch
 from sims_backend.people.models import Person
@@ -69,7 +70,6 @@ class Command(BaseCommand):
             issues.append(f"⚠️  {duplicate_regnos.count()} duplicate registration numbers")
         
         # Check 4: Students graduated but status not updated
-        from django.utils import timezone
         current_year = timezone.now().year
         graduated_but_active = Student.objects.filter(
             actual_graduation_year__lt=current_year,
@@ -101,8 +101,18 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.SUCCESS("\n✅ Data Integrity Check: All checks passed!\n"))
         
-        # Write to log file
-        with open('/tmp/data_integrity_check.log', 'a') as f:
+        # Write to log file using Django settings for log directory
+        import os
+        from django.conf import settings
+        
+        # Use project's log directory or fallback to /var/log if available, otherwise use /tmp
+        log_dir = getattr(settings, 'LOG_DIR', '/var/log')
+        if not os.path.exists(log_dir) or not os.access(log_dir, os.W_OK):
+            log_dir = '/tmp'
+        
+        log_file = os.path.join(log_dir, 'data_integrity_check.log')
+        
+        with open(log_file, 'a') as f:
             f.write(f"\n=== {timezone.now().isoformat()} ===\n")
             if issues:
                 f.write('\n'.join(issues) + '\n')

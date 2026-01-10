@@ -45,19 +45,14 @@ docker pull <registry>/fmu-backend:latest
 docker pull <registry>/fmu-frontend:latest
 ```
 
-### Option 2: Disable SSL Verification (NOT RECOMMENDED FOR PRODUCTION)
-```dockerfile
-# In backend/Dockerfile, temporarily add:
-RUN pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
-```
-
-### Option 3: Use Local Mirror
+### Option 2: Fix Certificate Chain (RECOMMENDED)
 ```bash
-# Set up a local PyPI mirror without SSL issues
-pip install bandersnatch
+# Update CA certificates in the build environment
+apt-get update && apt-get install -y ca-certificates
+update-ca-certificates
 ```
 
-### Option 4: Fix Certificate Chain
+**Note**: Option 2 in the original document (disabling SSL verification with `--trusted-host`) is **NOT RECOMMENDED** as it creates a security vulnerability. If a man-in-the-middle attack occurs on the network or proxy path, tampered Python packages could be installed, leading to code execution vulnerabilities in backend containers. Instead, resolve the CA/certificate chain problem or route traffic through a properly trusted internal mirror to maintain package integrity protection.
 ```bash
 # Update CA certificates in the environment
 apt-get update && apt-get install -y ca-certificates

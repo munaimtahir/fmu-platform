@@ -7,17 +7,19 @@ from django.db import migrations, models
 def migrate_group_to_batch(apps, schema_editor):
     """Migrate data from group to batch"""
     WeeklyTimetable = apps.get_model('timetable', 'WeeklyTimetable')
-    for timetable in WeeklyTimetable.objects.all():
-        if timetable.group_id:
-            # Get the batch from the group
-            Group = apps.get_model('academics', 'Group')
-            try:
-                group = Group.objects.get(pk=timetable.group_id)
-                timetable.batch_id = group.batch_id
-                timetable.save()
-            except Group.DoesNotExist:
-                # If group doesn't exist, we can't migrate - will need manual intervention
-                pass
+    # Check if group field exists (it might not if 0002 was updated)
+    if hasattr(WeeklyTimetable, 'group_id'):
+        for timetable in WeeklyTimetable.objects.all():
+            if timetable.group_id:
+                # Get the batch from the group
+                Group = apps.get_model('academics', 'Group')
+                try:
+                    group = Group.objects.get(pk=timetable.group_id)
+                    timetable.batch_id = group.batch_id
+                    timetable.save()
+                except Group.DoesNotExist:
+                    # If group doesn't exist, we can't migrate - will need manual intervention
+                    pass
 
 
 def reverse_migrate_batch_to_group(apps, schema_editor):
@@ -99,9 +101,9 @@ class Migration(migrations.Migration):
             index=models.Index(fields=['academic_period', 'batch', 'week_start_date'], name='timetable_w_academi_batch_idx'),
         ),
         
-        # Step 8: Add new unique constraint with batch
+        # Step 8: Add new unique constraint with batch and academic_period
         migrations.AddConstraint(
             model_name='weeklytimetable',
-            constraint=models.UniqueConstraint(fields=['batch', 'week_start_date'], name='unique_weekly_timetable_per_batch_week'),
+            constraint=models.UniqueConstraint(fields=['batch', 'academic_period', 'week_start_date'], name='unique_weekly_timetable_per_batch_period_week'),
         ),
     ]

@@ -74,6 +74,29 @@ export const weeklyTimetableService = {
     const response = await api.post<WeeklyTimetable>(`/api/timetable/weekly-timetables/${id}/unpublish/`)
     return response.data
   },
+
+  /**
+   * Generate weekly timetable templates for all weeks in an academic period
+   */
+  async generateWeeklyTemplates(batchId: number, academicPeriodId: number): Promise<{
+    detail: string
+    created_count: number
+    existing_count: number
+    total_weeks: number
+    created_ids: number[]
+  }> {
+    const response = await api.post<{
+      detail: string
+      created_count: number
+      existing_count: number
+      total_weeks: number
+      created_ids: number[]
+    }>('/api/timetable/weekly-timetables/generate_weekly_templates/', {
+      batch: batchId,
+      academic_period: academicPeriodId,
+    })
+    return response.data
+  },
 }
 
 export const timetableCellService = {
@@ -150,39 +173,30 @@ export const timetableCellService = {
       existingMap.set(key, cell)
     })
 
-    // Create a set of keys from new cells (only non-empty ones)
-    const newKeys = new Set(
-      cells
-        .filter(c => c.line1 || c.line2 || c.line3)
-        .map(c => `${c.day_of_week}-${c.time_slot}`)
-    )
+    // Create a set of keys from all new cells
+    const newKeys = new Set(cells.map(c => `${c.day_of_week}-${c.time_slot}`))
 
-    // Update existing cells or create new ones (only for non-empty cells)
+    // Update existing cells or create new ones (process all cells, even empty ones)
     const results: TimetableCell[] = []
     for (const cellData of cells) {
-      // Skip empty cells (they will be deleted if they exist)
-      if (!cellData.line1 && !cellData.line2 && !cellData.line3) {
-        continue
-      }
-
       const key = `${cellData.day_of_week}-${cellData.time_slot}`
       const existing = existingMap.get(key)
       
       const cellPayload = {
         day_of_week: cellData.day_of_week,
         time_slot: cellData.time_slot,
-        line1: cellData.line1,
-        line2: cellData.line2,
-        line3: cellData.line3,
+        line1: cellData.line1 || '',
+        line2: cellData.line2 || '',
+        line3: cellData.line3 || '',
         weekly_timetable: timetableId,
       }
 
       if (existing) {
         // Update existing cell if data changed
         if (
-          existing.line1 !== cellData.line1 ||
-          existing.line2 !== cellData.line2 ||
-          existing.line3 !== cellData.line3
+          (existing.line1 || '') !== cellPayload.line1 ||
+          (existing.line2 || '') !== cellPayload.line2 ||
+          (existing.line3 || '') !== cellPayload.line3
         ) {
           const updated = await this.update(existing.id, cellPayload)
           results.push(updated)
@@ -190,13 +204,13 @@ export const timetableCellService = {
           results.push(existing)
         }
       } else {
-        // Create new cell
+        // Create new cell (even if empty - needed for validation)
         const created = await this.create(cellPayload)
         results.push(created)
       }
     }
 
-    // Delete cells that are empty or no longer in the new cells list
+    // Delete cells that are no longer in the new cells list (shouldn't happen if frontend sends all 60)
     for (const existing of existingCells) {
       const key = `${existing.day_of_week}-${existing.time_slot}`
       if (!newKeys.has(key)) {

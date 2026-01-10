@@ -8,8 +8,8 @@ export interface AcademicPeriod {
   id: number
   name: string
   period_type: string
-  start_date: string
-  end_date: string
+  start_date?: string | null
+  end_date?: string | null
 }
 
 export interface Group {

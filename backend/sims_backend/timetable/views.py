@@ -87,6 +87,8 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def publish(self, request, pk=None):
         """Publish a draft timetable"""
+        from rest_framework.exceptions import ValidationError
+        
         timetable = self.get_object()
         
         if timetable.status == 'published':
@@ -103,6 +105,46 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
                     {'detail': 'You can only publish your own timetables'},
                     status=status.HTTP_403_FORBIDDEN
                 )
+        
+        # Validate that all cells are filled (all 3 lines must have content)
+        # Get all cells for this timetable
+        cells = list(timetable.cells.all())
+        DEFAULT_TIME_SLOTS = [
+            '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
+            '12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00',
+            '16:00-17:00', '17:00-18:00',
+        ]
+        
+        # Create a map of cells for quick lookup
+        cell_map = {}
+        for cell in cells:
+            key = f"{cell.day_of_week}-{cell.time_slot}"
+            cell_map[key] = cell
+        
+        empty_cells = []
+        for day in range(6):  # Monday to Saturday (0-5)
+            for time_slot in DEFAULT_TIME_SLOTS:
+                key = f"{day}-{time_slot}"
+                cell = cell_map.get(key)
+                # Check if cell exists and all 3 lines are filled
+                if not cell:
+                    # Cell doesn't exist - it's empty
+                    day_name = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]
+                    empty_cells.append(f"{day_name} {time_slot}")
+                elif not cell.line1 or not cell.line1.strip() or not cell.line2 or not cell.line2.strip() or not cell.line3 or not cell.line3.strip():
+                    # Cell exists but one or more lines are empty
+                    day_name = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]
+                    empty_cells.append(f"{day_name} {time_slot}")
+        
+        if empty_cells:
+            return Response(
+                {
+                    'detail': 'All timetable cells must be filled (all 3 lines) before publishing',
+                    'empty_cells': empty_cells[:10],  # Show first 10
+                    'total_empty': len(empty_cells)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         timetable.status = 'published'
         timetable.save()
@@ -134,6 +176,89 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(timetable)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['post'])
+    def generate_weekly_templates(self, request):
+        """Generate weekly timetable templates for all weeks in an academic period for a batch"""
+        from datetime import timedelta
+        from django.utils import timezone
+        from rest_framework.exceptions import ValidationError
+        
+        batch_id = request.data.get('batch')
+        academic_period_id = request.data.get('academic_period')
+        
+        if not batch_id or not academic_period_id:
+            return Response(
+                {'detail': 'batch and academic_period are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            from sims_backend.academics.models import Batch, AcademicPeriod
+            batch = Batch.objects.get(pk=batch_id)
+            academic_period = AcademicPeriod.objects.get(pk=academic_period_id)
+        except (Batch.DoesNotExist, AcademicPeriod.DoesNotExist):
+            return Response(
+                {'detail': 'Invalid batch or academic_period'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        if not academic_period.start_date or not academic_period.end_date:
+            return Response(
+                {'detail': 'Academic period must have start_date and end_date to generate weekly templates'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Calculate all Mondays (week starts) between start_date and end_date
+        start_date = academic_period.start_date
+        end_date = academic_period.end_date
+        
+        # Find the first Monday on or before the start date
+        days_until_monday = (start_date.weekday()) % 7
+        if days_until_monday != 0:  # If not already Monday
+            first_monday = start_date - timedelta(days=days_until_monday)
+        else:
+            first_monday = start_date
+        
+        # Generate templates for all weeks
+        week_dates = []
+        current_monday = first_monday
+        
+        while current_monday <= end_date:
+            # Only create template if the week overlaps with the period
+            week_end = current_monday + timedelta(days=5)  # Saturday
+            if week_end >= start_date:  # Week overlaps with period
+                week_dates.append(current_monday)
+            current_monday += timedelta(days=7)
+        
+        # Create templates (only if they don't already exist)
+        created_count = 0
+        existing_count = 0
+        created_timetables = []
+        
+        for week_start in week_dates:
+            timetable, created = WeeklyTimetable.objects.get_or_create(
+                batch=batch,
+                academic_period=academic_period,
+                week_start_date=week_start,
+                defaults={
+                    'status': 'draft',
+                    'created_by': request.user,
+                }
+            )
+            if created:
+                created_count += 1
+                created_timetables.append(timetable.id)
+            else:
+                existing_count += 1
+        
+        return Response({
+            'detail': f'Generated {created_count} new templates, {existing_count} already existed',
+            'created_count': created_count,
+            'existing_count': existing_count,
+            'total_weeks': len(week_dates),
+            'created_ids': created_timetables,
+        }, status=status.HTTP_201_CREATED)
 
 
 class TimetableCellViewSet(viewsets.ModelViewSet):

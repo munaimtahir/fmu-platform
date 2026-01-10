@@ -307,8 +307,8 @@ def dashboard_stats(request):
                 )
 
             # Finance stats
-            pending_dues_count = StudentLedgerItem.objects.filter(
-                student=student, status=StudentLedgerItem.STATUS_PENDING
+            pending_dues_count = Voucher.objects.filter(
+                student=student, status__in=[Voucher.STATUS_GENERATED, Voucher.STATUS_PARTIAL, Voucher.STATUS_OVERDUE]
             ).count()
 
             # Results stats

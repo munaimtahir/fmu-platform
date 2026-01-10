@@ -1,0 +1,70 @@
+# Issues Index
+
+All tasks are blocked by the same environment issue (docker CLI unavailable). Each task has its own issue file per requirements.
+
+- Task 01: Bootstrap repo/env/docker — docs/verification/issues/TASK_01_bootstrap_repo_env_docker.md
+- Task 02: Backend base setup — docs/verification/issues/TASK_02_backend_base_setup.md
+- Task 03: Frontend base setup — docs/verification/issues/TASK_03_frontend_base_setup.md
+- Task 04: Env config dev/prod parity — docs/verification/issues/TASK_04_env_config_dev_prod_parity.md
+- Task 05: DB init + migrations — docs/verification/issues/TASK_05_db_init_migrations.md
+- Task 06: Health checks/readiness — docs/verification/issues/TASK_06_health_checks_readiness.md
+- Task 07: Logging/error handling — docs/verification/issues/TASK_07_logging_error_handling.md
+- Task 08: RBAC — docs/verification/issues/TASK_08_rbac.md
+- Task 09: Authentication (token flow) — docs/verification/issues/TASK_09_authentication_token_flow.md
+- Task 10: Auth guards (frontend+backend) — docs/verification/issues/TASK_10_auth_guards.md
+- Task 11: University entity — docs/verification/issues/TASK_11_university_entity.md
+- Task 12: Faculty/College entity — docs/verification/issues/TASK_12_faculty_college_entity.md
+- Task 13: Program entity — docs/verification/issues/TASK_13_program_entity.md
+- Task 14: Academic Year entity — docs/verification/issues/TASK_14_academic_year_entity.md
+- Task 15: Batch/Cohort entity — docs/verification/issues/TASK_15_batch_cohort_entity.md
+- Task 16: Term/Semester entity — docs/verification/issues/TASK_16_term_semester_entity.md
+- Task 17: Course/Module entity — docs/verification/issues/TASK_17_course_module_entity.md
+- Task 18: Subject/Theme entity — docs/verification/issues/TASK_18_subject_theme_entity.md
+- Task 19: Hierarchy navigation UI — docs/verification/issues/TASK_19_hierarchy_navigation_ui.md
+- Task 20: Hierarchy CRUD APIs — docs/verification/issues/TASK_20_hierarchy_crud_apis.md
+- Task 21: Student master profile — docs/verification/issues/TASK_21_student_master_profile.md
+- Task 22: Admission record — docs/verification/issues/TASK_22_admission_record.md
+- Task 23: Academic identifiers (reg/roll) — docs/verification/issues/TASK_23_academic_identifiers.md
+- Task 24: Demographics & guardian info — docs/verification/issues/TASK_24_demographics_guardian_info.md
+- Task 25: Student–program linkage — docs/verification/issues/TASK_25_student_program_linkage.md
+- Task 26: Student status lifecycle — docs/verification/issues/TASK_26_student_status_lifecycle.md
+- Task 27: Student list + search — docs/verification/issues/TASK_27_student_list_search.md
+- Task 28: Student detail view — docs/verification/issues/TASK_28_student_detail_view.md
+- Task 29: Faculty master profile — docs/verification/issues/TASK_29_faculty_master_profile.md
+- Task 30: Faculty–subject mapping — docs/verification/issues/TASK_30_faculty_subject_mapping.md
+- Task 31: Faculty roles & permissions — docs/verification/issues/TASK_31_faculty_roles_permissions.md
+- Task 32: Faculty dashboard (basic) — docs/verification/issues/TASK_32_faculty_dashboard_basic.md
+- Task 33: Attendance model — docs/verification/issues/TASK_33_attendance_model.md
+- Task 34: Attendance entry (web) — docs/verification/issues/TASK_34_attendance_entry_web.md
+- Task 35: Attendance import (CSV) — docs/verification/issues/TASK_35_attendance_import_csv.md
+- Task 36: Attendance eligibility calculation — docs/verification/issues/TASK_36_attendance_eligibility_calculation.md
+- Task 37: Assessment structure — docs/verification/issues/TASK_37_assessment_structure.md
+- Task 38: Marks entry — docs/verification/issues/TASK_38_marks_entry.md
+- Task 39: Result calculation — docs/verification/issues/TASK_39_result_calculation.md
+- Task 40: Result summaries — docs/verification/issues/TASK_40_result_summaries.md
+- Task 41: Attendance reports — docs/verification/issues/TASK_41_attendance_reports.md
+- Task 42: Defaulter lists — docs/verification/issues/TASK_42_defaulter_lists.md
+- Task 43: Result sheets — docs/verification/issues/TASK_43_result_sheets.md
+- Task 44: Audit logging — docs/verification/issues/TASK_44_audit_logging.md
+- Task 45: Data integrity checks — docs/verification/issues/TASK_45_data_integrity_checks.md
+- Task 46: Backup/restore hooks — docs/verification/issues/TASK_46_backup_restore_hooks.md
+- Task 47: Auth-protected routing — docs/verification/issues/TASK_47_auth_protected_routing.md
+- Task 48: Navigation guards — docs/verification/issues/TASK_48_navigation_guards.md
+- Task 49: Reload persistence — docs/verification/issues/TASK_49_reload_persistence.md
+- Task 50: Error boundary handling — docs/verification/issues/TASK_50_error_boundary_handling.md
+- Task 51: Global state hydration — docs/verification/issues/TASK_51_global_state_hydration.md
+- Task 52: UI consistency pass — docs/verification/issues/TASK_52_ui_consistency_pass.md
+- Task 53: Backend unit tests — docs/verification/issues/TASK_53_backend_unit_tests.md
+- Task 54: Frontend unit tests — docs/verification/issues/TASK_54_frontend_unit_tests.md
+- Task 55: E2E framework setup — docs/verification/issues/TASK_55_e2e_framework_setup.md
+- Task 56: Auth E2E coverage — docs/verification/issues/TASK_56_auth_e2e_coverage.md
+- Task 57: Academics CRUD E2E — docs/verification/issues/TASK_57_academics_crud_e2e.md
+- Task 58: Student CRUD E2E — docs/verification/issues/TASK_58_student_crud_e2e.md
+- Task 59: Reload/persistence E2E — docs/verification/issues/TASK_59_reload_persistence_e2e.md
+- Task 60: Test stabilization/skips handling — docs/verification/issues/TASK_60_test_stabilization_skips_handling.md
+- Task 61: Admin shell layout — docs/verification/issues/TASK_61_admin_shell_layout.md
+- Task 62: Admin dashboard overview — docs/verification/issues/TASK_62_admin_dashboard_overview.md
+- Task 63: Admin dashboard (final) — docs/verification/issues/TASK_63_admin_dashboard_final.md
+- Task 64: Admin syllabus manager — docs/verification/issues/TASK_64_admin_syllabus_manager.md
+- Task 65: Admin settings — docs/verification/issues/TASK_65_admin_settings.md
+- Task 66: Admin users — docs/verification/issues/TASK_66_admin_users.md

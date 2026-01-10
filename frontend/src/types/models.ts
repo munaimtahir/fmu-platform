@@ -369,6 +369,38 @@ export interface Session {
   ends_at: string
 }
 
+// Weekly Timetable
+export interface TimetableCell {
+  id: number
+  weekly_timetable: number
+  day_of_week: number // 0=Monday, 5=Saturday
+  day_of_week_display?: string
+  time_slot: string // e.g., "09:00-10:00"
+  line1: string // e.g., course name, or groups like "Group A, Group B"
+  line2: string // e.g., room number, or additional groups
+  line3: string // e.g., faculty name, or additional info
+  created_at?: string
+  updated_at?: string
+}
+
+export interface WeeklyTimetable {
+  id: number
+  academic_period: number
+  academic_period_name?: string
+  batch: number
+  batch_name?: string
+  batch_program_name?: string
+  week_start_date: string // ISO date string (Monday)
+  week_end_date?: string // ISO date string (Saturday, calculated)
+  status: 'draft' | 'published'
+  created_by: number
+  created_by_name?: string
+  cells?: TimetableCell[]
+  cell_count?: number // For list views
+  created_at?: string
+  updated_at?: string
+}
+
 // Pagination response
 export interface PaginatedResponse<T> {
   count: number

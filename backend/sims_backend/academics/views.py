@@ -231,7 +231,7 @@ class PeriodViewSet(viewsets.ModelViewSet):
     required_tasks = ['academics.periods.view']
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ['list', 'retrieve', 'students']:
             self.required_tasks = ['academics.periods.view']
         elif self.action == 'create':
             self.required_tasks = ['academics.periods.create']
@@ -240,6 +240,54 @@ class PeriodViewSet(viewsets.ModelViewSet):
         elif self.action == 'destroy':
             self.required_tasks = ['academics.periods.delete']
         return super().get_permissions()
+
+    @action(detail=True, methods=['get'], url_path='students')
+    def students(self, request, pk=None):
+        """Get students for this period (batches that correspond to this period)"""
+        from django.utils import timezone
+        from sims_backend.students.models import Student
+        from sims_backend.students.serializers import StudentSerializer
+        
+        period = self.get_object()
+        
+        # Get all batches for this program
+        batches = Batch.objects.filter(program=period.program)
+        
+        # Determine which batches correspond to this period
+        matching_batch_ids = []
+        matching_batch_names = []
+        current_year = timezone.now().year
+        current_month = timezone.now().month
+        
+        for batch in batches:
+            years_since_start = current_year - batch.start_year
+            
+            if period.program.structure_type == 'YEARLY':
+                batch_current_period_order = years_since_start + 1
+            elif period.program.structure_type == 'SEMESTER':
+                semester_in_current_year = 1 if current_month <= 6 else 2
+                batch_current_period_order = (years_since_start * 2) + semester_in_current_year
+            else:  # CUSTOM
+                batch_current_period_order = years_since_start + 1
+            
+            if batch_current_period_order == period.order:
+                matching_batch_ids.append(batch.id)
+                matching_batch_names.append(batch.name)
+        
+        # Get active students in matching batches, grouped by batch and group
+        students = Student.objects.filter(
+            batch_id__in=matching_batch_ids,
+            status='active'
+        ).select_related('batch', 'group', 'program').order_by('batch__name', 'group__name', 'name')
+        
+        serializer = StudentSerializer(students, many=True)
+        return Response({
+            'period_id': period.id,
+            'period_name': period.name,
+            'students': serializer.data,
+            'count': students.count(),
+            'batches': matching_batch_names
+        }, status=status.HTTP_200_OK)
 
 
 class TrackViewSet(viewsets.ModelViewSet):

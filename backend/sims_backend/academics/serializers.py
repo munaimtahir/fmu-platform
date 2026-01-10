@@ -108,6 +108,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 class PeriodSerializer(serializers.ModelSerializer):
     program_name = serializers.CharField(source='program.name', read_only=True)
+    students_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Period
@@ -119,10 +120,55 @@ class PeriodSerializer(serializers.ModelSerializer):
             'order',
             'start_date',
             'end_date',
+            'students_count',
             'created_at',
             'updated_at',
         ]
         read_only_fields = ['created_at', 'updated_at']
+
+    def get_students_count(self, obj):
+        """Get count of active students in batches that correspond to this period"""
+        from django.utils import timezone
+        from sims_backend.students.models import Student
+        from sims_backend.academics.models import Batch
+
+        # Get all batches for this program
+        batches = Batch.objects.filter(program=obj.program)
+        
+        # Determine which batches correspond to this period based on program structure
+        matching_batch_ids = []
+        current_year = timezone.now().year
+        current_month = timezone.now().month
+        
+        for batch in batches:
+            # Calculate how many periods (years/semesters) have passed since batch started
+            years_since_start = current_year - batch.start_year
+            
+            if obj.program.structure_type == 'YEARLY':
+                # For yearly: period order should match years since start + 1
+                # Year 1 batch in 2024 -> Year 1 (order=1) in 2024
+                # Year 1 batch in 2025 -> Year 2 (order=2) in 2025
+                batch_current_period_order = years_since_start + 1
+            elif obj.program.structure_type == 'SEMESTER':
+                # For semester: calculate semesters (2 per year)
+                # Assume semester 1 is Jan-Jun, semester 2 is Jul-Dec
+                semester_in_current_year = 1 if current_month <= 6 else 2
+                batch_current_period_order = (years_since_start * 2) + semester_in_current_year
+            else:  # CUSTOM
+                # For custom, assume 1 period per year for simplicity
+                batch_current_period_order = years_since_start + 1
+            
+            if batch_current_period_order == obj.order:
+                matching_batch_ids.append(batch.id)
+        
+        if not matching_batch_ids:
+            return 0
+        
+        # Count active students in matching batches
+        return Student.objects.filter(
+            batch_id__in=matching_batch_ids,
+            status='active'
+        ).count()
 
 
 class TrackSerializer(serializers.ModelSerializer):

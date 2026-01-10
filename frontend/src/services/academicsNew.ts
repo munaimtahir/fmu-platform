@@ -27,6 +27,7 @@ export interface Period {
   order: number
   start_date?: string
   end_date?: string
+  students_count?: number
   created_at: string
   updated_at: string
 }
@@ -301,6 +302,18 @@ export const academicsNewService = {
 
   async deleteDepartment(id: number): Promise<void> {
     await api.delete(`/api/academics/departments/${id}/`)
+  },
+
+  // Period Students
+  async getPeriodStudents(periodId: number): Promise<{
+    period_id: number
+    period_name: string
+    students: any[]
+    count: number
+    batches: string[]
+  }> {
+    const response = await api.get(`/api/academics/periods/${periodId}/students/`)
+    return response.data
   },
 }
 

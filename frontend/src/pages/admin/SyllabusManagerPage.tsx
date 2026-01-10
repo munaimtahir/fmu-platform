@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
@@ -208,8 +208,8 @@ export const SyllabusManagerPage: React.FC = () => {
                 <Select
                   label="Program"
                   value={filters.program_id?.toString() || ''}
-                  onChange={(e) => {
-                    const programId = e.target.value ? Number(e.target.value) : undefined
+                  onChange={(value) => {
+                    const programId = value ? Number(value) : undefined
                     setFilters({
                       program_id: programId,
                       period_id: undefined,
@@ -217,20 +217,20 @@ export const SyllabusManagerPage: React.FC = () => {
                       module_id: undefined,
                     })
                   }}
-                >
-                  <option value="">All Programs</option>
-                  {programs?.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </Select>
+                  options={[
+                    { value: '', label: 'All Programs' },
+                    ...(programs?.map((p) => ({
+                      value: p.id.toString(),
+                      label: p.name,
+                    })) || []),
+                  ]}
+                />
 
                 <Select
                   label="Period"
                   value={filters.period_id?.toString() || ''}
-                  onChange={(e) => {
-                    const periodId = e.target.value ? Number(e.target.value) : undefined
+                  onChange={(value) => {
+                    const periodId = value ? Number(value) : undefined
                     setFilters({
                       ...filters,
                       period_id: periodId,
@@ -239,20 +239,20 @@ export const SyllabusManagerPage: React.FC = () => {
                     })
                   }}
                   disabled={!filters.program_id}
-                >
-                  <option value="">All Periods</option>
-                  {periods?.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </Select>
+                  options={[
+                    { value: '', label: 'All Periods' },
+                    ...(periods?.map((p) => ({
+                      value: p.id.toString(),
+                      label: p.name,
+                    })) || []),
+                  ]}
+                />
 
                 <Select
                   label="Learning Block"
                   value={filters.learning_block_id?.toString() || ''}
-                  onChange={(e) => {
-                    const blockId = e.target.value ? Number(e.target.value) : undefined
+                  onChange={(value) => {
+                    const blockId = value ? Number(value) : undefined
                     setFilters({
                       ...filters,
                       learning_block_id: blockId,
@@ -260,31 +260,31 @@ export const SyllabusManagerPage: React.FC = () => {
                     })
                   }}
                   disabled={!filters.period_id}
-                >
-                  <option value="">All Blocks</option>
-                  {learningBlocks?.map((b: any) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name}
-                    </option>
-                  ))}
-                </Select>
+                  options={[
+                    { value: '', label: 'All Blocks' },
+                    ...(learningBlocks?.map((b: any) => ({
+                      value: b.id.toString(),
+                      label: b.name,
+                    })) || []),
+                  ]}
+                />
 
                 <Select
                   label="Module"
                   value={filters.module_id?.toString() || ''}
-                  onChange={(e) => {
-                    const moduleId = e.target.value ? Number(e.target.value) : undefined
+                  onChange={(value) => {
+                    const moduleId = value ? Number(value) : undefined
                     setFilters({ ...filters, module_id: moduleId })
                   }}
                   disabled={!filters.learning_block_id}
-                >
-                  <option value="">All Modules</option>
-                  {modules?.map((m: any) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                    </option>
-                  ))}
-                </Select>
+                  options={[
+                    { value: '', label: 'All Modules' },
+                    ...(modules?.map((m: any) => ({
+                      value: m.id.toString(),
+                      label: m.name,
+                    })) || []),
+                  ]}
+                />
 
                 <div className="flex items-end">
                   <Button variant="secondary" onClick={resetFilters}>
@@ -403,83 +403,83 @@ export const SyllabusManagerPage: React.FC = () => {
                       <Select
                         label="Program"
                         value={formData.program?.toString() || ''}
-                        onChange={(e) =>
+                        onChange={(value) =>
                           setFormData({
                             ...formData,
-                            program: e.target.value ? Number(e.target.value) : undefined,
+                            program: value ? Number(value) : undefined,
                             period: undefined,
                             learning_block: undefined,
                             module: undefined,
                           })
                         }
-                      >
-                        <option value="">Select Program</option>
-                        {programs?.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </Select>
+                        options={[
+                          { value: '', label: 'Select Program' },
+                          ...(programs?.map((p) => ({
+                            value: p.id.toString(),
+                            label: p.name,
+                          })) || []),
+                        ]}
+                      />
 
                       <Select
                         label="Period"
                         value={formData.period?.toString() || ''}
-                        onChange={(e) =>
+                        onChange={(value) =>
                           setFormData({
                             ...formData,
-                            period: e.target.value ? Number(e.target.value) : undefined,
+                            period: value ? Number(value) : undefined,
                             learning_block: undefined,
                             module: undefined,
                           })
                         }
                         disabled={!formData.program}
-                      >
-                        <option value="">Select Period</option>
-                        {periods?.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </Select>
+                        options={[
+                          { value: '', label: 'Select Period' },
+                          ...(periods?.map((p) => ({
+                            value: p.id.toString(),
+                            label: p.name,
+                          })) || []),
+                        ]}
+                      />
 
                       <Select
                         label="Learning Block"
                         value={formData.learning_block?.toString() || ''}
-                        onChange={(e) =>
+                        onChange={(value) =>
                           setFormData({
                             ...formData,
-                            learning_block: e.target.value ? Number(e.target.value) : undefined,
+                            learning_block: value ? Number(value) : undefined,
                             module: undefined,
                           })
                         }
                         disabled={!formData.period}
-                      >
-                        <option value="">Select Block</option>
-                        {learningBlocks?.map((b: any) => (
-                          <option key={b.id} value={b.id}>
-                            {b.name}
-                          </option>
-                        ))}
-                      </Select>
+                        options={[
+                          { value: '', label: 'Select Block' },
+                          ...(learningBlocks?.map((b: any) => ({
+                            value: b.id.toString(),
+                            label: b.name,
+                          })) || []),
+                        ]}
+                      />
 
                       <Select
                         label="Module"
                         value={formData.module?.toString() || ''}
-                        onChange={(e) =>
+                        onChange={(value) =>
                           setFormData({
                             ...formData,
-                            module: e.target.value ? Number(e.target.value) : undefined,
+                            module: value ? Number(value) : undefined,
                           })
                         }
                         disabled={!formData.learning_block}
-                      >
-                        <option value="">Select Module</option>
-                        {modules?.map((m: any) => (
-                          <option key={m.id} value={m.id}>
-                            {m.name}
-                          </option>
-                        ))}
-                      </Select>
+                        options={[
+                          { value: '', label: 'Select Module' },
+                          ...(modules?.map((m: any) => ({
+                            value: m.id.toString(),
+                            label: m.name,
+                          })) || []),
+                        ]}
+                      />
                     </div>
 
                     <Input

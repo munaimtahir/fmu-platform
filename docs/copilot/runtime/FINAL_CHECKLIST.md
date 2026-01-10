@@ -507,7 +507,7 @@
 
 ## 📚 DOCUMENT INDEX
 
-All documents located in: `docs/admin-runtime-report/`
+All documents located in: `docs/copilot/runtime/`
 
 1. **01_runtime_setup.md** (5,376 chars)
 2. **02_verified_features.md** (13,031 chars)

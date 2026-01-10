@@ -751,7 +751,7 @@
 - **Training Coordinator**: [Name/Email]
 
 **Documentation Location**:
-`docs/admin-runtime-report/`
+`docs/copilot/runtime/`
 
 **Supporting Materials**:
 1. Executive Summary

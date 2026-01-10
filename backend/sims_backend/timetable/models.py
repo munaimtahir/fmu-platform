@@ -105,8 +105,8 @@ class WeeklyTimetable(TimeStampedModel):
         ]
         constraints = [
             models.UniqueConstraint(
-                fields=["batch", "week_start_date"],
-                name="unique_weekly_timetable_per_batch_week"
+                fields=["batch", "academic_period", "week_start_date"],
+                name="unique_weekly_timetable_per_batch_period_week"
             )
         ]
 

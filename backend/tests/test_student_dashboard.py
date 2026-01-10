@@ -5,7 +5,7 @@ from rest_framework import status
 from sims_backend.students.models import Student
 from sims_backend.academics.models import Program, Batch, Group as StudentGroup
 from sims_backend.attendance.models import Attendance
-from sims_backend.finance.models import LedgerEntry, Voucher
+from sims_backend.finance.models import LedgerEntry
 from sims_backend.results.models import ResultHeader
 from sims_backend.timetable.models import Session
 from sims_backend.exams.models import Exam

@@ -108,9 +108,10 @@ jobs:
           # Build dev image
           docker build -t sims-frontend:dev ./frontend -f ./frontend/Dockerfile
           
-          # Verify Node.js is installed
-          docker run --rm sims-frontend:dev node --version
-          docker run --rm sims-frontend:dev npm --version
+          # Verify nginx is installed and built files exist
+          docker run --rm sims-frontend:dev nginx -v
+          docker run --rm sims-frontend:dev ls -la /usr/share/nginx/html
+          docker run --rm sims-frontend:dev test -f /usr/share/nginx/html/index.html
 
       - name: Test frontend prod image
         run: |

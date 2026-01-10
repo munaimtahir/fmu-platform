@@ -42,13 +42,23 @@ export const ProgramDetailPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['academics-program', id] })
       alert('Program finalized successfully!')
     },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error?.message || error?.message || 'Failed to finalize program'
+      alert(`Error: ${errorMessage}`)
+    },
   })
 
   const generatePeriodsMutation = useMutation({
     mutationFn: () => academicsNewService.generatePeriods(Number(id!)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['academics-periods', id] })
+      queryClient.invalidateQueries({ queryKey: ['academics-program', id] })
       alert('Periods generated successfully!')
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error?.message || error?.message || 'Failed to generate periods'
+      alert(`Error: ${errorMessage}`)
+      console.error('Error generating periods:', error)
     },
   })
 
@@ -100,14 +110,19 @@ export const ProgramDetailPage: React.FC = () => {
             {canGeneratePeriods && (
               <Button
                 onClick={() => {
-                  if (confirm('Generate periods for this program?')) {
+                  if (confirm('Generate periods for this program? This will create time periods (e.g., Year 1-5, Semester 1-10) based on the program structure.')) {
                     generatePeriodsMutation.mutate()
                   }
                 }}
                 disabled={generatePeriodsMutation.isPending}
               >
-                Generate Periods
+                {generatePeriodsMutation.isPending ? 'Generating...' : 'Generate Periods'}
               </Button>
+            )}
+            {program.is_finalized && periods && periods.length === 0 && !canGeneratePeriods && (
+              <span className="text-sm text-gray-500 flex items-center">
+                (Program is finalized but periods generation may have failed. Check console for errors.)
+              </span>
             )}
           </div>
         }
@@ -136,12 +151,19 @@ export const ProgramDetailPage: React.FC = () => {
                   <>
                     <div>
                       <label className="text-sm text-gray-600">Period Length (Months)</label>
-                      <div className="mt-1">{program.period_length_months}</div>
+                      <div className="mt-1">{program.period_length_months || <span className="text-red-500">Not set</span>}</div>
                     </div>
                     <div>
                       <label className="text-sm text-gray-600">Total Periods</label>
-                      <div className="mt-1">{program.total_periods}</div>
+                      <div className="mt-1">{program.total_periods || <span className="text-red-500">Not set</span>}</div>
                     </div>
+                    {(!program.period_length_months || !program.total_periods) && (
+                      <div className="col-span-2">
+                        <p className="text-sm text-amber-600 mt-2">
+                          ⚠️ CUSTOM structure requires both Period Length (Months) and Total Periods to be set before finalizing.
+                        </p>
+                      </div>
+                    )}
                   </>
                 )}
                 <div>
@@ -178,6 +200,7 @@ export const ProgramDetailPage: React.FC = () => {
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
+                title="Tracks are parallel pathways within a program (e.g., different clinical tracks)"
               >
                 Tracks ({tracks?.length || 0})
               </button>
@@ -203,10 +226,24 @@ export const ProgramDetailPage: React.FC = () => {
                   <div>
                     <h4 className="font-medium">Tracks</h4>
                     <p className="text-gray-600">{tracks?.length || 0} track(s) defined</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Tracks represent parallel pathways or streams within the program (e.g., "Track A", "Clinical Track"). 
+                      Different tracks can have different learning blocks scheduled in the same period.
+                    </p>
                   </div>
                   <div>
                     <h4 className="font-medium">Periods</h4>
                     <p className="text-gray-600">{periods?.length || 0} period(s) generated</p>
+                    {!program.is_finalized && (
+                      <p className="text-sm text-amber-600 mt-1">
+                        ⚠️ Program must be finalized before periods can be generated.
+                      </p>
+                    )}
+                    {program.is_finalized && periods && periods.length === 0 && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Click "Generate Periods" button above to create periods for this program.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

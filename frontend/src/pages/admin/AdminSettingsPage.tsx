@@ -9,7 +9,7 @@ import { TextArea } from '@/components/ui/TextArea'
 import { Switch } from '@/components/ui/Switch'
 import { Select } from '@/components/ui/Select'
 import { LoadingState } from '@/components/shared/LoadingState'
-import { settingsApi, type AppSetting, type AllowedKey } from '@/api/settings'
+import { settingsApi, type AllowedKey } from '@/api/settings'
 import { academicsNewService } from '@/services/academicsNew'
 
 /**
@@ -168,20 +168,20 @@ export const AdminSettingsPage: React.FC = () => {
                                 {keyInfo.key === 'default_academic_year_id' ? (
                                   <Select
                                     value={localValue?.toString() || ''}
-                                    onChange={(e) => {
-                                      const val = e.target.value ? Number(e.target.value) : null
+                                    onChange={(value) => {
+                                      const val = value ? Number(value) : null
                                       setLocalValue(val)
                                     }}
                                     disabled={isSaving}
                                     className="flex-1"
-                                  >
-                                    <option value="">Select Academic Year</option>
-                                    {programs?.map((p) => (
-                                      <option key={p.id} value={p.id}>
-                                        {p.name}
-                                      </option>
-                                    ))}
-                                  </Select>
+                                    options={[
+                                      { value: '', label: 'Select Academic Year' },
+                                      ...(programs?.map((p) => ({
+                                        value: p.id.toString(),
+                                        label: p.name,
+                                      })) || []),
+                                    ]}
+                                  />
                                 ) : (
                                   <Input
                                     type="number"

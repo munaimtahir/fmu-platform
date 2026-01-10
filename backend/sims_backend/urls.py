@@ -17,6 +17,7 @@ from drf_spectacular.views import (
 )
 
 from core.views import (
+    ChangePasswordView,
     EmailTokenObtainPairView,
     LogoutView,
     MeView,
@@ -152,6 +153,7 @@ urlpatterns = [
     path("api/auth/logout/", LogoutView.as_view(), name="auth_logout"),
     path("api/auth/refresh/", TokenRefreshView.as_view(), name="auth_refresh"),
     path("api/auth/me/", MeView.as_view(), name="auth_me"),
+    path("api/auth/change-password/", ChangePasswordView.as_view(), name="auth_change_password"),
     # Legacy auth endpoints (deprecated, kept for backward compatibility)
     path(
         "api/auth/token/", EmailTokenObtainPairView.as_view(), name="token_obtain_pair"

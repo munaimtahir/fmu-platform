@@ -219,7 +219,7 @@ export const router = createBrowserRouter([
   {
     path: '/timetable',
     element: (
-      <ProtectedRoute allowedRoles={['Admin', 'Faculty', 'Registrar', 'Coordinator']}>
+      <ProtectedRoute allowedRoles={['Admin', 'Faculty', 'Registrar', 'Coordinator', 'Student']}>
         <TimetablePage />
       </ProtectedRoute>
     ),

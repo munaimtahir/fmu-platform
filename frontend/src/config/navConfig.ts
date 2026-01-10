@@ -71,9 +71,9 @@ export const navigationConfig: NavigationItem[] = [
   {
     label: 'Timetable',
     icon: '📅',
-    roles: ['Admin', 'Faculty', 'Registrar', 'Coordinator'],
+    roles: ['Admin', 'Faculty', 'Registrar', 'Coordinator', 'Student'],
     items: [
-      { label: 'Timetable', path: '/timetable', roles: ['Admin', 'Faculty', 'Registrar', 'Coordinator'] },
+      { label: 'Timetable', path: '/timetable', roles: ['Admin', 'Faculty', 'Registrar', 'Coordinator', 'Student'] },
     ],
   },
   // Attendance group
@@ -147,7 +147,7 @@ export const routePolicy: Record<string, string[]> = {
   '/academics/periods': ['Admin', 'Registrar'],
   '/academics/groups': ['Admin', 'Registrar'],
   '/academics/departments': ['Admin', 'Registrar'],
-  '/timetable': ['Admin', 'Faculty', 'Registrar', 'Coordinator'],
+  '/timetable': ['Admin', 'Faculty', 'Registrar', 'Coordinator', 'Student'],
   // Legacy enrollment route removed
   '/attendance': ['Admin', 'Faculty'],
   '/attendance/bulk': ['Admin', 'Faculty'],

@@ -138,6 +138,94 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 /**
+ * Password change request interface
+ */
+export interface PasswordChangeRequest {
+  old_password: string
+  new_password: string
+  new_password_confirm: string
+}
+
+/**
+ * Password change response interface
+ */
+export interface PasswordChangeResponse {
+  message: string
+}
+
+/**
+ * Profile update request interface
+ */
+export interface ProfileUpdateRequest {
+  first_name?: string
+  last_name?: string
+  email?: string
+}
+
+/**
+ * Changes the current user's password.
+ *
+ * @param {PasswordChangeRequest} data The password change request data.
+ * @returns {Promise<PasswordChangeResponse>} A promise that resolves with the success message.
+ * @throws {Error} If the password change request fails.
+ */
+export async function changePassword(data: PasswordChangeRequest): Promise<PasswordChangeResponse> {
+  try {
+    const response = await api.post<PasswordChangeResponse>('/api/auth/change-password/', data)
+    return response.data
+  } catch (error: unknown) {
+    // Handle axios error with standard error shape
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as { response?: { data?: unknown } }).response?.data === 'object'
+    ) {
+      const responseData = (error as { response: { data: unknown } }).response.data
+      if (isAuthError(responseData)) {
+        throw new Error(responseData.error.message)
+      }
+      // Handle validation errors (e.g., password mismatch)
+      if (typeof responseData === 'object' && responseData !== null && 'error' in responseData) {
+        const errorObj = (responseData as { error: unknown }).error
+        if (typeof errorObj === 'object' && errorObj !== null && 'message' in errorObj) {
+          throw new Error((errorObj as { message: string }).message)
+        }
+      }
+    }
+    throw error
+  }
+}
+
+/**
+ * Updates the current user's profile information.
+ *
+ * @param {ProfileUpdateRequest} data The profile update data.
+ * @returns {Promise<User>} A promise that resolves with the updated user information.
+ * @throws {Error} If the profile update request fails.
+ */
+export async function updateProfile(data: ProfileUpdateRequest): Promise<User> {
+  try {
+    const response = await api.patch<User>('/api/auth/me/', data)
+    return response.data
+  } catch (error: unknown) {
+    // Handle axios error with standard error shape
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      typeof (error as { response?: { data?: unknown } }).response?.data === 'object'
+    ) {
+      const responseData = (error as { response: { data: unknown } }).response.data
+      if (isAuthError(responseData)) {
+        throw new Error(responseData.error.message)
+      }
+    }
+    throw error
+  }
+}
+
+/**
  * Decodes a JWT token to extract its payload.
  *
  * Note: This is a basic implementation for demonstration purposes. In a

@@ -219,7 +219,7 @@ For quick executive briefings, use these slides only:
 ## Speaker Preparation
 
 ### Before the Meeting
-- Review all detailed reports in `docs/admin-report/`
+- Review all detailed reports in `docs/copilot/static/`
 - Prepare answers to likely questions
 - Practice timing (stay within 30-35 min to allow Q&A)
 - Have backup materials ready

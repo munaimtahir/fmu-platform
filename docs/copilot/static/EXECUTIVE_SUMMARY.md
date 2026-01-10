@@ -290,4 +290,4 @@ For detailed information on any section of this summary, refer to:
 - **06_risks_and_gaps.md** - Complete risk assessment
 - **07_recommendations.md** - Detailed implementation plan
 
-All documents located in: `docs/admin-report/`
+All documents located in: `docs/copilot/static/`

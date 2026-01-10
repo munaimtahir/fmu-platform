@@ -158,33 +158,30 @@ export const UsersPage: React.FC = () => {
                 <Select
                   label="Role"
                   value={filters.role || ''}
-                  onChange={(e) =>
-                    setFilters({ ...filters, role: e.target.value || undefined })
+                  onChange={(value) =>
+                    setFilters({ ...filters, role: value || undefined })
                   }
-                >
-                  <option value="">All Roles</option>
-                  {ROLES.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </Select>
+                  options={[
+                    { value: '', label: 'All Roles' },
+                    ...ROLES.map((role) => ({ value: role, label: role })),
+                  ]}
+                />
 
                 <Select
                   label="Status"
                   value={filters.is_active?.toString() || ''}
-                  onChange={(e) => {
-                    const val = e.target.value
+                  onChange={(value) => {
                     setFilters({
                       ...filters,
-                      is_active: val === '' ? undefined : val === 'true',
+                      is_active: value === '' ? undefined : value === 'true',
                     })
                   }}
-                >
-                  <option value="">All</option>
-                  <option value="true">Active</option>
-                  <option value="false">Inactive</option>
-                </Select>
+                  options={[
+                    { value: '', label: 'All' },
+                    { value: 'true', label: 'Active' },
+                    { value: 'false', label: 'Inactive' },
+                  ]}
+                />
 
                 <div className="flex items-end">
                   <Button
@@ -286,7 +283,7 @@ export const UsersPage: React.FC = () => {
                           {user.is_active ? (
                             <Button
                               size="sm"
-                              variant="warning"
+                              variant="danger"
                               onClick={() => deactivateMutation.mutate(user.id)}
                               disabled={deactivateMutation.isPending}
                             >
@@ -295,7 +292,7 @@ export const UsersPage: React.FC = () => {
                           ) : (
                             <Button
                               size="sm"
-                              variant="success"
+                              variant="primary"
                               onClick={() => activateMutation.mutate(user.id)}
                               disabled={activateMutation.isPending}
                             >
@@ -375,15 +372,10 @@ export const UsersPage: React.FC = () => {
                       <Select
                         label="Role *"
                         value={formData.role}
-                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                        onChange={(value) => setFormData({ ...formData, role: value })}
                         required
-                      >
-                        {ROLES.map((role) => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
-                        ))}
-                      </Select>
+                        options={ROLES.map((role) => ({ value: role, label: role }))}
+                      />
 
                       <div className="flex items-center pt-6">
                         <label className="flex items-center gap-2">

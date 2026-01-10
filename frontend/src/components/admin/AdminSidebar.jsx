@@ -15,9 +15,6 @@ const AdminSidebar = () => {
         finance: false,
     });
 
-    const permissions = user?.permissions || {};
-    const isSuperAdmin = user?.is_superuser || user?.is_admin_user;
-
     const toggleMenu = (menu) => {
         setOpenMenus(prev => ({
             ...prev,

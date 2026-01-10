@@ -184,11 +184,12 @@ export const AdminDashboardPage: React.FC = () => {
               {data.recent_activity.length > 0 ? (
                 <SimpleTable
                   data={data.recent_activity}
+                  keyField="id"
                   columns={[
                     {
                       key: 'timestamp',
                       label: 'Time',
-                      render: (value) => formatTimestamp(value as string),
+                      render: (item) => formatTimestamp(item.timestamp),
                     },
                     {
                       key: 'actor',
@@ -205,9 +206,9 @@ export const AdminDashboardPage: React.FC = () => {
                     {
                       key: 'summary',
                       label: 'Summary',
-                      render: (value) => (
+                      render: (item) => (
                         <span className="text-sm text-gray-600 truncate max-w-xs">
-                          {value as string}
+                          {item.summary}
                         </span>
                       ),
                     },

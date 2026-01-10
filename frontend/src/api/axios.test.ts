@@ -42,8 +42,9 @@ describe('axios setup and token management', () => {
   })
 
   describe('API instance', () => {
-    it('should use configured base URL', () => {
-      expect(api.defaults.baseURL).toBe(env.apiBaseUrl)
+    it('should use configured base URL with /api suffix stripped', () => {
+      // The baseURL should have /api stripped to avoid double /api paths
+      expect(api.defaults.baseURL).toBe(env.apiBaseUrl.replace(/\/api\/?$/, ''))
     })
 
     it('should have JSON content type header', () => {

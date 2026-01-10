@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/features/auth/useAuth'
+import { changePassword } from '@/api/auth'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
@@ -10,7 +12,27 @@ import { Button } from '@/components/ui/Button'
  */
 export const ProfilePage: React.FC = () => {
   const { user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [copiedField, setCopiedField] = useState<string | null>(null)
+  const [showPasswordChange, setShowPasswordChange] = useState(false)
+  const [passwordForm, setPasswordForm] = useState({
+    old_password: '',
+    new_password: '',
+    new_password_confirm: '',
+  })
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordSuccess, setPasswordSuccess] = useState(false)
+
+  // Handle URL query parameter for password change
+  useEffect(() => {
+    const action = searchParams.get('action')
+    if (action === 'change-password') {
+      setShowPasswordChange(true)
+      // Remove query parameter from URL
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   const copyToClipboard = async (text: string, field: string) => {
     try {
@@ -19,6 +41,42 @@ export const ProfilePage: React.FC = () => {
       setTimeout(() => setCopiedField(null), 2000)
     } catch (err) {
       console.error('Failed to copy:', err)
+    }
+  }
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError(null)
+    setPasswordSuccess(false)
+
+    // Validation
+    if (passwordForm.new_password !== passwordForm.new_password_confirm) {
+      setPasswordError('New passwords do not match')
+      return
+    }
+
+    if (passwordForm.new_password.length < 8) {
+      setPasswordError('New password must be at least 8 characters long')
+      return
+    }
+
+    setPasswordLoading(true)
+    try {
+      await changePassword(passwordForm)
+      setPasswordSuccess(true)
+      setPasswordForm({
+        old_password: '',
+        new_password: '',
+        new_password_confirm: '',
+      })
+      setTimeout(() => {
+        setShowPasswordChange(false)
+        setPasswordSuccess(false)
+      }, 2000)
+    } catch (error) {
+      setPasswordError(error instanceof Error ? error.message : 'Failed to change password')
+    } finally {
+      setPasswordLoading(false)
     }
   }
 
@@ -110,12 +168,7 @@ export const ProfilePage: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   variant="secondary"
-                  onClick={() => {
-                    // TODO: Implement password change when backend endpoint is available
-                    alert('Password change feature coming soon. Backend endpoint needed: POST /api/auth/change-password/')
-                  }}
-                  disabled
-                  title="Coming soon - backend endpoint needed"
+                  onClick={() => setShowPasswordChange(true)}
                 >
                   Change Password
                 </Button>
@@ -134,6 +187,101 @@ export const ProfilePage: React.FC = () => {
             </div>
           </div>
         </Card>
+
+        {/* Password Change Modal */}
+        {showPasswordChange && (
+          <Card className="mt-6">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+              
+              {passwordSuccess && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
+                  Password changed successfully!
+                </div>
+              )}
+
+              {passwordError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+                  {passwordError}
+                </div>
+              )}
+
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                <div>
+                  <label htmlFor="old_password" className="block text-sm font-medium text-gray-700 mb-1">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    id="old_password"
+                    value={passwordForm.old_password}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, old_password: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                    required
+                    disabled={passwordLoading}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="new_password" className="block text-sm font-medium text-gray-700 mb-1">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    id="new_password"
+                    value={passwordForm.new_password}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                    required
+                    minLength={8}
+                    disabled={passwordLoading}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters long</p>
+                </div>
+
+                <div>
+                  <label htmlFor="new_password_confirm" className="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    id="new_password_confirm"
+                    value={passwordForm.new_password_confirm}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, new_password_confirm: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                    required
+                    disabled={passwordLoading}
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={passwordLoading || passwordSuccess}
+                  >
+                    {passwordLoading ? 'Changing...' : 'Change Password'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setShowPasswordChange(false)
+                      setPasswordError(null)
+                      setPasswordForm({
+                        old_password: '',
+                        new_password: '',
+                        new_password_confirm: '',
+                      })
+                    }}
+                    disabled={passwordLoading}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </Card>
+        )}
       </PageShell>
     </DashboardLayout>
   )

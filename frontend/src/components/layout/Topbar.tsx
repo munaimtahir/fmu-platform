@@ -136,11 +136,9 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                   <button
                     onClick={() => {
                       setIsUserMenuOpen(false)
-                      // Change password - TODO: implement when backend endpoint is available
+                      navigate('/profile?action=change-password')
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 opacity-50 cursor-not-allowed"
-                    disabled
-                    title="Coming soon - backend endpoint needed"
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
                   >
                     Change Password
                   </button>

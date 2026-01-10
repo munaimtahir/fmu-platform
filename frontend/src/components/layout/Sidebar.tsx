@@ -229,14 +229,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
       >
         {/* Logo/Brand */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-700">
-          {isOpen ? (
-            <h1 className="text-xl font-bold">SIMS</h1>
-          ) : (
-            <span className="text-xl font-bold">S</span>
-          )}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <img 
+              src="/fmu_logo.png" 
+              alt="FMU Logo" 
+              className={`${isOpen ? 'h-10 w-10' : 'h-8 w-8'} flex-shrink-0 object-contain`}
+            />
+            {isOpen && (
+              <div className="flex flex-col min-w-0">
+                <h1 className="text-lg font-bold text-white truncate">FMU</h1>
+                <p className="text-xs text-gray-400 truncate">Student management system</p>
+              </div>
+            )}
+          </div>
           <button
             onClick={onToggle}
-            className="lg:block hidden p-2 rounded-lg hover:bg-gray-700 transition-colors duration-150"
+            className="lg:block hidden p-2 rounded-lg hover:bg-gray-700 transition-colors duration-150 flex-shrink-0"
             aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           >
             {isOpen ? '◀' : '▶'}

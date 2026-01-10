@@ -29,6 +29,8 @@ from .serializers import (
     RoleSerializer,
     RoleTaskAssignmentSerializer,
     PermissionTaskSerializer,
+    PasswordChangeSerializer,
+    ProfileUpdateSerializer,
     TokenRefreshSerializer,
     UnifiedLoginSerializer,
     UserMeSerializer,
@@ -174,9 +176,13 @@ class TokenRefreshView(APIView):
 
 class MeView(APIView):
     """
-    Get current user information.
+    Get and update current user information.
 
     GET /api/auth/me
+    Response: { "id", "username", "email", "full_name", "role", "is_active" }
+    
+    PATCH /api/auth/me
+    Request: { "first_name": "...", "last_name": "...", "email": "..." }
     Response: { "id", "username", "email", "full_name", "role", "is_active" }
     """
 
@@ -185,6 +191,49 @@ class MeView(APIView):
     def get(self, request):
         """Return current user information."""
         return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
+    
+    def patch(self, request):
+        """Update current user profile information."""
+        serializer = ProfileUpdateSerializer(
+            request.user,
+            data=request.data,
+            partial=True,
+            context={"request": request}
+        )
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordView(APIView):
+    """
+    Change user password.
+
+    POST /api/auth/change-password/
+    Request: { "old_password": "...", "new_password": "...", "new_password_confirm": "..." }
+    Response: { "message": "Password changed successfully." }
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """Change user password."""
+        serializer = PasswordChangeSerializer(
+            data=request.data,
+            context={"request": request}
+        )
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Password changed successfully."},
+                status=status.HTTP_200_OK
+            )
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Legacy view for backward compatibility (deprecated)

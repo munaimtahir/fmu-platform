@@ -1,0 +1,56 @@
+
+> sims_frontend@0.0.0 type-check
+> tsc --noEmit
+
+src/pages/admin/AdminDashboardPage.tsx(185,18): error TS2741: Property 'keyField' is missing in type '{ data: { id: string; actor: string; action: string; entity: string; timestamp: string; summary: string; }[]; columns: ({ key: string; label: string; render: (value: { id: string; actor: string; action: string; entity: string; timestamp: string; summary: string; }) => string; } | { ...; } | { ...; })[]; }' but required in type 'SimpleTableProps<{ id: string; actor: string; action: string; entity: string; timestamp: string; summary: string; }>'.
+src/pages/admin/AdminDashboardPage.tsx(191,58): error TS2352: Conversion of type '{ id: string; actor: string; action: string; entity: string; timestamp: string; summary: string; }' to type 'string' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/pages/admin/AdminDashboardPage.tsx(210,28): error TS2352: Conversion of type '{ id: string; actor: string; action: string; entity: string; timestamp: string; summary: string; }' to type 'string' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/pages/admin/AdminSettingsPage.tsx(12,28): error TS6133: 'AppSetting' is declared but its value is never read.
+src/pages/admin/AdminSettingsPage.tsx(169,36): error TS2322: Type '{ children: (Element | Element[] | undefined)[]; value: any; onChange: (e: string) => void; disabled: boolean; className: string; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/AdminSettingsPage.tsx(172,53): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/AdminSettingsPage.tsx(172,77): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(1,27): error TS6133: 'useEffect' is declared but its value is never read.
+src/pages/admin/SyllabusManagerPage.tsx(208,18): error TS2322: Type '{ children: (Element | Element[] | undefined)[]; label: string; value: string; onChange: (e: string) => void; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/SyllabusManagerPage.tsx(212,41): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(212,65): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(229,18): error TS2322: Type '{ children: (Element | Element[] | undefined)[]; label: string; value: string; onChange: (e: string) => void; disabled: boolean; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/SyllabusManagerPage.tsx(233,40): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(233,64): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(251,18): error TS2322: Type '{ children: (Element | Element[] | undefined)[]; label: string; value: string; onChange: (e: string) => void; disabled: boolean; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/SyllabusManagerPage.tsx(255,39): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(255,63): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(272,18): error TS2322: Type '{ children: (Element | Element[] | undefined)[]; label: string; value: string; onChange: (e: string) => void; disabled: boolean; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/SyllabusManagerPage.tsx(276,40): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(276,64): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(403,24): error TS2322: Type '{ children: (Element | Element[] | undefined)[]; label: string; value: string; onChange: (e: string) => void; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/SyllabusManagerPage.tsx(409,40): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(409,64): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(424,24): error TS2322: Type '{ children: (Element | Element[] | undefined)[]; label: string; value: string; onChange: (e: string) => void; disabled: boolean; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/SyllabusManagerPage.tsx(430,39): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(430,63): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(445,24): error TS2322: Type '{ children: (Element | Element[] | undefined)[]; label: string; value: string; onChange: (e: string) => void; disabled: boolean; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/SyllabusManagerPage.tsx(451,47): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(451,71): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(465,24): error TS2322: Type '{ children: (Element | Element[] | undefined)[]; label: string; value: string; onChange: (e: string) => void; disabled: boolean; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/SyllabusManagerPage.tsx(471,39): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/SyllabusManagerPage.tsx(471,63): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/UsersPage.tsx(158,18): error TS2322: Type '{ children: (Element | Element[])[]; label: string; value: string; onChange: (e: string) => void; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/UsersPage.tsx(162,54): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/UsersPage.tsx(173,18): error TS2322: Type '{ children: Element[]; label: string; value: string; onChange: (e: string) => void; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/UsersPage.tsx(177,35): error TS2339: Property 'target' does not exist on type 'string'.
+src/pages/admin/UsersPage.tsx(289,31): error TS2322: Type '"warning"' is not assignable to type '"primary" | "secondary" | "ghost" | "danger" | undefined'.
+src/pages/admin/UsersPage.tsx(298,31): error TS2322: Type '"success"' is not assignable to type '"primary" | "secondary" | "ghost" | "danger" | undefined'.
+src/pages/admin/UsersPage.tsx(375,24): error TS2322: Type '{ children: Element[]; label: string; value: string; onChange: (e: string) => void; required: true; }' is not assignable to type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+  Property 'children' does not exist on type 'IntrinsicAttributes & SelectProps & RefAttributes<HTMLDivElement>'.
+src/pages/admin/UsersPage.tsx(378,77): error TS2339: Property 'target' does not exist on type 'string'.

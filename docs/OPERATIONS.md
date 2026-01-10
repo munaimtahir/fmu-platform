@@ -54,24 +54,57 @@ docker compose stop rqworker
 
 ### Service Health Checks
 
-**Health Endpoint:** `GET /health/`
+**Canonical Health/Readiness Endpoint:** `GET /api/health/`
 
-Returns:
+The health endpoint is the canonical source of truth for service readiness. It is available at:
+- `/api/health/` (canonical - recommended)
+- `/health/` (legacy alias)
+- `/healthz/` (alternative alias)
+
+**Response Schema:**
 ```json
 {
-  "status": "ok",
-  "service": "SIMS Backend",
-  "components": {
-    "database": "ok",
-    "redis": "ok",
-    "rq_queue": "ok"
-  }
+  "status": "ok" | "degraded",
+  "checks": {
+    "db": {
+      "status": "ok" | "fail",
+      "latency_ms": 12.34
+    },
+    "migrations": {
+      "status": "ok" | "fail",
+      "pending_count": 0  // only present if status is "fail"
+    },
+    "redis": {
+      "status": "ok" | "fail" | "skipped"
+    }
+  },
+  "version": "abc12345"  // git SHA (first 8 chars) or APP_VERSION env var
 }
 ```
 
 **Status Values:**
-- `ok` - All components healthy
-- `degraded` - One or more components unhealthy
+- `ok` - All critical components healthy (database accessible, migrations applied)
+- `degraded` - Database or migrations check failed (service not ready)
+
+**Check Details:**
+- **db**: Database connectivity check with latency measurement (in milliseconds)
+- **migrations**: Verifies all migrations are applied (fails if pending migrations exist)
+- **redis**: Redis/RQ queue check (optional - does not affect readiness status)
+
+**Usage:**
+```bash
+# Check health via curl
+curl -s http://localhost:8010/api/health/ | jq
+
+# Check health via docker compose
+docker compose exec backend curl -s http://localhost:8000/api/health/
+
+# Wait for readiness (useful in scripts)
+timeout 120 bash -c 'until curl -sf http://localhost:8010/api/health/ | jq -e ".checks.db.status == \"ok\" and .checks.migrations.status == \"ok\""; do sleep 2; done'
+```
+
+**Environment Variables:**
+- `APP_VERSION` or `VERSION`: Set application version (defaults to git SHA if available)
 
 ### Background Jobs (RQ Worker)
 
@@ -189,41 +222,108 @@ CSRF_COOKIE_SECURE=True
 
 ## Backups
 
-### Automated Backup (Nightly)
-The staging deployment includes automated nightly backups via GitHub Actions workflow:
-- Runs daily at 2 AM UTC
-- Creates compressed PostgreSQL dump
-- Uploads as GitHub artifact (7-day retention)
-- Manual trigger available via workflow dispatch
+### Automated Database Backup
 
-### Manual Database Backup
+Use the `backup_db.sh` script for automated backups with retention:
+
+```bash
+# Basic backup (default: 7 days retention)
+./scripts/backup_db.sh
+
+# Custom retention period (14 days)
+RETENTION_DAYS=14 ./scripts/backup_db.sh
+
+# Custom backup directory
+BACKUP_DIR=/mnt/backups/db ./scripts/backup_db.sh
+```
+
+**Script Features:**
+- Creates timestamped backups: `fmu_platform_YYYYMMDD_HHMMSS.sql.gz`
+- Automatic retention policy (default: 7 days)
+- Detects database container automatically (`fmu_db` or `fmu_db_prod`)
+- Works with docker compose
+- Supports both custom format and plain SQL backups
+- Off-host friendly: writes to `backups/db/` (can be rsynced or mounted)
+
+**Backup Location:**
+- Default: `backups/db/`
+- Configurable via `BACKUP_DIR` environment variable
+- Suitable for off-host sync (rsync, mounted volumes, etc.)
+
+**Retention Policy:**
+- Default: Keeps last 7 days of backups
+- Configurable via `RETENTION_DAYS` environment variable
+- Older backups are automatically deleted
+
+**Manual Backup (Advanced):**
 ```bash
 # Create backup directory
-mkdir -p backups
+mkdir -p backups/db
 
-# Backup to file
-docker exec sims_postgres_staging pg_dump -U sims_user -Fc sims_db > backups/backup_$(date +%Y%m%d_%H%M%S).dump
+# Direct pg_dump via docker exec (custom format)
+docker exec fmu_db pg_dump -U fmu_platform -Fc fmu_platform | gzip > backups/db/fmu_platform_$(date +%Y%m%d_%H%M%S).sql.gz
 
-# Compress (if using SQL format)
-gzip backups/backup_$(date +%Y%m%d_%H%M%S).sql
+# Or plain SQL format
+docker exec fmu_db pg_dump -U fmu_platform -Fp fmu_platform | gzip > backups/db/fmu_platform_$(date +%Y%m%d_%H%M%S).sql.gz
 ```
 
 ### Database Restore
+
+Use the `restore_db.sh` script for safe database restore:
+
+```bash
+# Basic restore (with confirmation prompts)
+./scripts/restore_db.sh backups/db/fmu_platform_20250103_120000.sql.gz
+
+# Skip confirmation (FORCE mode - use with caution!)
+FORCE=1 ./scripts/restore_db.sh backups/db/fmu_platform_20250103_120000.sql.gz
+
+# Restore from relative path
+./scripts/restore_db.sh fmu_platform_20250103_120000.sql.gz
+```
+
+**Script Features:**
+- Safety checks and confirmation prompts (unless `FORCE=1`)
+- Option to create pre-restore backup
+- Automatically stops backend/worker services during restore
+- Supports both custom format and plain SQL backups
+- Detects backup format automatically
+- Runs migrations after restore
+- Restarts services and verifies health
+
+**Restore Process:**
+1. Validates backup file exists and is readable
+2. Prompts for confirmation (unless `FORCE=1`)
+3. Offers to create pre-restore backup (recommended)
+4. Stops backend and worker services
+5. Drops existing database connections
+6. Restores database from backup
+7. Runs migrations to ensure schema is current
+8. Restarts services and verifies health endpoint
+
+**Manual Restore (Advanced):**
 ```bash
 # Stop backend and worker
-docker compose -f docker-compose.staging.yml stop backend rqworker
+docker compose stop backend rqworker
 
-# Restore from backup
-docker exec -i sims_postgres_staging pg_restore -U sims_user -d sims_db -c backups/backup_20251022.dump
+# Drop connections and recreate database
+docker exec fmu_db psql -U fmu_platform -d postgres -c "DROP DATABASE IF EXISTS fmu_platform;"
+docker exec fmu_db psql -U fmu_platform -d postgres -c "CREATE DATABASE fmu_platform;"
 
-# Or from SQL file
-gunzip -c backups/backup_20251022.sql.gz | docker exec -i sims_postgres_staging psql -U sims_user sims_db
+# Restore from backup (custom format)
+gunzip -c backups/db/fmu_platform_20250103_120000.sql.gz | docker exec -i fmu_db pg_restore -U fmu_platform -d fmu_platform -c
+
+# Or plain SQL format
+gunzip -c backups/db/fmu_platform_20250103_120000.sql.gz | docker exec -i fmu_db psql -U fmu_platform -d fmu_platform
+
+# Run migrations
+docker compose exec backend python manage.py migrate
 
 # Restart services
-docker compose -f docker-compose.staging.yml start backend rqworker
+docker compose start backend rqworker
 
 # Verify health
-curl https://yourdomain.com/healthz
+curl -s http://localhost:8010/api/health/ | jq
 ```
 
 ### Media Files Backup
@@ -241,33 +341,51 @@ docker cp sims_backend_staging:/app/media ./media_backup
 docker cp ./media_backup sims_backend_staging:/app/media
 ```
 
-### Weekly Snapshot
-```bash
-# Create complete backup (database + media)
-./backup.sh
+### Automated Backup Scheduling
 
-# Verify backup
-ls -lh backups/
+**Recommended: Cron Job for Daily Backups**
+
+Add to crontab (`crontab -e`):
+
+```bash
+# Daily backup at 2 AM
+0 2 * * * cd /path/to/fmu-platform && ./scripts/backup_db.sh >> /var/log/fmu-backup.log 2>&1
+
+# Weekly backup with longer retention (every Sunday at 2 AM)
+0 2 * * 0 cd /path/to/fmu-platform && RETENTION_DAYS=30 ./scripts/backup_db.sh >> /var/log/fmu-backup-weekly.log 2>&1
 ```
 
-**Backup Script (backup.sh):**
+**Off-Host Backup Sync**
+
+The backup directory (`backups/db/`) is designed to be off-host friendly. Common sync methods:
+
+**Method 1: rsync to remote server**
 ```bash
-#!/bin/bash
-BACKUP_DIR="backups"
-DATE=$(date +%Y%m%d_%H%M%S)
-
-mkdir -p $BACKUP_DIR
-
-# Database
-docker exec sims_postgres_staging pg_dump -U sims_user -Fc sims_db > $BACKUP_DIR/db_$DATE.dump
-
-# Media files
-docker run --rm -v sims_media_volume:/data -v $(pwd)/$BACKUP_DIR:/backup alpine \
-  tar czf /backup/media_$DATE.tar.gz -C /data .
-
-echo "Backup completed: $DATE"
-ls -lh $BACKUP_DIR/*$DATE*
+# Sync backups to remote server daily
+rsync -avz --delete backups/db/ user@backup-server:/backups/fmu-platform/db/
 ```
+
+**Method 2: Mounted volume (Docker/Kubernetes)**
+```yaml
+# In docker-compose.yml, mount backup directory
+volumes:
+  - /mnt/external-backups/fmu:/app/backups
+```
+
+**Method 3: S3/Object Storage (using s3cmd/aws-cli)**
+```bash
+# Sync to S3
+aws s3 sync backups/db/ s3://your-bucket/fmu-platform/backups/db/ --delete
+
+# Or using s3cmd
+s3cmd sync backups/db/ s3://your-bucket/fmu-platform/backups/db/ --delete-removed
+```
+
+**Recommended Backup Strategy:**
+1. **Daily backups**: Keep 7 days locally
+2. **Weekly backups**: Keep 4 weeks remotely
+3. **Monthly backups**: Keep 12 months in cold storage
+4. **Test restores**: Verify restore process quarterly
 
 ## Monitoring
 

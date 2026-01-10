@@ -1,0 +1,11 @@
+
+> sims_frontend@0.0.0 lint
+> eslint .
+
+
+/workspace/frontend/src/components/admin/AdminSidebar.jsx
+  18:11  error  'permissions' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u   no-unused-vars
+  19:11  error  'isSuperAdmin' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+✖ 2 problems (2 errors, 0 warnings)
+

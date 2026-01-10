@@ -16,7 +16,7 @@ export interface TokenResponse {
  * authentication, including token injection and automatic token refresh.
  */
 const api = axios.create({
-  baseURL: env.apiBaseUrl,
+  baseURL: env.apiBaseUrl.replace(/\/api\/?$/, ''),
   headers: {
     'Content-Type': 'application/json',
   },

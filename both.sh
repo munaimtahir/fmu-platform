@@ -30,19 +30,25 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
-echo -e "${BLUE}Step 1: Rebuilding all containers...${NC}"
+echo -e "${BLUE}Step 1: Stopping frontend and backend services...${NC}"
 echo "-----------------------------------"
-docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml stop frontend backend
+echo -e "${GREEN}✓ Services stopped${NC}"
+
+echo ""
+echo -e "${BLUE}Step 2: Rebuilding all containers (no cache)...${NC}"
+echo "-----------------------------------"
+docker compose -f docker-compose.prod.yml build --no-cache frontend backend
 echo -e "${GREEN}✓ All images built successfully${NC}"
 
 echo ""
-echo -e "${BLUE}Step 2: Restarting all services...${NC}"
+echo -e "${BLUE}Step 3: Starting all services...${NC}"
 echo "-----------------------------------"
 docker compose -f docker-compose.prod.yml up -d
 echo -e "${GREEN}✓ All services restarted${NC}"
 
 echo ""
-echo -e "${BLUE}Step 3: Waiting for services to be healthy...${NC}"
+echo -e "${BLUE}Step 4: Waiting for services to be healthy...${NC}"
 echo "-----------------------------------"
 sleep 15
 
@@ -87,19 +93,19 @@ if [ "$SERVICES_OK" = false ]; then
 fi
 
 echo ""
-echo -e "${BLUE}Step 4: Running database migrations...${NC}"
+echo -e "${BLUE}Step 5: Running database migrations...${NC}"
 echo "-----------------------------------"
 docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
 echo -e "${GREEN}✓ Migrations complete${NC}"
 
 echo ""
-echo -e "${BLUE}Step 5: Collecting static files...${NC}"
+echo -e "${BLUE}Step 6: Collecting static files...${NC}"
 echo "-----------------------------------"
 docker compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
 echo -e "${GREEN}✓ Static files collected${NC}"
 
 echo ""
-echo -e "${BLUE}Step 6: Verifying deployment...${NC}"
+echo -e "${BLUE}Step 7: Verifying deployment...${NC}"
 echo "-----------------------------------"
 
 # Test backend health endpoint
@@ -130,9 +136,15 @@ echo "Service URLs:"
 echo "-------------"
 echo -e "${BLUE}Backend API:${NC} http://127.0.0.1:8010"
 echo -e "${BLUE}Frontend:${NC} http://127.0.0.1:8080"
-echo -e "${BLUE}Public Frontend:${NC} https://sims.alshifalab.pk"
-echo -e "${BLUE}Public API:${NC} https://sims.alshifalab.pk/api/"
-echo -e "${BLUE}Admin Panel:${NC} https://sims.alshifalab.pk/admin/"
+echo -e "${BLUE}Public Frontend:${NC}"
+echo "  - https://sims.alshifalab.pk"
+echo "  - https://sims.pmc.edu.pk"
+echo -e "${BLUE}Public API:${NC}"
+echo "  - https://sims.alshifalab.pk/api/"
+echo "  - https://sims.pmc.edu.pk/api/"
+echo -e "${BLUE}Admin Panel:${NC}"
+echo "  - https://sims.alshifalab.pk/admin/"
+echo "  - https://sims.pmc.edu.pk/admin/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"

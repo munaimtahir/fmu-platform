@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Spinner } from '@/components/ui/Spinner'
+import { downloadTemplate } from '@/api/studentImport'
 import type { ImportMode } from '@/types/studentImport'
 
 interface ImportUploaderProps {
@@ -28,6 +29,23 @@ export function ImportUploader({
     e.preventDefault()
     if (file) {
       onPreview(file, mode)
+    }
+  }
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const blob = await downloadTemplate()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'students_import_template.csv'
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (err: any) {
+      console.error('Failed to download template:', err)
+      alert('Failed to download template. Please try again.')
     }
   }
 
@@ -82,9 +100,19 @@ export function ImportUploader({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          CSV File
-        </label>
+        <div className="flex justify-between items-center mb-2">
+          <label className="block text-sm font-medium text-gray-700">
+            CSV File
+          </label>
+          <Button
+            type="button"
+            onClick={handleDownloadTemplate}
+            variant="secondary"
+            className="text-sm"
+          >
+            Download Template
+          </Button>
+        </div>
         <Input
           type="file"
           accept=".csv"

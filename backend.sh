@@ -30,19 +30,25 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
-echo -e "${BLUE}Step 1: Rebuilding backend container...${NC}"
+echo -e "${BLUE}Step 1: Stopping backend service...${NC}"
 echo "-----------------------------------"
-docker compose -f docker-compose.prod.yml build backend
+docker compose -f docker-compose.prod.yml stop backend
+echo -e "${GREEN}✓ Backend service stopped${NC}"
+
+echo ""
+echo -e "${BLUE}Step 2: Rebuilding backend container (no cache)...${NC}"
+echo "-----------------------------------"
+docker compose -f docker-compose.prod.yml build --no-cache backend
 echo -e "${GREEN}✓ Backend image built successfully${NC}"
 
 echo ""
-echo -e "${BLUE}Step 2: Restarting backend service...${NC}"
+echo -e "${BLUE}Step 3: Starting backend service...${NC}"
 echo "-----------------------------------"
 docker compose -f docker-compose.prod.yml up -d backend
 echo -e "${GREEN}✓ Backend service restarted${NC}"
 
 echo ""
-echo -e "${BLUE}Step 3: Waiting for services to be ready...${NC}"
+echo -e "${BLUE}Step 4: Waiting for services to be ready...${NC}"
 echo "-----------------------------------"
 sleep 10
 
@@ -54,19 +60,19 @@ if ! docker compose -f docker-compose.prod.yml ps | grep -q "fmu_db_prod.*Up"; t
 fi
 
 echo ""
-echo -e "${BLUE}Step 4: Running database migrations...${NC}"
+echo -e "${BLUE}Step 5: Running database migrations...${NC}"
 echo "-----------------------------------"
 docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
 echo -e "${GREEN}✓ Migrations complete${NC}"
 
 echo ""
-echo -e "${BLUE}Step 5: Collecting static files...${NC}"
+echo -e "${BLUE}Step 6: Collecting static files...${NC}"
 echo "-----------------------------------"
 docker compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
 echo -e "${GREEN}✓ Static files collected${NC}"
 
 echo ""
-echo -e "${BLUE}Step 6: Verifying deployment...${NC}"
+echo -e "${BLUE}Step 7: Verifying deployment...${NC}"
 echo "-----------------------------------"
 
 # Check if backend container is running
@@ -96,8 +102,12 @@ echo "---------------"
 docker compose -f docker-compose.prod.yml ps backend
 echo ""
 echo "Backend API URL: http://127.0.0.1:8010"
-echo "Public API URL: https://sims.alshifalab.pk/api/"
-echo "Admin Panel: https://sims.alshifalab.pk/admin/"
+echo "Public API URLs:"
+echo "  - https://sims.alshifalab.pk/api/"
+echo "  - https://sims.pmc.edu.pk/api/"
+echo "Admin Panel URLs:"
+echo "  - https://sims.alshifalab.pk/admin/"
+echo "  - https://sims.pmc.edu.pk/admin/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"

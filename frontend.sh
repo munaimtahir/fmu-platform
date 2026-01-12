@@ -28,24 +28,30 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
-echo -e "${BLUE}Step 1: Rebuilding frontend container...${NC}"
+echo -e "${BLUE}Step 1: Stopping frontend service...${NC}"
 echo "-----------------------------------"
-docker compose -f docker-compose.prod.yml build frontend
+docker compose -f docker-compose.prod.yml stop frontend
+echo -e "${GREEN}✓ Frontend service stopped${NC}"
+
+echo ""
+echo -e "${BLUE}Step 2: Rebuilding frontend container (no cache)...${NC}"
+echo "-----------------------------------"
+docker compose -f docker-compose.prod.yml build --no-cache frontend
 echo -e "${GREEN}✓ Frontend image built successfully${NC}"
 
 echo ""
-echo -e "${BLUE}Step 2: Restarting frontend service...${NC}"
+echo -e "${BLUE}Step 3: Starting frontend service...${NC}"
 echo "-----------------------------------"
 docker compose -f docker-compose.prod.yml up -d frontend
 echo -e "${GREEN}✓ Frontend service restarted${NC}"
 
 echo ""
-echo -e "${BLUE}Step 3: Waiting for service to be ready...${NC}"
+echo -e "${BLUE}Step 4: Waiting for service to be ready...${NC}"
 echo "-----------------------------------"
 sleep 5
 
 echo ""
-echo -e "${BLUE}Step 4: Verifying deployment...${NC}"
+echo -e "${BLUE}Step 5: Verifying deployment...${NC}"
 echo "-----------------------------------"
 
 # Check if frontend container is running
@@ -74,7 +80,9 @@ echo "---------------"
 docker compose -f docker-compose.prod.yml ps frontend
 echo ""
 echo "Frontend URL: http://127.0.0.1:8080"
-echo "Public URL: https://sims.alshifalab.pk"
+echo "Public URLs:"
+echo "  - https://sims.alshifalab.pk"
+echo "  - https://sims.pmc.edu.pk"
 echo ""
 echo "Useful Commands:"
 echo "----------------"

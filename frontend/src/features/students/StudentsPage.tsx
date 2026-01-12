@@ -2,6 +2,7 @@
  * Students CRUD Page
  */
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import toast from 'react-hot-toast'
@@ -15,6 +16,7 @@ import { Student } from '@/types'
 import { StudentForm } from './StudentForm'
 
 export function StudentsPage() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -115,7 +117,15 @@ export function StudentsPage() {
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Students</h1>
-          <Button onClick={handleAdd}>Add Student</Button>
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => navigate('/admin/students/import')}
+              variant="secondary"
+            >
+              Bulk Upload
+            </Button>
+            <Button onClick={handleAdd}>Add Student</Button>
+          </div>
         </div>
 
         <div className="mb-4">

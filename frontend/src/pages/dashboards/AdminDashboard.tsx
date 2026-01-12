@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -149,7 +150,7 @@ export const AdminDashboard = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
               { label: 'Core (Users & Roles)', icon: '👤', path: '/admin/users' },
-              { label: 'Audit Logs', icon: '📋', path: '/admin/audit' },
+              { label: 'Timetable', icon: null, path: '/timetable', useText: true },
               { label: 'People (Identity)', icon: '🆔', path: '/people' },
               { label: 'Academics', icon: '📚', path: '/academics/programs' },
               { label: 'Students', icon: '👥', path: '/students' },
@@ -157,14 +158,20 @@ export const AdminDashboard = () => {
               { label: 'Attendance', icon: '✅', path: '/attendance' },
               { label: 'Results', icon: '📈', path: '/results' },
             ].map((module, index) => (
-              <a
+              <Link
                 key={index}
-                href={module.path}
+                to={module.path}
                 className="p-4 border border-gray-200 rounded-2xl hover:border-[#3B82F6] hover:bg-blue-50 transition-all duration-150 text-center cursor-pointer"
               >
-                <div className="text-3xl mb-2">{module.icon}</div>
+                <div className="text-3xl mb-2">
+                  {module.useText ? (
+                    <span className="text-lg font-semibold text-gray-700">timetable</span>
+                  ) : (
+                    module.icon
+                  )}
+                </div>
                 <p className="text-sm font-medium text-gray-900">{module.label}</p>
-              </a>
+              </Link>
             ))}
           </div>
         </Card>

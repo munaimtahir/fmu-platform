@@ -40,10 +40,11 @@ function isAuthError(data: unknown): data is AuthErrorResponse {
 }
 
 /**
- * Authenticates a user with the given credentials.
+ * Authenticates a user with the given credentials using the unified auth system.
  *
- * This function sends a POST request to the unified login endpoint and, upon a
- * successful response, stores the received access and refresh tokens.
+ * This function sends a POST request to the unified login endpoint (/api/auth/login/)
+ * which accepts identifier (email OR username) + password. Upon successful response,
+ * stores the received access and refresh tokens.
  *
  * @param {LoginCredentials} credentials The user's identifier (email or username) and password.
  * @returns {Promise<LoginResponse>} A promise that resolves with the user info and tokens.
@@ -124,7 +125,11 @@ export async function refreshTokens(): Promise<TokenRefreshResponse> {
 }
 
 /**
- * Retrieves the profile of the currently authenticated user.
+ * Retrieves the profile of the currently authenticated user from /api/auth/me/.
+ *
+ * This is the canonical identity source in the unified auth system. The endpoint
+ * returns the authenticated user based on the access token in the Authorization header.
+ * User.role is a STRING (Admin, Faculty, Student, Registrar, ExamCell, Finance, User).
  *
  * @returns {Promise<User | null>} A promise that resolves with the user's profile, or null if not found.
  */
@@ -222,31 +227,6 @@ export async function updateProfile(data: ProfileUpdateRequest): Promise<User> {
       }
     }
     throw error
-  }
-}
-
-/**
- * Decodes a JWT token to extract its payload.
- *
- * Note: This is a basic implementation for demonstration purposes. In a
- * production environment, a robust JWT decoding library should be used.
- *
- * @param {string} token The JWT token to decode.
- * @returns {Record<string, unknown> | null} The decoded payload as an object, or null if decoding fails.
- */
-export function decodeToken(token: string): Record<string, unknown> | null {
-  try {
-    const base64Url = token.split('.')[1]
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    )
-    return JSON.parse(jsonPayload)
-  } catch {
-    return null
   }
 }
 

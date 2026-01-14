@@ -25,7 +25,8 @@ export interface Department {
   code?: string
 }
 
-export interface User {
+// Faculty user type for academics service (simplified, not the full auth User)
+export interface FacultyUser {
   id: number
   username: string
   email: string
@@ -65,11 +66,11 @@ export const academicsService = {
    * to get faculty IDs, or allow manual entry. For now, return empty array.
    * In production, create a dedicated /api/users/ endpoint filtered by group.
    */
-  async getFacultyUsers(): Promise<User[]> {
+  async getFacultyUsers(): Promise<FacultyUser[]> {
     try {
       // Try to get users with Faculty group from a potential users endpoint
       // If it doesn't exist, we'll handle it in the form
-      const response = await api.get<PaginatedResponse<User>>('/api/users/', {
+      const response = await api.get<PaginatedResponse<FacultyUser>>('/api/users/', {
         params: { groups: 'Faculty' },
       })
       return response.data.results || response.data
@@ -80,7 +81,7 @@ export const academicsService = {
           params: { page_size: 1000 },
         })
         const sessions = sessionsResponse.data.results || []
-        const facultyMap = new Map<number, User>()
+        const facultyMap = new Map<number, FacultyUser>()
         
         sessions.forEach((session: any) => {
           if (session.faculty && !facultyMap.has(session.faculty)) {

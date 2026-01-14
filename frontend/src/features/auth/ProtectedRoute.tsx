@@ -45,15 +45,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Check role-based access
+  // user.role is a STRING (Admin, Faculty, Student, Registrar, ExamCell, Finance, User)
   // First check explicit allowedRoles prop, then check route policy if path provided
   const routePath = path || location.pathname
   let hasAccess = true
 
   if (allowedRoles && allowedRoles.length > 0) {
-    // Explicit role check from route definition
+    // Explicit role check from route definition (string comparison)
     hasAccess = user?.role ? allowedRoles.includes(user.role) : false
   } else if (path || location.pathname) {
-    // Use route policy from navConfig
+    // Use route policy from navConfig (string comparison)
     hasAccess = canAccessRoute(user?.role, routePath)
   }
 

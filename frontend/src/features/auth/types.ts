@@ -2,12 +2,18 @@
  * Authentication types
  */
 
+/**
+ * User object shape from unified auth system (/api/auth/me/).
+ * Matches backend UserSerializer exactly:
+ * - id, username, email, full_name, role, student_id, is_active
+ * - role is a STRING: "Admin", "Registrar", "Finance", "ExamCell", "Faculty", "Student", or "User"
+ */
 export interface User {
   id: number
   username: string
   email: string
   full_name: string
-  role: string  // Admin, Registrar, Faculty, Student, ExamCell, User
+  role: string  // Admin, Registrar, Finance, ExamCell, Faculty, Student, User
   is_active: boolean
   student_id?: number  // Optional student ID for student users
 }

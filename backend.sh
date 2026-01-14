@@ -1,10 +1,10 @@
 #!/bin/bash
 # FMU Platform - Backend Deployment Script
 # This script deploys backend-only changes:
-# 1. Rebuilds backend container
-# 2. Restarts backend service
-# 3. Runs migrations (if needed)
-# 4. Collects static files (if needed)
+# 1. Stops backend service
+# 2. Rebuilds backend container without cache
+# 3. Restarts backend service
+# 4. Runs migrations and collects static files
 # 5. Verifies deployment
 
 set -e  # Exit on error
@@ -104,10 +104,8 @@ echo ""
 echo "Backend API URL: http://127.0.0.1:8010"
 echo "Public API URLs:"
 echo "  - https://sims.alshifalab.pk/api/"
-echo "  - https://sims.pmc.edu.pk/api/"
 echo "Admin Panel URLs:"
 echo "  - https://sims.alshifalab.pk/admin/"
-echo "  - https://sims.pmc.edu.pk/admin/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"

@@ -5,15 +5,13 @@
 // Program model
 export interface Program {
   id: number
-  level: 'undergraduate' | 'postgraduate' | 'diploma' | 'other'
-  level_display: string
-  category: string
-  category_display: string
   name: string
-  duration_years: number
   description?: string
   is_active: boolean
-  full_name: string
+  structure_type: 'YEARLY' | 'SEMESTER' | 'CUSTOM'
+  is_finalized: boolean
+  period_length_months?: number | null
+  total_periods?: number | null
   created_at: string
   updated_at: string
 }
@@ -26,8 +24,10 @@ export interface Student {
   program: number
   program_name?: string
   program_full_name?: string
-  batch_year: number
-  current_year: number
+  batch: number
+  batch_name?: string
+  group?: number
+  group_name?: string
   status: 'active' | 'inactive' | 'graduated' | 'suspended'
   status_display?: string
   email?: string

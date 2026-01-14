@@ -1,7 +1,10 @@
 /**
  * Student API service
+ * 
+ * Backend endpoint: /api/students/
  */
 import api from '@/api/axios'
+import { warnOnInvalidResponse, validatePaginatedResponse, validateStudentResponse } from '@/api/responseGuards'
 import { Student, PaginatedResponse } from '@/types'
 
 export const studentsService = {
@@ -17,6 +20,12 @@ export const studentsService = {
     const response = await api.get<PaginatedResponse<Student>>('/api/students/', {
       params,
     })
+    // Lightweight runtime guard (dev-only warnings)
+    warnOnInvalidResponse(
+      (data) => validatePaginatedResponse(data, validateStudentResponse),
+      response.data,
+      '/api/students/'
+    )
     return response.data
   },
 

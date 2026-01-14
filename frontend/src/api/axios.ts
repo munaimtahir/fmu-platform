@@ -15,8 +15,20 @@ export interface TokenResponse {
  * It also includes interceptors for automatically handling token-based
  * authentication, including token injection and automatic token refresh.
  */
+/**
+ * Normalizes the API base URL to ensure it does NOT include /api suffix.
+ * VITE_API_URL should be the base URL without /api (e.g., 'http://localhost:8000' or '/')
+ */
+function normalizeBaseUrl(url: string): string {
+  // Remove trailing slashes
+  let normalized = url.replace(/\/+$/, '')
+  // Remove /api suffix if present (defensive)
+  normalized = normalized.replace(/\/api\/?$/, '')
+  return normalized
+}
+
 const api = axios.create({
-  baseURL: env.apiBaseUrl.replace(/\/api\/?$/, ''),
+  baseURL: normalizeBaseUrl(env.apiBaseUrl),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -218,8 +230,9 @@ api.interceptors.response.use(
     try {
       // Use a plain axios instance to avoid circular interceptor calls
       // Use the new unified refresh endpoint
+      const baseUrl = normalizeBaseUrl(env.apiBaseUrl)
       const response = await axios.post<{ access: string; refresh?: string }>(
-        `${env.apiBaseUrl.replace(/\/$/, '')}/api/auth/refresh/`,
+        `${baseUrl}/api/auth/refresh/`,
         { refresh }
       )
 

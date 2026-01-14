@@ -1,7 +1,12 @@
 /**
  * Results API service
+ * 
+ * Backend endpoints:
+ * - /api/results/ (ResultHeaderViewSet)
+ * - /api/result-components/ (ResultComponentEntryViewSet)
  */
 import api from '@/api/axios'
+import { warnOnInvalidResponse, validatePaginatedResponse, validateResultHeaderResponse } from '@/api/responseGuards'
 import { PaginatedResponse } from '@/types'
 
 export interface ResultHeader {
@@ -37,6 +42,12 @@ export const resultsService = {
     published?: boolean
   }): Promise<PaginatedResponse<ResultHeader>> {
     const response = await api.get<PaginatedResponse<ResultHeader>>('/api/results/', { params })
+    // Lightweight runtime guard (dev-only warnings)
+    warnOnInvalidResponse(
+      (data) => validatePaginatedResponse(data, validateResultHeaderResponse),
+      response.data,
+      '/api/results/'
+    )
     return response.data
   },
 

@@ -83,12 +83,23 @@ class WriteAuditMiddleware:
             "DELETE": AuditLog.ACTION_DELETE,
         }.get(method, AuditLog.ACTION_SPECIAL)
 
+        # Get impersonated_by from request if present (set by authentication)
+        impersonated_by = None
+        if hasattr(request, 'impersonated_by_id'):
+            try:
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                impersonated_by = User.objects.get(pk=request.impersonated_by_id)
+            except Exception:
+                pass  # If user lookup fails, continue without impersonated_by
+
         AuditLog.objects.create(
             actor=(
                 request.user
                 if getattr(request, "user", None) and request.user.is_authenticated
                 else None
             ),
+            impersonated_by=impersonated_by,
             method=method,
             path=request.path,
             status_code=status_code,

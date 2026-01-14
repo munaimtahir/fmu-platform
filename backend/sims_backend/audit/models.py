@@ -37,6 +37,14 @@ class AuditLog(models.Model):
         related_name="audit_logs",
         help_text="User who performed the action",
     )
+    impersonated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="impersonation_audit_logs",
+        help_text="Admin user who initiated impersonation (if action was performed via impersonation)",
+    )
     method = models.CharField(
         max_length=16,
         help_text="HTTP method (POST, PUT, PATCH, DELETE)",

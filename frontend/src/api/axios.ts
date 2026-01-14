@@ -26,6 +26,10 @@ const api = axios.create({
 let accessToken: string | null = null
 let refreshToken: string | null = null
 
+// Impersonation token backup (admin's original tokens)
+let adminAccessToken: string | null = null
+let adminRefreshToken: string | null = null
+
 // Single-flight refresh queue
 let isRefreshing = false
 let refreshSubscribers: Array<(token: string) => void> = []
@@ -60,6 +64,53 @@ export function setTokens(access: string, refresh: string) {
 }
 
 /**
+ * Sets impersonation token (backups admin tokens first).
+ * @param {string} impersonationAccess The impersonation access token.
+ */
+export function setImpersonationToken(impersonationAccess: string) {
+  // Backup admin tokens
+  adminAccessToken = accessToken
+  adminRefreshToken = refreshToken
+  localStorage.setItem('admin_access_token', adminAccessToken || '')
+  localStorage.setItem('admin_refresh_token', adminRefreshToken || '')
+  
+  // Set impersonation token
+  accessToken = impersonationAccess
+  localStorage.setItem('access_token', impersonationAccess)
+}
+
+/**
+ * Restores admin tokens from backup.
+ */
+export function restoreAdminTokens() {
+  // Restore from localStorage if not in memory
+  if (!adminAccessToken) {
+    adminAccessToken = localStorage.getItem('admin_access_token')
+    adminRefreshToken = localStorage.getItem('admin_refresh_token')
+  }
+  
+  if (adminAccessToken && adminRefreshToken) {
+    accessToken = adminAccessToken
+    refreshToken = adminRefreshToken
+    localStorage.setItem('access_token', adminAccessToken)
+    localStorage.setItem('refresh_token', adminRefreshToken)
+    
+    // Clear backup
+    adminAccessToken = null
+    adminRefreshToken = null
+    localStorage.removeItem('admin_access_token')
+    localStorage.removeItem('admin_refresh_token')
+  }
+}
+
+/**
+ * Checks if currently using impersonation token.
+ */
+export function isImpersonating(): boolean {
+  return !!localStorage.getItem('admin_access_token')
+}
+
+/**
  * Retrieves the access token from memory or local storage.
  * @returns {string | null} The access token, or null if not found.
  */
@@ -87,8 +138,12 @@ export function getRefreshToken(): string | null {
 export function clearTokens() {
   accessToken = null
   refreshToken = null
+  adminAccessToken = null
+  adminRefreshToken = null
   localStorage.removeItem('access_token')
   localStorage.removeItem('refresh_token')
+  localStorage.removeItem('admin_access_token')
+  localStorage.removeItem('admin_refresh_token')
 }
 
 /**
@@ -124,6 +179,15 @@ api.interceptors.response.use(
 
     // If error is not 401 or request already retried, reject
     if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error)
+    }
+
+    // If impersonating and token expired, auto-stop impersonation
+    if (isImpersonating()) {
+      // Restore admin tokens and let the request fail naturally
+      // The UI should handle showing an error or auto-stopping
+      restoreAdminTokens()
+      // Don't retry - let the caller handle the error
       return Promise.reject(error)
     }
 

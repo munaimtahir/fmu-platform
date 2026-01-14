@@ -326,3 +326,36 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         )
         
         return Response(AdminUserSerializer(user).data)
+    
+    @action(detail=False, methods=["get"], url_path="search")
+    def search(self, request):
+        """
+        Search users for impersonation.
+        
+        GET /api/admin/users/search?query=<search_term>
+        Returns: List of users matching query (excluding admins and inactive users)
+        """
+        query = request.query_params.get("query", "").strip()
+        
+        if not query:
+            return Response(
+                {"error": "query parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Search users by username, email, first_name, last_name
+        users = User.objects.filter(
+            Q(username__icontains=query) |
+            Q(email__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query)
+        ).filter(
+            is_active=True
+        ).exclude(
+            is_superuser=True
+        ).exclude(
+            groups__name__in=["ADMIN", "Admin"]
+        ).distinct()[:20]  # Limit to 20 results
+        
+        serializer = AdminUserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

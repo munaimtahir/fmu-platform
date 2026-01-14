@@ -5,19 +5,28 @@ import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { useAuth } from '@/features/auth/useAuth'
 import { dashboardApi, DashboardStats } from '@/api/dashboard'
+import api from '@/api/axios'
 
 export const AdminDashboard = () => {
   const { user } = useAuth()
   const [stats, setStats] = useState<DashboardStats>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [coursesCount, setCoursesCount] = useState<number>(0)
+  const [sectionsCount, setSectionsCount] = useState<number>(0)
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true)
-        const data = await dashboardApi.getStats()
-        setStats(data)
+        const [statsData, coursesRes, sectionsRes] = await Promise.all([
+          dashboardApi.getStats(),
+          api.get('/api/academics/courses/').catch(() => ({ data: { count: 0 } })),
+          api.get('/api/academics/sections/').catch(() => ({ data: { count: 0 } })),
+        ])
+        setStats(statsData)
+        setCoursesCount(coursesRes.data.count || coursesRes.data.results?.length || 0)
+        setSectionsCount(sectionsRes.data.count || sectionsRes.data.results?.length || 0)
         setError(null)
       } catch (err) {
         console.error('Failed to fetch dashboard stats:', err)
@@ -86,9 +95,9 @@ export const AdminDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Active Courses</p>
+                <p className="text-sm text-gray-600 mb-1">Total Courses</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {stats.total_courses ?? 0}
+                  {coursesCount}
                 </p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl">
@@ -96,8 +105,8 @@ export const AdminDashboard = () => {
               </div>
             </div>
             <div className="mt-4 flex items-center gap-2">
-              <Badge variant="primary">{stats.active_sections ?? 0} Sections</Badge>
-              <span className="text-xs text-gray-500">this semester</span>
+              <Badge variant="primary">{sectionsCount} Sections</Badge>
+              <span className="text-xs text-gray-500">active sections</span>
             </div>
           </Card>
 
@@ -122,20 +131,66 @@ export const AdminDashboard = () => {
           </Card>
         </div>
 
-        {/* Additional Stats */}
-        {stats.ineligible_students !== undefined && stats.ineligible_students > 0 && (
+        {/* Additional Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
-            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-red-900">Attendance Alert</p>
-                <p className="text-sm text-red-700">
-                  {stats.ineligible_students} student{stats.ineligible_students !== 1 ? 's' : ''} below 75% attendance
+                <p className="text-sm text-gray-600 mb-1">Total Programs</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.total_programs ?? 0}
                 </p>
               </div>
-              <Badge variant="danger">{stats.ineligible_students}</Badge>
+              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-2xl">
+                🎓
+              </div>
             </div>
           </Card>
-        )}
+
+          <Card>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Total Sessions</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.total_sessions ?? 0}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl">
+                📅
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Draft Results</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.draft_results ?? 0}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-yellow-100 rounded-2xl flex items-center justify-center text-2xl">
+                📝
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Finance Outstanding</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.finance_outstanding !== undefined 
+                    ? `₹${stats.finance_outstanding.toLocaleString('en-IN')}` 
+                    : '₹0'}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl">
+                💰
+              </div>
+            </div>
+          </Card>
+        </div>
 
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

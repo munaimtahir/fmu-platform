@@ -59,7 +59,13 @@ class Program(TimeStampedModel):
 
 
 class Batch(TimeStampedModel):
-    """Batch belonging to a Program"""
+    """
+    Batch belonging to a Program.
+    
+    Note: The start_year field represents the graduation year, not the intake year.
+    For example, students enrolling in 2026 in a 5-year MBBS program would graduate in 2031,
+    so the batch would have start_year=2031 (represented as 'b31' in usernames/emails).
+    """
 
     program = models.ForeignKey(
         Program,
@@ -72,7 +78,7 @@ class Batch(TimeStampedModel):
         help_text="Batch name (e.g., '2024 Batch', 'Fall 2024')",
     )
     start_year = models.PositiveSmallIntegerField(
-        help_text="Batch start year"
+        help_text="Graduation year for this batch (not intake year). Example: Students enrolling in 2026 for a 5-year program would have start_year=2031."
     )
 
     class Meta:

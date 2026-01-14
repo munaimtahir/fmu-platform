@@ -16,6 +16,7 @@ The Student CSV Bulk Import system allows administrators to import multiple stud
 - **FK resolution**: Automatic resolution of Program, Batch, and Group by name
 - **Error reporting**: Downloadable CSV with error messages
 - **Audit trail**: ImportJob model tracks all imports
+- **Automatic user account creation**: Creates login accounts for all imported students
 
 ## CSV Format
 
@@ -241,8 +242,26 @@ After commit, if there are invalid rows, an error CSV is generated with:
 - CSV injection protection is applied to error reports
 - File hash prevents accidental duplicate imports
 
+## User Account Creation
+
+When students are imported via CSV, the system automatically creates user accounts for them:
+
+- **Username**: Generated from registration number (sanitized, lowercase)
+- **Email**: Uses provided email from CSV, or generates `{username}@sims.edu` if not provided
+- **Password**: Generated based on batch start year (format: `student{year}`) or extracted from reg_no
+- **Role**: Automatically assigned to "STUDENT" group
+- **Linking**: User account is automatically linked to the Student record
+
+**Password Format Examples:**
+- Batch year 2024: `student2024`
+- Reg_no "2024-MBBS-001": `student2024`
+- Reg_no "STU001": `studentstu001`
+
+**Note**: If a user account already exists with the generated username, it will be reused and linked to the student record. The password will not be changed for existing accounts.
+
 ## Limitations
 
 - Maximum file size: Configurable (default: reasonable limits)
 - Maximum rows: No hard limit, but large files may take time to process
 - Transaction: Entire commit runs in a single transaction (all-or-nothing for valid rows)
+- User account creation: If user creation fails, the student record is still created but without a linked account (can be created manually later)

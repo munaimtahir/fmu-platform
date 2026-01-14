@@ -32,15 +32,17 @@ def generate_csv_template() -> bytes:
     headers.extend(optional_headers)
     
     # Create example row (dummy data)
+    # Note: batch_name represents graduation year, not intake year
+    # Students enrolling in 2026 for 5-year MBBS program would graduate in 2031
     example_row = {
-        "reg_no": "STU001",
+        "reg_no": "2026-MBBS-001",
         "name": "John Doe",
         "program_name": "MBBS",
-        "batch_name": "2024 Batch",
+        "batch_name": "2031 Batch",  # Graduation year
         "group_name": "Group A",
         "status": "active",
-        "email": "john.doe@example.com",
-        "phone": "+1234567890",
+        "email": "john.doe.b31@pmc.edu.pk",  # Auto-generated if not provided
+        "phone": "+923001234567",
         "date_of_birth": "2000-01-15",
     }
     

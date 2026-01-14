@@ -2,19 +2,22 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Spinner } from '@/components/ui/Spinner'
-import { downloadTemplate } from '@/api/studentImport'
 import type { ImportMode } from '@/types/studentImport'
 
 interface ImportUploaderProps {
   onPreview: (file: File, mode: ImportMode) => void
   loading: boolean
   onReset: () => void
+  onDownloadTemplate: () => Promise<void>
+  importType: 'student' | 'faculty'
 }
 
 export function ImportUploader({
   onPreview,
   loading,
   onReset,
+  onDownloadTemplate,
+  importType,
 }: ImportUploaderProps) {
   const [file, setFile] = useState<File | null>(null)
   const [mode, setMode] = useState<ImportMode>('CREATE_ONLY')
@@ -34,30 +37,18 @@ export function ImportUploader({
 
   const handleDownloadTemplate = async () => {
     try {
-      const blob = await downloadTemplate()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'students_import_template.csv'
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+      await onDownloadTemplate()
     } catch (err: any) {
       console.error('Failed to download template:', err)
       alert('Failed to download template. Please try again.')
     }
   }
 
+  const importTypeLabel = importType === 'student' ? 'student' : 'faculty'
+  const uniqueKeyLabel = importType === 'student' ? 'reg_no' : 'email'
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Upload CSV File</h2>
-        <p className="text-gray-600 mb-4">
-          Upload a CSV file with student data. The file will be validated before
-          import.
-        </p>
-      </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -76,7 +67,7 @@ export function ImportUploader({
             <div>
               <div className="font-medium">Create Only</div>
               <div className="text-sm text-gray-500">
-                Only create new students. Rejects existing reg_no.
+                Only create new {importTypeLabel}s. Rejects existing {uniqueKeyLabel}.
               </div>
             </div>
           </label>
@@ -92,7 +83,7 @@ export function ImportUploader({
             <div>
               <div className="font-medium">Upsert</div>
               <div className="text-sm text-gray-500">
-                Create new or update existing students by reg_no.
+                Create new or update existing {importTypeLabel}s by {uniqueKeyLabel}.
               </div>
             </div>
           </label>

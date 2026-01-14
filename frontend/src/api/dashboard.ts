@@ -20,13 +20,22 @@ export interface DashboardStats {
   draft_results?: number
   
   // Student stats
+  student_name?: string
+  reg_no?: string
+  program?: string
+  batch?: string
   enrolled_courses?: number
+  attendance_percentage?: number
   attendance_rate?: number
+  classes_attended?: number
+  pending_dues?: number
+  published_results?: number
   completed_results?: number
   
   // Error/message
   error?: string
   message?: string
+  note?: string
 }
 
 /**

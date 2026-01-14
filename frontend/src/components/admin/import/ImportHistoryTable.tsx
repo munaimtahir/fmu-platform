@@ -3,31 +3,37 @@ import { SimpleTable } from '@/components/ui/SimpleTable'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
-import { listImportJobs } from '@/api/studentImport'
-import type { ImportJob } from '@/types/studentImport'
+import { listImportJobs as listStudentImportJobs } from '@/api/studentImport'
+import { listImportJobs as listFacultyImportJobs } from '@/api/facultyImport'
+import type { ImportJob as StudentImportJob } from '@/types/studentImport'
+import type { ImportJob as FacultyImportJob } from '@/types/facultyImport'
 
 interface ImportHistoryTableProps {
   onDownloadErrors: (jobId: string) => void
   onViewDetails: (jobId: string) => void
+  importType: 'student' | 'faculty'
 }
 
 export function ImportHistoryTable({
   onDownloadErrors,
   onViewDetails,
+  importType,
 }: ImportHistoryTableProps) {
-  const [jobs, setJobs] = useState<ImportJob[]>([])
+  const [jobs, setJobs] = useState<(StudentImportJob | FacultyImportJob)[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchJobs()
-  }, [])
+  }, [importType])
 
   const fetchJobs = async () => {
     setLoading(true)
     setError(null)
     try {
-      const data = await listImportJobs()
+      const data = importType === 'student'
+        ? await listStudentImportJobs()
+        : await listFacultyImportJobs()
       setJobs(data)
     } catch (err: any) {
       setError('Failed to load import history')
@@ -58,19 +64,19 @@ export function ImportHistoryTable({
   const columns = [
     {
       header: 'Date',
-      accessor: (job: ImportJob) => formatDate(job.created_at),
+      accessor: (job: StudentImportJob | FacultyImportJob) => formatDate(job.created_at),
     },
     {
       header: 'Filename',
-      accessor: (job: ImportJob) => job.original_filename,
+      accessor: (job: StudentImportJob | FacultyImportJob) => job.original_filename,
     },
     {
       header: 'Mode',
-      accessor: (job: ImportJob) => job.mode,
+      accessor: (job: StudentImportJob | FacultyImportJob) => job.mode,
     },
     {
       header: 'Status',
-      accessor: (job: ImportJob) => (
+      accessor: (job: StudentImportJob | FacultyImportJob) => (
         <Badge variant={getStatusBadgeVariant(job.status)}>
           {job.status}
         </Badge>
@@ -78,35 +84,35 @@ export function ImportHistoryTable({
     },
     {
       header: 'Total',
-      accessor: (job: ImportJob) => job.total_rows,
+      accessor: (job: StudentImportJob | FacultyImportJob) => job.total_rows,
     },
     {
       header: 'Valid',
-      accessor: (job: ImportJob) => (
+      accessor: (job: StudentImportJob | FacultyImportJob) => (
         <span className="text-green-600">{job.valid_rows}</span>
       ),
     },
     {
       header: 'Invalid',
-      accessor: (job: ImportJob) => (
+      accessor: (job: StudentImportJob | FacultyImportJob) => (
         <span className="text-red-600">{job.invalid_rows}</span>
       ),
     },
     {
       header: 'Created',
-      accessor: (job: ImportJob) => (
+      accessor: (job: StudentImportJob | FacultyImportJob) => (
         <span className="text-blue-600">{job.created_count}</span>
       ),
     },
     {
       header: 'Updated',
-      accessor: (job: ImportJob) => (
+      accessor: (job: StudentImportJob | FacultyImportJob) => (
         <span className="text-purple-600">{job.updated_count}</span>
       ),
     },
     {
       header: 'Actions',
-      accessor: (job: ImportJob) => (
+      accessor: (job: StudentImportJob | FacultyImportJob) => (
         <div className="flex gap-2">
           <Button
             size="sm"

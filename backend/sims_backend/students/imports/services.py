@@ -1,9 +1,12 @@
 """Student CSV import service - core business logic"""
 import csv
 import io
+import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils import timezone
 
@@ -30,9 +33,132 @@ from sims_backend.students.imports.validators import (
 )
 from sims_backend.students.models import Student
 
+User = get_user_model()
+
 
 class StudentImportService:
     """Service for handling Student CSV imports"""
+
+    @staticmethod
+    def _extract_name_parts(name: str) -> Tuple[str, str]:
+        """Extract first name and last name from full name."""
+        parts = name.strip().split()
+        if not parts:
+            return 'student', 'user'
+        first_name = parts[0].lower()
+        last_name = ' '.join(parts[1:]).lower() if len(parts) > 1 else 'user'
+        return first_name, last_name
+
+    @staticmethod
+    def _format_batch_year(graduation_year: Optional[int]) -> str:
+        """Format graduation year as 2-digit batch code (e.g., 2031 -> 'b31')."""
+        if not graduation_year:
+            return 'b00'
+        # Get last 2 digits of year
+        year_2_digits = str(graduation_year)[-2:]
+        return f"b{year_2_digits}"
+
+    @staticmethod
+    def _generate_username(name: str, graduation_year: Optional[int] = None) -> str:
+        """
+        Generate username in format: firstname.b{year}
+        Example: 'john.b31' for John graduating in 2031
+        """
+        first_name, _ = StudentImportService._extract_name_parts(name)
+        # Remove special characters and spaces, keep only alphanumeric
+        first_name_clean = re.sub(r'[^a-zA-Z0-9]', '', first_name)
+        batch_code = StudentImportService._format_batch_year(graduation_year)
+        return f"{first_name_clean}.{batch_code}"
+
+    @staticmethod
+    def _generate_email(name: str, graduation_year: Optional[int] = None, provided_email: Optional[str] = None) -> str:
+        """
+        Generate email in format: firstname.lastname.b{year}@pmc.edu.pk
+        Example: 'john.doe.b31@pmc.edu.pk' for John Doe graduating in 2031
+        """
+        if provided_email:
+            return provided_email.strip()
+        
+        first_name, last_name = StudentImportService._extract_name_parts(name)
+        # Remove special characters and spaces, keep only alphanumeric
+        first_name_clean = re.sub(r'[^a-zA-Z0-9]', '', first_name)
+        last_name_clean = re.sub(r'[^a-zA-Z0-9]', '', last_name.replace(' ', ''))
+        batch_code = StudentImportService._format_batch_year(graduation_year)
+        return f"{first_name_clean}.{last_name_clean}.{batch_code}@pmc.edu.pk"
+
+    @staticmethod
+    def _generate_password(graduation_year: Optional[int] = None) -> str:
+        """
+        Generate a default password for student account.
+        Format: student{graduation_year} (e.g., student2031)
+        """
+        if graduation_year:
+            return f"student{graduation_year}"
+        # Fallback: generic password
+        return "student123"
+
+    @staticmethod
+    def _create_student_user(
+        student: Student,
+        graduation_year: Optional[int] = None
+    ) -> Tuple[User, bool]:
+        """
+        Create a user account for a student.
+        
+        Args:
+            student: Student record
+            graduation_year: Graduation year (from batch.start_year, which represents graduation year)
+        
+        Returns:
+            Tuple[User, bool]: (user_object, created_flag)
+        """
+        # Extract name parts for username/email generation
+        first_name, last_name = StudentImportService._extract_name_parts(student.name)
+        
+        # Generate username: firstname.b{year}
+        username = StudentImportService._generate_username(student.name, graduation_year)
+        
+        # Generate email: firstname.lastname.b{year}@pmc.edu.pk
+        email = StudentImportService._generate_email(student.name, graduation_year, student.email)
+        
+        # Generate password: student{graduation_year}
+        password = StudentImportService._generate_password(graduation_year)
+        
+        # Check if user already exists
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={
+                'email': email,
+                'first_name': first_name.capitalize(),
+                'last_name': last_name.title(),
+            }
+        )
+        
+        # Set password if user was just created
+        if created:
+            user.set_password(password)
+            user.save()
+        else:
+            # Update email if it changed
+            if user.email != email:
+                user.email = email
+                user.save(update_fields=['email'])
+        
+        # Ensure user is in Student group
+        student_group, _ = Group.objects.get_or_create(name="STUDENT")
+        user.groups.add(student_group)
+        
+        # Link user to student if not already linked
+        if not student.user:
+            student.user = user
+            student.save(update_fields=['user'])
+        
+        # Update student email if it was auto-generated
+        if not student.email or student.email.endswith('@sims.edu'):
+            student.email = email
+            student.save(update_fields=['email'])
+        
+        return user, created
 
     @staticmethod
     def preview(file, user, mode: str = ImportJob.MODE_CREATE_ONLY) -> Dict[str, Any]:
@@ -298,9 +424,29 @@ class StudentImportService:
                     if date_of_birth:
                         existing_student.date_of_birth = date_of_birth
                     existing_student.save()
+                    
+                    # Create user account if it doesn't exist
+                    if not existing_student.user:
+                        try:
+                            # batch.start_year represents graduation year
+                            graduation_year = batch.start_year if hasattr(batch, 'start_year') else None
+                            StudentImportService._create_student_user(
+                                student=existing_student,
+                                graduation_year=graduation_year
+                            )
+                        except Exception as user_error:
+                            import logging
+                            logger = logging.getLogger(__name__)
+                            logger.warning(
+                                f"Failed to create user account for existing student {reg_no}: {str(user_error)}"
+                            )
+                    
                     updated_count += 1
                 elif not exists:
                     # Create new
+                    # Use provided email or it will be auto-generated in _create_student_user
+                    student_email = normalized_row.get("email") or ""
+                    
                     student = Student.objects.create(
                         reg_no=reg_no,
                         name=normalized_row.get("name"),
@@ -308,10 +454,28 @@ class StudentImportService:
                         batch=batch,
                         group=group,
                         status=status,
-                        email=normalized_row.get("email") or "",
+                        email=student_email,
                         phone=normalized_row.get("phone") or "",
                         date_of_birth=date_of_birth,
                     )
+                    
+                    # Create user account for the student
+                    try:
+                        # batch.start_year represents graduation year
+                        graduation_year = batch.start_year if hasattr(batch, 'start_year') else None
+                        user, user_created = StudentImportService._create_student_user(
+                            student=student,
+                            graduation_year=graduation_year
+                        )
+                    except Exception as user_error:
+                        # Log error but don't fail the import
+                        # Student record is created, user can be created later
+                        import logging
+                        logger = logging.getLogger(__name__)
+                        logger.warning(
+                            f"Failed to create user account for student {reg_no}: {str(user_error)}"
+                        )
+                    
                     created_count += 1
                 else:
                     # CREATE_ONLY mode but student exists

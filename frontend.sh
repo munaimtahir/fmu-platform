@@ -1,9 +1,10 @@
 #!/bin/bash
 # FMU Platform - Frontend Deployment Script
 # This script deploys frontend-only changes:
-# 1. Rebuilds frontend container
-# 2. Restarts frontend service
-# 3. Verifies deployment
+# 1. Stops frontend service
+# 2. Rebuilds frontend container without cache
+# 3. Restarts frontend service
+# 4. Verifies deployment
 
 set -e  # Exit on error
 
@@ -82,7 +83,6 @@ echo ""
 echo "Frontend URL: http://127.0.0.1:8080"
 echo "Public URLs:"
 echo "  - https://sims.alshifalab.pk"
-echo "  - https://sims.pmc.edu.pk"
 echo ""
 echo "Useful Commands:"
 echo "----------------"

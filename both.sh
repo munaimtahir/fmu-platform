@@ -1,10 +1,10 @@
 #!/bin/bash
 # FMU Platform - Full Deployment Script
 # This script deploys both frontend and backend changes:
-# 1. Rebuilds both containers
-# 2. Restarts all services
-# 3. Runs migrations
-# 4. Collects static files
+# 1. Stops both services
+# 2. Rebuilds both containers without cache
+# 3. Restarts all services
+# 4. Runs migrations and collects static files
 # 5. Verifies deployment
 
 set -e  # Exit on error
@@ -138,13 +138,10 @@ echo -e "${BLUE}Backend API:${NC} http://127.0.0.1:8010"
 echo -e "${BLUE}Frontend:${NC} http://127.0.0.1:8080"
 echo -e "${BLUE}Public Frontend:${NC}"
 echo "  - https://sims.alshifalab.pk"
-echo "  - https://sims.pmc.edu.pk"
 echo -e "${BLUE}Public API:${NC}"
 echo "  - https://sims.alshifalab.pk/api/"
-echo "  - https://sims.pmc.edu.pk/api/"
 echo -e "${BLUE}Admin Panel:${NC}"
 echo "  - https://sims.alshifalab.pk/admin/"
-echo "  - https://sims.pmc.edu.pk/admin/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"

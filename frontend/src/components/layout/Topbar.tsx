@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/useAuth'
 import { searchService, SearchResult } from '@/services/search'
+import { ImpersonationDialog } from '@/components/admin/ImpersonationDialog'
 
 interface TopbarProps {
   onMenuClick?: () => void
@@ -12,6 +13,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isImpersonationDialogOpen, setIsImpersonationDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -266,6 +268,21 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
 
         {/* Right Side */}
         <div className="flex items-center gap-4">
+          {/* Impersonation Button (Admin only) */}
+          {user?.role === 'Admin' && (
+            <button
+              onClick={() => setIsImpersonationDialogOpen(true)}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-150"
+              aria-label="Impersonate user"
+              title="Impersonate user"
+            >
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21v-1m8 1v-1" />
+              </svg>
+            </button>
+          )}
+          
           {/* Notifications Placeholder */}
           <button
             className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-150 relative"
@@ -358,6 +375,12 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
           )}
         </div>
       </div>
+      
+      {/* Impersonation Dialog */}
+      <ImpersonationDialog
+        isOpen={isImpersonationDialogOpen}
+        onClose={() => setIsImpersonationDialogOpen(false)}
+      />
     </header>
   )
 }

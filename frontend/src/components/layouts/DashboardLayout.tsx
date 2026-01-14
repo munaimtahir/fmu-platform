@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Sidebar } from '../layout/Sidebar'
 import { Topbar } from '../layout/Topbar'
 import { Breadcrumbs } from '../layout/Breadcrumbs'
+import { ImpersonationBanner } from '../admin/ImpersonationBanner'
 
 export interface DashboardLayoutProps {
   /** The content to be rendered within the layout. */
@@ -62,6 +63,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         <Topbar onMenuClick={handleMobileMenuToggle} showMenuButton />
+        <ImpersonationBanner />
         
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto">

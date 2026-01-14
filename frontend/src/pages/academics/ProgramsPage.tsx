@@ -26,16 +26,17 @@ export const ProgramsPage: React.FC = () => {
         header: 'Program Name',
       },
       {
-        accessorKey: 'level_display',
-        header: 'Level',
+        accessorKey: 'structure_type',
+        header: 'Structure Type',
       },
       {
-        accessorKey: 'category_display',
-        header: 'Category',
-      },
-      {
-        accessorKey: 'duration_years',
-        header: 'Duration (Years)',
+        accessorKey: 'is_finalized',
+        header: 'Finalized',
+        cell: ({ row }) => (
+          <span className={row.original.is_finalized ? 'text-green-600' : 'text-gray-400'}>
+            {row.original.is_finalized ? 'Yes' : 'No'}
+          </span>
+        ),
       },
       {
         accessorKey: 'is_active',

@@ -161,8 +161,8 @@ frontend/
 
 1. User enters credentials on `/login` page
 2. Form validates inputs using Zod schema
-3. On submit, credentials are sent to `/api/auth/token/`
-4. Backend returns `access` and `refresh` tokens
+3. On submit, credentials are sent to `/api/auth/login/` with `{ identifier, password }`
+4. Backend returns `{ user, tokens: { access, refresh } }`
 5. Tokens are stored in localStorage
 6. Auth state is initialized from token
 7. User is redirected to `/dashboard`

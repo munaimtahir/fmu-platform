@@ -15,7 +15,6 @@ const studentSchema = z.object({
   reg_no: z.string().min(1, 'Registration number is required'),
   name: z.string().min(1, 'Name is required'),
   program: z.string().min(1, 'Program is required'),
-  batch_year: z.number().optional(),
   status: z.enum(['active', 'inactive', 'graduated', 'suspended']),
 })
 
@@ -62,14 +61,15 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
       }
       
       // For create, provide defaults if missing
+      // TODO: Form needs to be updated to select batch and group
+      // Backend requires: batch (FK), group (FK optional)
       if (!student) {
         const createData: Omit<Student, 'id'> = {
           reg_no: data.reg_no,
           name: data.name,
           program: programId,
           status: data.status,
-          batch_year: new Date().getFullYear(),
-          current_year: 1,
+          batch: 0, // TODO: Replace with actual batch selection
         }
         return studentsService.create(createData)
       }
@@ -155,26 +155,6 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
             {errors.program && (
               <p id="program-error" className="mt-1 text-sm text-red-600" role="alert">
                 {errors.program.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="batch_year" className="block text-sm font-medium mb-1">
-              Batch Year <span className="text-red-500" aria-label="required">*</span>
-            </label>
-            <Input 
-              id="batch_year"
-              type="number"
-              {...register('batch_year', { valueAsNumber: true })} 
-              error={errors.batch_year?.message}
-              aria-required="true"
-              aria-invalid={!!errors.batch_year}
-              aria-describedby={errors.batch_year ? 'batch-year-error' : undefined}
-            />
-            {errors.batch_year && (
-              <p id="batch-year-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.batch_year.message}
               </p>
             )}
           </div>

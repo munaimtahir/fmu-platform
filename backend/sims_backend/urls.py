@@ -182,6 +182,7 @@ urlpatterns = [
     # MVP apps
     path("", include("sims_backend.academics.urls")),
     path("", include("sims_backend.students.urls")),
+    path("", include("sims_backend.faculty.imports.urls")),
     path("", include("sims_backend.timetable.urls")),
     path("", include("sims_backend.attendance.urls")),
     path("", include("sims_backend.exams.urls")),

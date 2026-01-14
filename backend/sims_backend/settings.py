@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     "sims_backend.people",
     "sims_backend.academics",
     "sims_backend.students",
+    "sims_backend.faculty",
     "sims_backend.timetable",
     "sims_backend.attendance",
     "sims_backend.exams",
@@ -209,6 +210,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # REST Framework Settings
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        "sims_backend.admin.authentication.ImpersonationJWTAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
@@ -235,6 +237,9 @@ SIMPLE_JWT = {
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
 }
+
+# Impersonation Settings
+IMPERSONATION_TOKEN_LIFETIME_MINUTES = int(os.getenv("IMPERSONATION_TOKEN_LIFETIME_MINUTES", "10"))
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "SIMS API",

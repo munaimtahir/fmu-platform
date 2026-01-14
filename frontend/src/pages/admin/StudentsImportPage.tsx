@@ -7,25 +7,37 @@ import { ImportUploader } from '@/components/admin/import/ImportUploader'
 import { ImportPreviewTable } from '@/components/admin/import/ImportPreviewTable'
 import { ImportHistoryTable } from '@/components/admin/import/ImportHistoryTable'
 import {
-  previewImport,
-  commitImport,
-  downloadTemplate,
-  downloadErrorReport,
+  previewImport as previewStudentImport,
+  commitImport as commitStudentImport,
+  downloadTemplate as downloadStudentTemplate,
+  downloadErrorReport as downloadStudentErrorReport,
 } from '@/api/studentImport'
+import {
+  previewImport as previewFacultyImport,
+  commitImport as commitFacultyImport,
+  downloadTemplate as downloadFacultyTemplate,
+  downloadErrorReport as downloadFacultyErrorReport,
+} from '@/api/facultyImport'
 import type {
-  PreviewResponse,
-  CommitResponse,
+  PreviewResponse as StudentPreviewResponse,
+  CommitResponse as StudentCommitResponse,
   ImportMode,
 } from '@/types/studentImport'
+import type {
+  PreviewResponse as FacultyPreviewResponse,
+  CommitResponse as FacultyCommitResponse,
+} from '@/types/facultyImport'
 
 type ViewMode = 'upload' | 'preview' | 'history'
+type ImportType = 'student' | 'faculty'
 
 export function StudentsImportPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('upload')
+  const [importType, setImportType] = useState<ImportType>('student')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [previewData, setPreviewData] = useState<PreviewResponse | null>(null)
+  const [previewData, setPreviewData] = useState<StudentPreviewResponse | FacultyPreviewResponse | null>(null)
   const [importJobId, setImportJobId] = useState<string | null>(null)
 
   const handlePreview = async (file: File, mode: ImportMode) => {
@@ -34,7 +46,9 @@ export function StudentsImportPage() {
     setSuccess(null)
 
     try {
-      const result = await previewImport(file, mode)
+      const result = importType === 'student'
+        ? await previewStudentImport(file, mode)
+        : await previewFacultyImport(file, mode)
       setPreviewData(result)
       setImportJobId(result.import_job_id)
       setViewMode('preview')
@@ -55,7 +69,9 @@ export function StudentsImportPage() {
     setSuccess(null)
 
     try {
-      const result: CommitResponse = await commitImport(importJobId, true)
+      const result = importType === 'student'
+        ? await commitStudentImport(importJobId, true)
+        : await commitFacultyImport(importJobId, true)
       setSuccess(
         `Import completed! Created: ${result.created_count}, Updated: ${result.updated_count}, Failed: ${result.failed_count}`
       )
@@ -73,11 +89,15 @@ export function StudentsImportPage() {
 
   const handleDownloadTemplate = async () => {
     try {
-      const blob = await downloadTemplate()
+      const blob = importType === 'student'
+        ? await downloadStudentTemplate()
+        : await downloadFacultyTemplate()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = 'students_import_template.csv'
+      a.download = importType === 'student'
+        ? 'students_import_template.csv'
+        : 'faculty_import_template.csv'
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -89,7 +109,9 @@ export function StudentsImportPage() {
 
   const handleDownloadErrors = async (jobId: string) => {
     try {
-      const blob = await downloadErrorReport(jobId)
+      const blob = importType === 'student'
+        ? await downloadStudentErrorReport(jobId)
+        : await downloadFacultyErrorReport(jobId)
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -114,11 +136,8 @@ export function StudentsImportPage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Student CSV Import</h1>
+        <h1 className="text-3xl font-bold">Bulk CSV Import</h1>
         <div className="flex gap-2">
-          <Button onClick={handleDownloadTemplate} variant="secondary">
-            Download Template
-          </Button>
           <Button
             onClick={() => setViewMode('history')}
             variant={viewMode === 'history' ? 'primary' : 'secondary'}
@@ -127,6 +146,46 @@ export function StudentsImportPage() {
           </Button>
         </div>
       </div>
+
+      {/* Import Type Selection */}
+      {viewMode === 'upload' && (
+        <div className="flex gap-4 mb-6">
+          <button
+            type="button"
+            onClick={() => {
+              setImportType('student')
+              setPreviewData(null)
+              setImportJobId(null)
+              setError(null)
+              setSuccess(null)
+            }}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              importType === 'student'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Student CSV Import
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setImportType('faculty')
+              setPreviewData(null)
+              setImportJobId(null)
+              setError(null)
+              setSuccess(null)
+            }}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              importType === 'faculty'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Faculty CSV Import
+          </button>
+        </div>
+      )}
 
       {error && (
         <Alert variant="error" >
@@ -142,10 +201,22 @@ export function StudentsImportPage() {
 
       {viewMode === 'upload' && (
         <Card>
+          <div className="mb-4">
+            <h2 className="text-2xl font-semibold mb-2">
+              {importType === 'student' ? 'Student CSV Import' : 'Faculty CSV Import'}
+            </h2>
+            <p className="text-gray-600">
+              {importType === 'student'
+                ? 'Upload a CSV file with student data. The file will be validated before import. User accounts will be automatically created with passwords.'
+                : 'Upload a CSV file with faculty data. The file will be validated before import. User accounts will be automatically created with passwords.'}
+            </p>
+          </div>
           <ImportUploader
             onPreview={handlePreview}
             loading={loading}
             onReset={handleReset}
+            onDownloadTemplate={handleDownloadTemplate}
+            importType={importType}
           />
         </Card>
       )}
@@ -154,7 +225,9 @@ export function StudentsImportPage() {
         <Card>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Import Preview</h2>
+              <h2 className="text-2xl font-semibold">
+                {importType === 'student' ? 'Student' : 'Faculty'} Import Preview
+              </h2>
               <Button onClick={handleReset} variant="secondary">
                 Upload New File
               </Button>
@@ -218,6 +291,7 @@ export function StudentsImportPage() {
                 // Could navigate to detail view
                 console.log('View details for job:', jobId)
               }}
+              importType={importType}
             />
           </div>
         </Card>

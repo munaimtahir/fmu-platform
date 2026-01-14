@@ -93,7 +93,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     if (token) {
       try {
-        // Fetch user info from /api/auth/me endpoint
+        // Use /api/auth/me/ as the canonical identity source (unified auth system)
+        // This endpoint returns the authenticated user based on the access token
         const user = await getCurrentUser()
         if (user) {
           // Check if we're impersonating

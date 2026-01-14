@@ -121,6 +121,15 @@ export function AttendanceInputPage() {
       toast.error('Select a session')
       return
     }
+    
+    const absentCount = roster.filter((s) => statusMap[s.student_id] === 'ABSENT').length
+    const totalCount = roster.length
+    
+    // Confirmation dialog
+    if (!window.confirm(`Submit attendance for ${totalCount} students (${absentCount} absent, ${totalCount - absentCount} present)?`)) {
+      return
+    }
+    
     const records = roster
       .filter((s) => statusMap[s.student_id] === 'ABSENT')
       .map((s) => ({
@@ -169,9 +178,23 @@ export function AttendanceInputPage() {
       toast.error('Run a dry-run first')
       return
     }
+    
+    if (!csvPreview) {
+      toast.error('No preview available')
+      return
+    }
+    
+    // Confirmation dialog
+    if (!window.confirm(`Commit attendance for ${csvPreview.matched} students from CSV?`)) {
+      return
+    }
+    
     try {
       await attendanceInputService.csvCommit(csvJobId)
       toast.success('CSV attendance committed')
+      setCsvPreview(null)
+      setCsvJobId(null)
+      setCsvFile(null)
     } catch (err) {
       console.error('Error committing CSV:', err)
       const errorMessage = err instanceof Error ? err.message : 'CSV commit failed'
@@ -205,14 +228,29 @@ export function AttendanceInputPage() {
       toast.error('Analyze a scan first')
       return
     }
+    
+    if (!sheetPreview || sheetPreview.length === 0) {
+      toast.error('No preview available')
+      return
+    }
+    
     const records =
-      sheetPreview?.map((row: SheetPreviewRecord) => ({
+      sheetPreview.map((row: SheetPreviewRecord) => ({
         student_id: row.student_id,
         status: row.detected_status === 'ABSENT' ? 'A' : 'P',
-      })) || []
+      }))
+    
+    // Confirmation dialog
+    if (!window.confirm(`Commit attendance for ${records.length} students from scanned sheet?`)) {
+      return
+    }
+    
     try {
       await attendanceInputService.sheetCommit(sheetJobId, records)
       toast.success('Scanned attendance committed')
+      setSheetPreview(null)
+      setSheetJobId(null)
+      setSheetFile(null)
     } catch (err) {
       console.error('Error committing sheet:', err)
       const errorMessage = err instanceof Error ? err.message : 'Sheet commit failed'

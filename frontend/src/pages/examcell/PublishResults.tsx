@@ -37,7 +37,7 @@ export function PublishResults() {
   useEffect(() => {
     const fetchSections = async () => {
       try {
-        const response = await api.get('/api/sections/')
+        const response = await api.get('/api/academics/sections/')
         setSections(response.data.results || response.data)
       } catch (err) {
         setError('Failed to load sections')

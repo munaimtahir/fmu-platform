@@ -1,7 +1,10 @@
 /**
  * Attendance API service
+ * 
+ * Backend endpoint: /api/attendance/
  */
 import api from '@/api/axios'
+import { warnOnInvalidResponse, validatePaginatedResponse, validateAttendanceResponse } from '@/api/responseGuards'
 import { Attendance, PaginatedResponse } from '@/types'
 
 export const attendanceService = {
@@ -17,6 +20,12 @@ export const attendanceService = {
     const response = await api.get<PaginatedResponse<Attendance>>('/api/attendance/', {
       params,
     })
+    // Lightweight runtime guard (dev-only warnings)
+    warnOnInvalidResponse(
+      (data) => validatePaginatedResponse(data, validateAttendanceResponse),
+      response.data,
+      '/api/attendance/'
+    )
     return response.data
   },
 

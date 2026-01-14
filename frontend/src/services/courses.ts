@@ -1,5 +1,7 @@
 /**
  * Course API service
+ * 
+ * Backend endpoint: /api/academics/courses/
  */
 import api from '@/api/axios'
 import { Course, PaginatedResponse } from '@/types'
@@ -13,7 +15,7 @@ export const coursesService = {
     search?: string
     program?: string
   }): Promise<PaginatedResponse<Course>> {
-    const response = await api.get<PaginatedResponse<Course>>('/api/courses/', {
+    const response = await api.get<PaginatedResponse<Course>>('/api/academics/courses/', {
       params,
     })
     return response.data
@@ -23,7 +25,7 @@ export const coursesService = {
    * Get a single course by ID
    */
   async getById(id: number): Promise<Course> {
-    const response = await api.get<Course>(`/api/courses/${id}/`)
+    const response = await api.get<Course>(`/api/academics/courses/${id}/`)
     return response.data
   },
 
@@ -31,7 +33,7 @@ export const coursesService = {
    * Create a new course
    */
   async create(data: Omit<Course, 'id'>): Promise<Course> {
-    const response = await api.post<Course>('/api/courses/', data)
+    const response = await api.post<Course>('/api/academics/courses/', data)
     return response.data
   },
 
@@ -39,7 +41,7 @@ export const coursesService = {
    * Update an existing course
    */
   async update(id: number, data: Partial<Course>): Promise<Course> {
-    const response = await api.patch<Course>(`/api/courses/${id}/`, data)
+    const response = await api.patch<Course>(`/api/academics/courses/${id}/`, data)
     return response.data
   },
 
@@ -47,6 +49,6 @@ export const coursesService = {
    * Delete a course
    */
   async delete(id: number): Promise<void> {
-    await api.delete(`/api/courses/${id}/`)
+    await api.delete(`/api/academics/courses/${id}/`)
   },
 }

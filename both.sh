@@ -1,9 +1,9 @@
 #!/bin/bash
-# FMU Platform - Full Deployment Script
+# FMU Platform - Full Stack Deployment Script
 # This script deploys both frontend and backend changes:
-# 1. Stops both services
+# 1. Stops both frontend and backend services
 # 2. Rebuilds both containers without cache
-# 3. Restarts all services
+# 3. Restarts both services
 # 4. Runs migrations and collects static files
 # 5. Verifies deployment
 
@@ -12,7 +12,7 @@ set -e  # Exit on error
 cd "$(dirname "$0")"
 
 echo "=========================================="
-echo "FMU Platform - Full Deployment"
+echo "FMU Platform - Full Stack Deployment"
 echo "=========================================="
 echo ""
 
@@ -36,59 +36,26 @@ docker compose -f docker-compose.prod.yml stop frontend backend
 echo -e "${GREEN}✓ Services stopped${NC}"
 
 echo ""
-echo -e "${BLUE}Step 2: Rebuilding all containers (no cache)...${NC}"
+echo -e "${BLUE}Step 2: Rebuilding containers (no cache)...${NC}"
 echo "-----------------------------------"
 docker compose -f docker-compose.prod.yml build --no-cache frontend backend
-echo -e "${GREEN}✓ All images built successfully${NC}"
+echo -e "${GREEN}✓ Images built successfully${NC}"
 
 echo ""
-echo -e "${BLUE}Step 3: Starting all services...${NC}"
+echo -e "${BLUE}Step 3: Starting services...${NC}"
 echo "-----------------------------------"
-docker compose -f docker-compose.prod.yml up -d
-echo -e "${GREEN}✓ All services restarted${NC}"
+docker compose -f docker-compose.prod.yml up -d frontend backend
+echo -e "${GREEN}✓ Services restarted${NC}"
 
 echo ""
-echo -e "${BLUE}Step 4: Waiting for services to be healthy...${NC}"
+echo -e "${BLUE}Step 4: Waiting for services to be ready...${NC}"
 echo "-----------------------------------"
-sleep 15
+sleep 10
 
-# Check if all required services are running
-echo ""
-echo -e "${BLUE}Checking service status...${NC}"
-echo "-----------------------------------"
-
-SERVICES_OK=true
-
-if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_db_prod.*Up"; then
-    echo -e "${GREEN}✓ Database container is running${NC}"
-else
+# Check if database is ready
+if ! docker compose -f docker-compose.prod.yml ps | grep -q "fmu_db_prod.*Up"; then
     echo -e "${RED}✗ Database container is not running${NC}"
-    SERVICES_OK=false
-fi
-
-if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_redis_prod.*Up"; then
-    echo -e "${GREEN}✓ Redis container is running${NC}"
-else
-    echo -e "${YELLOW}⚠️  Redis container is not running (optional)${NC}"
-fi
-
-if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_backend_prod.*Up"; then
-    echo -e "${GREEN}✓ Backend container is running${NC}"
-else
-    echo -e "${RED}✗ Backend container is not running${NC}"
-    SERVICES_OK=false
-fi
-
-if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_frontend_prod.*Up"; then
-    echo -e "${GREEN}✓ Frontend container is running${NC}"
-else
-    echo -e "${RED}✗ Frontend container is not running${NC}"
-    SERVICES_OK=false
-fi
-
-if [ "$SERVICES_OK" = false ]; then
-    echo -e "${RED}✗ Some critical services failed to start${NC}"
-    echo "Check logs with: docker compose -f docker-compose.prod.yml logs"
+    echo "Check logs with: docker compose -f docker-compose.prod.yml logs db"
     exit 1
 fi
 
@@ -108,46 +75,63 @@ echo ""
 echo -e "${BLUE}Step 7: Verifying deployment...${NC}"
 echo "-----------------------------------"
 
+# Check if backend container is running
+if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_backend_prod.*Up"; then
+    echo -e "${GREEN}✓ Backend container is running${NC}"
+else
+    echo -e "${RED}✗ Backend container is not running${NC}"
+    echo "Check logs with: docker compose -f docker-compose.prod.yml logs backend"
+    exit 1
+fi
+
+# Check if frontend container is running
+if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_frontend_prod.*Up"; then
+    echo -e "${GREEN}✓ Frontend container is running${NC}"
+else
+    echo -e "${RED}✗ Frontend container is not running${NC}"
+    echo "Check logs with: docker compose -f docker-compose.prod.yml logs frontend"
+    exit 1
+fi
+
 # Test backend health endpoint
 HEALTH_RESPONSE=$(curl -s http://127.0.0.1:8010/api/health/ || echo "error")
 if echo "$HEALTH_RESPONSE" | grep -q '"status"'; then
     echo -e "${GREEN}✓ Backend API is responding${NC}"
 else
-    echo -e "${YELLOW}⚠️  Backend API health check inconclusive (may need more time)${NC}"
+    echo -e "${YELLOW}⚠️  Backend API health check inconclusive (this is okay if container just started)${NC}"
 fi
 
 # Test frontend endpoint
-if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8080 | grep -q "200\|302"; then
-    echo -e "${GREEN}✓ Frontend is accessible${NC}"
+FRONTEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8080/ || echo "000")
+if [ "$FRONTEND_RESPONSE" = "200" ] || [ "$FRONTEND_RESPONSE" = "304" ]; then
+    echo -e "${GREEN}✓ Frontend is responding${NC}"
 else
-    echo -e "${YELLOW}⚠️  Frontend endpoint test inconclusive (may need more time)${NC}"
+    echo -e "${YELLOW}⚠️  Frontend health check inconclusive (HTTP $FRONTEND_RESPONSE)${NC}"
 fi
 
 echo ""
 echo "=========================================="
-echo -e "${GREEN}✅ Full Deployment Complete!${NC}"
+echo -e "${GREEN}✅ Full Stack Deployment Complete!${NC}"
 echo "=========================================="
 echo ""
 echo "Service Status:"
 echo "---------------"
-docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml ps frontend backend
 echo ""
-echo "Service URLs:"
-echo "-------------"
-echo -e "${BLUE}Backend API:${NC} http://127.0.0.1:8010"
-echo -e "${BLUE}Frontend:${NC} http://127.0.0.1:8080"
-echo -e "${BLUE}Public Frontend:${NC}"
-echo "  - https://sims.alshifalab.pk"
-echo -e "${BLUE}Public API:${NC}"
-echo "  - https://sims.alshifalab.pk/api/"
-echo -e "${BLUE}Admin Panel:${NC}"
-echo "  - https://sims.alshifalab.pk/admin/"
+echo "Local URLs:"
+echo "  - Frontend: http://127.0.0.1:8080"
+echo "  - Backend API: http://127.0.0.1:8010"
+echo ""
+echo "Public URLs:"
+echo "  - Frontend: https://sims.alshifalab.pk/"
+echo "  - Backend API: https://sims.alshifalab.pk/api/"
+echo "  - Admin Panel: https://sims.alshifalab.pk/admin/"
+echo "  - Server IP: http://34.16.82.13/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"
-echo "  View all logs: docker compose -f docker-compose.prod.yml logs -f"
-echo "  View backend logs: docker compose -f docker-compose.prod.yml logs -f backend"
-echo "  View frontend logs: docker compose -f docker-compose.prod.yml logs -f frontend"
+echo "  View logs: docker compose -f docker-compose.prod.yml logs -f"
 echo "  Check status: docker compose -f docker-compose.prod.yml ps"
 echo "  Test backend: curl http://127.0.0.1:8010/api/health/"
+echo "  Test frontend: curl -I http://127.0.0.1:8080/"
 echo ""

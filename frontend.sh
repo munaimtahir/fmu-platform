@@ -24,7 +24,7 @@ NC='\033[0m' # No Color
 
 # Check if .env exists
 if [ ! -f ".env" ]; then
-    echo -e "${YELLOW}⚠️  .env file not found!${NC}"
+    echo -e "${RED}✗ .env file not found!${NC}"
     echo "Please create .env file with required environment variables."
     exit 1
 fi
@@ -65,10 +65,11 @@ else
 fi
 
 # Test frontend endpoint
-if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8080 | grep -q "200\|302"; then
-    echo -e "${GREEN}✓ Frontend is accessible on http://127.0.0.1:8080${NC}"
+FRONTEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8080/ || echo "000")
+if [ "$FRONTEND_RESPONSE" = "200" ] || [ "$FRONTEND_RESPONSE" = "304" ]; then
+    echo -e "${GREEN}✓ Frontend is responding${NC}"
 else
-    echo -e "${YELLOW}⚠️  Frontend endpoint test inconclusive (this is okay if container just started)${NC}"
+    echo -e "${YELLOW}⚠️  Frontend health check inconclusive (HTTP $FRONTEND_RESPONSE)${NC}"
 fi
 
 echo ""
@@ -82,10 +83,12 @@ docker compose -f docker-compose.prod.yml ps frontend
 echo ""
 echo "Frontend URL: http://127.0.0.1:8080"
 echo "Public URLs:"
-echo "  - https://sims.alshifalab.pk"
+echo "  - https://sims.alshifalab.pk/"
+echo "  - http://34.16.82.13/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"
 echo "  View logs: docker compose -f docker-compose.prod.yml logs -f frontend"
 echo "  Check status: docker compose -f docker-compose.prod.yml ps frontend"
+echo "  Test frontend: curl -I http://127.0.0.1:8080/"
 echo ""

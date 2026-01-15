@@ -10,6 +10,7 @@ from django.core.management import call_command
 from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
+from django.views.decorators.csrf import csrf_exempt
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,

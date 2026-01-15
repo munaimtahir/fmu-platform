@@ -40,6 +40,7 @@ services:
       POSTGRES_PASSWORD: your-secure-database-password-here
     depends_on:
       - db
+      - redis
     volumes:
       - ./backend/staticfiles:/app/staticfiles
       - ./backend/media:/app/media
@@ -56,7 +57,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.prod
       args:
-        VITE_API_URL: ${VITE_API_URL:-https://api.sims.alshifalab.pk}
+        VITE_API_URL: ${VITE_API_URL:-https://sims.alshifalab.pk/api}
     container_name: fmu_frontend_prod
     ports:
       # Production: bind to 127.0.0.1 for Caddy reverse proxy

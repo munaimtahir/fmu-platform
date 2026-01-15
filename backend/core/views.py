@@ -3,6 +3,8 @@
 import logging
 
 from django.db.models import Sum
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, viewsets
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.decorators import api_view, permission_classes
@@ -42,6 +44,7 @@ from .permissions import PermissionTaskRequired
 logger = logging.getLogger(__name__)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UnifiedLoginView(APIView):
     """
     Unified login endpoint that accepts identifier (email OR username) and password.
@@ -59,6 +62,27 @@ class UnifiedLoginView(APIView):
 
     def post(self, request):
         """Handle login request."""
+        # Manually parse request body if DRF didn't (for csrf_exempt views)
+        try:
+            if not hasattr(request, 'data') or request.data is None or (hasattr(request, 'data') and len(request.data) == 0):
+                import json
+                from rest_framework.parsers import JSONParser
+                from io import BytesIO
+                parser = JSONParser()
+                stream = BytesIO(request.body)
+                parsed_data = parser.parse(stream)
+                # Create a DRF request-like object
+                from rest_framework.request import Request
+                drf_request = Request(request)
+                drf_request._full_data = parsed_data
+                request = drf_request
+        except Exception as e:
+            logger.error(f"Failed to parse request body: {e}")
+            return Response(
+                {"error": {"code": "invalid_request", "message": f"Invalid JSON in request body: {str(e)}"}},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         serializer = UnifiedLoginSerializer(data=request.data)
 
         if not serializer.is_valid():

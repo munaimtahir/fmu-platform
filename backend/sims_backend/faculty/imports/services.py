@@ -442,13 +442,6 @@ class FacultyImportService:
                         **normalized_row,
                         "error_message": f"Faculty with email '{email}' already exists. Use UPSERT mode to update.",
                     })
-                else:
-                    # CREATE_ONLY mode but faculty exists
-                    failed_count += 1
-                    error_rows.append({
-                        **normalized_row,
-                        "error_message": f"Faculty with email '{email}' already exists. Use UPSERT mode to update.",
-                    })
             except Exception as e:
                 failed_count += 1
                 error_rows.append({

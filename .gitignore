@@ -140,6 +140,8 @@ celerybeat.pid
 # Environments
 .envrc
 .env
+.env.*
+!.env.example
 .venv
 env/
 venv/
@@ -217,3 +219,15 @@ yarn-error.log
 dist/
 build/
 backend/tests_disabled/
+
+# Database dumps / backups (SECURITY)
+*.dump
+*.sql
+*.bak
+*.backup
+
+# Credentials & secrets (SECURITY)
+*credentials*.md
+*password*.txt
+*secrets*.txt
+*keys*.txt

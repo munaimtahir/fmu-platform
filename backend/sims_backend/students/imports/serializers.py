@@ -12,6 +12,11 @@ class PreviewRequestSerializer(serializers.Serializer):
         default=ImportJob.MODE_CREATE_ONLY,
         help_text="Import mode: CREATE_ONLY or UPSERT"
     )
+    auto_create = serializers.BooleanField(
+        default=False,
+        required=False,
+        help_text="Automatically create missing Programs, Batches, and Groups"
+    )
 
 
 class RowErrorSerializer(serializers.Serializer):
@@ -43,6 +48,11 @@ class CommitRequestSerializer(serializers.Serializer):
     """Serializer for commit request"""
     import_job_id = serializers.UUIDField(help_text="ID of the previewed import job")
     confirm = serializers.BooleanField(help_text="Must be True to confirm commit")
+    auto_create = serializers.BooleanField(
+        default=False,
+        required=False,
+        help_text="Automatically create missing Programs, Batches, and Groups (must match preview setting)"
+    )
 
 
 class CommitResponseSerializer(serializers.Serializer):
@@ -63,7 +73,7 @@ class ImportJobSerializer(serializers.ModelSerializer):
         model = ImportJob
         fields = [
             'id', 'created_by', 'created_by_username', 'created_at', 'finished_at',
-            'status', 'mode', 'original_filename', 'file_hash',
+            'status', 'mode', 'auto_create', 'original_filename', 'file_hash',
             'total_rows', 'valid_rows', 'invalid_rows',
             'created_count', 'updated_count', 'failed_count',
             'error_report_file', 'summary'

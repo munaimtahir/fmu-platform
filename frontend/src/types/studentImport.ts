@@ -35,6 +35,7 @@ export interface PreviewResponse {
 export interface CommitRequest {
   import_job_id: string
   confirm: boolean
+  auto_create?: boolean
 }
 
 export interface CommitResponse {
@@ -54,6 +55,7 @@ export interface ImportJob {
   finished_at: string | null
   status: ImportJobStatus
   mode: ImportMode
+  auto_create: boolean
   original_filename: string
   file_hash: string
   total_rows: number

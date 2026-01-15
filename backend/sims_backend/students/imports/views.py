@@ -35,9 +35,10 @@ class StudentImportViewSet(viewsets.ViewSet):
         
         file = serializer.validated_data['file']
         mode = serializer.validated_data.get('mode', ImportJob.MODE_CREATE_ONLY)
+        auto_create = serializer.validated_data.get('auto_create', False)
         
         try:
-            result = StudentImportService.preview(file, request.user, mode)
+            result = StudentImportService.preview(file, request.user, mode, auto_create=auto_create)
             response_serializer = PreviewResponseSerializer(result)
             return Response(response_serializer.data, status=status.HTTP_200_OK)
         except ValueError as e:
@@ -62,6 +63,7 @@ class StudentImportViewSet(viewsets.ViewSet):
         
         import_job_id = serializer.validated_data['import_job_id']
         confirm = serializer.validated_data.get('confirm', False)
+        auto_create = serializer.validated_data.get('auto_create', None)  # None means use from ImportJob
         
         if not confirm:
             return Response(
@@ -70,7 +72,7 @@ class StudentImportViewSet(viewsets.ViewSet):
             )
         
         try:
-            result = StudentImportService.commit(str(import_job_id), request.user)
+            result = StudentImportService.commit(str(import_job_id), request.user, auto_create=auto_create)
             response_serializer = CommitResponseSerializer(result)
             return Response(response_serializer.data, status=status.HTTP_200_OK)
         except ValueError as e:

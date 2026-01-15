@@ -161,7 +161,7 @@ class StudentImportService:
         return user, created
 
     @staticmethod
-    def preview(file, user, mode: str = ImportJob.MODE_CREATE_ONLY) -> Dict[str, Any]:
+    def preview(file, user, mode: str = ImportJob.MODE_CREATE_ONLY, auto_create: bool = False) -> Dict[str, Any]:
         """
         Phase 1: Parse and validate CSV file without writing to database.
         Returns preview results with validation summary.
@@ -170,6 +170,7 @@ class StudentImportService:
         import_job = ImportJob.objects.create(
             created_by=user,
             mode=mode,
+            auto_create=auto_create,
             original_filename=file.name,
             status=ImportJob.STATUS_PENDING,
         )
@@ -233,21 +234,23 @@ class StudentImportService:
             status_raw = normalized_row.get("status", "").strip()
             errors.extend(validate_status_choice(status_raw, row_num))
             
-            # Resolve FK relationships
-            program, program_errors = resolve_program(normalized_row.get("program_name"), row_num)
+            # Resolve FK relationships (with auto-create if enabled)
+            program, program_errors = resolve_program(normalized_row.get("program_name"), row_num, auto_create=auto_create)
             errors.extend(program_errors)
             
             batch, batch_errors = resolve_batch(
                 normalized_row.get("batch_name"),
                 program,
-                row_num
+                row_num,
+                auto_create=auto_create
             )
             errors.extend(batch_errors)
             
             group, group_errors = resolve_group(
                 normalized_row.get("group_name"),
                 batch,
-                row_num
+                row_num,
+                auto_create=auto_create
             )
             errors.extend(group_errors)
             
@@ -315,7 +318,7 @@ class StudentImportService:
 
     @staticmethod
     @transaction.atomic
-    def commit(import_job_id: str, user) -> Dict[str, Any]:
+    def commit(import_job_id: str, user, auto_create: bool = False) -> Dict[str, Any]:
         """
         Phase 2: Commit validated rows to database.
         Only processes rows that were marked as valid in preview.
@@ -328,6 +331,10 @@ class StudentImportService:
         # Ensure job is in PREVIEWED status
         if import_job.status != ImportJob.STATUS_PREVIEWED:
             raise ValueError(f"ImportJob must be in PREVIEWED status. Current status: {import_job.status}")
+        
+        # Use auto_create setting from import_job (or override if provided)
+        if auto_create is None:
+            auto_create = import_job.auto_create
         
         # Re-parse and re-validate (for safety)
         rows = parse_csv_file(import_job.file)
@@ -357,21 +364,23 @@ class StudentImportService:
             reg_no = normalized_row.get("reg_no", "").strip()
             errors.extend(check_duplicate_in_file(reg_no, idx, seen_reg_nos))
             
-            # Resolve FKs
-            program, program_errors = resolve_program(normalized_row.get("program_name"), row_num)
+            # Resolve FKs (with auto-create if enabled)
+            program, program_errors = resolve_program(normalized_row.get("program_name"), row_num, auto_create=auto_create)
             errors.extend(program_errors)
             
             batch, batch_errors = resolve_batch(
                 normalized_row.get("batch_name"),
                 program,
-                row_num
+                row_num,
+                auto_create=auto_create
             )
             errors.extend(batch_errors)
             
             group, group_errors = resolve_group(
                 normalized_row.get("group_name"),
                 batch,
-                row_num
+                row_num,
+                auto_create=auto_create
             )
             errors.extend(group_errors)
             

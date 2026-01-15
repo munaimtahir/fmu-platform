@@ -54,6 +54,10 @@ class ImportJob(TimeStampedModel):
         default=MODE_CREATE_ONLY,
         help_text="Import mode: create-only or upsert",
     )
+    auto_create = models.BooleanField(
+        default=False,
+        help_text="Automatically create missing Programs, Batches, and Groups",
+    )
     original_filename = models.CharField(
         max_length=255,
         help_text="Original filename of the uploaded CSV",

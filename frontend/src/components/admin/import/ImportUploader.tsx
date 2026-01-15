@@ -5,7 +5,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import type { ImportMode } from '@/types/studentImport'
 
 interface ImportUploaderProps {
-  onPreview: (file: File, mode: ImportMode) => void
+  onPreview: (file: File, mode: ImportMode, autoCreate: boolean) => void
   loading: boolean
   onReset: () => void
   onDownloadTemplate: () => Promise<void>
@@ -21,6 +21,7 @@ export function ImportUploader({
 }: ImportUploaderProps) {
   const [file, setFile] = useState<File | null>(null)
   const [mode, setMode] = useState<ImportMode>('CREATE_ONLY')
+  const [autoCreate, setAutoCreate] = useState<boolean>(false)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -31,7 +32,7 @@ export function ImportUploader({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (file) {
-      onPreview(file, mode)
+      onPreview(file, mode, autoCreate)
     }
   }
 
@@ -89,6 +90,26 @@ export function ImportUploader({
           </label>
         </div>
       </div>
+
+      {importType === 'student' && (
+        <div>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={autoCreate}
+              onChange={(e) => setAutoCreate(e.target.checked)}
+              className="mr-2"
+            />
+            <div>
+              <div className="font-medium">Auto-create missing Programs, Batches, and Groups</div>
+              <div className="text-sm text-gray-500">
+                Automatically create Programs, Batches, and Groups if they don't exist in the system.
+                This makes imports more flexible but requires careful batch name formatting (e.g., "2029 Batch").
+              </div>
+            </div>
+          </label>
+        </div>
+      )}
 
       <div>
         <div className="flex justify-between items-center mb-2">

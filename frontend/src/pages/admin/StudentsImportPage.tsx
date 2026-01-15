@@ -38,14 +38,14 @@ export function StudentsImportPage() {
   const [previewData, setPreviewData] = useState<StudentPreviewResponse | FacultyPreviewResponse | null>(null)
   const [importJobId, setImportJobId] = useState<string | null>(null)
 
-  const handlePreview = async (file: File, mode: ImportMode) => {
+  const handlePreview = async (file: File, mode: ImportMode, autoCreate: boolean = false) => {
     setLoading(true)
     setError(null)
     setSuccess(null)
 
     try {
       const result = importType === 'student'
-        ? await previewStudentImport(file, mode)
+        ? await previewStudentImport(file, mode, autoCreate)
         : await previewFacultyImport(file, mode)
       setPreviewData(result)
       setImportJobId(result.import_job_id)

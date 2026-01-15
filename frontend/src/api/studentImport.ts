@@ -15,11 +15,13 @@ import type {
  */
 export async function previewImport(
   file: File,
-  mode: ImportMode = 'CREATE_ONLY'
+  mode: ImportMode = 'CREATE_ONLY',
+  autoCreate: boolean = false
 ): Promise<PreviewResponse> {
   const formData = new FormData()
   formData.append('file', file)
   formData.append('mode', mode)
+  formData.append('auto_create', String(autoCreate))
 
   const response = await api.post<PreviewResponse>(
     '/api/admin/students/import/preview/',
@@ -39,14 +41,20 @@ export async function previewImport(
  */
 export async function commitImport(
   importJobId: string,
-  confirm: boolean = true
+  confirm: boolean = true,
+  autoCreate?: boolean
 ): Promise<CommitResponse> {
+  const payload: CommitRequest = {
+    import_job_id: importJobId,
+    confirm,
+  }
+  if (autoCreate !== undefined) {
+    payload.auto_create = autoCreate
+  }
+
   const response = await api.post<CommitResponse>(
     '/api/admin/students/import/commit/',
-    {
-      import_job_id: importJobId,
-      confirm,
-    } as CommitRequest
+    payload
   )
 
   return response.data

@@ -62,10 +62,11 @@ def normalize_status(status: Optional[str]) -> Optional[str]:
     return None
 
 
-def resolve_program(program_name: Optional[str], row_num: int) -> Tuple[Optional[Program], List[Dict[str, str]]]:
+def resolve_program(program_name: Optional[str], row_num: int, auto_create: bool = False) -> Tuple[Optional[Program], List[Dict[str, str]]]:
     """
     Resolve Program by name (case-insensitive).
-    Returns (Program instance or None, list of errors)
+    If auto_create=True and program doesn't exist, creates it automatically.
+    Returns (Program instance or None, list of errors/warnings)
     """
     errors = []
     if not program_name:
@@ -75,18 +76,57 @@ def resolve_program(program_name: Optional[str], row_num: int) -> Tuple[Optional
     program = Program.objects.filter(name__iexact=program_name).first()
     
     if not program:
-        errors.append({
-            "column": "program_name",
-            "message": f"Unknown program '{program_name}'. Program not found."
-        })
+        if auto_create:
+            # Auto-create program
+            try:
+                program = Program.objects.create(
+                    name=program_name,
+                    is_active=True,
+                    structure_type=Program.STRUCTURE_TYPE_YEARLY,
+                )
+                errors.append({
+                    "column": "program_name",
+                    "message": f"Program '{program_name}' was automatically created."
+                })
+            except Exception as e:
+                errors.append({
+                    "column": "program_name",
+                    "message": f"Failed to auto-create program '{program_name}': {str(e)}"
+                })
+        else:
+            errors.append({
+                "column": "program_name",
+                "message": f"Unknown program '{program_name}'. Program not found."
+            })
     
     return program, errors
 
 
-def resolve_batch(batch_name: Optional[str], program: Optional[Program], row_num: int) -> Tuple[Optional[Batch], List[Dict[str, str]]]:
+def extract_graduation_year_from_batch_name(batch_name: str) -> Optional[int]:
+    """
+    Extract graduation year from batch name.
+    Examples:
+        "2029 Batch" -> 2029
+        "2024 Batch" -> 2024
+        "Fall 2024" -> 2024
+        "Batch 2031" -> 2031
+    """
+    import re
+    # Try to find 4-digit year
+    year_match = re.search(r'\b(20\d{2})\b', batch_name)
+    if year_match:
+        try:
+            return int(year_match.group(1))
+        except ValueError:
+            pass
+    return None
+
+
+def resolve_batch(batch_name: Optional[str], program: Optional[Program], row_num: int, auto_create: bool = False) -> Tuple[Optional[Batch], List[Dict[str, str]]]:
     """
     Resolve Batch by name, scoped to Program (case-insensitive).
-    Returns (Batch instance or None, list of errors)
+    If auto_create=True and batch doesn't exist, creates it automatically.
+    Returns (Batch instance or None, list of errors/warnings)
     """
     errors = []
     if not batch_name:
@@ -103,18 +143,52 @@ def resolve_batch(batch_name: Optional[str], program: Optional[Program], row_num
     batch = Batch.objects.filter(program=program, name__iexact=batch_name).first()
     
     if not batch:
-        errors.append({
-            "column": "batch_name",
-            "message": f"Batch '{batch_name}' not found under Program '{program.name}'"
-        })
+        if auto_create:
+            # Try to extract graduation year from batch name
+            graduation_year = extract_graduation_year_from_batch_name(batch_name)
+            
+            if not graduation_year:
+                # Default to current year + 5 for MBBS (5-year program)
+                # Or use a reasonable default
+                from datetime import date
+                current_year = date.today().year
+                # If batch name contains "Year 1" or similar, assume 5-year program
+                if "year 1" in batch_name.lower() or "1st year" in batch_name.lower():
+                    graduation_year = current_year + 5
+                else:
+                    # Try to extract any year, or default
+                    graduation_year = current_year + 5
+            
+            try:
+                batch = Batch.objects.create(
+                    program=program,
+                    name=batch_name,
+                    start_year=graduation_year,
+                    is_active=True,
+                )
+                errors.append({
+                    "column": "batch_name",
+                    "message": f"Batch '{batch_name}' was automatically created with graduation year {graduation_year}."
+                })
+            except Exception as e:
+                errors.append({
+                    "column": "batch_name",
+                    "message": f"Failed to auto-create batch '{batch_name}': {str(e)}"
+                })
+        else:
+            errors.append({
+                "column": "batch_name",
+                "message": f"Batch '{batch_name}' not found under Program '{program.name}'"
+            })
     
     return batch, errors
 
 
-def resolve_group(group_name: Optional[str], batch: Optional[Batch], row_num: int) -> Tuple[Optional[Group], List[Dict[str, str]]]:
+def resolve_group(group_name: Optional[str], batch: Optional[Batch], row_num: int, auto_create: bool = False) -> Tuple[Optional[Group], List[Dict[str, str]]]:
     """
     Resolve Group by name, scoped to Batch (case-insensitive).
-    Returns (Group instance or None, list of errors)
+    If auto_create=True and group doesn't exist, creates it automatically.
+    Returns (Group instance or None, list of errors/warnings)
     """
     errors = []
     if not group_name:
@@ -131,10 +205,26 @@ def resolve_group(group_name: Optional[str], batch: Optional[Batch], row_num: in
     group = Group.objects.filter(batch=batch, name__iexact=group_name).first()
     
     if not group:
-        errors.append({
-            "column": "group_name",
-            "message": f"Group '{group_name}' not found under Batch '{batch.name}'"
-        })
+        if auto_create:
+            try:
+                group = Group.objects.create(
+                    batch=batch,
+                    name=group_name,
+                )
+                errors.append({
+                    "column": "group_name",
+                    "message": f"Group '{group_name}' was automatically created."
+                })
+            except Exception as e:
+                errors.append({
+                    "column": "group_name",
+                    "message": f"Failed to auto-create group '{group_name}': {str(e)}"
+                })
+        else:
+            errors.append({
+                "column": "group_name",
+                "message": f"Group '{group_name}' not found under Batch '{batch.name}'"
+            })
     
     return group, errors
 

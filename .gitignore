@@ -217,3 +217,20 @@ yarn-error.log
 dist/
 build/
 backend/tests_disabled/
+
+# Security: Environment files
+.env
+.env.*
+!.env.example
+
+# Security: Database dumps / backups
+*.dump
+*.sql
+*.bak
+*.backup
+
+# Security: Credentials
+*credentials*.md
+*password*.txt
+*secrets*.txt
+*keys*.txt

@@ -50,16 +50,16 @@ export const TracksManagement: React.FC<TracksManagementProps> = ({ programId })
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Tracks</h3>
-        <Button onClick={handleCreate}>Create Track</Button>
+        <h3 className="text-lg font-semibold">Batches</h3>
+        <Button onClick={handleCreate}>Create Batch</Button>
       </div>
 
       {tracks && tracks.length === 0 ? (
         <EmptyState
           icon="🎯"
-          title="No tracks found"
-          description="Create tracks to organize parallel learning paths"
-          action={{ label: 'Create First Track', onClick: handleCreate }}
+          title="No batches found"
+          description="Create batches to organize parallel learning paths"
+          action={{ label: 'Create First Batch', onClick: handleCreate }}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -76,7 +76,7 @@ export const TracksManagement: React.FC<TracksManagementProps> = ({ programId })
                       size="sm"
                       variant="danger"
                       onClick={() => {
-                        if (confirm('Delete this track?')) {
+                        if (confirm('Delete this batch?')) {
                           deleteMutation.mutate(track.id)
                         }
                       }}

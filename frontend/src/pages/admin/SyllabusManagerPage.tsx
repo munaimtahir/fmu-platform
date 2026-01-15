@@ -240,7 +240,7 @@ export const SyllabusManagerPage: React.FC = () => {
                   }}
                   disabled={!filters.program_id}
                   options={[
-                    { value: '', label: 'All Periods' },
+                    { value: '', label: 'All Blocks' },
                     ...(periods?.map((p) => ({
                       value: p.id.toString(),
                       label: p.name,

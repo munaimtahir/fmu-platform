@@ -56,11 +56,11 @@ export const TrackFormModal: React.FC<TrackFormModalProps> = ({ programId, track
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4">
-          {track ? 'Edit Track' : 'Create Track'}
+          {track ? 'Edit Batch' : 'Create Batch'}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Track Name"
+            label="Batch Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required

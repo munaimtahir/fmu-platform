@@ -48,11 +48,12 @@ class ProgramSerializer(serializers.ModelSerializer):
 
 class BatchSerializer(serializers.ModelSerializer):
     program_name = serializers.CharField(source='program.name', read_only=True)
+    year = serializers.IntegerField(source='start_year', read_only=True)
 
     class Meta:
         model = Batch
-        fields = ['id', 'program', 'program_name', 'name', 'start_year', 'created_at', 'updated_at']
-        read_only_fields = ['created_at', 'updated_at']
+        fields = ['id', 'program', 'program_name', 'name', 'start_year', 'year', 'is_active', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at', 'year']
 
 
 class AcademicPeriodSerializer(serializers.ModelSerializer):

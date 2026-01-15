@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { LoadingState } from '@/components/shared/LoadingState'
@@ -13,6 +13,8 @@ interface PeriodsViewProps {
 }
 
 export const PeriodsView: React.FC<PeriodsViewProps> = ({ programId }) => {
+  const queryClient = useQueryClient()
+
   const { data: periods, isLoading: periodsLoading } = useQuery({
     queryKey: ['academics-periods', programId],
     queryFn: () => academicsNewService.getPeriods({ program: programId }),
@@ -21,6 +23,22 @@ export const PeriodsView: React.FC<PeriodsViewProps> = ({ programId }) => {
   const { data: tracks, isLoading: tracksLoading } = useQuery({
     queryKey: ['academics-tracks', programId],
     queryFn: () => academicsNewService.getTracks({ program: programId }),
+  })
+
+  const { data: program } = useQuery({
+    queryKey: ['academics-program', programId],
+    queryFn: () => academicsNewService.getProgram(programId),
+  })
+
+  const generatePeriodsMutation = useMutation({
+    mutationFn: () => academicsNewService.generatePeriods(programId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['academics-periods', programId] })
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error?.message || error?.message || 'Failed to generate blocks'
+      alert(`Error: ${errorMessage}`)
+    },
   })
 
   const isLoading = periodsLoading || tracksLoading
@@ -33,8 +51,20 @@ export const PeriodsView: React.FC<PeriodsViewProps> = ({ programId }) => {
     return (
       <EmptyState
         icon="📅"
-        title="No periods found"
-        description="Generate periods for this program to get started"
+        title="No blocks found"
+        description="Generate blocks for this program to get started"
+        action={
+          program?.is_finalized
+            ? {
+                label: 'Generate Periods',
+                onClick: () => {
+                  if (confirm('Generate periods for this program? This will create time periods (e.g., Year 1-5, Semester 1-10) based on the program structure.')) {
+                    generatePeriodsMutation.mutate()
+                  }
+                },
+              }
+            : undefined
+        }
       />
     )
   }
@@ -109,7 +139,7 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, tracks }) => {
             })}
           </div>
         ) : (
-          <p className="text-sm text-gray-500">No tracks defined. Create tracks to schedule blocks.</p>
+          <p className="text-sm text-gray-500">No batches defined. Create batches to schedule blocks.</p>
         )}
       </div>
       {isFormOpen && selectedTrack && (

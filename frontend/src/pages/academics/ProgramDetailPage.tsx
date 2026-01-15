@@ -53,10 +53,10 @@ export const ProgramDetailPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['academics-periods', id] })
       queryClient.invalidateQueries({ queryKey: ['academics-program', id] })
-      alert('Periods generated successfully!')
+      alert('Blocks generated successfully!')
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.error?.message || error?.message || 'Failed to generate periods'
+      const errorMessage = error?.response?.data?.error?.message || error?.message || 'Failed to generate blocks'
       alert(`Error: ${errorMessage}`)
       console.error('Error generating periods:', error)
     },
@@ -110,18 +110,18 @@ export const ProgramDetailPage: React.FC = () => {
             {canGeneratePeriods && (
               <Button
                 onClick={() => {
-                  if (confirm('Generate periods for this program? This will create time periods (e.g., Year 1-5, Semester 1-10) based on the program structure.')) {
+                  if (confirm('Generate blocks for this program? This will create time blocks (e.g., Year 1-5, Semester 1-10) based on the program structure.')) {
                     generatePeriodsMutation.mutate()
                   }
                 }}
                 disabled={generatePeriodsMutation.isPending}
               >
-                {generatePeriodsMutation.isPending ? 'Generating...' : 'Generate Periods'}
+                {generatePeriodsMutation.isPending ? 'Generating...' : 'Generate Blocks'}
               </Button>
             )}
             {program.is_finalized && periods && periods.length === 0 && !canGeneratePeriods && (
               <span className="text-sm text-gray-500 flex items-center">
-                (Program is finalized but periods generation may have failed. Check console for errors.)
+                (Program is finalized but blocks generation may have failed. Check console for errors.)
               </span>
             )}
           </div>
@@ -200,9 +200,9 @@ export const ProgramDetailPage: React.FC = () => {
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
-                title="Tracks are parallel pathways within a program (e.g., different clinical tracks)"
+                title="Batches are parallel pathways within a program (e.g., different clinical batches)"
               >
-                Tracks ({tracks?.length || 0})
+                Batches ({tracks?.length || 0})
               </button>
               <button
                 onClick={() => setActiveTab('periods')}
@@ -212,7 +212,7 @@ export const ProgramDetailPage: React.FC = () => {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Periods ({periods?.length || 0})
+                Blocks ({periods?.length || 0})
               </button>
             </nav>
           </div>
@@ -233,15 +233,15 @@ export const ProgramDetailPage: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="font-medium">Periods</h4>
-                    <p className="text-gray-600">{periods?.length || 0} period(s) generated</p>
+                    <p className="text-gray-600">{periods?.length || 0} block(s) generated</p>
                     {!program.is_finalized && (
                       <p className="text-sm text-amber-600 mt-1">
-                        ⚠️ Program must be finalized before periods can be generated.
+                        ⚠️ Program must be finalized before blocks can be generated.
                       </p>
                     )}
                     {program.is_finalized && periods && periods.length === 0 && (
                       <p className="text-sm text-gray-500 mt-1">
-                        Click "Generate Periods" button above to create periods for this program.
+                        Click "Generate Blocks" button above to create blocks for this program.
                       </p>
                     )}
                   </div>

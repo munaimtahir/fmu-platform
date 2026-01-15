@@ -80,6 +80,10 @@ class Batch(TimeStampedModel):
     start_year = models.PositiveSmallIntegerField(
         help_text="Graduation year for this batch (not intake year). Example: Students enrolling in 2026 for a 5-year program would have start_year=2031."
     )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Whether this batch is currently active"
+    )
 
     class Meta:
         ordering = ["program", "start_year"]

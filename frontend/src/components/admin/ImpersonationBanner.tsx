@@ -43,7 +43,7 @@ export const ImpersonationBanner: React.FC = () => {
         </div>
         <Button
           onClick={handleStop}
-          variant="outline"
+          variant="secondary"
           size="sm"
           className="bg-yellow-600 text-white border-yellow-700 hover:bg-yellow-700"
         >

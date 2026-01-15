@@ -15,7 +15,7 @@
  */
 export function validatePaginatedResponse<T>(
   data: unknown,
-  itemValidator?: (item: unknown) => item is T
+  itemValidator?: ((item: unknown) => item is T) | ((item: unknown) => void)
 ): asserts data is { results: T[]; count: number; next?: string | null; previous?: string | null } {
   if (!data || typeof data !== 'object') {
     throw new Error('Response is not an object')
@@ -34,7 +34,10 @@ export function validatePaginatedResponse<T>(
   // Optionally validate items if validator provided
   if (itemValidator) {
     for (const item of response.results) {
-      if (!itemValidator(item)) {
+      // Handle both type guards and assertion functions
+      const result = itemValidator(item)
+      // Type guards return boolean, assertion functions return void
+      if (result === false) {
         throw new Error(`Invalid item in paginated response: ${JSON.stringify(item)}`)
       }
     }
@@ -142,7 +145,7 @@ export function validateResultHeaderResponse(data: unknown): asserts data is {
  * Use this in production code where you want to detect issues but not break the app.
  */
 export function warnOnInvalidResponse(
-  validator: (data: unknown) => asserts data is unknown,
+  validator: (data: unknown) => void,
   data: unknown,
   endpoint: string
 ): void {

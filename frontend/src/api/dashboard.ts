@@ -21,7 +21,6 @@ export interface DashboardStats {
   // Faculty stats (from backend)
   my_sessions?: number
   my_students?: number
-  draft_results?: number
   
   // Student stats (from backend)
   student_name?: string
@@ -31,7 +30,6 @@ export interface DashboardStats {
   attendance_percentage?: number
   classes_attended?: number
   pending_dues?: number
-  published_results?: number
   
   // Error/message
   error?: string

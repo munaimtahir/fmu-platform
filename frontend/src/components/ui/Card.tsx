@@ -7,6 +7,8 @@ export interface CardProps {
   className?: string
   /** The padding size for the card. */
   padding?: 'none' | 'sm' | 'md' | 'lg'
+  /** Click handler for the card. */
+  onClick?: () => void
 }
 
 /**
@@ -28,7 +30,8 @@ export interface CardProps {
 export const Card: React.FC<CardProps> = ({ 
   children, 
   className = '', 
-  padding = 'md' 
+  padding = 'md',
+  onClick
 }) => {
   const paddingClasses = {
     none: '',
@@ -39,6 +42,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div
+      onClick={onClick}
       className={`
         bg-white rounded-2xl shadow-md border border-gray-200
         transition-all duration-150

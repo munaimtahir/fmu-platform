@@ -20,12 +20,10 @@ import {
 } from '@/api/facultyImport'
 import type {
   PreviewResponse as StudentPreviewResponse,
-  CommitResponse as StudentCommitResponse,
   ImportMode,
 } from '@/types/studentImport'
 import type {
   PreviewResponse as FacultyPreviewResponse,
-  CommitResponse as FacultyCommitResponse,
 } from '@/types/facultyImport'
 
 type ViewMode = 'upload' | 'preview' | 'history'

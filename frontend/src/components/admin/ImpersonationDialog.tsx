@@ -146,7 +146,7 @@ export const ImpersonationDialog: React.FC<ImpersonationDialogProps> = ({
         </div>
 
         <div className="p-6 border-t flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose} disabled={isStarting}>
+          <Button variant="secondary" onClick={onClose} disabled={isStarting}>
             Cancel
           </Button>
         </div>

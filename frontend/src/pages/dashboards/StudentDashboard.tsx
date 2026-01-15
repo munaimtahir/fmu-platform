@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
 import { useAuth } from '@/features/auth/useAuth'

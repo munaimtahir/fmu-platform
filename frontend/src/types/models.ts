@@ -28,7 +28,7 @@ export interface Student {
   batch_name?: string
   group?: number
   group_name?: string
-  status: 'active' | 'inactive' | 'graduated' | 'suspended'
+  status: 'active' | 'inactive' | 'graduated' | 'suspended' | 'on_leave'
   status_display?: string
   email?: string
   phone?: string

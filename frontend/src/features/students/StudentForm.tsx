@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { studentsService, programsService, batchesService, academicsService } from '@/services'
-import { Student } from '@/types'
+import { Student, Program } from '@/types'
+import { Batch } from '@/services/batches'
 
 const studentSchema = z.object({
   reg_no: z.string().min(1, 'Registration number is required'),
@@ -145,16 +146,18 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
   }
 
   const programOptions = useMemo(() => {
-    const programs = programsData?.results || programsData || []
-    return programs.map((p) => ({
+    if (!programsData) return []
+    const programs = 'results' in programsData ? programsData.results : Array.isArray(programsData) ? programsData : []
+    return programs.map((p: Program) => ({
       value: String(p.id),
       label: p.name,
     }))
   }, [programsData])
 
   const batchOptions = useMemo(() => {
-    const batches = batchesData?.results || batchesData || []
-    return batches.map((b) => ({
+    if (!batchesData) return []
+    const batches = 'results' in batchesData ? batchesData.results : Array.isArray(batchesData) ? batchesData : []
+    return batches.map((b: Batch) => ({
       value: String(b.id),
       label: b.name,
     }))

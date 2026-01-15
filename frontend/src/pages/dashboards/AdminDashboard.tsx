@@ -52,13 +52,13 @@ export const AdminDashboard = () => {
           publishedResultsRes,
           draftResultsRes,
         ] = await Promise.allSettled([
-          studentsService.getAll({ page: 1, page_size: 1 }),
-          programsService.getAll({ page: 1, page_size: 1 }),
-          coursesService.getAll({ page: 1, page_size: 1 }),
-          sectionsService.getAll({ page: 1, page_size: 1 }),
-          sessionsService.getAll({ page: 1, page_size: 1 }),
-          resultsService.getAll({ page: 1, page_size: 1, published: true }),
-          resultsService.getAll({ page: 1, page_size: 1, published: false }),
+          studentsService.getAll({ page: 1 }),
+          programsService.getAll({ page: 1 }),
+          coursesService.getAll({ page: 1 }),
+          sectionsService.getAll({ page: 1 }),
+          sessionsService.getAll({ page: 1 }),
+          resultsService.getAll({ page: 1, published: true }),
+          resultsService.getAll({ page: 1, published: false }),
         ])
 
         const unavailable: string[] = []

@@ -4,30 +4,120 @@ import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { useAuth } from '@/features/auth/useAuth'
-import { dashboardApi, DashboardStats } from '@/api/dashboard'
-import api from '@/api/axios'
+import { studentsService, programsService, coursesService, sectionsService, sessionsService, resultsService } from '@/services'
+
+/**
+ * Admin dashboard statistics derived from list endpoints
+ */
+interface AdminDashboardStats {
+  total_students: number
+  total_programs: number
+  total_courses: number
+  total_sections: number
+  total_sessions: number
+  published_results: number
+  draft_results: number
+  unavailable_stats: string[]
+}
 
 export const AdminDashboard = () => {
   const { user } = useAuth()
-  const [stats, setStats] = useState<DashboardStats>({})
+  const [stats, setStats] = useState<AdminDashboardStats>({
+    total_students: 0,
+    total_programs: 0,
+    total_courses: 0,
+    total_sections: 0,
+    total_sessions: 0,
+    published_results: 0,
+    draft_results: 0,
+    unavailable_stats: [],
+  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [coursesCount, setCoursesCount] = useState<number>(0)
-  const [sectionsCount, setSectionsCount] = useState<number>(0)
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true)
-        const [statsData, coursesRes, sectionsRes] = await Promise.all([
-          dashboardApi.getStats(),
-          api.get('/api/academics/courses/').catch(() => ({ data: { count: 0 } })),
-          api.get('/api/academics/sections/').catch(() => ({ data: { count: 0 } })),
-        ])
-        setStats(statsData)
-        setCoursesCount(coursesRes.data.count || coursesRes.data.results?.length || 0)
-        setSectionsCount(sectionsRes.data.count || sectionsRes.data.results?.length || 0)
         setError(null)
+
+        // Fetch all counts in parallel using list endpoints with page_size=1 to minimize data transfer
+        // We only need the count field from paginated responses
+        const [
+          studentsRes,
+          programsRes,
+          coursesRes,
+          sectionsRes,
+          sessionsRes,
+          publishedResultsRes,
+          draftResultsRes,
+        ] = await Promise.allSettled([
+          studentsService.getAll({ page: 1, page_size: 1 }),
+          programsService.getAll({ page: 1, page_size: 1 }),
+          coursesService.getAll({ page: 1, page_size: 1 }),
+          sectionsService.getAll({ page: 1, page_size: 1 }),
+          sessionsService.getAll({ page: 1, page_size: 1 }),
+          resultsService.getAll({ page: 1, page_size: 1, published: true }),
+          resultsService.getAll({ page: 1, page_size: 1, published: false }),
+        ])
+
+        const unavailable: string[] = []
+        const newStats: AdminDashboardStats = {
+          total_students: 0,
+          total_programs: 0,
+          total_courses: 0,
+          total_sections: 0,
+          total_sessions: 0,
+          published_results: 0,
+          draft_results: 0,
+          unavailable_stats: [],
+        }
+
+        // Extract counts from successful responses
+        if (studentsRes.status === 'fulfilled') {
+          newStats.total_students = studentsRes.value.count ?? studentsRes.value.results?.length ?? 0
+        } else {
+          unavailable.push('Total Students')
+        }
+
+        if (programsRes.status === 'fulfilled') {
+          newStats.total_programs = programsRes.value.count ?? programsRes.value.results?.length ?? 0
+        } else {
+          unavailable.push('Total Programs')
+        }
+
+        if (coursesRes.status === 'fulfilled') {
+          newStats.total_courses = coursesRes.value.count ?? coursesRes.value.results?.length ?? 0
+        } else {
+          unavailable.push('Total Courses')
+        }
+
+        if (sectionsRes.status === 'fulfilled') {
+          newStats.total_sections = sectionsRes.value.count ?? sectionsRes.value.results?.length ?? 0
+        } else {
+          unavailable.push('Total Sections')
+        }
+
+        if (sessionsRes.status === 'fulfilled') {
+          newStats.total_sessions = sessionsRes.value.count ?? sessionsRes.value.results?.length ?? 0
+        } else {
+          unavailable.push('Total Sessions')
+        }
+
+        if (publishedResultsRes.status === 'fulfilled') {
+          newStats.published_results = publishedResultsRes.value.count ?? publishedResultsRes.value.results?.length ?? 0
+        } else {
+          unavailable.push('Published Results')
+        }
+
+        if (draftResultsRes.status === 'fulfilled') {
+          newStats.draft_results = draftResultsRes.value.count ?? draftResultsRes.value.results?.length ?? 0
+        } else {
+          unavailable.push('Draft Results')
+        }
+
+        newStats.unavailable_stats = unavailable
+        setStats(newStats)
       } catch (err) {
         console.error('Failed to fetch dashboard stats:', err)
         setError('Failed to load dashboard statistics')
@@ -79,7 +169,7 @@ export const AdminDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Students</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {stats.total_students ?? 0}
+                  {stats.total_students}
                 </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">
@@ -97,7 +187,7 @@ export const AdminDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Courses</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {coursesCount}
+                  {stats.total_courses}
                 </p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl">
@@ -105,19 +195,17 @@ export const AdminDashboard = () => {
               </div>
             </div>
             <div className="mt-4 flex items-center gap-2">
-              <Badge variant="primary">{sectionsCount} Sections</Badge>
+              <Badge variant="primary">{stats.total_sections} Sections</Badge>
               <span className="text-xs text-gray-500">active sections</span>
             </div>
           </Card>
-
-          {/* Legacy requests module removed */}
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Published Results</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {stats.published_results ?? 0}
+                  {stats.published_results}
                 </p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-2xl">
@@ -129,16 +217,13 @@ export const AdminDashboard = () => {
               <span className="text-xs text-gray-500">total results</span>
             </div>
           </Card>
-        </div>
 
-        {/* Additional Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Programs</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {stats.total_programs ?? 0}
+                  {stats.total_programs}
                 </p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-2xl">
@@ -146,13 +231,16 @@ export const AdminDashboard = () => {
               </div>
             </div>
           </Card>
+        </div>
 
+        {/* Additional Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Sessions</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {stats.total_sessions ?? 0}
+                  {stats.total_sessions}
                 </p>
               </div>
               <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl">
@@ -166,7 +254,7 @@ export const AdminDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Draft Results</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {stats.draft_results ?? 0}
+                  {stats.draft_results}
                 </p>
               </div>
               <div className="w-12 h-12 bg-yellow-100 rounded-2xl flex items-center justify-center text-2xl">
@@ -174,23 +262,19 @@ export const AdminDashboard = () => {
               </div>
             </div>
           </Card>
+        </div>
 
+        {/* Show note if some stats are unavailable */}
+        {stats.unavailable_stats.length > 0 && (
           <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Finance Outstanding</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.finance_outstanding !== undefined 
-                    ? `₹${stats.finance_outstanding.toLocaleString('en-IN')}` 
-                    : '₹0'}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl">
-                💰
-              </div>
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> Some statistics could not be loaded: {stats.unavailable_stats.join(', ')}. 
+                Showing 0 for unavailable metrics.
+              </p>
             </div>
           </Card>
-        </div>
+        )}
 
         {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

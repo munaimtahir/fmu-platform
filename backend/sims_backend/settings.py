@@ -34,6 +34,7 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 # -------------------------------------------------------------------
 DEFAULT_ALLOWED_HOSTS = (
     "sims.alshifalab.pk,"
+    "api.sims.alshifalab.pk,"
     "34.16.82.13,"
     "localhost,"
     "127.0.0.1"
@@ -49,6 +50,7 @@ ALLOWED_HOSTS = [
 # Note: include scheme (http/https) for origins
 DEFAULT_CORS_ALLOWED_ORIGINS = (
     "https://sims.alshifalab.pk,"
+    "https://api.sims.alshifalab.pk,"
     "http://34.16.82.13,"
     "http://localhost,"
     "http://127.0.0.1"
@@ -68,6 +70,7 @@ CORS_ALLOW_CREDENTIALS = True
 # Must include scheme. For IP access we allow http://IP as fallback.
 DEFAULT_CSRF_TRUSTED_ORIGINS = (
     "https://sims.alshifalab.pk,"
+    "https://api.sims.alshifalab.pk,"
     "http://34.16.82.13,"
     "http://localhost,"
     "http://127.0.0.1"

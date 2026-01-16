@@ -129,7 +129,7 @@ export function ImportPreviewTable({
       </div>
 
       <div className="overflow-x-auto">
-        <SimpleTable data={filteredRows} columns={columns as any} keyField="row_index" />
+        <SimpleTable data={filteredRows} columns={columns as any} keyField="row_number" />
       </div>
     </div>
   )

@@ -9,6 +9,7 @@ from rest_framework import status, viewsets
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.filters import SearchFilter
+from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -59,29 +60,62 @@ class UnifiedLoginView(APIView):
 
     permission_classes = [AllowAny]
     authentication_classes: list[BaseAuthentication] = []
+    parser_classes = [JSONParser]
 
     def post(self, request):
         """Handle login request."""
-        # Manually parse request body if DRF didn't (for csrf_exempt views)
+        # DRF should parse JSON automatically with parser_classes
+        # Handle parsing errors gracefully
         try:
-            if not hasattr(request, 'data') or request.data is None or (hasattr(request, 'data') and len(request.data) == 0):
+            # Access request.data - this triggers DRF's automatic parsing
+            request_data = request.data
+            # Check if we got valid data (dict with keys)
+            if not isinstance(request_data, dict) or len(request_data) == 0:
+                # Fallback: manually parse JSON body if DRF didn't parse it
                 import json
-                from rest_framework.parsers import JSONParser
-                from io import BytesIO
-                parser = JSONParser()
-                stream = BytesIO(request.body)
-                parsed_data = parser.parse(stream)
-                # Create a DRF request-like object
-                from rest_framework.request import Request
-                drf_request = Request(request)
-                drf_request._full_data = parsed_data
-                request = drf_request
+                try:
+                    if hasattr(request, 'body') and request.body:
+                        parsed_data = json.loads(request.body.decode('utf-8'))
+                        if not isinstance(parsed_data, dict):
+                            raise ValueError("Request body must be a JSON object")
+                        # Create a new DRF request with parsed data
+                        from rest_framework.request import Request
+                        drf_request = Request(request, parsers=[JSONParser()])
+                        drf_request._full_data = parsed_data
+                        request = drf_request
+                    else:
+                        return Response(
+                            {"error": {"code": "invalid_request", "message": "Request body is required"}},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                except (json.JSONDecodeError, UnicodeDecodeError, AttributeError, ValueError) as e:
+                    logger.error(f"Failed to parse request body: {e}")
+                    return Response(
+                        {"error": {"code": "invalid_request", "message": f"Invalid JSON in request body: {str(e)}"}},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
         except Exception as e:
-            logger.error(f"Failed to parse request body: {e}")
-            return Response(
-                {"error": {"code": "invalid_request", "message": f"Invalid JSON in request body: {str(e)}"}},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            # Handle any exceptions during request parsing
+            logger.error(f"Error accessing request data: {e}")
+            import json
+            try:
+                if hasattr(request, 'body') and request.body:
+                    parsed_data = json.loads(request.body.decode('utf-8'))
+                    from rest_framework.request import Request
+                    drf_request = Request(request, parsers=[JSONParser()])
+                    drf_request._full_data = parsed_data
+                    request = drf_request
+                else:
+                    return Response(
+                        {"error": {"code": "invalid_request", "message": f"Invalid request: {str(e)}"}},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            except Exception as parse_error:
+                logger.error(f"Failed to parse request body: {parse_error}")
+                return Response(
+                    {"error": {"code": "invalid_request", "message": f"Invalid request: {str(parse_error)}"}},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         
         serializer = UnifiedLoginSerializer(data=request.data)
 

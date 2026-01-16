@@ -100,7 +100,8 @@ class StudentImportService:
     @staticmethod
     def _create_student_user(
         student: Student,
-        graduation_year: Optional[int] = None
+        graduation_year: Optional[int] = None,
+        password: Optional[str] = None
     ) -> Tuple[User, bool]:
         """
         Create a user account for a student.
@@ -108,6 +109,7 @@ class StudentImportService:
         Args:
             student: Student record
             graduation_year: Graduation year (from batch.start_year, which represents graduation year)
+            password: Optional custom password. If not provided, auto-generates password.
         
         Returns:
             Tuple[User, bool]: (user_object, created_flag)
@@ -121,8 +123,9 @@ class StudentImportService:
         # Generate email: firstname.lastname.b{year}@pmc.edu.pk
         email = StudentImportService._generate_email(student.name, graduation_year, student.email)
         
-        # Generate password: student{graduation_year}
-        password = StudentImportService._generate_password(graduation_year)
+        # Use provided password or generate one: student{graduation_year}
+        if not password or not password.strip():
+            password = StudentImportService._generate_password(graduation_year)
         
         # Check if user already exists
         user, created = User.objects.get_or_create(
@@ -439,9 +442,12 @@ class StudentImportService:
                         try:
                             # batch.start_year represents graduation year
                             graduation_year = batch.start_year if hasattr(batch, 'start_year') else None
+                            # Get password from CSV if provided
+                            custom_password = normalized_row.get("password", "").strip() or None
                             StudentImportService._create_student_user(
                                 student=existing_student,
-                                graduation_year=graduation_year
+                                graduation_year=graduation_year,
+                                password=custom_password
                             )
                         except Exception as user_error:
                             import logging
@@ -472,9 +478,12 @@ class StudentImportService:
                     try:
                         # batch.start_year represents graduation year
                         graduation_year = batch.start_year if hasattr(batch, 'start_year') else None
+                        # Get password from CSV if provided
+                        custom_password = normalized_row.get("password", "").strip() or None
                         user, user_created = StudentImportService._create_student_user(
                             student=student,
-                            graduation_year=graduation_year
+                            graduation_year=graduation_year,
+                            password=custom_password
                         )
                     except Exception as user_error:
                         # Log error but don't fail the import

@@ -12,6 +12,7 @@ The Student CSV Bulk Import system allows administrators to import multiple stud
 - **Two-phase workflow**: Preview before committing
 - **Comprehensive validation**: Row-level error reporting
 - **Import modes**: Create-only (default) or Upsert (update existing)
+- **Auto-create missing entities**: Automatically create Programs, Batches, and Groups if they don't exist
 - **Duplicate detection**: File hash-based duplicate prevention
 - **FK resolution**: Automatic resolution of Program, Batch, and Group by name
 - **Error reporting**: Downloadable CSV with error messages
@@ -34,14 +35,17 @@ The Student CSV Bulk Import system allows administrators to import multiple stud
 - `email` (string): Student email address
 - `phone` (string, max 20 chars): Student phone number
 - `date_of_birth` (string, format: YYYY-MM-DD): Date of birth
+- `password` (string): Custom password for user account. If not provided or empty, password will be auto-generated as `student{graduation_year}` (e.g., `student2029`)
 
 ### Example CSV
 
 ```csv
-reg_no,name,program_name,batch_name,group_name,status,email,phone,date_of_birth
-STU001,John Doe,MBBS,2024 Batch,Group A,active,john.doe@example.com,+1234567890,2000-01-15
-STU002,Jane Smith,MBBS,2024 Batch,Group A,active,jane.smith@example.com,+1234567891,2000-02-20
+reg_no,name,program_name,batch_name,group_name,status,email,phone,date_of_birth,password
+STU001,John Doe,MBBS,2024 Batch,Group A,active,john.doe@example.com,+1234567890,2000-01-15,
+STU002,Jane Smith,MBBS,2024 Batch,Group A,active,jane.smith@example.com,+1234567891,2000-02-20,custompass123
 ```
+
+**Note**: Leave `password` empty to auto-generate (format: `student{graduation_year}`), or provide a custom password.
 
 ## API Endpoints
 
@@ -64,6 +68,7 @@ Upload CSV file and get validation preview.
 **Request** (multipart/form-data):
 - `file`: CSV file
 - `mode`: `CREATE_ONLY` (default) or `UPSERT`
+- `auto_create`: `true` or `false` (default: `false`) - Automatically create missing Programs, Batches, and Groups
 
 **Response**:
 ```json
@@ -152,6 +157,53 @@ Download CSV file with invalid rows and error messages.
 - Creates new students if `reg_no` doesn't exist
 - Updates existing students if `reg_no` already exists
 - Use this mode to update existing records
+
+## Auto-Create Missing Entities
+
+When `auto_create=true` is enabled, the import system will automatically create missing Programs, Batches, and Groups if they don't exist in the database.
+
+### How It Works
+
+1. **Program Auto-Creation**: If a program name (e.g., "MBBS") doesn't exist, it will be created with:
+   - Name: As specified in CSV
+   - Structure Type: YEARLY (default)
+   - Status: Active
+
+2. **Batch Auto-Creation**: If a batch name (e.g., "2029 Batch") doesn't exist under the program, it will be created with:
+   - Name: As specified in CSV
+   - Graduation Year: Extracted from batch name (e.g., "2029 Batch" → 2029)
+   - If year cannot be extracted, it uses program duration to calculate:
+     - MBBS: 5 years
+     - BDS: 5 years
+     - BSc: 4 years
+     - MSc: 2 years
+     - Default: 5 years
+   - Status: Active
+
+3. **Group Auto-Creation**: If a group name (e.g., "Group A") doesn't exist under the batch, it will be created with:
+   - Name: As specified in CSV
+   - Linked to the batch
+
+### Batch Name Formats Supported
+
+The system can extract graduation year from various batch name formats:
+- `"2029 Batch"` → 2029
+- `"2024 Batch"` → 2024
+- `"Batch 2031"` → 2031
+- `"Fall 2024"` → 2024
+- `"2029"` → 2029
+- `"Class of 2029"` → 2029
+
+### When to Use Auto-Create
+
+- **Recommended**: When importing data for new programs, batches, or groups that haven't been set up yet
+- **Not Recommended**: When you want strict validation and prefer to manually create entities first
+
+### Notes
+
+- Auto-created entities are marked as active by default
+- Auto-creation messages appear in the preview as informational messages (not errors)
+- The same `auto_create` setting must be used in both preview and commit phases
 
 ## Validation Rules
 

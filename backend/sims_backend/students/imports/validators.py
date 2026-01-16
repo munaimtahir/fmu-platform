@@ -110,16 +110,70 @@ def extract_graduation_year_from_batch_name(batch_name: str) -> Optional[int]:
         "2024 Batch" -> 2024
         "Fall 2024" -> 2024
         "Batch 2031" -> 2031
+        "2029" -> 2029
+        "Class of 2029" -> 2029
     """
     import re
-    # Try to find 4-digit year
+    if not batch_name:
+        return None
+    
+    # Try to find 4-digit year (2000-2099)
     year_match = re.search(r'\b(20\d{2})\b', batch_name)
     if year_match:
         try:
-            return int(year_match.group(1))
+            year = int(year_match.group(1))
+            # Validate it's a reasonable year (2000-2099)
+            if 2000 <= year <= 2099:
+                return year
         except ValueError:
             pass
+    
+    # Try to find 2-digit year and assume 20xx
+    year_match_2digit = re.search(r'\b([0-9]{2})\b', batch_name)
+    if year_match_2digit:
+        try:
+            year_2digit = int(year_match_2digit.group(1))
+            # If it's 00-99, assume 2000-2099
+            if 0 <= year_2digit <= 99:
+                return 2000 + year_2digit
+        except ValueError:
+            pass
+    
     return None
+
+
+def get_program_duration_years(program: Optional['Program']) -> int:
+    """
+    Get typical program duration in years based on program name.
+    Returns default duration if program is None or name doesn't match known programs.
+    """
+    if not program:
+        return 5  # Default to 5 years
+    
+    program_name_upper = program.name.upper()
+    
+    # Common program durations
+    # MBBS (Bachelor of Medicine, Bachelor of Surgery) - typically 5 years
+    if 'MBBS' in program_name_upper:
+        return 5
+    # BDS (Bachelor of Dental Surgery) - typically 4-5 years
+    elif 'BDS' in program_name_upper:
+        return 5
+    # MD (Doctor of Medicine) - typically 4-5 years
+    elif program_name_upper.startswith('MD'):
+        return 5
+    # BSc programs - typically 4 years
+    elif 'BSC' in program_name_upper or 'BACHELOR' in program_name_upper:
+        return 4
+    # MSc programs - typically 2 years
+    elif 'MSC' in program_name_upper or 'MASTER' in program_name_upper:
+        return 2
+    # PhD programs - typically 3-5 years
+    elif 'PHD' in program_name_upper or 'DOCTORATE' in program_name_upper:
+        return 4
+    
+    # Default to 5 years for unknown programs
+    return 5
 
 
 def resolve_batch(batch_name: Optional[str], program: Optional[Program], row_num: int, auto_create: bool = False) -> Tuple[Optional[Batch], List[Dict[str, str]]]:
@@ -148,16 +202,28 @@ def resolve_batch(batch_name: Optional[str], program: Optional[Program], row_num
             graduation_year = extract_graduation_year_from_batch_name(batch_name)
             
             if not graduation_year:
-                # Default to current year + 5 for MBBS (5-year program)
-                # Or use a reasonable default
+                # If we can't extract the year, try to infer it
                 from datetime import date
                 current_year = date.today().year
-                # If batch name contains "Year 1" or similar, assume 5-year program
-                if "year 1" in batch_name.lower() or "1st year" in batch_name.lower():
-                    graduation_year = current_year + 5
+                program_duration = get_program_duration_years(program)
+                
+                # Check if batch name indicates a year level (e.g., "Year 1", "1st Year")
+                batch_name_lower = batch_name.lower()
+                if any(term in batch_name_lower for term in ["year 1", "1st year", "first year", "year one"]):
+                    # If it's Year 1, calculate graduation year: current_year + (duration - 1)
+                    graduation_year = current_year + (program_duration - 1)
+                elif any(term in batch_name_lower for term in ["year 2", "2nd year", "second year"]):
+                    graduation_year = current_year + (program_duration - 2)
+                elif any(term in batch_name_lower for term in ["year 3", "3rd year", "third year"]):
+                    graduation_year = current_year + (program_duration - 3)
+                elif any(term in batch_name_lower for term in ["year 4", "4th year", "fourth year"]):
+                    graduation_year = current_year + (program_duration - 4)
+                elif any(term in batch_name_lower for term in ["year 5", "5th year", "fifth year"]):
+                    graduation_year = current_year + (program_duration - 5)
                 else:
-                    # Try to extract any year, or default
-                    graduation_year = current_year + 5
+                    # Default: assume students are in their first year
+                    # Graduation year = current year + (program duration - 1)
+                    graduation_year = current_year + (program_duration - 1)
             
             try:
                 batch = Batch.objects.create(
@@ -178,7 +244,7 @@ def resolve_batch(batch_name: Optional[str], program: Optional[Program], row_num
         else:
             errors.append({
                 "column": "batch_name",
-                "message": f"Batch '{batch_name}' not found under Program '{program.name}'"
+                "message": f"Batch '{batch_name}' not found under Program '{program.name}'. Enable 'Auto-create missing Programs, Batches, and Groups' to create it automatically."
             })
     
     return batch, errors
@@ -223,7 +289,7 @@ def resolve_group(group_name: Optional[str], batch: Optional[Batch], row_num: in
         else:
             errors.append({
                 "column": "group_name",
-                "message": f"Group '{group_name}' not found under Batch '{batch.name}'"
+                "message": f"Group '{group_name}' not found under Batch '{batch.name}'. Enable 'Auto-create missing Programs, Batches, and Groups' to create it automatically."
             })
     
     return group, errors

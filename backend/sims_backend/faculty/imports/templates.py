@@ -18,6 +18,7 @@ def generate_csv_template() -> bytes:
     optional_headers = [
         "email",  # Optional - will be auto-generated if not provided
         "phone",  # Optional
+        "password",  # Optional - Custom password for user account (auto-generated if not provided)
     ]
     
     headers.extend(optional_headers)
@@ -28,6 +29,7 @@ def generate_csv_template() -> bytes:
         "department_name": "Anatomy",
         "email": "john.smith@pmc.edu.pk",
         "phone": "+923001234567",
+        "password": "",  # Leave empty for auto-generation (default: faculty123)
     }
     
     # Generate CSV
@@ -46,4 +48,5 @@ def get_expected_columns() -> List[str]:
         "department_name",
         "email",
         "phone",
+        "password",
     ]

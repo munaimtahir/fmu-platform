@@ -288,11 +288,31 @@ class StudentImportService:
                 else:
                     action = "CREATE"
             
+            # Add generated fields to preview data (for valid rows or rows with batch/program resolved)
+            preview_data = normalized_row.copy()
+            if batch and not errors:  # Only add generated fields if batch is resolved and no critical errors
+                graduation_year = batch.start_year if batch else None
+                name = normalized_row.get("name", "")
+                
+                # Generate username
+                username = StudentImportService._generate_username(name, graduation_year)
+                preview_data["_generated_username"] = username
+                
+                # Generate email (use provided email if available, otherwise generate)
+                provided_email = normalized_row.get("email", "").strip()
+                email = StudentImportService._generate_email(name, graduation_year, provided_email if provided_email else None)
+                preview_data["_generated_email"] = email
+                
+                # Generate password (use provided password if available, otherwise generate)
+                provided_password = normalized_row.get("password", "").strip()
+                password = provided_password if provided_password else StudentImportService._generate_password(graduation_year)
+                preview_data["_generated_password"] = password
+            
             preview_rows.append({
                 "row_number": row_num,
                 "action": action,
                 "errors": errors,
-                "data": normalized_row,
+                "data": preview_data,
             })
         
         # Update ImportJob with preview results
@@ -309,7 +329,7 @@ class StudentImportService:
             "valid_rows": valid_count,
             "invalid_rows": invalid_count,
             "duplicate_file_warning": duplicate_job is not None,
-            "preview_rows": preview_rows[:50],  # First 50 rows for preview
+            "preview_rows": preview_rows,  # Return all rows for preview
             "summary": {
                 "create_count": sum(1 for r in preview_rows if r["action"] == "CREATE"),
                 "update_count": sum(1 for r in preview_rows if r["action"] == "UPDATE"),

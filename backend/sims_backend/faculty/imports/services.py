@@ -149,7 +149,8 @@ class FacultyImportService:
     def _create_faculty_user(
         name: str,
         email: str,
-        department: Optional[Department] = None
+        department: Optional[Department] = None,
+        password: Optional[str] = None
     ) -> Tuple[User, bool]:
         """
         Create a user account for a faculty member.
@@ -175,8 +176,9 @@ class FacultyImportService:
             username = f"{base_username}{counter}"
             counter += 1
         
-        # Generate password
-        password = FacultyImportService._generate_password()
+        # Use provided password or generate one
+        if not password or not password.strip():
+            password = FacultyImportService._generate_password()
         
         # Check if user already exists by email
         user = None
@@ -282,9 +284,9 @@ class FacultyImportService:
                 continue
             
             name = normalized_row.get("name", "").strip()
-            email = normalized_row.get("email") or ""
-            if not email:
-                email = FacultyImportService._generate_email(name)
+            provided_email = normalized_row.get("email", "").strip()
+            # Generate email if not provided (for validation purposes)
+            email = provided_email if provided_email else FacultyImportService._generate_email(name)
             
             # Check duplicates in file
             errors.extend(check_duplicate_in_file(email, idx, seen_emails))
@@ -321,11 +323,27 @@ class FacultyImportService:
                 else:
                     action = "CREATE"
             
+            # Add generated fields to preview data (for valid rows or rows with department resolved)
+            preview_data = normalized_row.copy()
+            if department and not errors:  # Only add generated fields if department is resolved and no critical errors
+                # Generate username
+                username = FacultyImportService._generate_username(name)
+                preview_data["_generated_username"] = username
+                
+                # Generate email (use provided email if available, otherwise generate)
+                generated_email = FacultyImportService._generate_email(name, provided_email if provided_email else None)
+                preview_data["_generated_email"] = generated_email
+                
+                # Generate password (use provided password if available, otherwise generate)
+                provided_password = normalized_row.get("password", "").strip()
+                generated_password = provided_password if provided_password else FacultyImportService._generate_password()
+                preview_data["_generated_password"] = generated_password
+            
             preview_rows.append({
                 "row_number": row_num,
                 "action": action,
                 "errors": errors,
-                "data": normalized_row,
+                "data": preview_data,
             })
         
         # Update FacultyImportJob with preview results
@@ -342,7 +360,7 @@ class FacultyImportService:
             "valid_rows": valid_count,
             "invalid_rows": invalid_count,
             "duplicate_file_warning": duplicate_job is not None,
-            "preview_rows": preview_rows[:50],  # First 50 rows for preview
+            "preview_rows": preview_rows,  # Return all rows for preview
             "summary": {
                 "create_count": sum(1 for r in preview_rows if r["action"] == "CREATE"),
                 "update_count": sum(1 for r in preview_rows if r["action"] == "UPDATE"),
@@ -394,9 +412,8 @@ class FacultyImportService:
                 continue
             
             name = normalized_row.get("name", "").strip()
-            email = normalized_row.get("email") or ""
-            if not email:
-                email = FacultyImportService._generate_email(name)
+            provided_email = normalized_row.get("email", "").strip()
+            email = provided_email if provided_email else FacultyImportService._generate_email(name)
             
             errors.extend(check_duplicate_in_file(email, idx, seen_emails))
             
@@ -429,10 +446,12 @@ class FacultyImportService:
                     updated_count += 1
                 elif not exists:
                     # Create new
+                    provided_password = normalized_row.get("password", "").strip()
                     user_obj, user_created = FacultyImportService._create_faculty_user(
                         name=name,
                         email=email,
-                        department=department
+                        department=department,
+                        password=provided_password if provided_password else None
                     )
                     created_count += 1
                 else:

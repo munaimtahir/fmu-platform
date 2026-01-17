@@ -12,13 +12,17 @@
 | D2: Program delete | Can't delete programs | BE | Delete program with batches | `/api/academics/programs/{id}/` | BE | ✅ | ✅ |
 | E1: Course ID | Sections wants course ID number only | FE | Create section with course | `/api/academics/sections/` | FE | ✅ | ✅ |
 | E2: Course create | Failed to add courses | BE/FE | Create new course | `/api/academics/courses/` | Both | ✅ | ✅ |
-| F: Student reg_no | Registration number not saved | BE/FE | Create/update student | `/api/students/` | Both | ⏳ | ⏳ |
-| G: Notifications | Notification icon not working | BE/FE | Check bell icon, unread count | `/api/notifications/` | Both | ⏳ | ⏳ |
-| H1: Timetable 404 | 404 on edit/publish | BE/FE | Edit or publish timetable | `/api/timetable/sessions/{id}/` | Both | ⏳ | ⏳ |
-| H2: Timetable periods | Need exactly 3 periods before publish | BE | Publish with != 3 periods | `/api/timetable/sessions/{id}/publish/` | BE | ⏳ | ⏳ |
+| F: Student reg_no | Registration number not saved | BE/FE | Create/update student | `/api/students/` | Both | ✅ | ✅ |
+| G: Notifications | Notification icon not working | BE/FE | Check bell icon, unread count | `/api/notifications/` | Both | ✅ | ✅ |
+| H1: Timetable 404 | 404 on edit/publish | BE/FE | Edit or publish timetable | `/api/timetable/sessions/{id}/` | Both | ✅ | ✅ |
+| H2: Timetable periods | Need exactly 3 periods before publish | BE | Publish with != 3 periods | `/api/timetable/sessions/{id}/publish/` | BE | ✅ | ✅ |
 | I: Attendance | Marking/viewing not working | BE/FE | Mark attendance, view summary | `/api/attendance/`, `/api/attendance-input/` | Both | ✅ | ✅ |
-| J: Bulk upload groups | Auto-generate groups corrupts groups tab | BE | Bulk upload students | `/api/admin/students/import/` | BE | ⏳ | ⏳ |
-| K: Bulk upload DOB | DOB format mismatch (yy/mm/dd vs dd/mm/yy) | BE | Import CSV with various DOB formats | `/api/admin/students/import/` | BE | ⏳ | ⏳ |
+| J: Bulk upload groups | Auto-generate groups corrupts groups tab | BE | Bulk upload students | `/api/admin/students/import/` | BE | ✅ | ✅ |
+| K: Bulk upload DOB | DOB format mismatch (yy/mm/dd vs dd/mm/yy) | BE | Import CSV with various DOB formats | `/api/admin/students/import/` | BE | ✅ | ✅ |
+
+## Matrix Sync Notes
+**Date:** 2026-01-18  
+**Changes:** Synced statuses to match Session Summary + Attendance Refactor Summary. All items A-K now marked complete with tests added. Issues F, G, H1, H2, J, K updated from ⏳ to ✅.
 
 ## Legend
 - ✅ = Complete

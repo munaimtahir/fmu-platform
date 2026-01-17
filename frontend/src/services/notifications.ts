@@ -1,4 +1,4 @@
-import api from './apiClient'
+import api from '@/api/axios'
 
 export interface Notification {
   id: number

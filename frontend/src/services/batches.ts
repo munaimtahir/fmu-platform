@@ -9,6 +9,7 @@ export interface Batch {
   name: string
   program: number
   program_name?: string
+  start_year: number
   year: number
   start_date?: string
   end_date?: string

@@ -107,7 +107,7 @@ export const NotificationsPage: React.FC = () => {
 
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <Spinner size="large" />
+            <Spinner size="lg" />
           </div>
         ) : data && data.results.length > 0 ? (
           <div className="space-y-3">
@@ -140,7 +140,7 @@ export const NotificationsPage: React.FC = () => {
                       onClick={() => markReadMutation.mutate(notification.id)}
                       disabled={markReadMutation.isPending}
                       variant="secondary"
-                      size="small"
+                      size="sm"
                     >
                       Mark Read
                     </Button>

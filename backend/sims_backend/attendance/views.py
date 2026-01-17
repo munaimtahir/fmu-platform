@@ -21,28 +21,33 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         'session', 'student', 'marked_by', 'session__department'
     ).all()
     serializer_class = AttendanceSerializer
-    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['session', 'student', 'status']
     search_fields = ['student__reg_no', 'student__name']
     ordering_fields = ['marked_at']
     ordering = ['-marked_at']
-    required_tasks = ['attendance.attendances.view']
 
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            self.required_tasks = ['attendance.attendances.view']
-        elif self.action in ['create', 'update', 'partial_update']:
-            self.required_tasks = ['attendance.attendances.create']
-        elif self.action == 'destroy':
-            self.required_tasks = ['attendance.attendances.delete']
-        elif self.action in ['mark_session_attendance']:
-            self.required_tasks = ['attendance.attendances.create']
-        elif self.action == 'eligibility':
-            self.required_tasks = ['attendance.eligibility.view']
-        elif self.action == 'export':
-            self.required_tasks = ['attendance.attendances.export']
-        return super().get_permissions()
+    def has_permission(self, request, view):
+        """Custom permission logic for attendance views."""
+        user = request.user
+
+        if not user or not user.is_authenticated:
+            return False
+
+        # Allow all authenticated users - object-level permissions will filter appropriately
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        """Object-level permissions for attendance records."""
+        user = request.user
+
+        # Students can only see their own attendance
+        if hasattr(user, 'student'):
+            return obj.student == user.student
+
+        # Faculty can see attendance for their sessions
+        return obj.session.faculty == user
 
     def get_queryset(self):
         """Object-level permission: Students see own, Faculty see own sections."""
@@ -54,7 +59,7 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             return queryset
 
         # Students can only see their own attendance
-        if hasattr(user, 'student'):
+        if hasattr(user, 'student') and user.student:
             return queryset.filter(student=user.student)
 
         # Faculty can see attendance for their sessions

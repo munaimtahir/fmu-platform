@@ -1,29 +1,7 @@
 name: E2E Tests
 
 on:
-  push:
-    branches:
-      - main
-      - master
-      - develop
-    paths:
-      - 'frontend/**'
-      - 'backend/**'
-      - '.github/workflows/e2e.yml'
-      - 'scripts/e2e_run.sh'
-      - 'docker-compose*.yml'
-  pull_request:
-    branches:
-      - main
-      - master
-      - develop
-    paths:
-      - 'frontend/**'
-      - 'backend/**'
-      - '.github/workflows/e2e.yml'
-      - 'scripts/e2e_run.sh'
-      - 'docker-compose*.yml'
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch:
 
 permissions:
   contents: read

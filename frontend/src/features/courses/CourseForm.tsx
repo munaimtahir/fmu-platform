@@ -109,7 +109,6 @@ export function CourseForm({ course, onClose, onSuccess }: CourseFormProps) {
             <Select
               value={watch('department') ? String(watch('department')) : ''}
               onChange={(value) => {
-                const form = handleSubmit(onSubmit)
                 // Update form value
                 const event = { target: { value: value ? Number(value) : 0 } } as any
                 register('department').onChange(event)

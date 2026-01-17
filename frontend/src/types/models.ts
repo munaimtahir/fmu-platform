@@ -164,12 +164,18 @@ export interface StudentApplicationCreate {
 }
 
 // Course model
+// Note: Backend uses 'name' as primary field. 'title' kept for backward compatibility.
 export interface Course {
   id: number
   code: string
-  title: string
+  name: string
+  title?: string  // Deprecated: use 'name' instead
   credits: number
   program: string
+  department?: number
+  department_name?: string
+  academic_period?: number
+  academic_period_name?: string
 }
 
 // Term model

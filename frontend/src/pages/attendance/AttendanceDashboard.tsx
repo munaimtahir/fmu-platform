@@ -11,7 +11,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { sessionsService, attendanceService } from '@/services'
-import type { Session, Attendance, AttendanceSummary } from '@/types'
+import type { Session, Attendance } from '@/types'
 
 export function AttendanceDashboard() {
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null)

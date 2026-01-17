@@ -183,23 +183,50 @@ This document provides step-by-step manual verification for the fixed E2E issues
 
 ---
 
-## Test Flow 9: Attendance Marking
+## Test Flow 9: Attendance Marking (Session-Based)
 
 ### 9.1 Mark Attendance
-1. Navigate to attendance marking page
-2. Select a section and date
-3. Load roster
-4. **Expected**: Student list appears
-5. Mark students as Present/Absent
-6. Submit
-7. **Expected**: Success message, attendance saved
+1. Navigate to attendance marking page (`/attendance/input` or `/attendance/bulk`)
+2. **Select a timetable session** (not a course section)
+   - Session list shows: Group, Date/Time, Faculty
+3. Select date (defaults to today)
+4. Click "Load Roster"
+5. **Expected**: Student list appears with names and reg numbers
+6. Mark students as Present/Absent using:
+   - Individual toggle buttons
+   - "Mark All Present" / "Mark All Absent" bulk actions
+   - Search to filter students
+7. Click "Submit Attendance"
+8. Confirm the submission (shows present/absent counts)
+9. **Expected**: Success message, attendance saved for session
 
 ### 9.2 View Attendance Summary
-1. Navigate to attendance dashboard
-2. Select section
-3. **Expected**: Summary shows present/absent counts
-4. View individual student percentages
-5. **Expected**: Percentages calculated correctly
+1. Navigate to attendance dashboard (`/attendance`)
+2. **Select a timetable session** from dropdown
+   - Shows: Group, Date/Time, Faculty
+3. Click "Records" tab
+4. **Expected**: List of attendance records with status (PRESENT/ABSENT/LATE/LEAVE)
+5. Click "Summary" tab
+6. **Expected**: Stats cards show:
+   - Total records
+   - Present count
+   - Absent count
+   - Late count
+   - Attendance percentage
+7. Verify percentage calculation is correct
+
+### 9.3 Attendance Input Page (Advanced)
+1. Navigate to `/attendance/input`
+2. Select session from dropdown
+3. Choose input method:
+   - **Live**: Manual marking (same as bulk)
+   - **CSV Upload**: Upload CSV file with attendance data
+   - **Scanned Sheet**: Upload photo/PDF of attendance sheet
+4. Test each method:
+   - Live: Load roster, mark, submit
+   - CSV: Upload → Preview → Commit
+   - Sheet: Upload → Analyze → Commit
+5. **Expected**: All methods save attendance correctly
 
 ---
 
@@ -277,7 +304,8 @@ This document provides step-by-step manual verification for the fixed E2E issues
 - [ ] Notifications bell shows unread count
 - [ ] Timetable edit doesn't 404
 - [ ] Timetable publish enforces 3 periods
-- [ ] Attendance marking and viewing works
+- [ ] Attendance marking works (session-based, not section)
+- [ ] Attendance viewing and summary works
 - [ ] Bulk upload doesn't corrupt groups
 - [ ] Bulk upload accepts multiple DOB formats
 - [ ] Health endpoint shows degraded when Redis is down

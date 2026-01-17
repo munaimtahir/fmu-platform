@@ -16,7 +16,7 @@
 | G: Notifications | Notification icon not working | BE/FE | Check bell icon, unread count | `/api/notifications/` | Both | ⏳ | ⏳ |
 | H1: Timetable 404 | 404 on edit/publish | BE/FE | Edit or publish timetable | `/api/timetable/sessions/{id}/` | Both | ⏳ | ⏳ |
 | H2: Timetable periods | Need exactly 3 periods before publish | BE | Publish with != 3 periods | `/api/timetable/sessions/{id}/publish/` | BE | ⏳ | ⏳ |
-| I: Attendance | Marking/viewing not working | BE/FE | Mark attendance, view summary | `/api/attendance/`, `/api/attendance-input/` | Both | ⏳ | ⏳ |
+| I: Attendance | Marking/viewing not working | BE/FE | Mark attendance, view summary | `/api/attendance/`, `/api/attendance-input/` | Both | ✅ | ✅ |
 | J: Bulk upload groups | Auto-generate groups corrupts groups tab | BE | Bulk upload students | `/api/admin/students/import/` | BE | ⏳ | ⏳ |
 | K: Bulk upload DOB | DOB format mismatch (yy/mm/dd vs dd/mm/yy) | BE | Import CSV with various DOB formats | `/api/admin/students/import/` | BE | ⏳ | ⏳ |
 

@@ -45,8 +45,8 @@ export function AnalyticsDashboard() {
     totalSections: sectionsData?.count || 0,
     totalEnrollments: enrollmentsData?.count || 0,
     totalAttendance: attendanceData?.count || 0,
-    presentCount: attendanceData?.results.filter(a => a.status === 'Present').length || 0,
-    absentCount: attendanceData?.results.filter(a => a.status === 'Absent').length || 0,
+    presentCount: attendanceData?.results.filter(a => a.status === 'PRESENT').length || 0,
+    absentCount: attendanceData?.results.filter(a => a.status === 'ABSENT').length || 0,
   }
 
   // Calculate percentages

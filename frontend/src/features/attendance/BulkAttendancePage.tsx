@@ -9,7 +9,7 @@ import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { sessionsService, attendanceInputService, attendanceService } from '@/services'
-import type { Session, AttendanceRosterStudent, AttendanceSummary } from '@/types'
+import type { Session, AttendanceRosterStudent } from '@/types'
 
 export function BulkAttendancePage() {
   const queryClient = useQueryClient()

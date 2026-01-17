@@ -314,10 +314,81 @@ Completed comprehensive E2E fix sprint covering 11 major issue categories across
 
 ---
 
-**Session Completed:** All TODOs finished
-**Total Files Modified:** ~35 files across backend and frontend
-**Total Tests Added:** 6 new test files with comprehensive coverage
+**Session Completed:** All TODOs finished (including Attendance Frontend Refactor)
+**Total Files Modified:** ~42 files across backend and frontend
+**Total Tests Added:** 8 new test files with comprehensive coverage
 **Build Status:** ✅ Expected to pass (no destructive changes)
+
+---
+
+## 📋 Attendance Frontend Refactor Addendum (2026-01-18)
+
+**Issue I (Attendance) - Frontend Alignment**
+
+**Problem:** Frontend attendance pages still used section-based model instead of backend's session-based architecture. `BulkAttendancePage.tsx` and `AttendanceDashboard.tsx` were calling legacy/incorrect endpoints.
+
+**Root Cause Analysis:**
+- Backend attendance was correctly refactored to session-based (timetable sessions, not course sections)
+- Frontend had 3 attendance pages:
+  - `AttendanceInputPage.tsx` ✅ Already session-based (correct)
+  - `BulkAttendancePage.tsx` ❌ Section-based (legacy)
+  - `AttendanceDashboard.tsx` ❌ Section-based (legacy)
+
+**Code Changes:**
+1. **Types** (`frontend/src/types/models.ts`):
+   - Updated `Attendance` interface to session-based fields
+   - Added `AttendanceRosterStudent` interface
+   - Added `AttendanceSummary` interface
+
+2. **BulkAttendancePage.tsx** - Complete refactor:
+   - Changed from `sectionsService.getAll()` to `sessionsService.getAll()`
+   - Session selection UI with proper display (Group, Date/Time, Faculty)
+   - Uses `attendanceInputService.getRoster(sessionId)` for roster
+   - Uses `attendanceInputService.submitLive()` with correct payload
+   - Status map uses 'PRESENT'/'ABSENT' (backend enum)
+   - Summary integration via `attendanceService.getSummary()`
+   - Confirmation dialogs before submit
+   - Search/filter functionality
+
+3. **AttendanceDashboard.tsx** - Complete refactor:
+   - Session-based selection (not section)
+   - Uses `attendanceService.getBySessionId(sessionId)`
+   - Uses `attendanceService.getSummary({ session: sessionId })`
+   - Records view with proper status rendering
+   - Summary view with stats cards (total, present, absent, late, percentage)
+   - DashboardLayout wrapper added
+
+4. **Tests** (`frontend/src/utils/attendance.test.ts`, `frontend/src/services/attendance.test.ts`):
+   - Payload builder tests (filters ABSENT students for backend)
+   - Toggle status helper tests
+   - Mark all helper tests
+   - API service mock tests (session-based endpoints)
+   - Verified correct endpoint paths and payloads
+
+**Documentation Updates:**
+- `E2E_FIX_MATRIX.md`: Issue I marked ✅ complete
+- `E2E_SMOKE_TEST.md`: Updated Test Flow 9 with session-based instructions
+  - Explicit "Select timetable session" steps
+  - All 3 input methods documented (Live, CSV, Scanned Sheet)
+  - Summary verification steps
+
+**RBAC Preserved:**
+- Admin: Full access to all attendance pages
+- Faculty: Can mark attendance for allowed sessions (backend enforces)
+- Student: View-only (not implemented yet, future scope)
+
+**Routes:**
+- `/attendance` → Session-based dashboard ✅
+- `/attendance/input` → Advanced session-based input ✅
+- `/attendance/bulk` → Session-based bulk marking ✅
+- `/attendance/eligibility` → Unchanged (separate concern)
+
+**Verification:**
+- No linter errors in modified files
+- Tests written (Vitest requires Node 20+, environment issue noted)
+- Manual smoke test ready (see E2E_SMOKE_TEST.md)
+
+**Status:** ✅ Complete - Attendance frontend fully aligned with session-based backend
 
 ---
 

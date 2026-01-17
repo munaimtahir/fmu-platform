@@ -55,6 +55,7 @@ import { ExamsPage } from '@/pages/exams/ExamsPage'
 import { ResultsPage } from '@/pages/results/ResultsPage'
 // Legacy requests removed
 import { TranscriptsPage } from '@/pages/transcripts/TranscriptsPage'
+import { NotificationsPage } from '@/pages/NotificationsPage'
 // UnauthorizedPage is imported dynamically in ProtectedRoute to avoid circular dependencies
 
 /**
@@ -326,6 +327,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ProfilePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/notifications',
+    element: (
+      <ProtectedRoute>
+        <NotificationsPage />
       </ProtectedRoute>
     ),
   },

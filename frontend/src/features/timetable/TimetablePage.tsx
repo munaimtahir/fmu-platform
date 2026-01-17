@@ -97,9 +97,11 @@ export function TimetablePage() {
       toast.success('Timetable published successfully')
     },
     onError: (error: any) => {
-      if (error?.response?.data?.empty_cells) {
-        const emptyCount = error.response.data.total_empty || 0
-        toast.error(`Cannot publish: ${emptyCount} cell(s) are not fully filled. Please fill all 3 lines in every cell.`)
+      if (error?.response?.data?.error?.code === 'INVALID_PERIOD_COUNT') {
+        const days = error.response.data.error.days_with_wrong_count || []
+        toast.error(`Cannot publish: ${error.response.data.error.message}. Days: ${days.join(', ')}`, {
+          duration: 8000,
+        })
       } else {
         const message = error?.response?.data?.detail || error?.message || 'Failed to publish timetable'
         toast.error(message)
@@ -246,50 +248,46 @@ export function TimetablePage() {
     })
   }
 
-  // Handle publish with validation
+  // Handle publish with validation (exactly 3 periods per day)
   const handlePublish = () => {
     if (!fullTimetable) {
       toast.error('No timetable to publish')
       return
     }
 
-    // Client-side validation: Check if all 60 cells (6 days × 10 slots) are filled
-    const DEFAULT_TIME_SLOTS = [
-      '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
-      '12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00',
-      '16:00-17:00', '17:00-18:00',
-    ]
-
-    const emptyCells: string[] = []
+    // Client-side validation: Check that each day has exactly 3 filled periods
     const cells = fullTimetable.cells || []
     
-    // Create a map for quick lookup
-    const cellMap = new Map<string, typeof cells[0]>()
+    // Count filled periods per day (a period is filled if line1 has content)
+    const dayPeriodCounts: Record<number, number> = {
+      0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0
+    }
+    
     cells.forEach(cell => {
-      const key = `${cell.day_of_week}-${cell.time_slot}`
-      cellMap.set(key, cell)
+      if (cell.line1 && cell.line1.trim()) {
+        dayPeriodCounts[cell.day_of_week] = (dayPeriodCounts[cell.day_of_week] || 0) + 1
+      }
     })
     
+    // Check if each day has exactly 3 periods
+    const daysWithWrongCount: string[] = []
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    
     for (let day = 0; day <= 5; day++) {
-      for (const slot of DEFAULT_TIME_SLOTS) {
-        const key = `${day}-${slot}`
-        const cell = cellMap.get(key)
-        // Check if cell exists and all 3 lines are filled
-        if (!cell || !cell.line1?.trim() || !cell.line2?.trim() || !cell.line3?.trim()) {
-          const dayName = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]
-          emptyCells.push(`${dayName} ${slot}`)
-        }
+      const count = dayPeriodCounts[day] || 0
+      if (count !== 3) {
+        daysWithWrongCount.push(`${dayNames[day]} (${count} periods)`)
       }
     }
 
-    if (emptyCells.length > 0) {
-      toast.error(`Please fill all 3 lines in every cell. ${emptyCells.length} cell(s) are incomplete.`, {
-        duration: 5000,
+    if (daysWithWrongCount.length > 0) {
+      toast.error(`Each day must have exactly 3 periods. Found: ${daysWithWrongCount.join(', ')}`, {
+        duration: 8000,
       })
       return
     }
 
-    if (window.confirm('Are you sure you want to publish this timetable? Once published, it cannot be edited.')) {
+    if (window.confirm('Are you sure you want to publish this timetable? It has exactly 3 periods per day as required.')) {
       publishMutation.mutate(fullTimetable.id)
     }
   }

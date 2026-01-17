@@ -253,7 +253,7 @@ def resolve_batch(batch_name: Optional[str], program: Optional[Program], row_num
 def resolve_group(group_name: Optional[str], batch: Optional[Batch], row_num: int, auto_create: bool = False) -> Tuple[Optional[Group], List[Dict[str, str]]]:
     """
     Resolve Group by name, scoped to Batch (case-insensitive).
-    If auto_create=True and group doesn't exist, creates it automatically.
+    If auto_create=True and group doesn't exist, creates it automatically using get_or_create for idempotency.
     Returns (Group instance or None, list of errors/warnings)
     """
     errors = []
@@ -273,14 +273,16 @@ def resolve_group(group_name: Optional[str], batch: Optional[Batch], row_num: in
     if not group:
         if auto_create:
             try:
-                group = Group.objects.create(
+                # Use get_or_create for idempotency - prevents duplicates in concurrent imports
+                group, created = Group.objects.get_or_create(
                     batch=batch,
-                    name=group_name,
+                    name=group_name,  # Use exact name provided, not lowercased
                 )
-                errors.append({
-                    "column": "group_name",
-                    "message": f"Group '{group_name}' was automatically created."
-                })
+                if created:
+                    errors.append({
+                        "column": "group_name",
+                        "message": f"Group '{group_name}' was automatically created."
+                    })
             except Exception as e:
                 errors.append({
                     "column": "group_name",
@@ -338,7 +340,7 @@ def validate_email_format(email: Optional[str], row_num: int) -> List[Dict[str, 
 
 
 def validate_date_format(date_str: Optional[str], row_num: int) -> List[Dict[str, str]]:
-    """Validate date format (YYYY-MM-DD) if provided"""
+    """Validate date format (supports multiple formats) if provided"""
     errors = []
     if date_str:
         from sims_backend.students.imports.utils import parse_date_strict
@@ -346,7 +348,7 @@ def validate_date_format(date_str: Optional[str], row_num: int) -> List[Dict[str
         if not parsed:
             errors.append({
                 "column": "date_of_birth",
-                "message": f"Invalid date format: '{date_str}'. Expected YYYY-MM-DD"
+                "message": f"Invalid date format: '{date_str}'. Supported formats: YYYY-MM-DD, DD/MM/YYYY, DD/MM/YY, MM/DD/YYYY, Excel serial"
             })
     return errors
 

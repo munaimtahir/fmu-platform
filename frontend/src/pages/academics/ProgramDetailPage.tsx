@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/Badge'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { academicsNewService } from '@/services/academicsNew'
+import { batchesService } from '@/services/batches'
 import { TracksManagement } from '@/features/academics/TracksManagement'
 import { PeriodsView } from '@/features/academics/PeriodsView'
 
@@ -16,11 +17,17 @@ export const ProgramDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [activeTab, setActiveTab] = useState<'overview' | 'tracks' | 'periods'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'batches' | 'tracks' | 'periods'>('overview')
 
   const { data: program, isLoading, error, refetch } = useQuery({
     queryKey: ['academics-program', id],
     queryFn: () => academicsNewService.getProgram(Number(id!)),
+    enabled: !!id,
+  })
+
+  const { data: batches } = useQuery({
+    queryKey: ['batches', id],
+    queryFn: () => batchesService.getAll({ program: Number(id!) }),
     enabled: !!id,
   })
 
@@ -194,15 +201,25 @@ export const ProgramDetailPage: React.FC = () => {
                 Overview
               </button>
               <button
+                onClick={() => setActiveTab('batches')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'batches'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Batches ({batches?.results?.length || batches?.count || 0})
+              </button>
+              <button
                 onClick={() => setActiveTab('tracks')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'tracks'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
-                title="Batches are parallel pathways within a program (e.g., different clinical batches)"
+                title="Tracks are parallel pathways within a program (e.g., different clinical tracks)"
               >
-                Batches ({tracks?.length || 0})
+                Tracks ({tracks?.length || 0})
               </button>
               <button
                 onClick={() => setActiveTab('periods')}
@@ -246,6 +263,33 @@ export const ProgramDetailPage: React.FC = () => {
                     )}
                   </div>
                 </div>
+              </div>
+            </Card>
+          )}
+
+          {activeTab === 'batches' && (
+            <Card>
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Batches</h3>
+                {batches?.results && batches.results.length > 0 ? (
+                  <div className="space-y-2">
+                    {batches.results.map((batch: any) => (
+                      <div key={batch.id} className="border rounded p-3">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h4 className="font-medium">{batch.name}</h4>
+                            <p className="text-sm text-gray-600">Year: {batch.year || batch.start_year}</p>
+                          </div>
+                          <Badge variant={batch.is_active ? 'success' : 'secondary'}>
+                            {batch.is_active ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No batches found for this program.</p>
+                )}
               </div>
             </Card>
           )}

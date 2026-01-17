@@ -86,7 +86,7 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def publish(self, request, pk=None):
-        """Publish a draft timetable"""
+        """Publish a draft timetable - requires exactly 3 periods per day"""
         from rest_framework.exceptions import ValidationError
         
         timetable = self.get_object()
@@ -106,42 +106,35 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_403_FORBIDDEN
                 )
         
-        # Validate that all cells are filled (all 3 lines must have content)
-        # Get all cells for this timetable
+        # NEW VALIDATION: Check that we have exactly 3 filled periods per day
         cells = list(timetable.cells.all())
-        DEFAULT_TIME_SLOTS = [
-            '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
-            '12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00',
-            '16:00-17:00', '17:00-18:00',
-        ]
         
-        # Create a map of cells for quick lookup
-        cell_map = {}
-        for cell in cells:
-            key = f"{cell.day_of_week}-{cell.time_slot}"
-            cell_map[key] = cell
-        
-        empty_cells = []
+        # Group cells by day and count periods with content
+        day_period_counts = {}
         for day in range(6):  # Monday to Saturday (0-5)
-            for time_slot in DEFAULT_TIME_SLOTS:
-                key = f"{day}-{time_slot}"
-                cell = cell_map.get(key)
-                # Check if cell exists and all 3 lines are filled
-                if not cell:
-                    # Cell doesn't exist - it's empty
-                    day_name = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]
-                    empty_cells.append(f"{day_name} {time_slot}")
-                elif not cell.line1 or not cell.line1.strip() or not cell.line2 or not cell.line2.strip() or not cell.line3 or not cell.line3.strip():
-                    # Cell exists but one or more lines are empty
-                    day_name = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]
-                    empty_cells.append(f"{day_name} {time_slot}")
+            filled_periods = 0
+            for cell in cells:
+                if cell.day_of_week == day:
+                    # A period is "filled" if line1 has content
+                    if cell.line1 and cell.line1.strip():
+                        filled_periods += 1
+            day_period_counts[day] = filled_periods
         
-        if empty_cells:
+        # Check that each day has exactly 3 periods
+        days_with_wrong_count = []
+        for day, count in day_period_counts.items():
+            if count != 3:
+                day_name = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]
+                days_with_wrong_count.append(f"{day_name} ({count} periods)")
+        
+        if days_with_wrong_count:
             return Response(
                 {
-                    'detail': 'All timetable cells must be filled (all 3 lines) before publishing',
-                    'empty_cells': empty_cells[:10],  # Show first 10
-                    'total_empty': len(empty_cells)
+                    'error': {
+                        'code': 'INVALID_PERIOD_COUNT',
+                        'message': f'Each day must have exactly 3 periods. Found: {", ".join(days_with_wrong_count)}',
+                        'days_with_wrong_count': days_with_wrong_count,
+                    }
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )

@@ -112,6 +112,7 @@ INSTALLED_APPS = [
     "sims_backend.faculty",
     "sims_backend.timetable",
     "sims_backend.attendance",
+    "sims_backend.notifications",
     "sims_backend.exams",
     "sims_backend.results",
     "sims_backend.finance",

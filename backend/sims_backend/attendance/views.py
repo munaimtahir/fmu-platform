@@ -119,6 +119,36 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             'total': len(attendance_data)
         }, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['get'], url_path='summary')
+    def summary(self, request):
+        """Get attendance summary for a student or session."""
+        student_id = request.query_params.get('student')
+        session_id = request.query_params.get('session')
+
+        queryset = self.get_queryset()
+
+        if student_id:
+            queryset = queryset.filter(student_id=student_id)
+        if session_id:
+            queryset = queryset.filter(session_id=session_id)
+
+        total = queryset.count()
+        present = queryset.filter(status=Attendance.STATUS_PRESENT).count()
+        absent = queryset.filter(status=Attendance.STATUS_ABSENT).count()
+        late = queryset.filter(status=Attendance.STATUS_LATE).count()
+        leave = queryset.filter(status=Attendance.STATUS_LEAVE).count()
+
+        percentage = (present / total * 100) if total > 0 else 0
+
+        return Response({
+            'total': total,
+            'present': present,
+            'absent': absent,
+            'late': late,
+            'leave': leave,
+            'percentage': round(percentage, 2)
+        }, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=['get'], url_path='eligibility')
     def eligibility(self, request):
         """Check eligibility for a student in a section."""

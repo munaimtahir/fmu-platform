@@ -35,6 +35,23 @@ export interface FacultyUser {
   full_name?: string
 }
 
+export interface CreateAcademicPeriodData {
+  period_type: string
+  name: string
+  parent_period?: number | null
+  start_date?: string | null
+  end_date?: string | null
+}
+
+export interface UpdateAcademicPeriodData extends Partial<CreateAcademicPeriodData> {}
+
+export interface CreateGroupData {
+  name: string
+  batch: number
+}
+
+export interface UpdateGroupData extends Partial<CreateGroupData> {}
+
 export const academicsService = {
   /**
    * Get all academic periods
@@ -45,11 +62,73 @@ export const academicsService = {
   },
 
   /**
+   * Get academic period by ID
+   */
+  async getAcademicPeriod(id: number): Promise<AcademicPeriod> {
+    const response = await api.get<AcademicPeriod>(`/api/academics/academic-periods/${id}/`)
+    return response.data
+  },
+
+  /**
+   * Create academic period
+   */
+  async createAcademicPeriod(data: CreateAcademicPeriodData): Promise<AcademicPeriod> {
+    const response = await api.post<AcademicPeriod>('/api/academics/academic-periods/', data)
+    return response.data
+  },
+
+  /**
+   * Update academic period
+   */
+  async updateAcademicPeriod(id: number, data: UpdateAcademicPeriodData): Promise<AcademicPeriod> {
+    const response = await api.patch<AcademicPeriod>(`/api/academics/academic-periods/${id}/`, data)
+    return response.data
+  },
+
+  /**
+   * Delete academic period
+   */
+  async deleteAcademicPeriod(id: number): Promise<void> {
+    await api.delete(`/api/academics/academic-periods/${id}/`)
+  },
+
+  /**
    * Get all groups
    */
   async getGroups(params?: { batch?: number }): Promise<Group[]> {
     const response = await api.get<PaginatedResponse<Group>>('/api/academics/groups/', { params })
     return response.data.results || response.data
+  },
+
+  /**
+   * Get group by ID
+   */
+  async getGroup(id: number): Promise<Group> {
+    const response = await api.get<Group>(`/api/academics/groups/${id}/`)
+    return response.data
+  },
+
+  /**
+   * Create group
+   */
+  async createGroup(data: CreateGroupData): Promise<Group> {
+    const response = await api.post<Group>('/api/academics/groups/', data)
+    return response.data
+  },
+
+  /**
+   * Update group
+   */
+  async updateGroup(id: number, data: UpdateGroupData): Promise<Group> {
+    const response = await api.patch<Group>(`/api/academics/groups/${id}/`, data)
+    return response.data
+  },
+
+  /**
+   * Delete group
+   */
+  async deleteGroup(id: number): Promise<void> {
+    await api.delete(`/api/academics/groups/${id}/`)
   },
 
   /**

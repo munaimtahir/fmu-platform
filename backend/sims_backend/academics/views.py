@@ -64,6 +64,60 @@ class ProgramViewSet(viewsets.ModelViewSet):
             self.required_tasks = ['academics.programs.manage']
         return super().get_permissions()
 
+    def destroy(self, request, *args, **kwargs):
+        """Override destroy to provide clear error message when program has batches"""
+        program = self.get_object()
+        
+        # Check if program has batches
+        if program.batches.exists():
+            batches_count = program.batches.count()
+            return Response(
+                {
+                    'error': {
+                        'code': 'PROTECTED_DELETE',
+                        'message': f'Cannot delete program. It has {batches_count} batch(es) associated with it. Please delete the batches first.',
+                        'details': {
+                            'batches_count': batches_count,
+                            'batches': list(program.batches.values_list('id', 'name')[:10])  # First 10 batch names
+                        }
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if program has courses
+        if hasattr(program, 'courses') and program.courses.exists():
+            courses_count = program.courses.count()
+            return Response(
+                {
+                    'error': {
+                        'code': 'PROTECTED_DELETE',
+                        'message': f'Cannot delete program. It has {courses_count} course(s) associated with it. Please delete the courses first.',
+                        'details': {
+                            'courses_count': courses_count
+                        }
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except Exception as e:
+            # Catch PROTECT constraint errors and provide user-friendly message
+            if 'ProtectedError' in str(type(e)) or 'PROTECT' in str(e):
+                return Response(
+                    {
+                        'error': {
+                            'code': 'PROTECTED_DELETE',
+                            'message': 'Cannot delete program. It has associated records (batches, courses, or students). Please delete them first.',
+                            'details': {}
+                        }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            raise
+
     @action(detail=True, methods=['post'], url_path='finalize')
     def finalize(self, request, pk=None):
         """Finalize a program, locking structure fields"""

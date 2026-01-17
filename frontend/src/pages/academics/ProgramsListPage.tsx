@@ -12,6 +12,7 @@ import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { academicsNewService, type Program } from '@/services/academicsNew'
+import toast from 'react-hot-toast'
 
 export const ProgramsListPage: React.FC = () => {
   const navigate = useNavigate()
@@ -27,6 +28,11 @@ export const ProgramsListPage: React.FC = () => {
     mutationFn: (id: number) => academicsNewService.deleteProgram(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['academics-programs'] })
+      toast.success('Program deleted successfully')
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error?.message || 'Failed to delete program'
+      toast.error(errorMessage)
     },
   })
 

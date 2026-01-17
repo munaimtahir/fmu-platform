@@ -2,6 +2,7 @@
  * Attendance API service
  * 
  * Backend endpoint: /api/attendance/
+ * Note: Attendance is tracked per Session (from timetable), not Section (from courses)
  */
 import api from '@/api/axios'
 import { warnOnInvalidResponse, validatePaginatedResponse, validateAttendanceResponse } from '@/api/responseGuards'
@@ -13,9 +14,10 @@ export const attendanceService = {
    */
   async getAll(params?: {
     page?: number
-    section?: number
+    session?: number
     student?: number
     date?: string
+    status?: string
   }): Promise<PaginatedResponse<Attendance>> {
     const response = await api.get<PaginatedResponse<Attendance>>('/api/attendance/', {
       params,
@@ -30,47 +32,52 @@ export const attendanceService = {
   },
 
   /**
-   * Mark attendance for a section (creates individual records)
-   * 
-   * Note: This method creates attendance records individually via the /api/attendance/ endpoint
-   * since the backend doesn't have a section-specific batch endpoint. Returns an array of
-   * created Attendance objects.
-   * 
-   * For better performance with large classes, consider requesting a backend batch endpoint.
+   * Mark attendance for a specific session (creates/updates individual records)
+   * @param sessionId - The timetable session ID
+   * @param data - Attendance data including date and records
    */
-  async markAttendance(sectionId: number, data: {
+  async markAttendance(sessionId: number, data: {
     date: string
-    records: Array<{
-      student: number
-      status: 'Present' | 'Absent' | 'Late' | 'Excused'
+    attendance: Array<{
+      student_id: number
+      status: 'PRESENT' | 'ABSENT' | 'LATE' | 'LEAVE'
     }>
-  }): Promise<Attendance[]> {
-    // Create attendance records individually
-    // TODO: Replace with batch endpoint if/when backend supports it
-    const results = await Promise.all(
-      data.records.map((record) =>
-        api.post<Attendance>('/api/attendance/', {
-          section: sectionId,
-          student: record.student,
-          date: data.date,
-          present: record.status === 'Present',
-          status: record.status,
-        })
-      )
+  }): Promise<{ created: number; updated: number; total: number }> {
+    const response = await api.post<{ created: number; updated: number; total: number }>(
+      `/api/attendance/sessions/${sessionId}/mark`,
+      data
     )
-    return results.map((r) => r.data)
+    return response.data
   },
 
   /**
-   * Get attendance for a specific section
+   * Get attendance for a specific session
    */
-  async getBySectionId(sectionId: number, params?: {
+  async getBySessionId(sessionId: number, params?: {
     date?: string
   }): Promise<PaginatedResponse<Attendance>> {
     const response = await api.get<PaginatedResponse<Attendance>>(
       '/api/attendance/',
-      { params: { ...params, section: sectionId } }
+      { params: { ...params, session: sessionId } }
     )
+    return response.data
+  },
+
+  /**
+   * Get attendance summary/percentage for a student
+   */
+  async getSummary(params?: {
+    student?: number
+    session?: number
+  }): Promise<{
+    total: number
+    present: number
+    absent: number
+    late: number
+    leave: number
+    percentage: number
+  }> {
+    const response = await api.get('/api/attendance/summary/', { params })
     return response.data
   },
 }

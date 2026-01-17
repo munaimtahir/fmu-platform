@@ -4,17 +4,22 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
 import { sectionsService } from '@/services'
+import { coursesService } from '@/services'
+import { academicsService } from '@/services/academics'
 import { Section } from '@/types'
 
 const sectionSchema = z.object({
   course: z.number().min(1, 'Course is required'),
-  term: z.number().min(1, 'Term is required'),
-  teacher: z.string().min(1, 'Teacher is required'),
+  academic_period: z.number().min(1, 'Academic period is required'),
+  name: z.string().min(1, 'Section name is required'),
+  faculty: z.number().optional(),
+  group: z.number().optional(),
   capacity: z.number().min(1, 'Capacity must be at least 1'),
 })
 
@@ -27,31 +32,58 @@ interface SectionFormProps {
 }
 
 export function SectionForm({ section, onClose, onSuccess }: SectionFormProps) {
+  const { data: courses } = useQuery({
+    queryKey: ['courses'],
+    queryFn: () => coursesService.getAll(),
+  })
+
+  const { data: academicPeriods } = useQuery({
+    queryKey: ['academic-periods'],
+    queryFn: () => academicsService.getAcademicPeriods(),
+  })
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<SectionFormData>({
     resolver: zodResolver(sectionSchema),
     defaultValues: section || {
       course: 0,
-      term: 0,
-      teacher: '',
+      academic_period: 0,
+      name: '',
+      faculty: undefined,
+      group: undefined,
       capacity: 30,
     },
   })
 
   const mutation = useMutation({
-    mutationFn: (data: SectionFormData) =>
-      section
-        ? sectionsService.update(section.id, data)
-        : sectionsService.create(data),
+    mutationFn: (data: SectionFormData) => {
+      const payload: any = {
+        course: data.course,
+        academic_period: data.academic_period,
+        name: data.name,
+        capacity: data.capacity,
+      }
+      if (data.faculty) {
+        payload.faculty = data.faculty
+      }
+      if (data.group) {
+        payload.group = data.group
+      }
+      return section
+        ? sectionsService.update(section.id, payload)
+        : sectionsService.create(payload)
+    },
     onSuccess: () => {
       toast.success(section ? 'Section updated successfully' : 'Section created successfully')
       onSuccess()
     },
-    onError: () => {
-      toast.error('Failed to save section')
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error?.message || error?.response?.data?.detail || 'Failed to save section'
+      toast.error(errorMessage)
     },
   })
 
@@ -68,34 +100,63 @@ export function SectionForm({ section, onClose, onSuccess }: SectionFormProps) {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Course ID</label>
+            <label className="block text-sm font-medium mb-1">Course *</label>
+            <Select
+              value={watch('course') ? String(watch('course')) : ''}
+              onChange={(value) => {
+                const event = { target: { value: value ? Number(value) : 0 } } as any
+                register('course').onChange(event)
+              }}
+              options={[
+                { value: '', label: 'Select a course' },
+                ...(courses?.results || []).map((course) => ({
+                  value: String(course.id),
+                  label: `${course.code} - ${course.name || course.title || ''}`,
+                })),
+              ]}
+            />
+            {errors.course && (
+              <p className="text-red-500 text-sm mt-1">{errors.course.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Academic Period *</label>
+            <Select
+              value={watch('academic_period') ? String(watch('academic_period')) : ''}
+              onChange={(value) => {
+                const event = { target: { value: value ? Number(value) : 0 } } as any
+                register('academic_period').onChange(event)
+              }}
+              options={[
+                { value: '', label: 'Select an academic period' },
+                ...(academicPeriods || []).map((period) => ({
+                  value: String(period.id),
+                  label: `${period.name} (${period.period_type})`,
+                })),
+              ]}
+            />
+            {errors.academic_period && (
+              <p className="text-red-500 text-sm mt-1">{errors.academic_period.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Section Name *</label>
             <Input
-              type="number"
-              {...register('course', { valueAsNumber: true })}
-              error={errors.course?.message}
+              {...register('name')}
+              error={errors.name?.message}
+              placeholder="e.g., Section A"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Term ID</label>
-            <Input
-              type="number"
-              {...register('term', { valueAsNumber: true })}
-              error={errors.term?.message}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Teacher</label>
-            <Input {...register('teacher')} error={errors.teacher?.message} />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Capacity</label>
+            <label className="block text-sm font-medium mb-1">Capacity *</label>
             <Input
               type="number"
               {...register('capacity', { valueAsNumber: true })}
               error={errors.capacity?.message}
+              min="1"
             />
           </div>
 

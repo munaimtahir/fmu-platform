@@ -19,7 +19,7 @@ class StudentSerializer(serializers.ModelSerializer):
             'email', 'phone', 'date_of_birth',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['created_at', 'updated_at', 'reg_no', 'enrollment_year']
+        read_only_fields = ['created_at', 'updated_at']
 
 
 class StudentPlacementSerializer(serializers.Serializer):

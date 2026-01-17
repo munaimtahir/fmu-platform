@@ -125,7 +125,7 @@ def health_check(request):
         response_data["checks"]["migrations"] = {"status": "fail", "error": "Database unreachable"}
         response_data["status"] = "degraded"
     
-    # Check Redis (optional - does not fail readiness)
+    # Check Redis (optional - does not fail readiness, but marks as degraded)
     redis_status = "skipped"
     try:
         queue = django_rq.get_queue("default")
@@ -133,9 +133,10 @@ def health_check(request):
         redis_status = "ok"
     except Exception as e:
         # Redis is optional, so we don't fail readiness if it's down
+        # But mark overall status as degraded to indicate optional service is unavailable
         redis_status = "fail"
-        # Only mark as degraded if DB also failed (critical path issue)
-        # Otherwise Redis failure is acceptable for readiness
+        if response_data["status"] == "ok":
+            response_data["status"] = "degraded"
     
     response_data["checks"]["redis"] = {"status": redis_status}
     
@@ -186,6 +187,7 @@ urlpatterns = [
     path("", include("sims_backend.faculty.imports.urls")),
     path("", include("sims_backend.timetable.urls")),
     path("", include("sims_backend.attendance.urls")),
+    path("", include("sims_backend.notifications.urls")),
     path("", include("sims_backend.exams.urls")),
     path("", include("sims_backend.results.urls")),
     path("", include("sims_backend.finance.urls")),

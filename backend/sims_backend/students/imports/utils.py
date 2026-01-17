@@ -67,9 +67,17 @@ def safe_csv_export(rows: List[Dict[str, Any]], fieldnames: List[str]) -> bytes:
 
 def parse_date_strict(date_str: Optional[str]) -> Optional[str]:
     """
-    Parse date string strictly in YYYY-MM-DD format.
-    Returns the date string if valid, None otherwise.
-    Does not return a date object to keep validation simple.
+    Parse date string in multiple common formats and return YYYY-MM-DD format.
+    Supported formats:
+    - YYYY-MM-DD (ISO format)
+    - DD/MM/YYYY (European format)
+    - DD/MM/YY (2-digit year)
+    - MM/DD/YYYY (US format)
+    - YYYY/MM/DD
+    - DD-MM-YYYY
+    - Numeric Excel serial date (e.g. 44927)
+    
+    Returns the date string in YYYY-MM-DD if valid, None otherwise.
     """
     if not date_str:
         return None
@@ -78,15 +86,45 @@ def parse_date_strict(date_str: Optional[str]) -> Optional[str]:
     if not date_str:
         return None
     
-    # Try to parse YYYY-MM-DD format
-    parts = date_str.split('-')
-    if len(parts) == 3:
+    from datetime import datetime, timedelta
+    
+    # Try Excel serial date format (numeric)
+    try:
+        serial = float(date_str)
+        if 1 <= serial < 100000:  # Reasonable range for Excel dates
+            # Excel epoch is 1900-01-01 (but has a leap year bug for 1900)
+            excel_epoch = datetime(1899, 12, 30)
+            date_obj = excel_epoch + timedelta(days=serial)
+            return date_obj.strftime("%Y-%m-%d")
+    except ValueError:
+        pass
+    
+    # Try various date formats
+    date_formats = [
+        "%Y-%m-%d",      # YYYY-MM-DD (ISO)
+        "%d/%m/%Y",      # DD/MM/YYYY
+        "%d/%m/%y",      # DD/MM/YY
+        "%m/%d/%Y",      # MM/DD/YYYY (US)
+        "%Y/%m/%d",      # YYYY/MM/DD
+        "%d-%m-%Y",      # DD-MM-YYYY
+        "%d-%m-%y",      # DD-MM-YY
+        "%Y%m%d",        # YYYYMMDD (compact)
+    ]
+    
+    for fmt in date_formats:
         try:
-            year, month, day = int(parts[0]), int(parts[1]), int(parts[2])
-            # Basic validation
-            if 1900 <= year <= 2100 and 1 <= month <= 12 and 1 <= day <= 31:
-                return f"{year:04d}-{month:02d}-{day:02d}"
-        except (ValueError, IndexError):
-            pass
+            date_obj = datetime.strptime(date_str, fmt)
+            # Convert 2-digit years: 00-30 -> 2000-2030, 31-99 -> 1931-1999
+            if date_obj.year < 100:
+                if date_obj.year <= 30:
+                    date_obj = date_obj.replace(year=date_obj.year + 2000)
+                else:
+                    date_obj = date_obj.replace(year=date_obj.year + 1900)
+            # Validate reasonable year range (1900-2100)
+            if not (1900 <= date_obj.year <= 2100):
+                continue
+            return date_obj.strftime("%Y-%m-%d")
+        except ValueError:
+            continue
     
     return None  # Invalid format

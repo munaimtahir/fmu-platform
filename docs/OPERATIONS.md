@@ -83,13 +83,13 @@ The health endpoint is the canonical source of truth for service readiness. It i
 ```
 
 **Status Values:**
-- `ok` - All critical components healthy (database accessible, migrations applied)
-- `degraded` - Database or migrations check failed (service not ready)
+- `ok` - All critical components healthy (database accessible, migrations applied, Redis available)
+- `degraded` - Database or migrations check failed (service not ready), OR Redis is unavailable (optional service down)
 
 **Check Details:**
 - **db**: Database connectivity check with latency measurement (in milliseconds)
 - **migrations**: Verifies all migrations are applied (fails if pending migrations exist)
-- **redis**: Redis/RQ queue check (optional - does not affect readiness status)
+- **redis**: Redis/RQ queue check (optional - marks status as "degraded" if unavailable, but service remains functional for non-async features)
 
 **Usage:**
 ```bash

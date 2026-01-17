@@ -345,13 +345,38 @@ export interface AssessmentScore {
   remarks?: string
 }
 
-// Attendance model
+// Attendance model (session-based)
 export interface Attendance {
   id: number
-  section: number
+  session: number // Timetable session ID
   student: number
-  date: string
-  status: 'Present' | 'Absent' | 'Late' | 'Excused'
+  student_reg_no?: string // From backend serializer
+  student_name?: string // From backend serializer
+  session_department?: string // From backend serializer
+  status: 'PRESENT' | 'ABSENT' | 'LATE' | 'LEAVE'
+  marked_by?: number
+  marked_by_username?: string
+  marked_at: string
+  created_at: string
+  updated_at: string
+}
+
+// Attendance roster student (for marking UI)
+export interface AttendanceRosterStudent {
+  student_id: number
+  reg_no: string
+  name: string
+  status: string | null // Existing status from previous marks
+}
+
+// Attendance summary response
+export interface AttendanceSummary {
+  total: number
+  present: number
+  absent: number
+  late: number
+  leave: number
+  percentage: number
 }
 
 // Timetable session

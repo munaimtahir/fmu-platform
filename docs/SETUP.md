@@ -10,7 +10,7 @@ This document shows how to run the SIMS project in three modes:
 ## Prerequisites
 
 - **Python** 3.12+
-- **Node.js** 18+
+- **Node.js** 20+ (required for frontend tests with Vitest)
 - **PostgreSQL** 14+ (for production) or SQLite (for development)
 - **Redis** 6+ (for background jobs)
 - **Docker** & Docker Compose v2 (optional but recommended)

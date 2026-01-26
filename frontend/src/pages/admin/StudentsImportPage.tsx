@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Alert } from '@/components/ui/Alert'
@@ -132,168 +133,168 @@ export function StudentsImportPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Bulk CSV Import</h1>
-        <div className="flex gap-2">
-          <Button
-            onClick={() => setViewMode('history')}
-            variant={viewMode === 'history' ? 'primary' : 'secondary'}
-          >
-            Import History
-          </Button>
-        </div>
-      </div>
-
-      {/* Import Type Selection */}
-      {viewMode === 'upload' && (
-        <div className="flex gap-4 mb-6">
-          <button
-            type="button"
-            onClick={() => {
-              setImportType('student')
-              setPreviewData(null)
-              setImportJobId(null)
-              setError(null)
-              setSuccess(null)
-            }}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              importType === 'student'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Student CSV Import
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setImportType('faculty')
-              setPreviewData(null)
-              setImportJobId(null)
-              setError(null)
-              setSuccess(null)
-            }}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              importType === 'faculty'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Faculty CSV Import
-          </button>
-        </div>
-      )}
-
-      {error && (
-        <Alert variant="error" >
-          {error}
-        </Alert>
-      )}
-
-      {success && (
-        <Alert variant="success" >
-          {success}
-        </Alert>
-      )}
-
-      {viewMode === 'upload' && (
-        <Card>
-          <div className="mb-4">
-            <h2 className="text-2xl font-semibold mb-2">
-              {importType === 'student' ? 'Student CSV Import' : 'Faculty CSV Import'}
-            </h2>
-            <p className="text-gray-600">
-              {importType === 'student'
-                ? 'Upload a CSV file with student data. The file will be validated before import. User accounts will be automatically created with passwords.'
-                : 'Upload a CSV file with faculty data. The file will be validated before import. User accounts will be automatically created with passwords.'}
-            </p>
+    <DashboardLayout>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Bulk CSV Import</h1>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setViewMode('history')}
+              variant={viewMode === 'history' ? 'primary' : 'secondary'}
+            >
+              Import History
+            </Button>
           </div>
-          <ImportUploader
-            onPreview={handlePreview}
-            loading={loading}
-            onReset={handleReset}
-            onDownloadTemplate={handleDownloadTemplate}
-            importType={importType}
-          />
-        </Card>
-      )}
+        </div>
 
-      {viewMode === 'preview' && previewData && (
-        <Card>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">
-                {importType === 'student' ? 'Student' : 'Faculty'} Import Preview
-              </h2>
-              <Button onClick={handleReset} variant="secondary">
-                Upload New File
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 bg-blue-50 rounded">
-                <div className="text-sm text-gray-600">Total Rows</div>
-                <div className="text-2xl font-bold">{previewData.total_rows}</div>
-              </div>
-              <div className="p-4 bg-green-50 rounded">
-                <div className="text-sm text-gray-600">Valid Rows</div>
-                <div className="text-2xl font-bold text-green-600">
-                  {previewData.valid_rows}
-                </div>
-              </div>
-              <div className="p-4 bg-red-50 rounded">
-                <div className="text-sm text-gray-600">Invalid Rows</div>
-                <div className="text-2xl font-bold text-red-600">
-                  {previewData.invalid_rows}
-                </div>
-              </div>
-            </div>
-
-            {previewData.duplicate_file_warning && (
-              <Alert variant="warning">
-                Warning: A file with the same content has been imported before.
-              </Alert>
-            )}
-
-            <ImportPreviewTable previewRows={previewData.preview_rows} />
-
-            <div className="flex justify-end gap-2">
-              <Button onClick={handleReset} variant="secondary">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCommit}
-                disabled={loading || previewData.valid_rows === 0}
-                variant="primary"
-              >
-                {loading ? <Spinner size="sm" /> : 'Commit Import'}
-              </Button>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {viewMode === 'history' && (
-        <Card>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Import History</h2>
-              <Button onClick={() => setViewMode('upload')} variant="secondary">
-                New Import
-              </Button>
-            </div>
-            <ImportHistoryTable
-              onDownloadErrors={handleDownloadErrors}
-              onViewDetails={(jobId) => {
-                // Could navigate to detail view
-                console.log('View details for job:', jobId)
+        {/* Import Type Selection */}
+        {viewMode === 'upload' && (
+          <div className="flex gap-4 mb-6">
+            <button
+              type="button"
+              onClick={() => {
+                setImportType('student')
+                setPreviewData(null)
+                setImportJobId(null)
+                setError(null)
+                setSuccess(null)
               }}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${importType === 'student'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+            >
+              Student CSV Import
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setImportType('faculty')
+                setPreviewData(null)
+                setImportJobId(null)
+                setError(null)
+                setSuccess(null)
+              }}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${importType === 'faculty'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+            >
+              Faculty CSV Import
+            </button>
+          </div>
+        )}
+
+        {error && (
+          <Alert variant="error" >
+            {error}
+          </Alert>
+        )}
+
+        {success && (
+          <Alert variant="success" >
+            {success}
+          </Alert>
+        )}
+
+        {viewMode === 'upload' && (
+          <Card>
+            <div className="mb-4">
+              <h2 className="text-2xl font-semibold mb-2">
+                {importType === 'student' ? 'Student CSV Import' : 'Faculty CSV Import'}
+              </h2>
+              <p className="text-gray-600">
+                {importType === 'student'
+                  ? 'Upload a CSV file with student data. The file will be validated before import. User accounts will be automatically created with passwords.'
+                  : 'Upload a CSV file with faculty data. The file will be validated before import. User accounts will be automatically created with passwords.'}
+              </p>
+            </div>
+            <ImportUploader
+              onPreview={handlePreview}
+              loading={loading}
+              onReset={handleReset}
+              onDownloadTemplate={handleDownloadTemplate}
               importType={importType}
             />
-          </div>
-        </Card>
-      )}
-    </div>
+          </Card>
+        )}
+
+        {viewMode === 'preview' && previewData && (
+          <Card>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold">
+                  {importType === 'student' ? 'Student' : 'Faculty'} Import Preview
+                </h2>
+                <Button onClick={handleReset} variant="secondary">
+                  Upload New File
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="p-4 bg-blue-50 rounded">
+                  <div className="text-sm text-gray-600">Total Rows</div>
+                  <div className="text-2xl font-bold">{previewData.total_rows}</div>
+                </div>
+                <div className="p-4 bg-green-50 rounded">
+                  <div className="text-sm text-gray-600">Valid Rows</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {previewData.valid_rows}
+                  </div>
+                </div>
+                <div className="p-4 bg-red-50 rounded">
+                  <div className="text-sm text-gray-600">Invalid Rows</div>
+                  <div className="text-2xl font-bold text-red-600">
+                    {previewData.invalid_rows}
+                  </div>
+                </div>
+              </div>
+
+              {previewData.duplicate_file_warning && (
+                <Alert variant="warning">
+                  Warning: A file with the same content has been imported before.
+                </Alert>
+              )}
+
+              <ImportPreviewTable previewRows={previewData.preview_rows} />
+
+              <div className="flex justify-end gap-2">
+                <Button onClick={handleReset} variant="secondary">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCommit}
+                  disabled={loading || previewData.valid_rows === 0}
+                  variant="primary"
+                >
+                  {loading ? <Spinner size="sm" /> : 'Commit Import'}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {viewMode === 'history' && (
+          <Card>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold">Import History</h2>
+                <Button onClick={() => setViewMode('upload')} variant="secondary">
+                  New Import
+                </Button>
+              </div>
+              <ImportHistoryTable
+                onDownloadErrors={handleDownloadErrors}
+                onViewDetails={(jobId) => {
+                  // Could navigate to detail view
+                  console.log('View details for job:', jobId)
+                }}
+                importType={importType}
+              />
+            </div>
+          </Card>
+        )}
+      </div>
+    </DashboardLayout>
   )
 }

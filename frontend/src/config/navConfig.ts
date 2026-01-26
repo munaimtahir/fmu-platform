@@ -124,10 +124,10 @@ export const navigationConfig: NavigationItem[] = [
     icon: '⚙️',
     roles: ['Admin'],
     items: [
-      { label: 'Users', path: '/admin/users', roles: ['Admin'] },
-      { label: 'Roles & Permissions', path: '/admin/roles', roles: ['Admin'] },
-      { label: 'Audit Logs', path: '/admin/audit', roles: ['Admin'] },
-      { label: 'Student Import', path: '/admin/students/import', roles: ['Admin', 'Coordinator'] },
+      { label: 'Users', path: '/system/users', roles: ['Admin'] },
+      { label: 'Roles & Permissions', path: '/system/roles', roles: ['Admin'] },
+      { label: 'Audit Logs', path: '/system/audit', roles: ['Admin'] },
+      { label: 'Student Import', path: '/system/students/import', roles: ['Admin', 'Coordinator'] },
     ],
   },
 ]
@@ -167,10 +167,10 @@ export const routePolicy: Record<string, string[]> = {
   '/finance/reports/aging': ['Admin', 'Finance'],
   '/finance/reports/statement': ['Admin', 'Finance', 'Student'],
   '/finance/me': ['Student'],
-  '/admin/users': ['Admin'],
-  '/admin/roles': ['Admin'],
-  '/admin/audit': ['Admin'],
-  '/admin/students/import': ['Admin', 'Coordinator'],
+  '/system/users': ['Admin'],
+  '/system/roles': ['Admin'],
+  '/system/audit': ['Admin'],
+  '/system/students/import': ['Admin', 'Coordinator'],
   '/profile': [],
   // Legacy requests route removed
 }
@@ -193,25 +193,25 @@ export function isLegacyRoute(_routePath: string): boolean {
  */
 export function canAccessRoute(userRole: string | undefined, routePath: string): boolean {
   // Find matching route policy (supports prefix matching)
-  const matchingPolicy = Object.entries(routePolicy).find(([pattern]) => 
+  const matchingPolicy = Object.entries(routePolicy).find(([pattern]) =>
     routePath === pattern || routePath.startsWith(`${pattern}/`)
   )
-  
+
   if (!matchingPolicy) {
     // If no policy found, allow access (default permissive for backward compatibility)
     return true
   }
-  
+
   const allowedRoles = matchingPolicy[1]
-  
+
   // Empty array means all authenticated users can access
   if (allowedRoles.length === 0) {
     return true
   }
-  
+
   if (!userRole) {
     return false
   }
-  
+
   return allowedRoles.includes(userRole)
 }

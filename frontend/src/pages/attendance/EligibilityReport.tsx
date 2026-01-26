@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import api from '@/api/axios'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -157,11 +158,10 @@ export function EligibilityReport() {
       label: 'Eligible',
       render: (record: EligibilityRecord) => (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            record.eligible
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
-          }`}
+          className={`px-2 py-1 rounded-full text-xs font-medium ${record.eligible
+            ? 'bg-green-100 text-green-800'
+            : 'bg-red-100 text-red-800'
+            }`}
         >
           {record.eligible ? 'Eligible' : 'Not Eligible'}
         </span>
@@ -173,117 +173,121 @@ export function EligibilityReport() {
   const ineligibleCount = eligibilityData.length - eligibleCount
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Eligibility Report</h1>
-        {eligibilityData.length > 0 && (
-          <Button onClick={handleExportCSV}>Export CSV</Button>
+  return (
+    <DashboardLayout>
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Eligibility Report</h1>
+          {eligibilityData.length > 0 && (
+            <Button onClick={handleExportCSV}>Export CSV</Button>
+          )}
+        </div>
+
+        {error && (
+          <Alert variant="error">
+            {error}
+          </Alert>
         )}
-      </div>
 
-      {error && (
-        <Alert variant="error">
-          {error}
-        </Alert>
-      )}
-
-      {/* Configuration */}
-      <Card>
-        <div className="p-4 space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Attendance Threshold (%)
-            </label>
-            <Input
-              type="number"
-              min="0"
-              max="100"
-              value={threshold}
-              onChange={(e) => setThreshold(Number(e.target.value))}
-              className="w-32"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Select Sections
-            </label>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {sections.map((section) => (
-                <label key={section.id} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedSections.includes(section.id)}
-                    onChange={() => handleSectionToggle(section.id)}
-                    className="rounded"
-                  />
-                  <span className="text-sm">
-                    {section.course_detail
-                      ? `${section.course_detail.code} - ${section.course_detail.title} (${section.term})`
-                      : `Section ${section.id} - ${section.term}`}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <Button onClick={handleGenerateReport} disabled={loading}>
-            {loading ? 'Generating...' : 'Generate Report'}
-          </Button>
-        </div>
-      </Card>
-
-      {loading && (
-        <div className="flex justify-center py-8">
-          <Spinner size="lg" />
-        </div>
-      )}
-
-      {!loading && eligibilityData.length > 0 && (
-        <>
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <div className="p-4">
-                <div className="text-sm text-gray-600">Total Students</div>
-                <div className="text-3xl font-bold">
-                  {eligibilityData.length}
-                </div>
-              </div>
-            </Card>
-            <Card>
-              <div className="p-4">
-                <div className="text-sm text-gray-600">Eligible</div>
-                <div className="text-3xl font-bold text-green-600">
-                  {eligibleCount}
-                </div>
-              </div>
-            </Card>
-            <Card>
-              <div className="p-4">
-                <div className="text-sm text-gray-600">Not Eligible</div>
-                <div className="text-3xl font-bold text-red-600">
-                  {ineligibleCount}
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Results Table */}
-          <Card>
-            <div className="p-4">
-              <h2 className="text-xl font-semibold mb-4">
-                Eligibility Details
-              </h2>
-              <SimpleTable
-                data={eligibilityData}
-                columns={columns}
-                keyField="student_id"
+        {/* Configuration */}
+        <Card>
+          <div className="p-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Attendance Threshold (%)
+              </label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={threshold}
+                onChange={(e) => setThreshold(Number(e.target.value))}
+                className="w-32"
               />
             </div>
-          </Card>
-        </>
-      )}
-    </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Select Sections
+              </label>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {sections.map((section) => (
+                  <label key={section.id} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedSections.includes(section.id)}
+                      onChange={() => handleSectionToggle(section.id)}
+                      className="rounded"
+                    />
+                    <span className="text-sm">
+                      {section.course_detail
+                        ? `${section.course_detail.code} - ${section.course_detail.title} (${section.term})`
+                        : `Section ${section.id} - ${section.term}`}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <Button onClick={handleGenerateReport} disabled={loading}>
+              {loading ? 'Generating...' : 'Generate Report'}
+            </Button>
+          </div>
+        </Card>
+
+        {loading && (
+          <div className="flex justify-center py-8">
+            <Spinner size="lg" />
+          </div>
+        )}
+
+        {!loading && eligibilityData.length > 0 && (
+          <>
+            {/* Summary Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <div className="p-4">
+                  <div className="text-sm text-gray-600">Total Students</div>
+                  <div className="text-3xl font-bold">
+                    {eligibilityData.length}
+                  </div>
+                </div>
+              </Card>
+              <Card>
+                <div className="p-4">
+                  <div className="text-sm text-gray-600">Eligible</div>
+                  <div className="text-3xl font-bold text-green-600">
+                    {eligibleCount}
+                  </div>
+                </div>
+              </Card>
+              <Card>
+                <div className="p-4">
+                  <div className="text-sm text-gray-600">Not Eligible</div>
+                  <div className="text-3xl font-bold text-red-600">
+                    {ineligibleCount}
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Results Table */}
+            <Card>
+              <div className="p-4">
+                <h2 className="text-xl font-semibold mb-4">
+                  Eligibility Details
+                </h2>
+                <SimpleTable
+                  data={eligibilityData}
+                  columns={columns}
+                  keyField="student_id"
+                />
+              </div>
+            </Card>
+          </>
+        )}
+      </div>
+    </DashboardLayout>
+  )
   )
 }

@@ -109,6 +109,7 @@ INSTALLED_APPS = [
     "sims_backend.people",
     "sims_backend.academics",
     "sims_backend.students",
+    "sims_backend.compliance",
     "sims_backend.faculty",
     "sims_backend.timetable",
     "sims_backend.attendance",

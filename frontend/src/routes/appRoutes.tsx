@@ -177,7 +177,7 @@ export const router = createBrowserRouter([
     element: <TranscriptVerify />,
   },
   {
-    path: '/admin/audit',
+    path: '/system/audit',
     element: (
       <ProtectedRoute allowedRoles={['Admin']}>
         <AuditLog />
@@ -185,7 +185,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/admin/students/import',
+    path: '/system/students/import',
     element: (
       <ProtectedRoute allowedRoles={['Admin', 'Coordinator']}>
         <StudentsImportPage />
@@ -339,41 +339,41 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/admin/dashboard',
+    path: '/system/dashboard',
     element: (
-      <ProtectedRoute allowedRoles={['Admin']} path="/admin/dashboard">
+      <ProtectedRoute allowedRoles={['Admin']} path="/system/dashboard">
         <AdminDashboardPage />
       </ProtectedRoute>
     ),
   },
   {
-    path: '/admin/syllabus',
+    path: '/system/syllabus',
     element: (
-      <ProtectedRoute allowedRoles={['Admin']} path="/admin/syllabus">
+      <ProtectedRoute allowedRoles={['Admin']} path="/system/syllabus">
         <SyllabusManagerPage />
       </ProtectedRoute>
     ),
   },
   {
-    path: '/admin/settings',
+    path: '/system/settings',
     element: (
-      <ProtectedRoute allowedRoles={['Admin']} path="/admin/settings">
+      <ProtectedRoute allowedRoles={['Admin']} path="/system/settings">
         <AdminSettingsPage />
       </ProtectedRoute>
     ),
   },
   {
-    path: '/admin/users',
+    path: '/system/users',
     element: (
-      <ProtectedRoute allowedRoles={['Admin']} path="/admin/users">
+      <ProtectedRoute allowedRoles={['Admin']} path="/system/users">
         <UsersPage />
       </ProtectedRoute>
     ),
   },
   {
-    path: '/admin/roles',
+    path: '/system/roles',
     element: (
-      <ProtectedRoute allowedRoles={['Admin']} path="/admin/roles">
+      <ProtectedRoute allowedRoles={['Admin']} path="/system/roles">
         <RolesPage />
       </ProtectedRoute>
     ),

@@ -169,7 +169,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
               </svg>
             </button>
           )}
-          
+
           {/* Global Search */}
           <div className="hidden md:block relative" ref={searchRef}>
             <div className="flex items-center gap-2 px-4 py-2 bg-[#FAFAFA] rounded-2xl w-96 border border-transparent focus-within:border-gray-300 focus-within:bg-white transition-all duration-150">
@@ -293,7 +293,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
               </svg>
             </button>
           )}
-          
+
           {/* Notifications Bell */}
           <button
             onClick={() => navigate('/notifications')}
@@ -333,10 +333,10 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                     </p>
                   )}
                 </div>
-                <svg 
-                  className={`w-4 h-4 text-gray-500 transition-transform duration-150 ${isUserMenuOpen ? 'rotate-180' : ''}`} 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className={`w-4 h-4 text-gray-500 transition-transform duration-150 ${isUserMenuOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -354,7 +354,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                       </p>
                     )}
                   </div>
-                  
+
                   <button
                     onClick={() => {
                       setIsUserMenuOpen(false)
@@ -364,7 +364,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                   >
                     My Profile
                   </button>
-                  
+
                   <button
                     onClick={() => {
                       setIsUserMenuOpen(false)
@@ -374,9 +374,21 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                   >
                     Change Password
                   </button>
-                  
+
+                  {user.role === 'Admin' && (
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false)
+                        setIsImpersonationDialogOpen(true)
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
+                    >
+                      Impersonate User
+                    </button>
+                  )}
+
                   <div className="border-t border-gray-200 my-2" />
-                  
+
                   <button
                     onClick={() => {
                       setIsUserMenuOpen(false)
@@ -392,7 +404,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
           )}
         </div>
       </div>
-      
+
       {/* Impersonation Dialog */}
       <ImpersonationDialog
         isOpen={isImpersonationDialogOpen}

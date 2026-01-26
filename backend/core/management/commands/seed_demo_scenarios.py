@@ -252,8 +252,9 @@ class Command(BaseCommand):
                 [student], sessions, attendance_percentage=88
             )
             # Create voucher
-            create_voucher_for_student(student, academic_period, amount=Decimal("50000.00"))
-            students_by_scenario["FEES_VOUCHER_GENERATED"].append((student, user))
+            # create_voucher_for_student(student, academic_period, amount=Decimal("50000.00"))
+            # students_by_scenario["FEES_VOUCHER_GENERATED"].append((student, user))
+            pass
 
         # Print summary
         self._print_summary(

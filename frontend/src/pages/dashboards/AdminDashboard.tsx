@@ -269,7 +269,7 @@ export const AdminDashboard = () => {
           <Card>
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800">
-                <strong>Note:</strong> Some statistics could not be loaded: {stats.unavailable_stats.join(', ')}. 
+                <strong>Note:</strong> Some statistics could not be loaded: {stats.unavailable_stats.join(', ')}.
                 Showing 0 for unavailable metrics.
               </p>
             </div>
@@ -288,7 +288,7 @@ export const AdminDashboard = () => {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
-              { label: 'Core (Users & Roles)', icon: '👤', path: '/admin/users' },
+              { label: 'Core (Users & Roles)', icon: '👤', path: '/system/users' },
               { label: 'Timetable', icon: null, path: '/timetable', useText: true },
               { label: 'People (Identity)', icon: '🆔', path: '/people' },
               { label: 'Academics', icon: '📚', path: '/academics/programs' },

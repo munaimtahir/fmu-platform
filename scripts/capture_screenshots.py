@@ -1,14 +1,4 @@
 #!/usr/bin/env python3
-"""
-Screenshot capture script for FMU Platform frontend pages.
-
-This script captures screenshots of all dashboard and module pages.
-It requires the application to be running and accessible.
-
-Usage:
-    python scripts/capture_screenshots.py --output screenshots/ --username admin --password admin123
-    python scripts/capture_screenshots.py --url http://localhost:5173 --output screenshots/ --username admin --password admin123
-"""
 
 import argparse
 import asyncio
@@ -24,89 +14,117 @@ except ImportError:
     print("Please install it with: pip install playwright && playwright install chromium")
     sys.exit(1)
 
-
 # Configuration
-# You can set default credentials here to avoid typing them every time
-# These can be overridden by environment variables or CLI arguments
-DEFAULT_USERNAME = os.environ.get("FMU_ADMIN_USERNAME", "admin")
-DEFAULT_PASSWORD = os.environ.get("FMU_ADMIN_PASSWORD", "admin123")
+DEFAULT_BASE_URL = "https://sims.alshifalab.pk"
+
+# Default credentials for different roles
+# These can be overridden by environment variables
+CREDENTIALS = {
+    "Admin": {
+        "username": os.environ.get("FMU_ADMIN_USERNAME", "admin"),
+        "password": os.environ.get("FMU_ADMIN_PASSWORD", "admin123")
+    },
+    "Faculty": {
+        "username": os.environ.get("FMU_FACULTY_USERNAME", "demo_faculty1"),
+        "password": os.environ.get("FMU_FACULTY_PASSWORD", "faculty123")
+    },
+    "Student": {
+        "username": os.environ.get("FMU_STUDENT_USERNAME", "demo_student001"),
+        "password": os.environ.get("FMU_STUDENT_PASSWORD", "demo123")
+    },
+    "Registrar": {
+        # Fallback to admin if specific registrar not available, or assume admin works if multi-role
+        "username": os.environ.get("FMU_REGISTRAR_USERNAME", "admin"),
+        "password": os.environ.get("FMU_REGISTRAR_PASSWORD", "admin123")
+    },
+    "ExamCell": {
+         # Fallback to admin if specific exam cell user not available
+        "username": os.environ.get("FMU_EXAMCELL_USERNAME", "admin"),
+        "password": os.environ.get("FMU_EXAMCELL_PASSWORD", "admin123")
+    },
+    "Finance": {
+        # Fallback to admin
+        "username": os.environ.get("FMU_FINANCE_USERNAME", "admin"),
+        "password": os.environ.get("FMU_FINANCE_PASSWORD", "admin123")
+    }
+}
 
 
-# Define all pages to capture with their routes and descriptions
-# Define all pages to capture with their routes and descriptions
-PAGES_TO_CAPTURE: List[Tuple[str, str, bool]] = [
-    # (route, description, requires_auth)
-    # Authentication
-    ("/login", "Login Page", False),
+# Define all pages to capture with their routes, descriptions, and REQUIRED ROLE
+# If role is None, it is public.
+# If role is specified, we will attempt to capture it using that role's credentials.
+PAGES_TO_CAPTURE: List[Tuple[str, str, str]] = [
+    # (route, description, required_role)
     
-    # Main Dashboard
-    ("/dashboard", "Main Dashboard Home", True),
-    
-    # Role-specific Dashboards
-    ("/dashboard/admin", "Admin Dashboard", True),
-    ("/dashboard/registrar", "Registrar Dashboard", True),
-    ("/dashboard/faculty", "Faculty Dashboard", True),
-    ("/dashboard/student", "Student Dashboard", True),
-    ("/dashboard/examcell", "Exam Cell Dashboard", True),
-    
-    # Demo Pages
-    ("/demo/datatable", "DataTable Demo", True),
+    # --- Public Pages ---
+    ("/login", "Login Page", None),
+    ("/apply", "Student Application Page", None),
 
-    # Finance Module
-    ("/finance", "Finance Dashboard", True),
-    ("/finance/fee-plans", "Fee Plans Page", True),
-    ("/finance/vouchers", "Voucher Generation Page", True),
-    ("/finance/vouchers/list", "Vouchers List Page", True),
-    ("/finance/payments", "Payments Page", True),
-    ("/finance/me", "Student Finance Page", True),
-    ("/finance/reports/defaulters", "Defaulters Report", True),
-    ("/finance/reports/collection", "Collection Report", True),
-    ("/finance/reports/aging", "Aging Report", True),
-    ("/finance/reports/statement", "Student Statement Report", True),
+    # --- Admin Pages ---
+    ("/dashboard", "Main Dashboard Home (Admin View)", "Admin"),
+    ("/dashboard/admin", "Admin Dashboard", "Admin"),
+    ("/admin/dashboard", "Admin Analytics Dashboard", "Admin"), # Keep if this route exists, otherwise remove/update
+    ("/system/users", "Users Management Page", "Admin"),
+    ("/system/roles", "Roles Management Page", "Admin"),
+    ("/system/syllabus", "Syllabus Manager Page", "Admin"),
+    ("/system/settings", "Admin Settings Page", "Admin"),
+    ("/system/audit", "Audit Log Page", "Admin"),
+    ("/system/students/import", "Student Import Page", "Admin"),
     
-    # Attendance Module
-    ("/attendance", "Attendance Dashboard", True),
-    ("/attendance/input", "Attendance Input Page", True),
-    ("/attendance/eligibility", "Eligibility Report", True),
-    ("/attendance/bulk", "Bulk Attendance Page", True),
+    # --- Finance Module (Admin/Finance) ---
+    ("/finance", "Finance Dashboard", "Admin"),
+    ("/finance/fee-plans", "Fee Plans Page", "Admin"),
+    ("/finance/vouchers", "Voucher Generation Page", "Admin"),
+    ("/finance/vouchers/list", "Vouchers List Page", "Admin"),
+    ("/finance/payments", "Payments Page", "Admin"),
+    ("/finance/reports/defaulters", "Defaulters Report", "Admin"),
+    ("/finance/reports/collection", "Collection Report", "Admin"),
+    ("/finance/reports/aging", "Aging Report", "Admin"),
     
-    # Academics Module
-    ("/academics/programs", "Programs Page", True),
-    ("/academics/programs/new", "New Program Page", True),
-    ("/academics/batches", "Batches Page", True),
-    ("/academics/periods", "Academic Periods Page", True),
-    ("/academics/groups", "Groups Page", True),
-    ("/academics/departments", "Departments Page", True),
+    # --- Academics Module (Admin/Registrar) ---
+    ("/academics/programs", "Programs Page", "Admin"),
+    ("/academics/programs/new", "New Program Page", "Admin"),
+    ("/academics/batches", "Batches Page", "Admin"),
+    ("/academics/periods", "Academic Periods Page", "Admin"),
+    ("/academics/groups", "Groups Page", "Admin"),
+    ("/academics/departments", "Departments Page", "Admin"),
+    ("/courses", "Courses Page", "Admin"),
+    ("/sections", "Sections Page", "Admin"),
+    ("/timetable", "Timetable Page", "Admin"),
+
+    # --- Student Management (Admin/Registrar) ---
+    ("/students", "Students Page", "Admin"),
+    ("/transcripts", "Transcripts Page (Admin View)", "Admin"),
+
+    # --- Registrar Pages ---
+    ("/dashboard/registrar", "Registrar Dashboard", "Registrar"),
+    ("/attendance/eligibility", "Eligibility Report", "Registrar"),
+
+    # --- Faculty Pages ---
+    ("/dashboard/faculty", "Faculty Dashboard", "Faculty"),
+    ("/attendance", "Attendance Dashboard", "Faculty"),
+    ("/attendance/input", "Attendance Input Page", "Faculty"),
+    ("/attendance/bulk", "Bulk Attendance Page", "Faculty"),
+    ("/gradebook", "Gradebook Page", "Faculty"),
+    # Timetable is also visible to faculty
     
-    # Student Management
-    ("/students", "Students Page", True),
-    ("/admin/students/import", "Student Import Page", True),
+    # --- Student Pages ---
+    ("/dashboard/student", "Student Dashboard", "Student"),
+    ("/finance/me", "Student Finance Page", "Student"),
+    ("/finance/reports/statement", "Student Statement Report", "Student"),
+    ("/results", "Results Page", "Student"),
+    # Timetable is also visible to student
+
+    # --- Exam Cell Pages ---
+    ("/dashboard/examcell", "Exam Cell Dashboard", "ExamCell"),
+    ("/exams", "Exams Page", "ExamCell"),
+    ("/examcell/publish", "Publish Results Page", "ExamCell"),
     
-    # Course Management
-    ("/courses", "Courses Page", True),
-    ("/sections", "Sections Page", True),
-    ("/timetable", "Timetable Page", True),
-    
-    # Assessments & Exams
-    ("/gradebook", "Gradebook Page", True),
-    ("/exams", "Exams Page", True),
-    ("/results", "Results Page", True),
-    ("/examcell/publish", "Publish Results Page", True),
-    
-    # Admin Pages
-    ("/admin/dashboard", "Admin Dashboard Page", True),
-    ("/admin/users", "Users Management Page", True),
-    ("/admin/roles", "Roles Management Page", True),
-    ("/admin/syllabus", "Syllabus Manager Page", True),
-    ("/admin/settings", "Admin Settings Page", True),
-    ("/admin/audit", "Audit Log Page", True),
-    
-    # Other Pages
-    ("/analytics", "Analytics Dashboard", True),
-    ("/profile", "Profile Page", True),
-    ("/notifications", "Notifications Page", True),
-    ("/transcripts", "Transcripts Page", True),
-    ("/apply", "Student Application Page", False),
+    # --- Other ---
+    ("/analytics", "Analytics Dashboard", "Admin"),
+    ("/profile", "Profile Page", "Admin"),
+    ("/notifications", "Notifications Page", "Admin"),
+    ("/demo/datatable", "DataTable Demo", "Admin"),
 ]
 
 
@@ -117,27 +135,30 @@ async def login(page: Page, username: str, password: str, base_url: str) -> bool
         print(f"  Navigating to login page...")
         await page.goto(login_url, wait_until="networkidle", timeout=30000)
         
+        # Check if already logged in (redirected to dashboard)
+        if "/login" not in page.url:
+             print("  Already logged in!")
+             return True
+
         # Wait for form to be ready - wait for the identifier input specifically
         print(f"  Waiting for login form...")
         try:
             # Wait for the identifier input (react-hook-form uses name="identifier")
-            await page.wait_for_selector('input[name="identifier"]', timeout=10000)
+            await page.wait_for_selector('input[name="identifier"]', timeout=5000)
         except:
-            # Fallback: wait for any password input
-            await page.wait_for_selector('input[type="password"]', timeout=10000)
+             # Fallback
+             pass
         
-        # Small delay to ensure form is fully rendered
-        await page.wait_for_timeout(500)
+        # Fill identifier field
+        print(f"  Filling username: {username}") # Don't print password
         
-        # Fill identifier field - prioritize the name attribute since it's react-hook-form
-        print(f"  Filling username/identifier...")
+        identifier_filled = False
         identifier_selectors = [
-            'input[name="identifier"]',  # Primary selector for react-hook-form
-            'input[type="text"]:not([type="password"])',  # Text input that's not password
+            'input[name="identifier"]',
+            'input[type="text"]:not([type="password"])',
             'input[autocomplete="username"]',
         ]
         
-        identifier_filled = False
         for selector in identifier_selectors:
             try:
                 element = await page.query_selector(selector)
@@ -145,31 +166,15 @@ async def login(page: Page, username: str, password: str, base_url: str) -> bool
                     await element.fill('')
                     await element.type(username, delay=50)
                     identifier_filled = True
-                    print(f"  ✓ Filled identifier using: {selector}")
                     break
-            except Exception as e:
+            except:
                 continue
-        
-        if not identifier_filled:
-            # Last resort: find first visible text input
-            inputs = await page.query_selector_all('input[type="text"]')
-            for inp in inputs:
-                try:
-                    is_visible = await inp.is_visible()
-                    if is_visible:
-                        await inp.fill('')
-                        await inp.type(username, delay=50)
-                        identifier_filled = True
-                        break
-                except:
-                    continue
         
         if not identifier_filled:
             print(f"  ✗ Could not find identifier input field")
             return False
         
         # Fill password field
-        print(f"  Filling password...")
         password_filled = False
         try:
             password_input = await page.query_selector('input[type="password"]')
@@ -177,123 +182,60 @@ async def login(page: Page, username: str, password: str, base_url: str) -> bool
                 await password_input.fill('')
                 await password_input.type(password, delay=50)
                 password_filled = True
-        except Exception as e:
-            print(f"  ⚠️  Error filling password: {e}")
+        except:
+            pass
         
         if not password_filled:
             print(f"  ✗ Could not find password input field")
             return False
         
-        # Wait a bit before submitting
-        await page.wait_for_timeout(300)
-        
-        # Submit form - try multiple approaches
+        # Submit form
         print(f"  Submitting login form...")
-        submitted = False
         
-        # Try clicking the submit button by text content
-        submit_selectors = [
-            ('button[type="submit"]', 'button type="submit"'),
-            ('button:has-text("Sign In")', 'button with "Sign In" text'),
-            ('button:has-text("Sign in")', 'button with "Sign in" text'),
-            ('button:has-text("Login")', 'button with "Login" text'),
-        ]
+        # Try various submit buttons or Enter key
+        try:
+            await page.press('input[type="password"]', 'Enter')
+        except:
+            submit_btn = await page.query_selector('button[type="submit"]')
+            if submit_btn:
+                await submit_btn.click()
         
-        for selector, desc in submit_selectors:
-            try:
-                button = await page.query_selector(selector)
-                if button:
-                    is_visible = await button.is_visible()
-                    is_enabled = await button.is_enabled()
-                    if is_visible and is_enabled:
-                        await button.click()
-                        submitted = True
-                        print(f"  ✓ Clicked submit button ({desc})")
-                        break
-            except:
-                continue
-        
-        if not submitted:
-            # Try form submit
-            try:
-                form = await page.query_selector('form')
-                if form:
-                    await form.evaluate('form => form.requestSubmit()')
-                    submitted = True
-                    print(f"  ✓ Submitted via form.requestSubmit()")
-            except:
-                pass
-        
-        if not submitted:
-            # Last resort: press Enter on password field
-            try:
-                await page.press('input[type="password"]', 'Enter')
-                submitted = True
-                print(f"  ✓ Submitted via Enter key")
-            except:
-                pass
-        
-        if not submitted:
-            print(f"  ✗ Could not submit form")
-            return False
-        
-        # Wait for navigation - the app should redirect to /dashboard after login
+        # Wait for navigation
         print(f"  Waiting for login to complete...")
         try:
-            # Wait for URL to change away from /login or wait for dashboard to load
             await page.wait_for_function(
                 '() => !window.location.pathname.includes("/login")',
                 timeout=15000
             )
         except:
-            # If that doesn't work, wait for network to be idle and check URL
-            try:
-                await page.wait_for_load_state("networkidle", timeout=10000)
-            except:
-                await page.wait_for_timeout(3000)
-        
-        # Check if login was successful - verify we're not on login page
+            pass
+            
         current_url = page.url
-        print(f"  Current URL after login attempt: {current_url}")
-        
         if "/login" not in current_url:
             print(f"  ✓ Login successful - redirected to: {current_url}")
-            # Wait for page to fully load
-            await page.wait_for_timeout(1500)
+            await page.wait_for_timeout(1000)
             return True
         else:
-            # Check for error messages
-            try:
-                error_selectors = [
-                    '[role="alert"]',
-                    '.error',
-                    '.alert-error',
-                    '[class*="error"]',
-                    '[class*="Error"]'
-                ]
-                for selector in error_selectors:
-                    error_elements = await page.query_selector_all(selector)
-                    if error_elements:
-                        for elem in error_elements:
-                            try:
-                                error_text = await elem.inner_text()
-                                if error_text and len(error_text.strip()) > 0:
-                                    print(f"  ✗ Login failed: {error_text[:150]}")
-                                    return False
-                            except:
-                                continue
-            except:
-                pass
-            
             print(f"  ✗ Login failed - still on login page")
             return False
             
     except Exception as e:
         print(f"  ✗ Login error: {str(e)}")
-        import traceback
-        traceback.print_exc()
         return False
 
+async def logout(page: Page, base_url: str):
+    """Logout the current user."""
+    try:
+        print("  Logging out...")
+        # Common pattern: click profile menu then logout
+        # OR just clear cookies/storage
+        # Since we are automating, clearing storage is safer and faster
+        await page.evaluate("() => { localStorage.clear(); sessionStorage.clear(); }")
+        await page.context.clear_cookies()
+        await page.goto(f"{base_url}/login")
+        print("  ✓ Logged out")
+    except Exception as e:
+        print(f"  ⚠️ Error logging out: {e}")
 
 async def capture_screenshot(
     page: Page,
@@ -301,17 +243,13 @@ async def capture_screenshot(
     output_dir: Path,
     base_url: str,
     wait_time: int = 2000,
-    requires_auth: bool = False
 ) -> bool:
     """Capture a screenshot of a specific route."""
     try:
-        # Navigate to the page
         full_url = f"{base_url}{route}"
         print(f"  Navigating to {full_url}...")
         
         await page.goto(full_url, wait_until="networkidle", timeout=30000)
-        
-        # Wait a bit for any dynamic content to load
         await page.wait_for_timeout(wait_time)
         
         # Generate filename from route
@@ -321,7 +259,6 @@ async def capture_screenshot(
         filename = f"{filename}.png"
         filepath = output_dir / filename
         
-        # Take screenshot
         await page.screenshot(path=str(filepath), full_page=True)
         print(f"  ✓ Screenshot saved: {filepath}")
         return True
@@ -332,111 +269,91 @@ async def capture_screenshot(
 
 
 async def main():
-    parser = argparse.ArgumentParser(
-        description="Capture screenshots of FMU Platform frontend pages"
-    )
-    parser.add_argument(
-        "--url",
-        type=str,
-        default="https://sims.alshifalab.pk",
-        help="Base URL of the frontend application (default: https://sims.alshifalab.pk)"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="screenshots",
-        help="Output directory for screenshots (default: screenshots/)"
-    )
-    parser.add_argument(
-        "--username",
-        type=str,
-        default=DEFAULT_USERNAME,
-        help=f"Username for authentication (default: {DEFAULT_USERNAME})"
-    )
-    parser.add_argument(
-        "--password",
-        type=str,
-        default=DEFAULT_PASSWORD,
-        help="Password for authentication (default: configured in script/env)"
-    )
-    parser.add_argument(
-        "--wait",
-        type=int,
-        default=2000,
-        help="Wait time in milliseconds after page load (default: 2000)"
-    )
+    parser = argparse.ArgumentParser(description="Capture screenshots of FMU Platform frontend pages")
+    parser.add_argument("--url", type=str, default=DEFAULT_BASE_URL, help=f"Base URL (default: {DEFAULT_BASE_URL})")
+    parser.add_argument("--output", type=str, default="screenshots", help="Output directory")
+    parser.add_argument("--wait", type=int, default=2000, help="Wait time (ms)")
+    parser.add_argument("--role", type=str, default=None, help="Capture only pages for a specific role (e.g. Admin, Student)")
     parser.add_argument(
         "--pages",
         type=str,
         nargs="+",
         default=None,
-        help="Specific pages to capture (by route, e.g., /dashboard /finance). If not specified, all pages are captured."
+        help="Specific pages to capture (by route, e.g., /dashboard /finance). If specified, filters the list."
     )
     
     args = parser.parse_args()
     
-    # Create output directory
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Output directory: {output_dir.absolute()}")
     
-    # Filter pages if specific pages are requested
-    pages_to_capture = PAGES_TO_CAPTURE
-    if args.pages:
-        requested_routes = set(args.pages)
-        pages_to_capture = [p for p in PAGES_TO_CAPTURE if p[0] in requested_routes]
-        if not pages_to_capture:
-            print(f"Error: No matching pages found for routes: {args.pages}")
-            return
-    
-    print(f"\n📸 Capturing screenshots of {len(pages_to_capture)} pages...")
-    print(f"Base URL: {args.url}\n")
+    print(f"\n📸 Starting Multi-Role Screenshot Capture")
+    print(f"Base URL: {args.url}")
+    print(f"Output: {output_dir.absolute()}\n")
     
     async with async_playwright() as p:
-        # Launch browser
         browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(
-            viewport={"width": 1920, "height": 1080},
-            device_scale_factor=1,
-        )
+        context = await browser.new_context(viewport={"width": 1920, "height": 1080})
         page = await context.new_page()
+
+        # Filter pages if requested
+        pages_to_capture = PAGES_TO_CAPTURE
+        if args.pages:
+            requested = set(args.pages)
+            pages_to_capture = [p for p in PAGES_TO_CAPTURE if p[0] in requested]
+            if not pages_to_capture:
+                 print(f"Warning: No matching pages found for {args.pages}")
+
+        # 1. Capture Public Pages first (no login needed)
+        print("=== Capturing Public Pages ===")
+        public_pages = [p for p in pages_to_capture if p[2] is None]
+        for route, desc, _ in public_pages:
+            print(f"📄 {desc} ({route})")
+            await capture_screenshot(page, route, output_dir, args.url, args.wait)
         
-        # Login if credentials provided
-        if args.username and args.password:
-            print("🔐 Logging in...")
-            login_success = await login(page, args.username, args.password, args.url)
-            if not login_success:
-                print("⚠️  Warning: Login failed. Some pages may not be accessible.")
-        else:
-            print("⚠️  No credentials provided. Skipping login. Protected pages may fail.")
-        
-        # Capture screenshots
-        success_count = 0
-        fail_count = 0
-        
-        for route, description, requires_auth in pages_to_capture:
-            print(f"\n📄 {description} ({route})")
-            
-            if requires_auth and not (args.username and args.password):
-                print(f"  ⚠️  Skipping (requires authentication)")
-                fail_count += 1
-                continue
-            
-            success = await capture_screenshot(page, route, output_dir, args.url, args.wait, requires_auth)
-            if success:
-                success_count += 1
+        # 2. Group pages by Role
+        # If user specified --role, filter by that.
+        roles_to_process = CREDENTIALS.keys()
+        if args.role:
+            if args.role in CREDENTIALS:
+                roles_to_process = [args.role]
             else:
-                fail_count += 1
-        
+                print(f"Error: Unknown role '{args.role}'")
+                return
+
+        for role in roles_to_process:
+            role_pages = [p for p in pages_to_capture if p[2] == role]
+            
+            if not role_pages:
+                continue
+                
+            print(f"\n=== Processing Role: {role} ===")
+            creds = CREDENTIALS[role]
+            
+            if not creds["username"] or not creds["password"]:
+                print(f"  ⚠️  No credentials configured for {role}. Skipping.")
+                continue
+
+            # Login
+            print(f"🔐 Logging in as {role} ({creds['username']})...")
+            # Ensure logged out first
+            await logout(page, args.url)
+            
+            login_success = await login(page, creds["username"], creds["password"], args.url)
+            
+            if not login_success:
+                print(f"  ❌ Failed to login as {role}. Skipping pages.")
+                continue
+                
+            # Capture pages
+            for route, desc, _ in role_pages:
+                print(f"📄 {desc} ({route})")
+                await capture_screenshot(page, route, output_dir, args.url, args.wait)
+                
         await browser.close()
     
-    # Summary
     print(f"\n{'='*60}")
-    print(f"📊 Screenshot Capture Summary")
-    print(f"{'='*60}")
-    print(f"✓ Successful: {success_count}")
-    print(f"✗ Failed: {fail_count}")
-    print(f"📁 Output directory: {output_dir.absolute()}")
+    print(f"✅ Capture Complete")
     print(f"{'='*60}\n")
 
 

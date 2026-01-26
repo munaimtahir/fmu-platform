@@ -7,6 +7,44 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+# Setup Django environment to manage users
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+import django
+django.setup()
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+def ensure_demo_users():
+    """Create demo users for all roles if they do not exist."""
+    role_users = {
+        "Admin": {"username": os.environ.get('FMU_ADMIN_USERNAME', 'admin'), "email": 'admin@sims.edu', "password": os.environ.get('FMU_ADMIN_PASSWORD', 'admin123'), "first_name": 'Admin', "last_name": 'User'},
+        "Faculty": {"username": os.environ.get('FMU_FACULTY_USERNAME', 'demo_faculty1'), "email": 'faculty@sims.edu', "password": os.environ.get('FMU_FACULTY_PASSWORD', 'faculty123'), "first_name": 'Faculty', "last_name": 'Member'},
+        "Student": {"username": os.environ.get('FMU_STUDENT_USERNAME', 'demo_student001'), "email": 'student@sims.edu', "password": os.environ.get('FMU_STUDENT_PASSWORD', 'demo123'), "first_name": 'Student', "last_name": 'User'},
+        "Registrar": {"username": os.environ.get('FMU_REGISTRAR_USERNAME', 'admin'), "email": 'registrar@sims.edu', "password": os.environ.get('FMU_REGISTRAR_PASSWORD', 'admin123'), "first_name": 'Registrar', "last_name": 'User'},
+        "ExamCell": {"username": os.environ.get('FMU_EXAMCELL_USERNAME', 'admin'), "email": 'examcell@sims.edu', "password": os.environ.get('FMU_EXAMCELL_PASSWORD', 'admin123'), "first_name": 'Exam', "last_name": 'Cell'},
+        "Finance": {"username": os.environ.get('FMU_FINANCE_USERNAME', 'admin'), "email": 'finance@sims.edu', "password": os.environ.get('FMU_FINANCE_PASSWORD', 'admin123'), "first_name": 'Finance', "last_name": 'User'},
+    }
+    for role, info in role_users.items():
+        if not User.objects.filter(username=info['username']).exists():
+            user = User.objects.create_user(
+                username=info['username'],
+                email=info['email'],
+                password=info['password'],
+                first_name=info['first_name'],
+                last_name=info['last_name'],
+            )
+            # Assign group if exists
+            try:
+                from django.contrib.auth.models import Group
+                group, _ = Group.objects.get_or_create(name=role)
+                user.groups.add(group)
+            except Exception:
+                pass
+            print(f"Created demo user for role {role}: {info['username']}")
+        else:
+            print(f"Demo user for role {role} already exists: {info['username']}")
+
+
 try:
     from playwright.async_api import async_playwright, Page, Browser
 except ImportError:
@@ -290,7 +328,13 @@ async def main():
     print(f"\n📸 Starting Multi-Role Screenshot Capture")
     print(f"Base URL: {args.url}")
     print(f"Output: {output_dir.absolute()}\n")
-    
+
+    # Ensure demo users exist before proceeding
+    ensure_demo_users()
+
+    # Initialize login report dictionary
+    login_report: dict[str, bool] = {}
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(viewport={"width": 1920, "height": 1080})
@@ -332,6 +376,7 @@ async def main():
             
             if not creds["username"] or not creds["password"]:
                 print(f"  ⚠️  No credentials configured for {role}. Skipping.")
+                login_report[role] = False
                 continue
 
             # Login
@@ -340,6 +385,9 @@ async def main():
             await logout(page, args.url)
             
             login_success = await login(page, creds["username"], creds["password"], args.url)
+            
+            # Record login result
+            login_report[role] = login_success
             
             if not login_success:
                 print(f"  ❌ Failed to login as {role}. Skipping pages.")
@@ -352,6 +400,12 @@ async def main():
                 
         await browser.close()
     
+    # Print login summary report
+    print("\nLogin Summary Report:")
+    for r, success in login_report.items():
+        status = "✅ Success" if success else "❌ Failure"
+        print(f"  {r}: {status}")
+
     print(f"\n{'='*60}")
     print(f"✅ Capture Complete")
     print(f"{'='*60}\n")

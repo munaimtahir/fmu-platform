@@ -28,6 +28,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: fmu_backend_prod
+    env_file:
+      - .env
     environment:
       DB_ENGINE: django.db.backends.postgresql
       DB_USER: sims_user

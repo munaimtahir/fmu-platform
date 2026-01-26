@@ -25,6 +25,14 @@ except ImportError:
     sys.exit(1)
 
 
+# Configuration
+# You can set default credentials here to avoid typing them every time
+# These can be overridden by environment variables or CLI arguments
+DEFAULT_USERNAME = os.environ.get("FMU_ADMIN_USERNAME", "admin")
+DEFAULT_PASSWORD = os.environ.get("FMU_ADMIN_PASSWORD", "admin123")
+
+
+# Define all pages to capture with their routes and descriptions
 # Define all pages to capture with their routes and descriptions
 PAGES_TO_CAPTURE: List[Tuple[str, str, bool]] = [
     # (route, description, requires_auth)
@@ -41,6 +49,9 @@ PAGES_TO_CAPTURE: List[Tuple[str, str, bool]] = [
     ("/dashboard/student", "Student Dashboard", True),
     ("/dashboard/examcell", "Exam Cell Dashboard", True),
     
+    # Demo Pages
+    ("/demo/datatable", "DataTable Demo", True),
+
     # Finance Module
     ("/finance", "Finance Dashboard", True),
     ("/finance/fee-plans", "Fee Plans Page", True),
@@ -61,6 +72,7 @@ PAGES_TO_CAPTURE: List[Tuple[str, str, bool]] = [
     
     # Academics Module
     ("/academics/programs", "Programs Page", True),
+    ("/academics/programs/new", "New Program Page", True),
     ("/academics/batches", "Batches Page", True),
     ("/academics/periods", "Academic Periods Page", True),
     ("/academics/groups", "Groups Page", True),
@@ -76,24 +88,23 @@ PAGES_TO_CAPTURE: List[Tuple[str, str, bool]] = [
     ("/timetable", "Timetable Page", True),
     
     # Assessments & Exams
-    ("/assessments", "Assessments Page", True),
     ("/gradebook", "Gradebook Page", True),
     ("/exams", "Exams Page", True),
     ("/results", "Results Page", True),
     ("/examcell/publish", "Publish Results Page", True),
     
-    # Enrollment
-    ("/enrollment/bulk", "Bulk Enrollment Page", True),
-    
     # Admin Pages
+    ("/admin/dashboard", "Admin Dashboard Page", True),
     ("/admin/users", "Users Management Page", True),
     ("/admin/roles", "Roles Management Page", True),
+    ("/admin/syllabus", "Syllabus Manager Page", True),
+    ("/admin/settings", "Admin Settings Page", True),
     ("/admin/audit", "Audit Log Page", True),
     
     # Other Pages
     ("/analytics", "Analytics Dashboard", True),
     ("/profile", "Profile Page", True),
-    ("/requests", "Requests Page", True),
+    ("/notifications", "Notifications Page", True),
     ("/transcripts", "Transcripts Page", True),
     ("/apply", "Student Application Page", False),
 ]
@@ -339,14 +350,14 @@ async def main():
     parser.add_argument(
         "--username",
         type=str,
-        default=None,
-        help="Username for authentication (optional)"
+        default=DEFAULT_USERNAME,
+        help=f"Username for authentication (default: {DEFAULT_USERNAME})"
     )
     parser.add_argument(
         "--password",
         type=str,
-        default=None,
-        help="Password for authentication (optional)"
+        default=DEFAULT_PASSWORD,
+        help="Password for authentication (default: configured in script/env)"
     )
     parser.add_argument(
         "--wait",

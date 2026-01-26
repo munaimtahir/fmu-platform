@@ -35,10 +35,18 @@ python3 scripts/capture_screenshots.py \
 
 - `--url`: Base URL of the frontend (default: https://sims.alshifalab.pk)
 - `--output`: Output directory for screenshots (default: screenshots/)
-- `--username`: Username for authentication
-- `--password`: Password for authentication
+- `--username`: Username for authentication (optional, defaults to `admin` or env var `FMU_ADMIN_USERNAME`)
+- `--password`: Password for authentication (optional, defaults to `admin123` or env var `FMU_ADMIN_PASSWORD`)
 - `--wait`: Wait time in milliseconds after page load (default: 2000)
 - `--pages`: Capture specific pages only (e.g., `--pages /dashboard /finance`)
+
+### Authentication Configuration
+
+You can configure authentication in three ways:
+1. **Command Line Arguments**: Pass `--username` and `--password` flags (overrides all other settings).
+2. **Environment Variables**: Set `FMU_ADMIN_USERNAME` and `FMU_ADMIN_PASSWORD` in your environment.
+3. **Script Configuration**: Edit the `DEFAULT_USERNAME` and `DEFAULT_PASSWORD` variables at the top of `scripts/capture_screenshots.py`.
+
 
 ### Examples
 
@@ -77,6 +85,16 @@ python scripts/capture_screenshots.py \
   --username admin \
   --password admin123 \
   --pages /finance /finance/fee-plans /finance/vouchers /finance/payments
+```
+
+**Capture only Admin module:**
+```bash
+python scripts/capture_screenshots.py \
+  --url http://localhost:5173 \
+  --output screenshots/admin/ \
+  --username admin \
+  --password admin123 \
+  --pages /admin/dashboard /admin/users /admin/roles /admin/settings /admin/audit
 ```
 
 **Capture public pages only (no login required):**
@@ -121,7 +139,7 @@ npx puppeteer screenshot --url http://localhost:5173/dashboard --output screensh
 ```
 
 ## Pages to Capture
-
+    
 ### Authentication Pages
 - `/login` - Login page
 
@@ -132,6 +150,9 @@ npx puppeteer screenshot --url http://localhost:5173/dashboard --output screensh
 - `/dashboard/faculty` - Faculty dashboard
 - `/dashboard/student` - Student dashboard
 - `/dashboard/examcell` - Exam Cell dashboard
+
+### Demo Pages
+- `/demo/datatable` - DataTable demo
 
 ### Finance Module
 - `/finance` - Finance dashboard
@@ -153,6 +174,7 @@ npx puppeteer screenshot --url http://localhost:5173/dashboard --output screensh
 
 ### Academics Module
 - `/academics/programs` - Programs management
+- `/academics/programs/new` - New program form
 - `/academics/batches` - Batches management
 - `/academics/periods` - Academic periods
 - `/academics/groups` - Groups management
@@ -168,24 +190,23 @@ npx puppeteer screenshot --url http://localhost:5173/dashboard --output screensh
 - `/timetable` - Timetable
 
 ### Assessments & Exams
-- `/assessments` - Assessments management
 - `/gradebook` - Gradebook
 - `/exams` - Exams management
 - `/results` - Results view
 - `/examcell/publish` - Publish results
 
-### Enrollment
-- `/enrollment/bulk` - Bulk enrollment
-
 ### Admin Pages
+- `/admin/dashboard` - Admin dashboard (analytics/overview)
 - `/admin/users` - Users management
 - `/admin/roles` - Roles management
+- `/admin/syllabus` - Syllabus manager
+- `/admin/settings` - Admin settings
 - `/admin/audit` - Audit log
 
 ### Other Pages
 - `/analytics` - Analytics dashboard
 - `/profile` - User profile
-- `/requests` - Requests management
+- `/notifications` - Notifications
 - `/transcripts` - Transcripts
 - `/apply` - Student application (public)
 

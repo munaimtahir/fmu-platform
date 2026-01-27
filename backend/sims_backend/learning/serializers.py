@@ -98,9 +98,6 @@ class LearningMaterialSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        request = self.context.get("request")
-        if request and request.user and request.user.is_authenticated:
-            validated_data["created_by"] = request.user
         material = super().create(validated_data)
         self._set_file_metadata(material, validated_data)
         return material

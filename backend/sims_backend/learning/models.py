@@ -144,7 +144,19 @@ class LearningMaterialAudience(models.Model):
             raise ValidationError("At least one audience scope must be set.")
 
     def __str__(self) -> str:
-        return f"Audience for {self.material_id}"
+        scopes = []
+        if self.program_id is not None:
+            scopes.append(f"Program={self.program_id}")
+        if self.batch_id is not None:
+            scopes.append(f"Batch={self.batch_id}")
+        if self.term_id is not None:
+            scopes.append(f"Term={self.term_id}")
+        if self.course_id is not None:
+            scopes.append(f"Course={self.course_id}")
+        if self.section_id is not None:
+            scopes.append(f"Section={self.section_id}")
+        scope_desc = ", ".join(scopes) if scopes else "No scope set"
+        return f"Audience for material={self.material_id} ({scope_desc})"
 
 
 class LearningMaterialReadReceipt(models.Model):

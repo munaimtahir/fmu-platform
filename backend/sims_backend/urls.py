@@ -198,6 +198,7 @@ urlpatterns = [
     path("", include("sims_backend.admin.urls")),
     path("", include("sims_backend.syllabus.urls")),
     path("", include("sims_backend.settings_app.urls")),
+    path("", include("sims_backend.learning.urls")),
     # Legacy apps removed - see docs/legacy/LEGACY_DEFINITION.md
 ]
 

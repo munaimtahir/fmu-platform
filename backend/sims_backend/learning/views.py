@@ -144,7 +144,7 @@ class LearningMaterialAudienceViewSet(AudiencePermissionMixin, viewsets.ModelVie
         """Delete an audience record with permission validation."""
         audience = self.get_object()
         user = request.user
-        
+
         # Only admins or the material owner can delete audiences
         if not (user.is_superuser or in_group(user, "ADMIN")):
             if audience.material.created_by_id != user.id:

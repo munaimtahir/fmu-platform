@@ -6,7 +6,7 @@ from django.utils import timezone
 from rest_framework import status
 
 from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Group as AcadGroup, Program, Section
-from sims_backend.learning.models import LearningMaterial
+from sims_backend.learning.models import LearningMaterial, LearningMaterialAudience
 from sims_backend.students.models import Student
 
 
@@ -148,7 +148,6 @@ def test_faculty_cannot_delete_other_faculty_audiences(api_client, learning_cont
         url="https://example.com",
         created_by=faculty_user,
     )
-    from sims_backend.learning.models import LearningMaterialAudience
 
     audience = LearningMaterialAudience.objects.create(material=material, section=section)
 
@@ -176,7 +175,6 @@ def test_faculty_can_delete_own_audiences(api_client, learning_context):
         url="https://example.com",
         created_by=faculty_user,
     )
-    from sims_backend.learning.models import LearningMaterialAudience
 
     audience = LearningMaterialAudience.objects.create(material=material, section=section)
 

@@ -155,3 +155,142 @@ def test_student_feed_filters_materials(api_client, learning_feed_setup):
     assert draft_material.id not in ids
     assert future_material.id not in ids
     assert other_section_material.id not in ids
+
+
+@pytest.mark.django_db
+def test_student_feed_multi_field_audience_filtering(api_client, learning_feed_setup):
+    """Test that multi-field audiences use AND semantics - students must match ALL fields."""
+    data = learning_feed_setup
+    faculty = data["faculty_user"]
+    student_user = data["student_user"]
+    student = data["student"]
+
+    # Create another batch in the same program
+    other_batch = Batch.objects.create(name="Batch 2025", program=data["program"], start_year=2025)
+    other_group = AcadGroup.objects.create(name="Group C", batch=other_batch)
+    other_student_user = User.objects.create_user(username="student2", password="pass")
+    other_student_user.groups.add(Group.objects.get(name="STUDENT"))
+    other_student = Student.objects.create(
+        user=other_student_user,
+        reg_no="REG-002",
+        name="Student Two",
+        program=data["program"],  # Same program
+        batch=other_batch,  # Different batch
+        group=other_group,
+    )
+
+    # Material 1: Program + Batch (specific combination) - should only match student in that exact batch
+    program_batch_material = LearningMaterial.objects.create(
+        title="Program+Batch Material",
+        kind=LearningMaterial.KIND_LINK,
+        url="https://example.com/prog-batch",
+        created_by=faculty,
+    )
+    LearningMaterialAudience.objects.create(
+        material=program_batch_material,
+        program=data["program"],
+        batch=data["batch"],  # Student 1's batch
+    )
+    program_batch_material.publish()
+
+    # Material 2: Program + Other Batch - should only match other student
+    other_program_batch_material = LearningMaterial.objects.create(
+        title="Program+OtherBatch Material",
+        kind=LearningMaterial.KIND_LINK,
+        url="https://example.com/prog-other-batch",
+        created_by=faculty,
+    )
+    LearningMaterialAudience.objects.create(
+        material=other_program_batch_material,
+        program=data["program"],
+        batch=other_batch,  # Student 2's batch
+    )
+    other_program_batch_material.publish()
+
+    # Material 3: Batch only - should match student 1 only
+    batch_only_material = LearningMaterial.objects.create(
+        title="Batch Only Material",
+        kind=LearningMaterial.KIND_LINK,
+        url="https://example.com/batch",
+        created_by=faculty,
+    )
+    LearningMaterialAudience.objects.create(material=batch_only_material, batch=data["batch"])
+    batch_only_material.publish()
+
+    # Material 4: Program only - should match both students
+    program_only_material = LearningMaterial.objects.create(
+        title="Program Only Material",
+        kind=LearningMaterial.KIND_LINK,
+        url="https://example.com/program",
+        created_by=faculty,
+    )
+    LearningMaterialAudience.objects.create(material=program_only_material, program=data["program"])
+    program_only_material.publish()
+
+    # Test student 1's feed
+    api_client.force_authenticate(user=student_user)
+    response1 = api_client.get("/api/learning/student-feed/")
+    assert response1.status_code == status.HTTP_200_OK
+    payload1 = response1.json()
+    ids1 = {item["id"] for item in payload1}
+
+    # Student 1 should see: program+batch (their batch), batch-only, program-only
+    assert program_batch_material.id in ids1, "Should see material for their program+batch"
+    assert batch_only_material.id in ids1, "Should see material for their batch"
+    assert program_only_material.id in ids1, "Should see material for their program"
+    # Should NOT see the other batch's material
+    assert other_program_batch_material.id not in ids1, "Should NOT see material for different batch"
+
+    # Test student 2's feed
+    api_client.force_authenticate(user=other_student_user)
+    response2 = api_client.get("/api/learning/student-feed/")
+    assert response2.status_code == status.HTTP_200_OK
+    payload2 = response2.json()
+    ids2 = {item["id"] for item in payload2}
+
+    # Student 2 should see: program+other_batch, program-only
+    assert other_program_batch_material.id in ids2, "Should see material for their program+batch"
+    assert program_only_material.id in ids2, "Should see material for their program"
+    # Should NOT see student 1's batch-specific materials
+    assert program_batch_material.id not in ids2, "Should NOT see material for different batch"
+    assert batch_only_material.id not in ids2, "Should NOT see material for different batch"
+
+
+@pytest.mark.django_db
+def test_student_feed_excludes_published_materials_without_audiences(api_client, learning_feed_setup):
+    """Test that published materials without audiences are not shown in student feeds."""
+    data = learning_feed_setup
+    faculty = data["faculty_user"]
+    student_user = data["student_user"]
+
+    # Create a published material with NO audiences
+    material_no_audience = LearningMaterial.objects.create(
+        title="No Audience Material",
+        kind=LearningMaterial.KIND_LINK,
+        url="https://example.com/no-audience",
+        created_by=faculty,
+    )
+    material_no_audience.publish()
+
+    # Create a published material WITH audience
+    material_with_audience = LearningMaterial.objects.create(
+        title="With Audience Material",
+        kind=LearningMaterial.KIND_LINK,
+        url="https://example.com/with-audience",
+        created_by=faculty,
+    )
+    LearningMaterialAudience.objects.create(material=material_with_audience, program=data["program"])
+    material_with_audience.publish()
+
+    # Check student feed
+    api_client.force_authenticate(user=student_user)
+    response = api_client.get("/api/learning/student-feed/")
+    assert response.status_code == status.HTTP_200_OK
+    payload = response.json()
+    ids = {item["id"] for item in payload}
+
+    # Should see material with audience
+    assert material_with_audience.id in ids, "Should see material with matching audience"
+    # Should NOT see material without audience
+    assert material_no_audience.id not in ids, "Should NOT see material without audiences"
+

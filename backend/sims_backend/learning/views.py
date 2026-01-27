@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 
 from sims_backend.academics.models import AcademicPeriod, Section
 from sims_backend.common_permissions import in_group
+from sims_backend.learning.mixins import AudiencePermissionMixin
 from sims_backend.learning.models import LearningMaterial, LearningMaterialAudience
 from sims_backend.learning.permissions import (
     IsAdminOrFaculty,
@@ -24,7 +25,7 @@ from sims_backend.learning.serializers import (
 from sims_backend.students.models import Student
 
 
-class LearningMaterialViewSet(viewsets.ModelViewSet):
+class LearningMaterialViewSet(AudiencePermissionMixin, viewsets.ModelViewSet):
     queryset = LearningMaterial.objects.select_related("created_by").prefetch_related("audiences")
     serializer_class = LearningMaterialSerializer
     permission_classes = [IsAuthenticated, IsAdminOrFaculty, LearningMaterialObjectPermission]
@@ -117,26 +118,8 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
         output = LearningMaterialAudienceSerializer(created, many=True)
         return Response(output.data, status=status.HTTP_201_CREATED)
 
-    def _validate_audience_permissions(self, data: dict) -> None:
-        user = self.request.user
-        if user.is_superuser or in_group(user, "ADMIN"):
-            return
-        if in_group(user, "FACULTY"):
-            section = data.get("section")
-            if not section:
-                raise PermissionError("Faculty audiences must target a section.")
-            if section.faculty_id != user.id:
-                raise PermissionError("Faculty can only target sections they teach.")
-            return
-        raise PermissionError("You do not have permission to manage audiences.")
 
-    def handle_exception(self, exc):
-        if isinstance(exc, PermissionError):
-            return Response({"detail": str(exc)}, status=status.HTTP_403_FORBIDDEN)
-        return super().handle_exception(exc)
-
-
-class LearningMaterialAudienceViewSet(viewsets.ModelViewSet):
+class LearningMaterialAudienceViewSet(AudiencePermissionMixin, viewsets.ModelViewSet):
     queryset = LearningMaterialAudience.objects.select_related(
         "material",
         "program",
@@ -157,23 +140,20 @@ class LearningMaterialAudienceViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def _validate_audience_permissions(self, data: dict) -> None:
-        user = self.request.user
-        if user.is_superuser or in_group(user, "ADMIN"):
-            return
-        if in_group(user, "FACULTY"):
-            section = data.get("section")
-            if not section:
-                raise PermissionError("Faculty audiences must target a section.")
-            if section.faculty_id != user.id:
-                raise PermissionError("Faculty can only target sections they teach.")
-            return
-        raise PermissionError("You do not have permission to manage audiences.")
+    def destroy(self, request, *args, **kwargs):
+        """Delete an audience record with permission validation."""
+        audience = self.get_object()
+        user = request.user
 
-    def handle_exception(self, exc):
-        if isinstance(exc, PermissionError):
-            return Response({"detail": str(exc)}, status=status.HTTP_403_FORBIDDEN)
-        return super().handle_exception(exc)
+        # Only admins or the material owner can delete audiences
+        if not (user.is_superuser or in_group(user, "ADMIN")):
+            if audience.material.created_by_id != user.id:
+                return Response(
+                    {"detail": "You can only delete audiences for materials you created."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+        
+        return super().destroy(request, *args, **kwargs)
 
 
 class LearningStudentFeedAPIView(APIView):
@@ -196,17 +176,49 @@ class LearningStudentFeedAPIView(APIView):
         }
         term_ids = {section.academic_period_id for section in enrolled_sections if section.academic_period_id}
 
+        # Build audience filter with proper AND semantics for multi-field audiences
+        # Each Q object represents a potential match - a student matches if ANY audience matches ALL its constraints
         audience_filter = Q()
+        
+        # Section-based audiences (most specific)
         if section_ids:
             audience_filter |= Q(audiences__section_id__in=section_ids)
+        
+        # Course+Term pair audiences (explicit AND of both fields)
         for course_id, term_id in course_term_pairs:
             audience_filter |= Q(audiences__course_id=course_id, audiences__term_id=term_id)
+        
+        # Term-only audiences (matching students enrolled in sections for that term)
         if term_ids:
-            audience_filter |= Q(audiences__term_id__in=term_ids)
+            audience_filter |= Q(
+                audiences__term_id__in=term_ids,
+                audiences__course_id__isnull=True,
+                audiences__section_id__isnull=True,
+            )
+        
+        # Batch-only or Batch+Program audiences
         if student.batch_id:
-            audience_filter |= Q(audiences__batch_id=student.batch_id)
+            # Match audiences that specify this batch with no program constraint
+            audience_filter |= Q(
+                audiences__batch_id=student.batch_id,
+                audiences__program_id__isnull=True,
+            )
+            # Match audiences that specify both this batch AND this program
+            if student.program_id:
+                audience_filter |= Q(
+                    audiences__batch_id=student.batch_id,
+                    audiences__program_id=student.program_id,
+                )
+        
+        # Program-only audiences (most general)
         if student.program_id:
-            audience_filter |= Q(audiences__program_id=student.program_id)
+            audience_filter |= Q(
+                audiences__program_id=student.program_id,
+                audiences__batch_id__isnull=True,
+                audiences__term_id__isnull=True,
+                audiences__course_id__isnull=True,
+                audiences__section_id__isnull=True,
+            )
 
         queryset = (
             LearningMaterial.objects.filter(status=LearningMaterial.STATUS_PUBLISHED)

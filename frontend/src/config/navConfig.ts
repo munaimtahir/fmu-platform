@@ -44,6 +44,12 @@ export const navigationConfig: NavigationItem[] = [
     icon: '📊',
     roles: [],
   },
+  {
+    label: 'Announcements / Notifications',
+    path: '/notifications',
+    icon: '🔔',
+    roles: [],
+  },
   // Analytics (single item)
   {
     label: 'Analytics',
@@ -138,6 +144,7 @@ export const navigationConfig: NavigationItem[] = [
  */
 export const routePolicy: Record<string, string[]> = {
   '/dashboard': [],
+  '/notifications': [],
   '/analytics': ['Admin'],
   '/students': ['Admin', 'Registrar'],
   '/courses': ['Admin', 'Registrar', 'Faculty'],

@@ -573,3 +573,64 @@ Key endpoints (all require authentication; finance/admin unless noted):
 **Voucher Cancellation:** POST `/api/finance/vouchers/{id}/cancel/` with `{"reason": "..."}` creates reversal credit entries.
 
 Finance errors follow the `{ "error": { "code": "...", "message": "..." } }` envelope (e.g., `FINANCE_BLOCKED`, `TERM_LOCKED`, `DUPLICATE_REFERENCE`).
+
+---
+
+## Notifications
+
+### Admin / Registrar / Program Coordinator
+
+| Endpoint | Method | Description |
+| --- | --- | --- |
+| `/api/notifications/` | POST | Create a notification (default `status=DRAFT` unless `send_now=true`). |
+| `/api/notifications/` | GET | List notifications with filters (`status`, `category`, `created_by`, `start_date`, `end_date`). |
+| `/api/notifications/{id}/send/` | POST | Queue delivery (in-app inbox expansion + optional email batches). |
+
+**Create Request Example**:
+```json
+{
+  "title": "Exam Schedule Update",
+  "body": "The exam schedule has been updated.",
+  "category": "Academics",
+  "priority": "HIGH",
+  "send_email": true,
+  "send_now": true,
+  "audiences": [
+    { "audience_type": "ALL_STUDENTS" }
+  ]
+}
+```
+
+### Student Inbox
+
+| Endpoint | Method | Description |
+| --- | --- | --- |
+| `/api/my/notifications/` | GET | List inbox entries (use `?unread=true` for unread only). |
+| `/api/my/notifications/{inbox_id}/read/` | POST | Mark a single inbox entry as read. |
+| `/api/my/notifications/read-all/` | POST | Mark all inbox entries as read. |
+| `/api/my/notifications/unread-count/` | GET | Unread count for the current user. |
+
+**Inbox Response Example**:
+```json
+{
+  "count": 1,
+  "results": [
+    {
+      "id": 10,
+      "delivered_at": "2025-02-01T09:00:00Z",
+      "read_at": null,
+      "is_deleted": false,
+      "notification": {
+        "id": 5,
+        "title": "Exam Schedule Update",
+        "body": "The exam schedule has been updated.",
+        "category": "Academics",
+        "priority": "HIGH",
+        "publish_at": "2025-02-01T09:00:00Z",
+        "expires_at": null,
+        "created_at": "2025-02-01T09:00:00Z"
+      }
+    }
+  ]
+}
+```

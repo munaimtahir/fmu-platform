@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/features/auth/useAuth'
 import { navigationConfig, isNavGroup, type NavigationItem, type NavGroup, type NavItem } from '@/config/navConfig'
+import { notificationsService } from '@/services/notifications'
 
 interface SidebarProps {
   isOpen: boolean
@@ -45,6 +47,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
   const location = useLocation()
   const { user } = useAuth()
   const userRole = user?.role
+  const { data: unreadData } = useQuery({
+    queryKey: ['notifications-unread-count'],
+    queryFn: () => notificationsService.getUnreadCount(),
+    refetchInterval: 30000,
+  })
+  const unreadCount = unreadData?.count || 0
 
   // Load expanded groups from localStorage
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
@@ -98,6 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
 
   const renderNavItem = (item: NavItem) => {
     const isActive = isActivePath(location.pathname, item.path)
+    const showUnreadBadge = item.path === '/notifications' && unreadCount > 0
     
     return (
       <li key={item.path}>
@@ -117,7 +126,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
         >
           <span className="text-xl flex-shrink-0" aria-hidden="true">{item.icon}</span>
           {isOpen && (
-            <span className="font-medium truncate">{item.label}</span>
+            <>
+              <span className="font-medium truncate">{item.label}</span>
+              {showUnreadBadge && (
+                <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
+                  {unreadCount}
+                </span>
+              )}
+            </>
           )}
         </Link>
       </li>

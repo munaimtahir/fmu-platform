@@ -1,24 +1,24 @@
 import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 import { Spinner } from '@/components/ui/Spinner'
-import { notificationsService, type Notification } from '@/services/notifications'
+import { notificationsService, type NotificationInbox } from '@/services/notifications'
 
 export const NotificationsPage: React.FC = () => {
   const queryClient = useQueryClient()
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['notifications', filter],
-    queryFn: () => notificationsService.getAll(filter === 'unread' ? { is_read: false } : undefined),
+    queryFn: () => notificationsService.getMyNotifications(filter === 'unread' ? { unread: true } : undefined),
   })
 
   const markReadMutation = useMutation({
-    mutationFn: (id: number) => notificationsService.markAsRead(id),
+    mutationFn: (id: number) => notificationsService.markRead(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] })
@@ -40,38 +40,28 @@ export const NotificationsPage: React.FC = () => {
     },
   })
 
-  const getNotificationIcon = (type: Notification['type']) => {
-    switch (type) {
-      case 'success':
-        return '✅'
-      case 'warning':
-        return '⚠️'
-      case 'error':
-        return '❌'
+  const getPriorityBadgeVariant = (priority: NotificationInbox['notification']['priority']):
+    'default' | 'success' | 'warning' | 'danger' => {
+    switch (priority) {
+      case 'HIGH':
+      case 'URGENT':
+        return 'danger'
+      case 'LOW':
+        return 'default'
       default:
-        return 'ℹ️'
+        return 'warning'
     }
   }
 
-  const getNotificationBadgeVariant = (type: Notification['type']): 'default' | 'success' | 'warning' | 'danger' => {
-    switch (type) {
-      case 'success':
-        return 'success'
-      case 'warning':
-        return 'warning'
-      case 'error':
-        return 'danger'
-      default:
-        return 'default'
-    }
-  }
+  const items = data?.results ?? []
+  const hasUnread = items.some((item) => !item.read_at)
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-          {data && data.results.some(n => !n.is_read) && (
+          <h1 className="text-2xl font-bold text-gray-900">Announcements / Notifications</h1>
+          {hasUnread && (
             <Button
               onClick={() => markAllReadMutation.mutate()}
               disabled={markAllReadMutation.isPending}
@@ -109,35 +99,37 @@ export const NotificationsPage: React.FC = () => {
           <div className="flex justify-center py-12">
             <Spinner size="lg" />
           </div>
-        ) : data && data.results.length > 0 ? (
+        ) : isError ? (
+          <Card className="p-12 text-center">
+            <p className="text-gray-500">We could not load notifications right now.</p>
+          </Card>
+        ) : items.length > 0 ? (
           <div className="space-y-3">
-            {data.results.map((notification) => (
+            {items.map((item) => (
               <Card
-                key={notification.id}
-                className={`p-4 ${!notification.is_read ? 'bg-blue-50 border-blue-200' : ''}`}
+                key={item.id}
+                className={`p-4 ${!item.read_at ? 'bg-blue-50 border-blue-200' : ''}`}
               >
                 <div className="flex items-start gap-4">
-                  <div className="text-3xl">{getNotificationIcon(notification.type)}</div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {notification.title}
+                        {item.notification.title}
                       </h3>
-                      {!notification.is_read && (
-                        <Badge variant="default">New</Badge>
-                      )}
-                      <Badge variant={getNotificationBadgeVariant(notification.type)}>
-                        {notification.type}
+                      {!item.read_at && <Badge variant="default">New</Badge>}
+                      <Badge variant={getPriorityBadgeVariant(item.notification.priority)}>
+                        {item.notification.priority}
                       </Badge>
+                      <Badge variant="success">{item.notification.category}</Badge>
                     </div>
-                    <p className="text-gray-700 mb-2">{notification.message}</p>
+                    <p className="text-gray-700 mb-2">{item.notification.body}</p>
                     <p className="text-sm text-gray-500">
-                      {new Date(notification.created_at).toLocaleString()}
+                      {new Date(item.notification.created_at).toLocaleString()}
                     </p>
                   </div>
-                  {!notification.is_read && (
+                  {!item.read_at && (
                     <Button
-                      onClick={() => markReadMutation.mutate(notification.id)}
+                      onClick={() => markReadMutation.mutate(item.id)}
                       disabled={markReadMutation.isPending}
                       variant="secondary"
                       size="sm"

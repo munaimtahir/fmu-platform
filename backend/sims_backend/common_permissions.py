@@ -83,6 +83,38 @@ class IsOfficeAssistant(BasePermission):
         return in_group(u, "OFFICE_ASSISTANT")
 
 
+class IsNotificationAdmin(BasePermission):
+    """Admin, Registrar, or Program Coordinator access."""
+
+    def has_permission(self, request, view) -> bool:
+        u = request.user
+        if not u or not u.is_authenticated:
+            return False
+        return u.is_superuser or any(
+            in_group(u, name)
+            for name in [
+                "ADMIN",
+                "Admin",
+                "Registrar",
+                "REGISTRAR",
+                "COORDINATOR",
+                "Coordinator",
+                "ProgramCoordinator",
+                "PROGRAM_COORDINATOR",
+            ]
+        )
+
+
+class IsStudentOrNotificationAdmin(BasePermission):
+    """Student users can access their inbox; notification admins allowed as well."""
+
+    def has_permission(self, request, view) -> bool:
+        u = request.user
+        if not u or not u.is_authenticated:
+            return False
+        return in_group(u, "STUDENT") or IsNotificationAdmin().has_permission(request, view)
+
+
 def can_edit_draft_only(user, instance) -> bool:
     """Check if user can only edit DRAFT state records"""
     if user.is_superuser or in_group(user, "ADMIN") or in_group(user, "COORDINATOR"):

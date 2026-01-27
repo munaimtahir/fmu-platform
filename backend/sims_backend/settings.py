@@ -120,6 +120,7 @@ INSTALLED_APPS = [
     "sims_backend.audit",
     "sims_backend.syllabus",
     "sims_backend.settings_app",
+    "sims_backend.learning",
     # Legacy apps removed - see docs/legacy/LEGACY_DEFINITION.md
     "apps.intake",
 ]

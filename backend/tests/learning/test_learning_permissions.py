@@ -132,3 +132,60 @@ def test_faculty_cannot_publish_other_material(api_client, learning_context):
     publish_response = api_client.post(f"/api/learning/materials/{material.id}/publish/")
 
     assert publish_response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_faculty_cannot_delete_other_faculty_audiences(api_client, learning_context):
+    """Test that faculty cannot delete audience records for materials they don't own."""
+    faculty_user = learning_context["faculty_user"]
+    other_faculty = learning_context["other_faculty"]
+    section = learning_context["section"]
+
+    # Faculty 1 creates a material and audience
+    material = LearningMaterial.objects.create(
+        title="Faculty 1 Material",
+        kind=LearningMaterial.KIND_LINK,
+        url="https://example.com",
+        created_by=faculty_user,
+    )
+    from sims_backend.learning.models import LearningMaterialAudience
+
+    audience = LearningMaterialAudience.objects.create(material=material, section=section)
+
+    # Faculty 2 tries to delete the audience
+    api_client.force_authenticate(user=other_faculty)
+    delete_response = api_client.delete(f"/api/learning/audiences/{audience.id}/")
+
+    assert delete_response.status_code == status.HTTP_403_FORBIDDEN
+    assert "can only delete audiences for materials you created" in delete_response.data["detail"].lower()
+
+    # Verify audience still exists
+    assert LearningMaterialAudience.objects.filter(id=audience.id).exists()
+
+
+@pytest.mark.django_db
+def test_faculty_can_delete_own_audiences(api_client, learning_context):
+    """Test that faculty can delete audience records for their own materials."""
+    faculty_user = learning_context["faculty_user"]
+    section = learning_context["section"]
+
+    # Faculty creates a material and audience
+    material = LearningMaterial.objects.create(
+        title="Faculty Material",
+        kind=LearningMaterial.KIND_LINK,
+        url="https://example.com",
+        created_by=faculty_user,
+    )
+    from sims_backend.learning.models import LearningMaterialAudience
+
+    audience = LearningMaterialAudience.objects.create(material=material, section=section)
+
+    # Faculty deletes their own audience
+    api_client.force_authenticate(user=faculty_user)
+    delete_response = api_client.delete(f"/api/learning/audiences/{audience.id}/")
+
+    assert delete_response.status_code == status.HTTP_204_NO_CONTENT
+
+    # Verify audience is deleted
+    assert not LearningMaterialAudience.objects.filter(id=audience.id).exists()
+

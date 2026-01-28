@@ -1,10 +1,10 @@
 # FMU SIMS - Student Information Management System
 
-A comprehensive digital platform for managing student records and academic processes at Fatima Memorial University (FMU) / Faisalabad Medical University. This system replaces paper files and manual record-keeping with a secure, role-based web application for medical education management.
+A comprehensive digital platform for managing student records and academic processes at **Faisalabad Medical University (FMU)**. This system replaces paper files and manual record-keeping with a secure, role-based web application for medical education management.
 
 ## 🎓 Overview
 
-FMU SIMS digitizes all student-related records and processes for Fatima Memorial University, starting with the Medical College (five graduate programs) and Allied Health Sciences (4-5 BS and diploma programs). The system handles the complete student lifecycle from application and enrollment through attendance, assessments, results, transcripts, and graduation.
+FMU SIMS digitizes all student-related records and processes for **Faisalabad Medical University**, starting with the Medical College (five graduate programs) and Allied Health Sciences (4-5 BS and diploma programs). The system handles the complete student lifecycle from application and enrollment through attendance, assessments, results, transcripts, and graduation.
 
 ### Core Users
 - **Super Admin (IT)**: System administration and configuration
@@ -450,8 +450,8 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our development wo
 
 ## 📄 License
 
-Proprietary - Fatima Memorial University / Faisalabad Medical University
+Proprietary - Faisalabad Medical University
 
 ---
 
-**Built with ❤️ for Fatima Memorial University**
+**Built with ❤️ for Faisalabad Medical University**

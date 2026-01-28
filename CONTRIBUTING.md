@@ -24,8 +24,8 @@ Thank you for contributing to the FMU Student Information Management System! Thi
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/munaimtahir/Fmu.git
-   cd Fmu
+   git clone https://github.com/munaimtahir/fmu-platform.git
+   cd fmu-platform
    ```
 
 2. **Backend Setup**

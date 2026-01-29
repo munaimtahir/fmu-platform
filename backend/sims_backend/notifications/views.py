@@ -1,5 +1,7 @@
 import django_rq
 import django_filters
+import logging
+
 from django.db import models, transaction
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -17,6 +19,8 @@ from sims_backend.notifications.serializers import (
     NotificationInboxSerializer,
     NotificationSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationFilter(django_filters.FilterSet):
@@ -56,17 +60,42 @@ class NotificationAdminViewSet(
 
     @action(detail=True, methods=["post"], url_path="send")
     def send_notification(self, request, pk=None):
-        notification = self.get_object()
-        if notification.status == Notification.STATUS_SENT:
-            return Response(
-                {"error": {"code": "ALREADY_SENT", "message": "Notification already sent."}},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         with transaction.atomic():
-            notification.mark_queued()
-            queue = django_rq.get_queue("default")
-            job = queue.enqueue(expand_audience_and_create_inbox, notification.id)
+            notification = (
+                Notification.objects.select_for_update()
+                .select_related("created_by")
+                .get(pk=pk)
+            )
+            logger.info(
+                "Notification send requested",
+                extra={
+                    "notification_id": notification.id,
+                    "created_by": request.user.id,
+                    "send_email": notification.send_email,
+                },
+            )
+            if notification.status in (
+                Notification.STATUS_QUEUED,
+                Notification.STATUS_SENT,
+                Notification.STATUS_CANCELLED,
+            ):
+                return Response(
+                    {
+                        "error": {
+                            "code": "INVALID_STATE",
+                            "message": "Notification cannot be sent from its current state.",
+                        }
+                    },
+                    status=status.HTTP_409_CONFLICT,
+                )
+
+            notification.status = Notification.STATUS_QUEUED
+            if not notification.publish_at:
+                notification.publish_at = timezone.now()
+            notification.save(update_fields=["status", "publish_at", "updated_at"])
+
+        queue = django_rq.get_queue("default")
+        job = queue.enqueue(expand_audience_and_create_inbox, notification.id)
 
         return Response(
             {"message": "Notification queued", "job_id": job.id},
@@ -94,7 +123,10 @@ class NotificationInboxViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         unread_only = self.request.query_params.get("unread")
         if unread_only in ["true", "True", "1", 1, True]:
             queryset = queryset.filter(read_at__isnull=True)
-        return queryset
+        category = self.request.query_params.get("category")
+        if category:
+            queryset = queryset.filter(notification__category=category)
+        return queryset.order_by("-delivered_at", "-id")
 
     @action(detail=False, methods=["get"], url_path="unread-count")
     def unread_count(self, request):

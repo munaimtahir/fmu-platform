@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Badge } from '@/components/ui/Badge'
@@ -12,9 +12,19 @@ export const NotificationsPage: React.FC = () => {
   const queryClient = useQueryClient()
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
 
-  const { data, isLoading, isError } = useQuery({
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['notifications', filter],
-    queryFn: () => notificationsService.getMyNotifications(filter === 'unread' ? { unread: true } : undefined),
+    queryFn: ({ pageParam }) =>
+      notificationsService.getMyNotifications(filter === 'unread' ? { unread: true } : undefined, pageParam),
+    getNextPageParam: (lastPage) => lastPage.next ?? undefined,
+    initialPageParam: undefined,
   })
 
   const markReadMutation = useMutation({
@@ -53,7 +63,7 @@ export const NotificationsPage: React.FC = () => {
     }
   }
 
-  const items = data?.results ?? []
+  const items = data?.pages.flatMap((page) => page.results) ?? []
   const hasUnread = items.some((item) => !item.read_at)
 
   return (
@@ -140,6 +150,13 @@ export const NotificationsPage: React.FC = () => {
                 </div>
               </Card>
             ))}
+            {hasNextPage && (
+              <div className="flex justify-center pt-2">
+                <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} variant="secondary">
+                  {isFetchingNextPage ? 'Loading...' : 'Load more'}
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <Card className="p-12 text-center">

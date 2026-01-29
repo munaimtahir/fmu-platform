@@ -27,13 +27,14 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Fetch unread notification count
-  const { data: unreadData } = useQuery({
+  const { data: unreadData, isError: unreadError, isLoading: unreadLoading } = useQuery({
     queryKey: ['notifications-unread-count'],
     queryFn: () => notificationsService.getUnreadCount(),
-    refetchInterval: 30000, // Poll every 30 seconds
+    refetchInterval: 60000,
+    staleTime: 60000,
   })
 
-  const unreadCount = unreadData?.count || 0
+  const unreadCount = unreadError || unreadLoading ? 0 : unreadData?.count || 0
 
   const handleLogout = async () => {
     try {

@@ -19,15 +19,25 @@ export interface NotificationInbox {
   is_deleted: boolean
 }
 
+export interface PaginatedResponse<T> {
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
+}
+
 export interface UnreadCountResponse {
   count: number
 }
 
 export const notificationsService = {
-  async getMyNotifications(params?: { unread?: boolean }): Promise<{ count: number; results: NotificationInbox[] }> {
-    const response = await api.get<{ count: number; results: NotificationInbox[] }>('/api/my/notifications/', {
-      params,
-    })
+  async getMyNotifications(
+    params?: { unread?: boolean; category?: string; page?: number },
+    pageUrl?: string,
+  ): Promise<PaginatedResponse<NotificationInbox>> {
+    const response = pageUrl
+      ? await api.get<PaginatedResponse<NotificationInbox>>(pageUrl)
+      : await api.get<PaginatedResponse<NotificationInbox>>('/api/my/notifications/', { params })
     return response.data
   },
 

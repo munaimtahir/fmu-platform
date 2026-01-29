@@ -47,12 +47,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
   const location = useLocation()
   const { user } = useAuth()
   const userRole = user?.role
-  const { data: unreadData } = useQuery({
+  const { data: unreadData, isError: unreadError, isLoading: unreadLoading } = useQuery({
     queryKey: ['notifications-unread-count'],
     queryFn: () => notificationsService.getUnreadCount(),
-    refetchInterval: 30000,
+    refetchInterval: 60000,
+    staleTime: 60000,
   })
-  const unreadCount = unreadData?.count || 0
+  const unreadCount = unreadError || unreadLoading ? 0 : unreadData?.count || 0
 
   // Load expanded groups from localStorage
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {

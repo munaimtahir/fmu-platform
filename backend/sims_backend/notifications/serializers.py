@@ -35,10 +35,30 @@ class NotificationAudienceSerializer(serializers.ModelSerializer):
             NotificationAudience.AUDIENCE_GROUP: "group",
         }
 
+        target_fields = ["student", "section", "batch", "program", "group"]
+        provided_fields = [field for field in target_fields if attrs.get(field) is not None]
+
+        if audience_type == NotificationAudience.AUDIENCE_ALL_STUDENTS:
+            if provided_fields:
+                raise serializers.ValidationError(
+                    {
+                        "audience_type": "ALL_STUDENTS must not include target fields.",
+                        "targets": "Remove student/section/batch/program/group from ALL_STUDENTS.",
+                    }
+                )
+            return attrs
+
         required_field = required_field_map.get(audience_type)
         if required_field and not attrs.get(required_field):
             raise serializers.ValidationError(
                 {required_field: f"{required_field} is required for {audience_type}."}
+            )
+
+        if required_field and (len(provided_fields) != 1 or provided_fields[0] != required_field):
+            raise serializers.ValidationError(
+                {
+                    "targets": f"{audience_type} must include only {required_field} and no other target fields."
+                }
             )
         return attrs
 

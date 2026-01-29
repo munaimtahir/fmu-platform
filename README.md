@@ -64,9 +64,9 @@ FMU SIMS digitizes all student-related records and processes for **Faisalabad Me
 - **WSGI Server**: Gunicorn
 
 ### Frontend
-- **Framework**: React 19
+- **Framework**: React 19.1.1
 - **Language**: TypeScript
-- **Build Tool**: Vite 7
+- **Build Tool**: Vite 7.1.7
 - **Routing**: React Router DOM 7
 - **State Management**: Zustand + TanStack Query (React Query)
 - **Forms**: React Hook Form + Zod validation

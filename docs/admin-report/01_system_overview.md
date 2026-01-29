@@ -2,13 +2,13 @@
 
 ## What Is This System?
 
-The FMU Platform is a comprehensive digital system designed to manage all student-related records and processes for Fatima Memorial University (FMU). The system replaces paper files and manual record-keeping with a secure, web-based application that can be accessed from any computer with internet access.
+The FMU Platform is a comprehensive digital system designed to manage all student-related records and processes for **Faisalabad Medical University (FMU)**. The system replaces paper files and manual record-keeping with a secure, web-based application that can be accessed from any computer with internet access.
 
 Think of it as a digital filing cabinet and workflow manager that handles everything from when a student first applies to the university, through their entire academic journey, to graduation and beyond.
 
 ## Institution Context
 
-This system serves Fatima Memorial University, which includes:
+This system serves **Faisalabad Medical University**, which includes:
 - **Medical College** with five graduate medical programs
 - **Allied Health Sciences** with four to five undergraduate and diploma programs
 

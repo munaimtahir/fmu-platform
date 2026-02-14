@@ -173,7 +173,6 @@ export function EligibilityReport() {
   const ineligibleCount = eligibilityData.length - eligibleCount
 
   return (
-  return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
@@ -288,6 +287,5 @@ export function EligibilityReport() {
         )}
       </div>
     </DashboardLayout>
-  )
   )
 }

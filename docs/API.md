@@ -586,6 +586,11 @@ Finance errors follow the `{ "error": { "code": "...", "message": "..." } }` env
 | `/api/notifications/` | GET | List notifications with filters (`status`, `category`, `created_by`, `start_date`, `end_date`). |
 | `/api/notifications/{id}/send/` | POST | Queue delivery (in-app inbox expansion + optional email batches). |
 
+**State machine & idempotency**
+- Status transitions: `DRAFT` → `QUEUED` → `SENT` (terminal), `CANCELLED` (terminal). `POST /api/notifications/{id}/send/` only allows `DRAFT` → `QUEUED` and returns `409` if already `QUEUED`, `SENT`, or `CANCELLED`.
+- Audience expansion is idempotent (`NotificationInbox` unique by notification+user). Re-running expansion will not create duplicates.
+- Delivery is tracked per channel (`IN_APP`, `EMAIL`). Notification status is set to `SENT` only when all required channels complete (EMAIL required when `send_email=true`).
+
 **Create Request Example**:
 ```json
 {
@@ -605,10 +610,13 @@ Finance errors follow the `{ "error": { "code": "...", "message": "..." } }` env
 
 | Endpoint | Method | Description |
 | --- | --- | --- |
-| `/api/my/notifications/` | GET | List inbox entries (use `?unread=true` for unread only). |
+| `/api/my/notifications/` | GET | List inbox entries (filters: `?unread=true`, `?category=...`). Paginated (page size default 50). |
 | `/api/my/notifications/{inbox_id}/read/` | POST | Mark a single inbox entry as read. |
 | `/api/my/notifications/read-all/` | POST | Mark all inbox entries as read. |
 | `/api/my/notifications/unread-count/` | GET | Unread count for the current user. |
+
+**Expiry behavior**
+- If `expires_at` is set and in the past, the notification is excluded from inbox list and unread count.
 
 **Inbox Response Example**:
 ```json

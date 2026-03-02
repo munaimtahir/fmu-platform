@@ -11,13 +11,13 @@ class Notification(TimeStampedModel):
     STATUS_DRAFT = "DRAFT"
     STATUS_QUEUED = "QUEUED"
     STATUS_SENT = "SENT"
-    STATUS_FAILED = "FAILED"
+    STATUS_CANCELLED = "CANCELLED"
 
     STATUS_CHOICES = [
         (STATUS_DRAFT, "Draft"),
         (STATUS_QUEUED, "Queued"),
         (STATUS_SENT, "Sent"),
-        (STATUS_FAILED, "Failed"),
+        (STATUS_CANCELLED, "Cancelled"),
     ]
 
     PRIORITY_LOW = "LOW"
@@ -57,6 +57,7 @@ class Notification(TimeStampedModel):
             models.Index(fields=["status"]),
             models.Index(fields=["category"]),
             models.Index(fields=["created_by"]),
+            models.Index(fields=["created_at"]),
         ]
 
     def __str__(self) -> str:
@@ -158,6 +159,7 @@ class NotificationInbox(TimeStampedModel):
         indexes = [
             models.Index(fields=["user", "read_at"]),
             models.Index(fields=["user", "is_deleted"]),
+            models.Index(fields=["user", "delivered_at"]),
         ]
 
     def __str__(self) -> str:
@@ -201,6 +203,12 @@ class NotificationDeliveryLog(TimeStampedModel):
         indexes = [
             models.Index(fields=["channel", "status"]),
             models.Index(fields=["notification"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["notification", "channel"],
+                name="notifications_delivery_log_notification_channel_unique",
+            )
         ]
 
     def __str__(self) -> str:

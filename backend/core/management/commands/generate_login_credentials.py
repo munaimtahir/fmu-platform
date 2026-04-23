@@ -4,8 +4,8 @@ This creates a markdown file with all user login credentials for demonstration.
 """
 
 from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
+from django.core.management.base import BaseCommand
 
 from sims_backend.students.models import Student
 
@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
         credentials = []
         credentials.append("# SIMS Demo Login Credentials\n")
-        credentials.append("**Generated:** {}\n".format(self.get_current_timestamp()))
+        credentials.append(f"**Generated:** {self.get_current_timestamp()}\n")
         credentials.append("\n---\n")
 
         # Administrative users
@@ -42,7 +42,7 @@ class Command(BaseCommand):
         if admin:
             credentials.append(f"- **Username:** `{admin.username}`")
             credentials.append(f"- **Email:** `{admin.email}`")
-            credentials.append(f"- **Password:** `admin123` (default)")
+            credentials.append("- **Password:** `admin123` (default)")
             credentials.append("\n")
 
         # Registrar
@@ -53,7 +53,7 @@ class Command(BaseCommand):
             for user in registrar_users[:1]:  # Show first registrar
                 credentials.append(f"- **Username:** `{user.username}`")
                 credentials.append(f"- **Email:** `{user.email}`")
-                credentials.append(f"- **Password:** `registrar123` (default)")
+                credentials.append("- **Password:** `registrar123` (default)")
                 credentials.append("\n")
         except Group.DoesNotExist:
             pass
@@ -69,7 +69,7 @@ class Command(BaseCommand):
                 credentials.append(f"- **Name:** {user.first_name} {user.last_name}")
                 credentials.append(f"- **Username:** `{user.username}`")
                 credentials.append(f"- **Email:** `{user.email}`")
-                credentials.append(f"- **Password:** `faculty123` (default)")
+                credentials.append("- **Password:** `faculty123` (default)")
         except Group.DoesNotExist:
             pass
 
@@ -79,9 +79,7 @@ class Command(BaseCommand):
 
         try:
             student_group = Group.objects.get(name="Student")
-            student_users = User.objects.filter(groups=student_group).order_by(
-                "username"
-            )
+            student_users = User.objects.filter(groups=student_group).order_by("username")
             students_with_records = []
 
             for user in student_users:
@@ -104,11 +102,7 @@ class Command(BaseCommand):
 
             # Demo student
             demo_student = next(
-                (
-                    s
-                    for s in students_with_records
-                    if s["user"].username == "student"
-                ),
+                (s for s in students_with_records if s["user"].username == "student"),
                 None,
             )
             if demo_student:
@@ -120,20 +114,16 @@ class Command(BaseCommand):
                     credentials.append(f"- **Reg No:** {student.reg_no}")
                 credentials.append(f"- **Username:** `{user.username}`")
                 credentials.append(f"- **Email:** `{user.email}`")
-                credentials.append(f"- **Password:** `student123` (default)")
+                credentials.append("- **Password:** `student123` (default)")
                 credentials.append("\n")
 
             # Sample students (first 20)
             credentials.append("\n### Sample Student Accounts\n")
-            credentials.append(
-                "*Note: Password format is `student{year}` where year is the batch year*\n"
-            )
+            credentials.append("*Note: Password format is `student{year}` where year is the batch year*\n")
             credentials.append("\n| # | Reg No | Name | Username | Email | Password |\n")
             credentials.append("|:-:|:------:|:----:|:--------:|:-----:|:--------:|\n")
 
-            sample_students = [
-                s for s in students_with_records if s["user"].username != "student"
-            ][:20]
+            sample_students = [s for s in students_with_records if s["user"].username != "student"][:20]
 
             for i, item in enumerate(sample_students, 1):
                 user = item["user"]
@@ -152,14 +142,10 @@ class Command(BaseCommand):
                         except Exception:
                             pass
 
-                credentials.append(
-                    f"| {i} | {reg_no} | {name} | `{user.username}` | `{user.email}` | `{password}` |\n"
-                )
+                credentials.append(f"| {i} | {reg_no} | {name} | `{user.username}` | `{user.email}` | `{password}` |\n")
 
             if len(students_with_records) > 21:  # 1 demo + 20 samples
-                credentials.append(
-                    f"\n*... and {len(students_with_records) - 21} more student accounts*\n"
-                )
+                credentials.append(f"\n*... and {len(students_with_records) - 21} more student accounts*\n")
 
         except Group.DoesNotExist:
             credentials.append("\nNo student users found.\n")
@@ -180,15 +166,9 @@ class Command(BaseCommand):
         try:
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write("\n".join(credentials))
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"\n✅ Login credentials document generated: {output_path}"
-                )
-            )
+            self.stdout.write(self.style.SUCCESS(f"\n✅ Login credentials document generated: {output_path}"))
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"\n❌ Error writing file: {str(e)}")
-            )
+            self.stdout.write(self.style.ERROR(f"\n❌ Error writing file: {str(e)}"))
 
     def get_current_timestamp(self):
         """Get current timestamp as string."""

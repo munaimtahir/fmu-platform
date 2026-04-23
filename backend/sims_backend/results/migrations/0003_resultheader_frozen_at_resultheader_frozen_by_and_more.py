@@ -6,31 +6,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('results', '0002_alter_resultheader_status'),
+        ("results", "0002_alter_resultheader_status"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='resultheader',
-            name='frozen_at',
-            field=models.DateTimeField(blank=True, help_text='When the result was frozen', null=True),
+            model_name="resultheader",
+            name="frozen_at",
+            field=models.DateTimeField(blank=True, help_text="When the result was frozen", null=True),
         ),
         migrations.AddField(
-            model_name='resultheader',
-            name='frozen_by',
-            field=models.ForeignKey(blank=True, help_text='User who froze the result', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='frozen_results', to=settings.AUTH_USER_MODEL),
+            model_name="resultheader",
+            name="frozen_by",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="User who froze the result",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="frozen_results",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='resultheader',
-            name='published_at',
-            field=models.DateTimeField(blank=True, help_text='When the result was published', null=True),
+            model_name="resultheader",
+            name="published_at",
+            field=models.DateTimeField(blank=True, help_text="When the result was published", null=True),
         ),
         migrations.AddField(
-            model_name='resultheader',
-            name='published_by',
-            field=models.ForeignKey(blank=True, help_text='User who published the result', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='published_results', to=settings.AUTH_USER_MODEL),
+            model_name="resultheader",
+            name="published_by",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="User who published the result",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="published_results",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

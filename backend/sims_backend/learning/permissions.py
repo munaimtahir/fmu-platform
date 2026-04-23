@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from sims_backend.common_permissions import in_group
 from sims_backend.learning.models import LearningMaterial

@@ -6,41 +6,78 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('academics', '0001_initial'),
+        ("academics", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FacultyProfile',
+            name="FacultyProfile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='The timestamp when the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='The timestamp when the record was last updated.')),
-                ('department', models.ForeignKey(blank=True, help_text='Department this faculty member belongs to', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='faculty_profiles', to='academics.department')),
-                ('user', models.OneToOneField(help_text='Associated faculty user account', on_delete=django.db.models.deletion.CASCADE, related_name='faculty_profile', to=settings.AUTH_USER_MODEL)),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created."),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated."),
+                ),
+                (
+                    "department",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="Department this faculty member belongs to",
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="faculty_profiles",
+                        to="academics.department",
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        help_text="Associated faculty user account",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="faculty_profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Faculty profiles',
+                "verbose_name_plural": "Faculty profiles",
             },
         ),
         migrations.CreateModel(
-            name='Profile',
+            name="Profile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='The timestamp when the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='The timestamp when the record was last updated.')),
-                ('phone', models.CharField(blank=True, help_text='Contact phone number', max_length=20)),
-                ('date_of_birth', models.DateField(blank=True, help_text='Date of birth', null=True)),
-                ('user', models.OneToOneField(help_text='Associated user account', on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL)),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created."),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated."),
+                ),
+                ("phone", models.CharField(blank=True, help_text="Contact phone number", max_length=20)),
+                ("date_of_birth", models.DateField(blank=True, help_text="Date of birth", null=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        help_text="Associated user account",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ('-created_at',),
-                'abstract': False,
+                "ordering": ("-created_at",),
+                "abstract": False,
             },
         ),
     ]

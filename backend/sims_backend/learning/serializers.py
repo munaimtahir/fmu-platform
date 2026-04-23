@@ -31,9 +31,7 @@ class LearningMaterialAudienceSerializer(serializers.ModelSerializer):
         course = attrs.get("course") or getattr(self.instance, "course", None)
         section = attrs.get("section") or getattr(self.instance, "section", None)
         if not any([program, batch, term, course, section]):
-            raise serializers.ValidationError(
-                {"non_field_errors": ["At least one audience scope must be set."]}
-            )
+            raise serializers.ValidationError({"non_field_errors": ["At least one audience scope must be set."]})
         if material is None:
             raise serializers.ValidationError({"material": ["Material is required."]})
         return attrs

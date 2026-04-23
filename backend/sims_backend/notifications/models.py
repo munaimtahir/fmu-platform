@@ -89,9 +89,7 @@ class NotificationAudience(TimeStampedModel):
         (AUDIENCE_GROUP, "Group"),
     ]
 
-    notification = models.ForeignKey(
-        Notification, on_delete=models.CASCADE, related_name="audiences"
-    )
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name="audiences")
     audience_type = models.CharField(max_length=32, choices=AUDIENCE_CHOICES)
     student = models.ForeignKey(
         "students.Student",
@@ -142,12 +140,8 @@ class NotificationAudience(TimeStampedModel):
 class NotificationInbox(TimeStampedModel):
     """Inbox entry for a notification delivered to a user."""
 
-    notification = models.ForeignKey(
-        Notification, on_delete=models.CASCADE, related_name="inbox_entries"
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notification_inbox"
-    )
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name="inbox_entries")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notification_inbox")
     delivered_at = models.DateTimeField(default=timezone.now)
     read_at = models.DateTimeField(null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
@@ -185,9 +179,7 @@ class NotificationDeliveryLog(TimeStampedModel):
         (STATUS_FAILED, "Failed"),
     ]
 
-    notification = models.ForeignKey(
-        Notification, on_delete=models.CASCADE, related_name="delivery_logs"
-    )
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name="delivery_logs")
     channel = models.CharField(max_length=16, choices=CHANNEL_CHOICES)
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_PENDING)
     target_count = models.PositiveIntegerField(default=0)

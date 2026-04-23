@@ -130,9 +130,7 @@ class BiometricDevice(TimeStampedModel):
 class BiometricPunch(TimeStampedModel):
     """Raw punches received from biometric devices."""
 
-    device = models.ForeignKey(
-        BiometricDevice, on_delete=models.SET_NULL, null=True, related_name="punches"
-    )
+    device = models.ForeignKey(BiometricDevice, on_delete=models.SET_NULL, null=True, related_name="punches")
     student = models.ForeignKey(
         "students.Student",
         on_delete=models.CASCADE,

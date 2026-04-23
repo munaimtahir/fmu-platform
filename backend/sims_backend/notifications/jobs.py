@@ -1,7 +1,7 @@
 """Background jobs for notifications."""
 
 import logging
-from typing import Iterable
+from collections.abc import Iterable
 
 import django_rq
 from django.contrib.auth import get_user_model
@@ -60,9 +60,7 @@ def _students_for_audience(audience: NotificationAudience) -> Iterable[Student]:
 def expand_audience_and_create_inbox(notification_id: int) -> dict[str, int]:
     """Resolve notification audiences and create inbox entries."""
     notification = Notification.objects.get(id=notification_id)
-    audiences = notification.audiences.select_related(
-        "student", "section", "batch", "program", "group"
-    )
+    audiences = notification.audiences.select_related("student", "section", "batch", "program", "group")
 
     user_ids: set[int] = set()
     for audience in audiences:
@@ -75,9 +73,7 @@ def expand_audience_and_create_inbox(notification_id: int) -> dict[str, int]:
     delivered_at = timezone.now()
 
     with transaction.atomic():
-        existing_count = NotificationInbox.objects.filter(
-            notification=notification, user_id__in=user_ids
-        ).count()
+        existing_count = NotificationInbox.objects.filter(notification=notification, user_id__in=user_ids).count()
         NotificationInbox.objects.bulk_create(
             [
                 NotificationInbox(
@@ -89,11 +85,9 @@ def expand_audience_and_create_inbox(notification_id: int) -> dict[str, int]:
             ],
             ignore_conflicts=True,
         )
-        total_count = NotificationInbox.objects.filter(
-            notification=notification, user_id__in=user_ids
-        ).count()
+        total_count = NotificationInbox.objects.filter(notification=notification, user_id__in=user_ids).count()
 
-        delivery_log = NotificationDeliveryLog.objects.create(
+        NotificationDeliveryLog.objects.create(
             notification=notification,
             channel=NotificationDeliveryLog.CHANNEL_IN_APP,
             status=NotificationDeliveryLog.STATUS_SENT,
@@ -134,7 +128,7 @@ def send_notification_email_batch(
 ) -> dict[str, int]:
     """Send a batch of notification emails."""
     notification = Notification.objects.get(id=notification_id)
-    User = get_user_model()
+    user_model = get_user_model()
 
     if log_id:
         log_entry = NotificationDeliveryLog.objects.get(id=log_id)
@@ -152,7 +146,7 @@ def send_notification_email_batch(
     failure_count = 0
     error_sample = None
 
-    users = User.objects.filter(id__in=user_ids).exclude(email="")
+    users = user_model.objects.filter(id__in=user_ids).exclude(email="")
 
     for user in users:
         try:

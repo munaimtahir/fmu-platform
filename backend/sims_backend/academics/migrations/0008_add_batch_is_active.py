@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("academics", "0007_alter_program_options_and_more"),
     ]
@@ -13,9 +12,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="batch",
             name="is_active",
-            field=models.BooleanField(
-                default=True,
-                help_text="Whether this batch is currently active"
-            ),
+            field=models.BooleanField(default=True, help_text="Whether this batch is currently active"),
         ),
     ]

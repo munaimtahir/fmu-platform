@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from django.conf import settings
-from django.db import models
 from django.core.exceptions import ValidationError
+from django.db import models
 
 
 class TimeStampedModel(models.Model):
@@ -15,12 +15,11 @@ class TimeStampedModel(models.Model):
 
     class Meta:
         """Meta options for the TimeStampedModel."""
+
         abstract = True
         ordering = ("-created_at",)
 
-    def touch(
-        self, using: str | None = None, update_fields: set[str] | None = None
-    ) -> None:
+    def touch(self, using: str | None = None, update_fields: set[str] | None = None) -> None:
         """
         Updates the `updated_at` timestamp to the current time.
 

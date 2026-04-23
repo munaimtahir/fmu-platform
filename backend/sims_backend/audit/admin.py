@@ -7,21 +7,21 @@ from sims_backend.audit.models import AuditLog
 class AuditLogAdmin(admin.ModelAdmin):
     """Read-only admin interface for audit logs."""
 
-    list_display = ['timestamp', 'actor', 'method', 'path', 'status_code', 'model', 'object_id']
-    list_filter = ['method', 'status_code', 'model', 'timestamp']
-    search_fields = ['actor__username', 'path', 'model', 'object_id', 'summary']
-    ordering = ['-timestamp']
+    list_display = ["timestamp", "actor", "method", "path", "status_code", "model", "object_id"]
+    list_filter = ["method", "status_code", "model", "timestamp"]
+    search_fields = ["actor__username", "path", "model", "object_id", "summary"]
+    ordering = ["-timestamp"]
     readonly_fields = [
-        'id',
-        'timestamp',
-        'actor',
-        'method',
-        'path',
-        'status_code',
-        'model',
-        'object_id',
-        'summary',
-        'request_data',
+        "id",
+        "timestamp",
+        "actor",
+        "method",
+        "path",
+        "status_code",
+        "model",
+        "object_id",
+        "summary",
+        "request_data",
     ]
 
     def has_add_permission(self, request):

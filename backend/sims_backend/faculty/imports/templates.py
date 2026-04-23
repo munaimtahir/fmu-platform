@@ -1,7 +1,7 @@
 """CSV template generation for Faculty import"""
+
 import csv
 import io
-from typing import List
 
 
 def generate_csv_template() -> bytes:
@@ -13,16 +13,16 @@ def generate_csv_template() -> bytes:
         "name",  # Required - Full name
         "department_name",  # Required - FK to Department (by name)
     ]
-    
+
     # Optional fields
     optional_headers = [
         "email",  # Optional - will be auto-generated if not provided
         "phone",  # Optional
         "password",  # Optional - Custom password for user account (auto-generated if not provided)
     ]
-    
+
     headers.extend(optional_headers)
-    
+
     # Create example row (dummy data)
     example_row = {
         "name": "Dr. John Smith",
@@ -31,17 +31,17 @@ def generate_csv_template() -> bytes:
         "phone": "+923001234567",
         "password": "",  # Leave empty for auto-generation (default: faculty123)
     }
-    
+
     # Generate CSV
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=headers)
     writer.writeheader()
     writer.writerow(example_row)
-    
-    return output.getvalue().encode('utf-8')
+
+    return output.getvalue().encode("utf-8")
 
 
-def get_expected_columns() -> List[str]:
+def get_expected_columns() -> list[str]:
     """Get list of expected column names for validation"""
     return [
         "name",

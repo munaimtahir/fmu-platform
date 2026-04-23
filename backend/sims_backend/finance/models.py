@@ -312,7 +312,11 @@ class Payment(TimeStampedModel):
         related_name="payments_received",
     )
     received_at = models.DateTimeField(default=timezone.now)
-    status = models.CharField(max_length=16, choices=[(STATUS_RECEIVED, "Received"), (STATUS_VERIFIED, "Verified"), (STATUS_REJECTED, "Rejected")], default=STATUS_RECEIVED)
+    status = models.CharField(
+        max_length=16,
+        choices=[(STATUS_RECEIVED, "Received"), (STATUS_VERIFIED, "Verified"), (STATUS_REJECTED, "Rejected")],
+        default=STATUS_RECEIVED,
+    )
     notes = models.TextField(blank=True)
 
     class Meta:

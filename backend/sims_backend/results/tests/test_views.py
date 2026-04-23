@@ -1,17 +1,19 @@
-
-from django.contrib.auth.models import User, Group as AuthGroup
-from rest_framework.test import APITestCase
+from django.contrib.auth.models import Group as AuthGroup
+from django.contrib.auth.models import User
 from rest_framework import status
-from sims_backend.academics.models import Program, Batch, Group, AcademicPeriod
+from rest_framework.test import APITestCase
+
+from sims_backend.academics.models import AcademicPeriod, Batch, Group, Program
 from sims_backend.exams.models import Exam
-from sims_backend.students.models import Student
 from sims_backend.results.models import ResultHeader
+from sims_backend.students.models import Student
+
 
 class ResultHeaderViewSetTestCase(APITestCase):
     def setUp(self):
         # Create User Groups
-        self.student_group, _ = AuthGroup.objects.get_or_create(name='STUDENT')
-        self.admin_group, _ = AuthGroup.objects.get_or_create(name='ADMIN')
+        self.student_group, _ = AuthGroup.objects.get_or_create(name="STUDENT")
+        self.admin_group, _ = AuthGroup.objects.get_or_create(name="ADMIN")
 
         # Create Users
         self.student_user = User.objects.create_user(username="student", password="password")
@@ -39,7 +41,7 @@ class ResultHeaderViewSetTestCase(APITestCase):
             name="Student 1",
             program=self.program,
             batch=self.batch,
-            group=self.group
+            group=self.group,
         )
 
         self.other_student = Student.objects.create(
@@ -48,7 +50,7 @@ class ResultHeaderViewSetTestCase(APITestCase):
             name="Student 2",
             program=self.program,
             batch=self.batch,
-            group=self.group
+            group=self.group,
         )
 
         # Create Exam
@@ -58,20 +60,12 @@ class ResultHeaderViewSetTestCase(APITestCase):
         # Create Results
         # 1. Student 1 - Published
         self.result1 = ResultHeader.objects.create(
-            exam=self.exam,
-            student=self.student,
-            status=ResultHeader.STATUS_PUBLISHED,
-            total_obtained=80,
-            total_max=100
+            exam=self.exam, student=self.student, status=ResultHeader.STATUS_PUBLISHED, total_obtained=80, total_max=100
         )
 
         # 2. Student 1 - Draft
         self.result2 = ResultHeader.objects.create(
-            exam=self.exam2,
-            student=self.student,
-            status=ResultHeader.STATUS_DRAFT,
-            total_obtained=70,
-            total_max=100
+            exam=self.exam2, student=self.student, status=ResultHeader.STATUS_DRAFT, total_obtained=70, total_max=100
         )
 
         # 3. Student 2 - Published
@@ -80,10 +74,10 @@ class ResultHeaderViewSetTestCase(APITestCase):
             student=self.other_student,
             status=ResultHeader.STATUS_PUBLISHED,
             total_obtained=90,
-            total_max=100
+            total_max=100,
         )
 
-        self.url = '/api/results/'
+        self.url = "/api/results/"
 
     def test_student_sees_only_own_published_results(self):
         self.client.force_authenticate(user=self.student_user)
@@ -92,11 +86,11 @@ class ResultHeaderViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         results = response.data
-        if 'results' in results:
-            results = results['results']
+        if "results" in results:
+            results = results["results"]
 
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]['id'], self.result1.id)
+        self.assertEqual(results[0]["id"], self.result1.id)
 
     def test_unlinked_student_sees_no_results(self):
         self.client.force_authenticate(user=self.unlinked_student_user)
@@ -104,8 +98,8 @@ class ResultHeaderViewSetTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = response.data
-        if 'results' in results:
-            results = results['results']
+        if "results" in results:
+            results = results["results"]
 
         self.assertEqual(len(results), 0)
 
@@ -115,8 +109,8 @@ class ResultHeaderViewSetTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         results = response.data
-        if 'results' in results:
-            results = results['results']
+        if "results" in results:
+            results = results["results"]
 
         # Admin should see all 3 results
         self.assertEqual(len(results), 3)

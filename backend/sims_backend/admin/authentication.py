@@ -1,4 +1,5 @@
 """Custom JWT authentication that extracts impersonation claims."""
+
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
@@ -19,11 +20,11 @@ class ImpersonationJWTAuthentication(JWTAuthentication):
         user = self.get_user(validated_token)
 
         # Extract impersonation claims if present
-        if validated_token.get('impersonated', False):
-            impersonated_by_id = validated_token.get('impersonated_by')
+        if validated_token.get("impersonated", False):
+            impersonated_by_id = validated_token.get("impersonated_by")
             if impersonated_by_id:
                 # Attach to request for audit middleware
                 request.impersonated_by_id = impersonated_by_id
-                request.impersonation_jti = validated_token.get('impersonation_jti')
+                request.impersonation_jti = validated_token.get("impersonation_jti")
 
         return (user, validated_token)

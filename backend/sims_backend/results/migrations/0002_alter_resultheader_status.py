@@ -4,15 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('results', '0001_initial'),
+        ("results", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='resultheader',
-            name='status',
-            field=models.CharField(choices=[('DRAFT', 'Draft'), ('VERIFIED', 'Verified'), ('PUBLISHED', 'Published'), ('FROZEN', 'Frozen')], default='DRAFT', help_text='Workflow status', max_length=16),
+            model_name="resultheader",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("DRAFT", "Draft"),
+                    ("VERIFIED", "Verified"),
+                    ("PUBLISHED", "Published"),
+                    ("FROZEN", "Frozen"),
+                ],
+                default="DRAFT",
+                help_text="Workflow status",
+                max_length=16,
+            ),
         ),
     ]

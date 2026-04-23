@@ -1,9 +1,7 @@
 """CSV template generation based on Student model mapping"""
+
 import csv
 import io
-from typing import List
-
-from sims_backend.students.models import Student
 
 
 def generate_csv_template() -> bytes:
@@ -21,7 +19,7 @@ def generate_csv_template() -> bytes:
         "group_name",  # FK to Group (by name, scoped to batch)
         "status",  # Required, choices: active, inactive, graduated, suspended
     ]
-    
+
     # Optional fields
     optional_headers = [
         "email",
@@ -29,9 +27,9 @@ def generate_csv_template() -> bytes:
         "date_of_birth",  # Format: YYYY-MM-DD
         "password",  # Optional: Custom password for user account (auto-generated if not provided)
     ]
-    
+
     headers.extend(optional_headers)
-    
+
     # Create example row (dummy data)
     # Note: batch_name represents graduation year, not intake year
     # Students enrolling in 2026 for 5-year MBBS program would graduate in 2031
@@ -47,17 +45,17 @@ def generate_csv_template() -> bytes:
         "date_of_birth": "2000-01-15",
         "password": "",  # Leave empty for auto-generation (format: student{graduation_year})
     }
-    
+
     # Generate CSV
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=headers)
     writer.writeheader()
     writer.writerow(example_row)
-    
-    return output.getvalue().encode('utf-8')
+
+    return output.getvalue().encode("utf-8")
 
 
-def get_expected_columns() -> List[str]:
+def get_expected_columns() -> list[str]:
     """Get list of expected column names for validation"""
     return [
         "reg_no",

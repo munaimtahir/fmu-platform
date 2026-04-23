@@ -1,5 +1,5 @@
-import django_rq
 import django_filters
+import django_rq
 from django.db import models, transaction
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -85,12 +85,8 @@ class NotificationInboxViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             is_deleted=False,
         )
         queryset = queryset.filter(
-            models.Q(notification__publish_at__isnull=True)
-            | models.Q(notification__publish_at__lte=now)
-        ).filter(
-            models.Q(notification__expires_at__isnull=True)
-            | models.Q(notification__expires_at__gt=now)
-        )
+            models.Q(notification__publish_at__isnull=True) | models.Q(notification__publish_at__lte=now)
+        ).filter(models.Q(notification__expires_at__isnull=True) | models.Q(notification__expires_at__gt=now))
         unread_only = self.request.query_params.get("unread")
         if unread_only in ["true", "True", "1", 1, True]:
             queryset = queryset.filter(read_at__isnull=True)

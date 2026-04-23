@@ -32,11 +32,11 @@ class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
     student_id = serializers.SerializerMethodField()
-    
+
     def get_student_id(self, obj):
         """Get student ID if user has an associated student record."""
         try:
-            if hasattr(obj, 'student') and obj.student:
+            if hasattr(obj, "student") and obj.student:
                 return obj.student.id
         except Exception:
             pass
@@ -57,7 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.is_superuser:
             return "Admin"
         groups = list(obj.groups.values_list("name", flat=True))
-        for role in ["Admin", "Registrar", "Finance", "ExamCell", "Faculty", "Student"]:
+        for role in ["Registrar", "ExamCell", "Finance", "Faculty", "Student", "Admin"]:
             if role in groups or role.upper() in groups:
                 return role
         return "User"
@@ -102,9 +102,7 @@ class UnifiedLoginSerializer(serializers.Serializer):
             )
 
         # Try to find user by username OR email
-        user = User.objects.filter(
-            Q(username__iexact=identifier) | Q(email__iexact=identifier)
-        ).first()
+        user = User.objects.filter(Q(username__iexact=identifier) | Q(email__iexact=identifier)).first()
 
         if user is None:
             raise serializers.ValidationError(
@@ -210,21 +208,15 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
             try:
                 user = User.objects.get(email=email)
             except User.DoesNotExist:
-                raise AuthenticationFailed(
-                    "No active account found with the given credentials"
-                )
+                raise AuthenticationFailed("No active account found with the given credentials")
 
             # Check password
             if not user.check_password(password):
-                raise AuthenticationFailed(
-                    "No active account found with the given credentials"
-                )
+                raise AuthenticationFailed("No active account found with the given credentials")
 
             # Check if user is active
             if not user.is_active:
-                raise AuthenticationFailed(
-                    "No active account found with the given credentials"
-                )
+                raise AuthenticationFailed("No active account found with the given credentials")
 
             # Update last login
             if api_settings.UPDATE_LAST_LOGIN:
@@ -245,11 +237,13 @@ class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 # Core module serializers for RBAC system
 
+
 class PermissionTaskSerializer(serializers.ModelSerializer):
     """Serializer for PermissionTask model."""
-    
+
     class Meta:
         from core.models import PermissionTask
+
         model = PermissionTask
         fields = ["id", "code", "name", "description", "module", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
@@ -257,18 +251,20 @@ class PermissionTaskSerializer(serializers.ModelSerializer):
 
 class RoleSerializer(serializers.ModelSerializer):
     """Serializer for Role model."""
-    
+
     task_assignments = serializers.SerializerMethodField()
-    
+
     class Meta:
         from core.models import Role
+
         model = Role
         fields = ["id", "name", "description", "is_system_role", "task_assignments", "created_at", "updated_at"]
         read_only_fields = ["id", "is_system_role", "created_at", "updated_at"]
-    
+
     def get_task_assignments(self, obj):
         """Get list of permission tasks assigned to this role."""
         from core.models import RoleTaskAssignment
+
         assignments = RoleTaskAssignment.objects.filter(role=obj).select_related("task")
         return [
             {
@@ -282,7 +278,7 @@ class RoleSerializer(serializers.ModelSerializer):
             }
             for a in assignments
         ]
-    
+
     def validate_name(self, value):
         """Validate role name."""
         if self.instance and self.instance.is_system_role:
@@ -293,20 +289,22 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class RoleTaskAssignmentSerializer(serializers.ModelSerializer):
     """Serializer for RoleTaskAssignment model."""
-    
+
     role = RoleSerializer(read_only=True)
     task = PermissionTaskSerializer(read_only=True)
     role_id = serializers.IntegerField(write_only=True)
     task_id = serializers.IntegerField(write_only=True)
-    
+
     class Meta:
         from core.models import RoleTaskAssignment
+
         model = RoleTaskAssignment
         fields = ["id", "role", "task", "role_id", "task_id", "created_at", "updated_at"]
         read_only_fields = ["id", "role", "task", "created_at", "updated_at"]
-    
+
     def create(self, validated_data):
-        from core.models import Role, PermissionTask, RoleTaskAssignment
+        from core.models import PermissionTask, Role, RoleTaskAssignment
+
         role = Role.objects.get(id=validated_data.pop("role_id"))
         task = PermissionTask.objects.get(id=validated_data.pop("task_id"))
         return RoleTaskAssignment.objects.create(role=role, task=task)
@@ -314,21 +312,23 @@ class RoleTaskAssignmentSerializer(serializers.ModelSerializer):
 
 class UserTaskAssignmentSerializer(serializers.ModelSerializer):
     """Serializer for UserTaskAssignment model."""
-    
+
     user = UserSerializer(read_only=True)
     task = PermissionTaskSerializer(read_only=True)
     granted_by = UserSerializer(read_only=True)
     user_id = serializers.IntegerField(write_only=True)
     task_id = serializers.IntegerField(write_only=True)
-    
+
     class Meta:
         from core.models import UserTaskAssignment
+
         model = UserTaskAssignment
         fields = ["id", "user", "task", "granted_by", "user_id", "task_id", "created_at", "updated_at"]
         read_only_fields = ["id", "user", "task", "granted_by", "created_at", "updated_at"]
-    
+
     def create(self, validated_data):
         from core.models import PermissionTask, UserTaskAssignment
+
         user = User.objects.get(id=validated_data.pop("user_id"))
         task = PermissionTask.objects.get(id=validated_data.pop("task_id"))
         granted_by = self.context["request"].user
@@ -337,42 +337,41 @@ class UserTaskAssignmentSerializer(serializers.ModelSerializer):
 
 class UserMeSerializer(serializers.ModelSerializer):
     """Serializer for /api/core/users/me/ endpoint."""
-    
+
     roles = serializers.SerializerMethodField()
     tasks = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = User
         fields = ["id", "username", "email", "first_name", "last_name", "is_active", "roles", "tasks", "profile"]
         read_only_fields = fields
-    
+
     def get_roles(self, obj):
         """Get user's roles."""
         from core.permissions import get_user_roles
+
         roles = get_user_roles(obj)
         return [{"id": r.id, "name": r.name, "description": r.description} for r in roles]
-    
+
     def get_tasks(self, obj):
         """Get user's permission tasks (both direct and via roles)."""
-        from core.models import PermissionTask, UserTaskAssignment, RoleTaskAssignment, Role
+        from core.models import PermissionTask, RoleTaskAssignment, UserTaskAssignment
         from core.permissions import get_user_roles
-        
+
         # Direct assignments
         direct_tasks = UserTaskAssignment.objects.filter(user=obj).values_list("task__code", flat=True)
-        
+
         # Role-based assignments
         user_roles = get_user_roles(obj)
-        role_task_codes = RoleTaskAssignment.objects.filter(
-            role__in=user_roles
-        ).values_list("task__code", flat=True)
-        
+        role_task_codes = RoleTaskAssignment.objects.filter(role__in=user_roles).values_list("task__code", flat=True)
+
         # Combine and get unique tasks
         all_task_codes = set(direct_tasks) | set(role_task_codes)
         tasks = PermissionTask.objects.filter(code__in=all_task_codes)
-        
+
         return [{"id": t.id, "code": t.code, "name": t.name, "module": t.module} for t in tasks]
-    
+
     def get_profile(self, obj):
         """Get user's profile if exists."""
         if hasattr(obj, "profile"):
@@ -385,50 +384,48 @@ class UserMeSerializer(serializers.ModelSerializer):
 
 class PasswordChangeSerializer(serializers.Serializer):
     """Serializer for changing user password."""
-    
+
     old_password = serializers.CharField(
-        required=True,
-        write_only=True,
-        style={"input_type": "password"},
-        help_text="Current password"
+        required=True, write_only=True, style={"input_type": "password"}, help_text="Current password"
     )
     new_password = serializers.CharField(
         required=True,
         write_only=True,
         style={"input_type": "password"},
         min_length=8,
-        help_text="New password (minimum 8 characters)"
+        help_text="New password (minimum 8 characters)",
     )
     new_password_confirm = serializers.CharField(
-        required=True,
-        write_only=True,
-        style={"input_type": "password"},
-        help_text="Confirm new password"
+        required=True, write_only=True, style={"input_type": "password"}, help_text="Confirm new password"
     )
-    
+
     def validate_old_password(self, value):
         """Validate that old password is correct."""
         user = self.context["request"].user
         if not user.check_password(value):
-            raise serializers.ValidationError({
-                "error": {
-                    "code": AUTH_ERROR_CODES["invalid_credentials"],
-                    "message": "Current password is incorrect.",
+            raise serializers.ValidationError(
+                {
+                    "error": {
+                        "code": AUTH_ERROR_CODES["invalid_credentials"],
+                        "message": "Current password is incorrect.",
+                    }
                 }
-            })
+            )
         return value
-    
+
     def validate(self, attrs):
         """Validate that new passwords match."""
         if attrs["new_password"] != attrs["new_password_confirm"]:
-            raise serializers.ValidationError({
-                "error": {
-                    "code": "PASSWORD_MISMATCH",
-                    "message": "New passwords do not match.",
+            raise serializers.ValidationError(
+                {
+                    "error": {
+                        "code": "PASSWORD_MISMATCH",
+                        "message": "New passwords do not match.",
+                    }
                 }
-            })
+            )
         return attrs
-    
+
     def save(self):
         """Update user password."""
         user = self.context["request"].user
@@ -439,7 +436,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating user profile information."""
-    
+
     class Meta:
         model = User
         fields = ["first_name", "last_name", "email"]
@@ -448,7 +445,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             "first_name": {"required": False, "allow_blank": True},
             "last_name": {"required": False, "allow_blank": True},
         }
-    
+
     def validate_email(self, value):
         """Validate email uniqueness if provided."""
         if value:
@@ -456,7 +453,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             if User.objects.filter(email=value).exclude(id=user.id).exists():
                 raise serializers.ValidationError("A user with this email already exists.")
         return value
-    
+
     def update(self, instance, validated_data):
         """Update user profile."""
         for attr, value in validated_data.items():

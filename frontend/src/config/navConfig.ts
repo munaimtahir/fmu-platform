@@ -103,7 +103,7 @@ export const navigationConfig: NavigationItem[] = [
       { label: 'Gradebook', path: '/gradebook', roles: ['Admin', 'Faculty', 'Student'] },
       { label: 'Results', path: '/results', roles: ['Admin', 'Faculty', 'Student', 'ExamCell'] },
       { label: 'Publish Results', path: '/examcell/publish', roles: ['Admin', 'ExamCell'] },
-      { label: 'Transcripts', path: '/transcripts', roles: ['Admin', 'Registrar', 'Student'] },
+      { label: 'Transcripts', path: '/transcripts', roles: ['Admin', 'Registrar', 'Student', 'ExamCell'] },
     ],
   },
   // Finance group
@@ -163,7 +163,7 @@ export const routePolicy: Record<string, string[]> = {
   '/gradebook': ['Admin', 'Faculty', 'Student'],
   '/results': ['Admin', 'Faculty', 'Student', 'ExamCell'],
   '/examcell/publish': ['Admin', 'ExamCell'],
-  '/transcripts': ['Admin', 'Registrar', 'Student'],
+  '/transcripts': ['Admin', 'Registrar', 'Student', 'ExamCell'],
   '/finance': ['Admin', 'Finance'],
   '/finance/fee-plans': ['Admin', 'Finance'],
   '/finance/vouchers': ['Admin', 'Finance'],

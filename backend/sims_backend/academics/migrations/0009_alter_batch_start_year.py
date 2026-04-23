@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('academics', '0008_add_batch_is_active'),
+        ("academics", "0008_add_batch_is_active"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='batch',
-            name='start_year',
-            field=models.PositiveSmallIntegerField(help_text='Graduation year for this batch (not intake year). Example: Students enrolling in 2026 for a 5-year program would have start_year=2031.'),
+            model_name="batch",
+            name="start_year",
+            field=models.PositiveSmallIntegerField(
+                help_text="Graduation year for this batch (not intake year). Example: Students enrolling in 2026 for a 5-year program would have start_year=2031."
+            ),
         ),
     ]

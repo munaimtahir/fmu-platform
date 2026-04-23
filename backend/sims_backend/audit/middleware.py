@@ -42,15 +42,16 @@ class WriteAuditMiddleware:
         # Capture request data (excluding sensitive fields)
         request_data = {}
         try:
-            if hasattr(request, 'data'):
+            if hasattr(request, "data"):
                 # DRF request
                 request_data = dict(request.data)
-            elif hasattr(request, 'POST'):
+            elif hasattr(request, "POST"):
                 # Django request
                 request_data = dict(request.POST)
-            elif hasattr(request, 'body'):
+            elif hasattr(request, "body"):
                 # Try to parse JSON body
                 import json
+
                 try:
                     if request.body:
                         request_data = json.loads(request.body)
@@ -58,10 +59,10 @@ class WriteAuditMiddleware:
                     pass
 
             # Remove sensitive fields
-            sensitive_fields = ['password', 'token', 'secret', 'key']
+            sensitive_fields = ["password", "token", "secret", "key"]
             for field in sensitive_fields:
                 request_data.pop(field, None)
-                request_data.pop(f'{field}_confirmation', None)
+                request_data.pop(f"{field}_confirmation", None)
         except Exception:
             request_data = {}
 
@@ -85,20 +86,17 @@ class WriteAuditMiddleware:
 
         # Get impersonated_by from request if present (set by authentication)
         impersonated_by = None
-        if hasattr(request, 'impersonated_by_id'):
+        if hasattr(request, "impersonated_by_id"):
             try:
                 from django.contrib.auth import get_user_model
-                User = get_user_model()
-                impersonated_by = User.objects.get(pk=request.impersonated_by_id)
+
+                user_model = get_user_model()
+                impersonated_by = user_model.objects.get(pk=request.impersonated_by_id)
             except Exception:
                 pass  # If user lookup fails, continue without impersonated_by
 
         AuditLog.objects.create(
-            actor=(
-                request.user
-                if getattr(request, "user", None) and request.user.is_authenticated
-                else None
-            ),
+            actor=(request.user if getattr(request, "user", None) and request.user.is_authenticated else None),
             impersonated_by=impersonated_by,
             method=method,
             path=request.path,
@@ -121,9 +119,7 @@ class WriteAuditMiddleware:
     def _resolve_model_label(resolver_match) -> str:
         if not resolver_match:
             return ""
-        view_cls = getattr(resolver_match.func, "view_class", None) or getattr(
-            resolver_match.func, "cls", None
-        )
+        view_cls = getattr(resolver_match.func, "view_class", None) or getattr(resolver_match.func, "cls", None)
         queryset = getattr(view_cls, "queryset", None)
         if queryset is not None:
             model = getattr(queryset, "model", None)

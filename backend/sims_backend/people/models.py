@@ -2,6 +2,7 @@
 People module models - Central identity and contact management.
 Students, faculty, and staff reference a shared person record.
 """
+
 from __future__ import annotations
 
 from django.conf import settings

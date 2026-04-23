@@ -1,7 +1,8 @@
 """Admin configuration for people module."""
+
 from django.contrib import admin
 
-from .models import Person, ContactInfo, Address, IdentityDocument
+from .models import Address, ContactInfo, IdentityDocument, Person
 
 
 class ContactInfoInline(admin.TabularInline):

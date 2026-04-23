@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("attendance", "0001_initial"),
         ("students", "0003_importjob"),
@@ -123,12 +122,8 @@ class Migration(migrations.Migration):
             options={
                 "ordering": ["-created_at"],
                 "indexes": [
-                    models.Index(
-                        fields=["input_type"], name="attendance__input_t_870f48_idx"
-                    ),
-                    models.Index(
-                        fields=["status"], name="attendance__status_d98ec3_idx"
-                    ),
+                    models.Index(fields=["input_type"], name="attendance__input_t_870f48_idx"),
+                    models.Index(fields=["status"], name="attendance__status_d98ec3_idx"),
                 ],
             },
         ),
@@ -181,12 +176,8 @@ class Migration(migrations.Migration):
             options={
                 "ordering": ["-punched_at"],
                 "indexes": [
-                    models.Index(
-                        fields=["punched_at"], name="attendance__punched_a40591_idx"
-                    ),
-                    models.Index(
-                        fields=["student"], name="attendance__student_4f7353_idx"
-                    ),
+                    models.Index(fields=["punched_at"], name="attendance__punched_a40591_idx"),
+                    models.Index(fields=["student"], name="attendance__student_4f7353_idx"),
                 ],
             },
         ),

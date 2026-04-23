@@ -148,14 +148,16 @@ def student_statement_pdf(statement: dict) -> io.BytesIO:
     if statement["entries"]:
         entry_data = [["Date", "Description", "Debit", "Credit", "Balance"]]
         for entry in statement["entries"]:
-            entry_data.append([
-                entry["date"].strftime("%Y-%m-%d"),
-                entry["description"][:50],  # Truncate long descriptions
-                f"{entry['debit']:.2f}" if entry["debit"] else "",
-                f"{entry['credit']:.2f}" if entry["credit"] else "",
-                f"{entry['running_balance']:.2f}",
-            ])
-        
+            entry_data.append(
+                [
+                    entry["date"].strftime("%Y-%m-%d"),
+                    entry["description"][:50],  # Truncate long descriptions
+                    f"{entry['debit']:.2f}" if entry["debit"] else "",
+                    f"{entry['credit']:.2f}" if entry["credit"] else "",
+                    f"{entry['running_balance']:.2f}",
+                ]
+            )
+
         entry_table = Table(entry_data, colWidths=[1 * inch, 2.5 * inch, 0.8 * inch, 0.8 * inch, 1 * inch])
         entry_table.setStyle(
             TableStyle(
@@ -172,13 +174,13 @@ def student_statement_pdf(statement: dict) -> io.BytesIO:
         story.append(entry_table)
     else:
         story.append(Paragraph("No ledger entries found.", styles["Normal"]))
-    
+
     story.append(Spacer(1, 0.3 * inch))
-    
+
     # Closing balance
     story.append(Paragraph(f"<b>Closing Balance:</b> {statement['closing_balance']:.2f} PKR", styles["Normal"]))
     story.append(Spacer(1, 0.2 * inch))
-    
+
     story.append(Paragraph(f"Generated on {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", styles["Italic"]))
 
     doc.build(story)

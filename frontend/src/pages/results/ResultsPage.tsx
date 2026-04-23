@@ -30,23 +30,24 @@ export const ResultsPage: React.FC = () => {
         header: 'Student Name',
       },
       {
-        accessorKey: 'program_name',
-        header: 'Program',
+        accessorKey: 'exam_title',
+        header: 'Exam',
       },
       {
-        accessorKey: 'total_score',
+        accessorKey: 'total_obtained',
         header: 'Total Score',
+        cell: ({ row }) => `${row.original.total_obtained} / ${row.original.total_max}`,
       },
       {
-        accessorKey: 'grade',
-        header: 'Grade',
+        accessorKey: 'final_outcome',
+        header: 'Outcome',
       },
       {
-        accessorKey: 'published',
+        accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => (
-          <Badge variant={row.original.published ? 'success' : 'warning'}>
-            {row.original.published ? 'Published' : 'Draft'}
+          <Badge variant={row.original.status === 'PUBLISHED' || row.original.status === 'FROZEN' ? 'success' : 'warning'}>
+            {row.original.status}
           </Badge>
         ),
       },

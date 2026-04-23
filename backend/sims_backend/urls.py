@@ -6,11 +6,9 @@ import django_rq
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.core.management import call_command
 from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
-from django.views.decorators.csrf import csrf_exempt
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -32,7 +30,7 @@ def _get_version():
     """Get application version from git or environment variable."""
     # Try to get from environment variable first
     version = os.getenv("APP_VERSION", os.getenv("VERSION", "unknown"))
-    
+
     if version == "unknown":
         # Try to get git SHA
         try:
@@ -47,7 +45,7 @@ def _get_version():
                 version = result.stdout.strip()[:8]  # Short SHA
         except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.SubprocessError):
             pass
-    
+
     return version
 
 
@@ -55,12 +53,12 @@ def _check_migrations():
     """Check if there are any pending migrations."""
     try:
         # Use Django's migration loader to check for unapplied migrations
-        from django.db.migrations.loader import MigrationLoader
         from django.db import connection
-        
+        from django.db.migrations.loader import MigrationLoader
+
         loader = MigrationLoader(connection)
-        unapplied = loader.graph.leaf_nodes() - loader.applied_migrations
-        
+        unapplied = set(loader.graph.leaf_nodes()) - set(loader.applied_migrations)
+
         if unapplied:
             return {"status": "fail", "pending_count": len(unapplied)}
         return {"status": "ok"}
@@ -72,7 +70,7 @@ def _check_migrations():
 def health_check(request):
     """
     Canonical health/readiness endpoint.
-    
+
     Returns:
         - 200 OK if all checks pass (status: "ok")
         - 200 OK with status: "degraded" if optional checks fail (Redis)
@@ -92,7 +90,7 @@ def health_check(request):
         "checks": {},
         "version": _get_version(),
     }
-    
+
     # Check database connectivity and measure latency
     db_status = "ok"
     db_latency_ms = 0
@@ -114,7 +112,7 @@ def health_check(request):
             "status": db_status,
             "latency_ms": db_latency_ms,
         }
-    
+
     # Check migrations (only if DB is accessible)
     if db_status == "ok":
         migrations_check = _check_migrations()
@@ -124,22 +122,22 @@ def health_check(request):
     else:
         response_data["checks"]["migrations"] = {"status": "fail", "error": "Database unreachable"}
         response_data["status"] = "degraded"
-    
+
     # Check Redis (optional - does not fail readiness, but marks as degraded)
     redis_status = "skipped"
     try:
         queue = django_rq.get_queue("default")
         queue.connection.ping()
         redis_status = "ok"
-    except Exception as e:
+    except Exception:
         # Redis is optional, so we don't fail readiness if it's down
         # But mark overall status as degraded to indicate optional service is unavailable
         redis_status = "fail"
         if response_data["status"] == "ok":
             response_data["status"] = "degraded"
-    
+
     response_data["checks"]["redis"] = {"status": redis_status}
-    
+
     # Return 200 even if degraded (following Kubernetes readiness pattern)
     # The status field indicates the actual health state
     return JsonResponse(response_data, status=200)
@@ -157,9 +155,7 @@ urlpatterns = [
     path("api/auth/me/", MeView.as_view(), name="auth_me"),
     path("api/auth/change-password/", ChangePasswordView.as_view(), name="auth_change_password"),
     # Legacy auth endpoints (deprecated, kept for backward compatibility)
-    path(
-        "api/auth/token/", EmailTokenObtainPairView.as_view(), name="token_obtain_pair"
-    ),
+    path("api/auth/token/", EmailTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path(
         "api/auth/token/refresh/",
         TokenRefreshView.as_view(),

@@ -107,7 +107,7 @@ class VoucherSerializer(serializers.ModelSerializer):
 
     def get_balance(self, obj: Voucher) -> dict:
         # Skip balance calculation for list views to avoid N+1 queries
-        if self.context.get('skip_balance', False):
+        if self.context.get("skip_balance", False):
             return {}
         return compute_student_balance(obj.student, term=obj.term, voucher=obj)
 
@@ -123,9 +123,7 @@ class VoucherSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"items": ["Invalid amount on line items."]})
         total_amount = attrs.get("total_amount", total)
         if total != Decimal(str(total_amount)):
-            raise serializers.ValidationError(
-                {"total_amount": ["Total must equal the sum of voucher item amounts."]}
-            )
+            raise serializers.ValidationError({"total_amount": ["Total must equal the sum of voucher item amounts."]})
         return attrs
 
     def create(self, validated_data):

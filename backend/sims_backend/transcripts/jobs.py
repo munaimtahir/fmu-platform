@@ -12,9 +12,7 @@ from .views import generate_transcript_pdf
 logger = logging.getLogger(__name__)
 
 
-def generate_and_email_transcript(
-    student_id: int, recipient_email: str | None = None
-) -> dict[str, Any]:
+def generate_and_email_transcript(student_id: int, recipient_email: str | None = None) -> dict[str, Any]:
     """
     Background job to generate a transcript PDF and optionally email it.
 
@@ -92,9 +90,7 @@ def batch_generate_transcripts(student_ids: list[int]) -> dict[str, Any]:
         if result["status"] == "success":
             results["success"].append(student_id)
         else:
-            results["failed"].append(
-                {"student_id": student_id, "error": result["message"]}
-            )
+            results["failed"].append({"student_id": student_id, "error": result["message"]})
 
     logger.info(
         f"Batch transcript generation complete: {len(results['success'])} succeeded, {len(results['failed'])} failed"

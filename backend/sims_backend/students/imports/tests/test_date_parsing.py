@@ -1,7 +1,7 @@
 """
 Tests for date parsing in bulk upload
 """
-import pytest
+
 from sims_backend.students.imports.utils import parse_date_strict
 
 

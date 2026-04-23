@@ -11,8 +11,6 @@ import os  # pragma: no cover - ASGI entry point, tested via deployment
 
 from django.core.asgi import get_asgi_application  # pragma: no cover
 
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "sims_backend.settings"
-)  # pragma: no cover
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sims_backend.settings")  # pragma: no cover
 
 application = get_asgi_application()  # pragma: no cover

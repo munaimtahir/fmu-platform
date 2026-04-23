@@ -4,45 +4,56 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('timetable', '0003_change_weekly_timetable_to_batch'),
+        ("timetable", "0003_change_weekly_timetable_to_batch"),
     ]
 
     operations = [
         migrations.RenameIndex(
-            model_name='timetablecell',
-            new_name='timetable_t_weekly__fda2b3_idx',
-            old_name='timetable_t_weekly__jkl012_idx',
+            model_name="timetablecell",
+            new_name="timetable_t_weekly__fda2b3_idx",
+            old_name="timetable_t_weekly__jkl012_idx",
         ),
         migrations.RenameIndex(
-            model_name='weeklytimetable',
-            new_name='timetable_w_academi_620d78_idx',
-            old_name='timetable_w_academi_batch_idx',
+            model_name="weeklytimetable",
+            new_name="timetable_w_academi_620d78_idx",
+            old_name="timetable_w_academi_batch_idx",
         ),
         migrations.RenameIndex(
-            model_name='weeklytimetable',
-            new_name='timetable_w_status_01fed4_idx',
-            old_name='timetable_w_status_def456_idx',
+            model_name="weeklytimetable",
+            new_name="timetable_w_status_01fed4_idx",
+            old_name="timetable_w_status_def456_idx",
         ),
         migrations.RenameIndex(
-            model_name='weeklytimetable',
-            new_name='timetable_w_week_st_c0b05b_idx',
-            old_name='timetable_w_week_s_ghi789_idx',
+            model_name="weeklytimetable",
+            new_name="timetable_w_week_st_c0b05b_idx",
+            old_name="timetable_w_week_s_ghi789_idx",
         ),
         migrations.AlterField(
-            model_name='timetablecell',
-            name='line1',
-            field=models.CharField(blank=True, help_text="First line of cell content (e.g., course name, or groups like 'Group A, Group B')", max_length=200),
+            model_name="timetablecell",
+            name="line1",
+            field=models.CharField(
+                blank=True,
+                help_text="First line of cell content (e.g., course name, or groups like 'Group A, Group B')",
+                max_length=200,
+            ),
         ),
         migrations.AlterField(
-            model_name='timetablecell',
-            name='line2',
-            field=models.CharField(blank=True, help_text='Second line of cell content (e.g., room number, or additional groups)', max_length=200),
+            model_name="timetablecell",
+            name="line2",
+            field=models.CharField(
+                blank=True,
+                help_text="Second line of cell content (e.g., room number, or additional groups)",
+                max_length=200,
+            ),
         ),
         migrations.AlterField(
-            model_name='timetablecell',
-            name='line3',
-            field=models.CharField(blank=True, help_text='Third line of cell content (e.g., faculty name, or additional info)', max_length=200),
+            model_name="timetablecell",
+            name="line3",
+            field=models.CharField(
+                blank=True,
+                help_text="Third line of cell content (e.g., faculty name, or additional info)",
+                max_length=200,
+            ),
         ),
     ]

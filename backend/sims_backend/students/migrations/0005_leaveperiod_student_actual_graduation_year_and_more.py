@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("academics", "0007_alter_program_options_and_more"),
         (
@@ -105,16 +104,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="student",
             name="enrollment_year",
-            field=models.PositiveSmallIntegerField(
-                blank=True, help_text="Year of enrollment", null=True
-            ),
+            field=models.PositiveSmallIntegerField(blank=True, help_text="Year of enrollment", null=True),
         ),
         migrations.AddField(
             model_name="student",
             name="expected_graduation_year",
-            field=models.PositiveSmallIntegerField(
-                blank=True, help_text="Expected year of graduation", null=True
-            ),
+            field=models.PositiveSmallIntegerField(blank=True, help_text="Expected year of graduation", null=True),
         ),
         migrations.AlterField(
             model_name="student",
@@ -134,9 +129,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="student",
-            index=models.Index(
-                fields=["enrollment_year"], name="students_st_enrollm_c28e7d_idx"
-            ),
+            index=models.Index(fields=["enrollment_year"], name="students_st_enrollm_c28e7d_idx"),
         ),
         migrations.AddField(
             model_name="leaveperiod",
@@ -162,14 +155,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="leaveperiod",
-            index=models.Index(
-                fields=["student", "status"], name="students_le_student_ed9ae0_idx"
-            ),
+            index=models.Index(fields=["student", "status"], name="students_le_student_ed9ae0_idx"),
         ),
         migrations.AddIndex(
             model_name="leaveperiod",
-            index=models.Index(
-                fields=["start_date", "end_date"], name="students_le_start_d_a7f4d2_idx"
-            ),
+            index=models.Index(fields=["start_date", "end_date"], name="students_le_start_d_a7f4d2_idx"),
         ),
     ]

@@ -8,4 +8,3 @@ router.register(r"exams", ExamViewSet, basename="exam")
 router.register(r"exam-components", ExamComponentViewSet, basename="exam-component")
 
 urlpatterns = [path("api/", include(router.urls))]
-

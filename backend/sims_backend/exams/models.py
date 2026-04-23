@@ -154,4 +154,3 @@ class ExamComponent(TimeStampedModel):
 
     def __str__(self):
         return f"{self.exam.title} - {self.name} ({self.sequence})"
-

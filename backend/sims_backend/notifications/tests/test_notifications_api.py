@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 from django.contrib.auth.models import Group, User
 from django.utils import timezone
 from rest_framework import status
@@ -10,9 +11,11 @@ from sims_backend.academics.models import (
     Batch,
     Course,
     Department,
-    Group as AcademicGroup,
     Program,
     Section,
+)
+from sims_backend.academics.models import (
+    Group as AcademicGroup,
 )
 from sims_backend.notifications.jobs import expand_audience_and_create_inbox, send_notification_email_batch
 from sims_backend.notifications.models import Notification, NotificationAudience, NotificationInbox
@@ -35,9 +38,7 @@ def setup_notification_data(db):
     student_user = User.objects.create_user(username="student", password="password", email="student@example.com")
     student_user.groups.add(student_group)
 
-    student_user_two = User.objects.create_user(
-        username="student2", password="password", email="student2@example.com"
-    )
+    student_user_two = User.objects.create_user(username="student2", password="password", email="student2@example.com")
     student_user_two.groups.add(student_group)
 
     program = Program.objects.create(name="MBBS")

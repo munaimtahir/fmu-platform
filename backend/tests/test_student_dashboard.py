@@ -2,13 +2,15 @@ import pytest
 from django.contrib.auth.models import Group
 from rest_framework import status
 
-from sims_backend.students.models import Student
-from sims_backend.academics.models import Program, Batch, Group as StudentGroup
+from sims_backend.academics.models import Batch, Program
+from sims_backend.academics.models import Group as StudentGroup
 from sims_backend.attendance.models import Attendance
+from sims_backend.exams.models import Exam
 from sims_backend.finance.models import LedgerEntry
 from sims_backend.results.models import ResultHeader
+from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
-from sims_backend.exams.models import Exam
+
 
 @pytest.mark.django_db
 def test_dashboard_stats_student_linked(api_client, student_user):
@@ -30,12 +32,7 @@ def test_dashboard_stats_student_linked(api_client, student_user):
     group = StudentGroup.objects.create(batch=batch, name="A")
 
     student = Student.objects.create(
-        user=student_user,
-        reg_no="REG-123",
-        name="Test Student",
-        program=program,
-        batch=batch,
-        group=group
+        user=student_user, reg_no="REG-123", name="Test Student", program=program, batch=batch, group=group
     )
 
     # Create Attendance
@@ -48,40 +45,24 @@ def test_dashboard_stats_student_linked(api_client, student_user):
     session1 = Session.objects.create(
         academic_period=period,
         group=group,
-        faculty=student_user, # Just for FK requirement
+        faculty=student_user,  # Just for FK requirement
         department=dept,
         starts_at="2024-01-01 09:00:00+00:00",
-        ends_at="2024-01-01 10:00:00+00:00"
+        ends_at="2024-01-01 10:00:00+00:00",
     )
 
-    Attendance.objects.create(
-        session=session1,
-        student=student,
-        status=Attendance.STATUS_PRESENT
-    )
+    Attendance.objects.create(session=session1, student=student, status=Attendance.STATUS_PRESENT)
 
     # Create Ledger Entry (Old code used StudentLedgerItem, new uses LedgerEntry)
     # Just creating a debit entry for "pending dues" logic
     LedgerEntry.objects.create(
-        student=student,
-        term=period,
-        entry_type=LedgerEntry.ENTRY_DEBIT,
-        amount=1000,
-        description="Tuition Fee"
+        student=student, term=period, entry_type=LedgerEntry.ENTRY_DEBIT, amount=1000, description="Tuition Fee"
     )
 
     # Create Result
-    exam = Exam.objects.create(
-        academic_period=period,
-        title="Midterm",
-        published=True
-    )
+    exam = Exam.objects.create(academic_period=period, title="Midterm", published=True)
 
-    ResultHeader.objects.create(
-        exam=exam,
-        student=student,
-        status=ResultHeader.STATUS_PUBLISHED
-    )
+    ResultHeader.objects.create(exam=exam, student=student, status=ResultHeader.STATUS_PUBLISHED)
 
     # 3. Test linked state
     response = api_client.get("/api/dashboard/stats/")

@@ -9,5 +9,6 @@ class CoreConfig(AppConfig):
     the core functionalities of the project, such as custom authentication,
     dashboard views, and base models.
     """
+
     default_auto_field = "django.db.models.BigAutoField"
     name = "core"

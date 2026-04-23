@@ -4,35 +4,34 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('syllabus', '0001_initial'),
+        ("syllabus", "0001_initial"),
     ]
 
     operations = [
         migrations.RenameIndex(
-            model_name='syllabusitem',
-            new_name='syllabus_sy_program_709af8_idx',
-            old_name='syllabus_syll_program_idx',
+            model_name="syllabusitem",
+            new_name="syllabus_sy_program_709af8_idx",
+            old_name="syllabus_syll_program_idx",
         ),
         migrations.RenameIndex(
-            model_name='syllabusitem',
-            new_name='syllabus_sy_period__ce58e9_idx',
-            old_name='syllabus_syll_period_idx',
+            model_name="syllabusitem",
+            new_name="syllabus_sy_period__ce58e9_idx",
+            old_name="syllabus_syll_period_idx",
         ),
         migrations.RenameIndex(
-            model_name='syllabusitem',
-            new_name='syllabus_sy_learnin_718096_idx',
-            old_name='syllabus_syll_block_idx',
+            model_name="syllabusitem",
+            new_name="syllabus_sy_learnin_718096_idx",
+            old_name="syllabus_syll_block_idx",
         ),
         migrations.RenameIndex(
-            model_name='syllabusitem',
-            new_name='syllabus_sy_module__ee5bd8_idx',
-            old_name='syllabus_syll_module_idx',
+            model_name="syllabusitem",
+            new_name="syllabus_sy_module__ee5bd8_idx",
+            old_name="syllabus_syll_module_idx",
         ),
         migrations.RenameIndex(
-            model_name='syllabusitem',
-            new_name='syllabus_sy_order_n_4d44e7_idx',
-            old_name='syllabus_syll_order_idx',
+            model_name="syllabusitem",
+            new_name="syllabus_sy_order_n_4d44e7_idx",
+            old_name="syllabus_syll_order_idx",
         ),
     ]

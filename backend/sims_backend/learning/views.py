@@ -152,7 +152,7 @@ class LearningMaterialAudienceViewSet(AudiencePermissionMixin, viewsets.ModelVie
                     {"detail": "You can only delete audiences for materials you created."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
-        
+
         return super().destroy(request, *args, **kwargs)
 
 
@@ -179,15 +179,15 @@ class LearningStudentFeedAPIView(APIView):
         # Build audience filter with proper AND semantics for multi-field audiences
         # Each Q object represents a potential match - a student matches if ANY audience matches ALL its constraints
         audience_filter = Q()
-        
+
         # Section-based audiences (most specific)
         if section_ids:
             audience_filter |= Q(audiences__section_id__in=section_ids)
-        
+
         # Course+Term pair audiences (explicit AND of both fields)
         for course_id, term_id in course_term_pairs:
             audience_filter |= Q(audiences__course_id=course_id, audiences__term_id=term_id)
-        
+
         # Term-only audiences (matching students enrolled in sections for that term)
         if term_ids:
             audience_filter |= Q(
@@ -195,7 +195,7 @@ class LearningStudentFeedAPIView(APIView):
                 audiences__course_id__isnull=True,
                 audiences__section_id__isnull=True,
             )
-        
+
         # Batch-only or Batch+Program audiences
         if student.batch_id:
             # Match audiences that specify this batch with no program constraint
@@ -209,7 +209,7 @@ class LearningStudentFeedAPIView(APIView):
                     audiences__batch_id=student.batch_id,
                     audiences__program_id=student.program_id,
                 )
-        
+
         # Program-only audiences (most general)
         if student.program_id:
             audience_filter |= Q(

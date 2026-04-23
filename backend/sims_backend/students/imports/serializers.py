@@ -1,4 +1,5 @@
 """Serializers for Student CSV import API"""
+
 from rest_framework import serializers
 
 from sims_backend.students.imports.models import ImportJob
@@ -6,27 +7,28 @@ from sims_backend.students.imports.models import ImportJob
 
 class PreviewRequestSerializer(serializers.Serializer):
     """Serializer for preview request"""
+
     file = serializers.FileField(help_text="CSV file to import")
     mode = serializers.ChoiceField(
         choices=ImportJob.MODE_CHOICES,
         default=ImportJob.MODE_CREATE_ONLY,
-        help_text="Import mode: CREATE_ONLY or UPSERT"
+        help_text="Import mode: CREATE_ONLY or UPSERT",
     )
     auto_create = serializers.BooleanField(
-        default=False,
-        required=False,
-        help_text="Automatically create missing Programs, Batches, and Groups"
+        default=False, required=False, help_text="Automatically create missing Programs, Batches, and Groups"
     )
 
 
 class RowErrorSerializer(serializers.Serializer):
     """Serializer for row validation errors"""
+
     column = serializers.CharField()
     message = serializers.CharField()
 
 
 class PreviewRowSerializer(serializers.Serializer):
     """Serializer for preview row result"""
+
     row_number = serializers.IntegerField()
     action = serializers.CharField()  # CREATE, UPDATE, SKIP
     errors = RowErrorSerializer(many=True)
@@ -35,6 +37,7 @@ class PreviewRowSerializer(serializers.Serializer):
 
 class PreviewResponseSerializer(serializers.Serializer):
     """Serializer for preview response"""
+
     import_job_id = serializers.UUIDField()
     total_rows = serializers.IntegerField()
     valid_rows = serializers.IntegerField()
@@ -46,17 +49,19 @@ class PreviewResponseSerializer(serializers.Serializer):
 
 class CommitRequestSerializer(serializers.Serializer):
     """Serializer for commit request"""
+
     import_job_id = serializers.UUIDField(help_text="ID of the previewed import job")
     confirm = serializers.BooleanField(help_text="Must be True to confirm commit")
     auto_create = serializers.BooleanField(
         default=False,
         required=False,
-        help_text="Automatically create missing Programs, Batches, and Groups (must match preview setting)"
+        help_text="Automatically create missing Programs, Batches, and Groups (must match preview setting)",
     )
 
 
 class CommitResponseSerializer(serializers.Serializer):
     """Serializer for commit response"""
+
     import_job_id = serializers.UUIDField()
     status = serializers.CharField()
     created_count = serializers.IntegerField()
@@ -67,20 +72,43 @@ class CommitResponseSerializer(serializers.Serializer):
 
 class ImportJobSerializer(serializers.ModelSerializer):
     """Serializer for ImportJob model"""
-    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+
+    created_by_username = serializers.CharField(source="created_by.username", read_only=True)
 
     class Meta:
         model = ImportJob
         fields = [
-            'id', 'created_by', 'created_by_username', 'created_at', 'finished_at',
-            'status', 'mode', 'auto_create', 'original_filename', 'file_hash',
-            'total_rows', 'valid_rows', 'invalid_rows',
-            'created_count', 'updated_count', 'failed_count',
-            'error_report_file', 'summary'
+            "id",
+            "created_by",
+            "created_by_username",
+            "created_at",
+            "finished_at",
+            "status",
+            "mode",
+            "auto_create",
+            "original_filename",
+            "file_hash",
+            "total_rows",
+            "valid_rows",
+            "invalid_rows",
+            "created_count",
+            "updated_count",
+            "failed_count",
+            "error_report_file",
+            "summary",
         ]
         read_only_fields = [
-            'id', 'created_by', 'created_at', 'finished_at',
-            'file_hash', 'total_rows', 'valid_rows', 'invalid_rows',
-            'created_count', 'updated_count', 'failed_count',
-            'error_report_file', 'summary'
+            "id",
+            "created_by",
+            "created_at",
+            "finished_at",
+            "file_hash",
+            "total_rows",
+            "valid_rows",
+            "invalid_rows",
+            "created_count",
+            "updated_count",
+            "failed_count",
+            "error_report_file",
+            "summary",
         ]

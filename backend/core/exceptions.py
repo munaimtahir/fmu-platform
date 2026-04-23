@@ -6,9 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
 
 
-def custom_exception_handler(
-    exc: Exception, context: dict[str, Any]
-) -> Response | None:
+def custom_exception_handler(exc: Exception, context: dict[str, Any]) -> Response | None:
     """
     A custom exception handler for Django REST Framework.
 

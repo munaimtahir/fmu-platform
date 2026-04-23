@@ -15,6 +15,7 @@ from rest_framework import status
 from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Program, Section
 from sims_backend.academics.models import Group as StudentGroup
 from sims_backend.attendance.models import Attendance
+
 # Legacy enrollment module removed
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
@@ -57,9 +58,7 @@ def setup_academic_structure(db):
 @pytest.fixture
 def student1_user(db):
     """Create first student user"""
-    user = User.objects.create_user(
-        username="student1", email="student1@test.com", password="pass123"
-    )
+    user = User.objects.create_user(username="student1", email="student1@test.com", password="pass123")
     user.groups.add(Group.objects.get(name="STUDENT"))
     return user
 
@@ -90,9 +89,7 @@ def faculty_user(db):
 class TestAttendanceUniqueness:
     """Contract: One attendance record per student per session"""
 
-    def test_attendance_duplicate_blocked_at_db_level(
-        self, setup_academic_structure, student1, faculty_user
-    ):
+    def test_attendance_duplicate_blocked_at_db_level(self, setup_academic_structure, student1, faculty_user):
         """Database constraint should prevent duplicate attendance"""
         session = Session.objects.create(
             academic_period=setup_academic_structure["academic_period"],
@@ -118,9 +115,7 @@ class TestAttendanceUniqueness:
                 status=Attendance.STATUS_ABSENT,
             )
 
-    def test_attendance_duplicate_blocked_via_api(
-        self, api_client, setup_academic_structure, student1, faculty_user
-    ):
+    def test_attendance_duplicate_blocked_via_api(self, api_client, setup_academic_structure, student1, faculty_user):
         """API should handle duplicate attendance gracefully"""
         session = Session.objects.create(
             academic_period=setup_academic_structure["academic_period"],

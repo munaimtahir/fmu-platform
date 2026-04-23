@@ -10,13 +10,13 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from sims_backend.common_permissions import in_group
-from sims_backend.students.models import Student
 from sims_backend.finance.services import finance_gate_checks
 from sims_backend.results.models import ResultHeader
+from sims_backend.students.models import Student
 
 # Token expires after 48 hours
 TOKEN_MAX_AGE = 48 * 60 * 60
@@ -101,9 +101,7 @@ def generate_transcript_pdf(student: Student) -> io.BytesIO:
                 ]
             )
 
-        result_table = Table(
-            result_data, colWidths=[2.5 * inch, 2 * inch, 1 * inch, 1 * inch]
-        )
+        result_table = Table(result_data, colWidths=[2.5 * inch, 2 * inch, 1 * inch, 1 * inch])
         result_table.setStyle(
             TableStyle(
                 [
@@ -153,16 +151,20 @@ def get_transcript(request, student_id: int):
     try:
         student = Student.objects.get(id=student_id)
     except Student.DoesNotExist:
-        return Response(
-            {"error": {"code": 404, "message": "Student not found"}}, status=404
-        )
+        return Response({"error": {"code": 404, "message": "Student not found"}}, status=404)
 
     # Check permissions: students can only view their own transcript
-    # Finance/Admin users can view any student's transcript for administrative purposes
+    # Admin/Registrar/Finance users can view any student's transcript for administrative purposes.
     user = request.user
     is_student = in_group(user, "STUDENT")
-    has_admin_access = in_group(user, "FINANCE") or in_group(user, "ADMIN") or user.is_superuser
-    
+    has_admin_access = (
+        in_group(user, "FINANCE")
+        or in_group(user, "ADMIN")
+        or in_group(user, "REGISTRAR")
+        or in_group(user, "Registrar")
+        or user.is_superuser
+    )
+
     if is_student:
         if getattr(user, "student", None) != student:
             return Response(
@@ -170,7 +172,7 @@ def get_transcript(request, student_id: int):
                 status=403,
             )
     elif not has_admin_access:
-        # Non-student users must have FINANCE or ADMIN role to view transcripts
+        # Non-student users must have an administrative transcript role.
         return Response(
             {"error": {"code": "FORBIDDEN", "message": "You do not have permission to view this transcript"}},
             status=403,
@@ -204,7 +206,7 @@ def get_transcript(request, student_id: int):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def verify_transcript(request, token: str):
     """Verify a transcript QR token"""
     result = verify_qr_token(token)
@@ -227,17 +229,13 @@ def enqueue_transcript_generation(request):
     email = request.data.get("email")
 
     if not student_id:
-        return Response(
-            {"error": {"code": 400, "message": "student_id is required"}}, status=400
-        )
+        return Response({"error": {"code": 400, "message": "student_id is required"}}, status=400)
 
     # Check if student exists
     try:
         student = Student.objects.get(id=student_id)
     except Student.DoesNotExist:
-        return Response(
-            {"error": {"code": 404, "message": "Student not found"}}, status=404
-        )
+        return Response({"error": {"code": 404, "message": "Student not found"}}, status=404)
 
     if in_group(request.user, "STUDENT") and getattr(request.user, "student", None) != student:
         return Response(

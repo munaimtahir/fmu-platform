@@ -432,6 +432,18 @@ export const StudentApplicationPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">
+        {/* Submission Inactive Banner */}
+        <div className="mb-8 bg-amber-50 border border-yellow-200 rounded-3xl p-6 text-center shadow-sm">
+          <div className="flex items-center justify-center mb-2">
+            <span className="text-2xl mr-2">ℹ️</span>
+            <h3 className="text-lg font-bold text-amber-900">Online Submission Inactive</h3>
+          </div>
+          <p className="text-amber-800">
+            Online registration is currently under maintenance. 
+            Please use this form as a reference or for offline submission as directed by the Admissions Office.
+          </p>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -898,7 +910,7 @@ export const StudentApplicationPage = () => {
                   variant="ghost"
                   onClick={onSaveDraft}
                   isLoading={isSavingDraft}
-                  disabled={isSavingDraft || isLoadingDraft}
+                  disabled={true}
                 >
                   {isSavingDraft ? 'Saving...' : 'Save Draft'}
                 </Button>
@@ -906,28 +918,20 @@ export const StudentApplicationPage = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => setShowLoadDraftModal(true)}
-                  disabled={isSavingDraft || isLoadingDraft}
+                  disabled={true}
                 >
                   Load Draft
                 </Button>
               </div>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setShowLoadDraftModal(true)}
-                disabled={isSavingDraft || isLoadingDraft}
-              >
-                Load Draft
-              </Button>
             </div>
             <Button
               type="submit"
               variant="primary"
               size="lg"
               isLoading={isSubmitting}
-              disabled={isSubmitting || isSavingDraft || isLoadingDraft}
+              disabled={true}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Final'}
+              Submission Disabled
             </Button>
           </form>
         </div>

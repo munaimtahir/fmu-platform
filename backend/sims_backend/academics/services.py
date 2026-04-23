@@ -2,8 +2,8 @@
 Service layer for Academics module business logic and validations.
 All business rules are enforced here, not in viewsets.
 """
-from datetime import date, timedelta
-from typing import List, Optional
+
+from datetime import date
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -27,23 +27,15 @@ class ProgramService:
             total_periods = data.get("total_periods", program.total_periods)
 
             if not period_length or period_length <= 0:
-                raise ValidationError(
-                    "period_length_months is required and must be > 0 for CUSTOM structure_type"
-                )
+                raise ValidationError("period_length_months is required and must be > 0 for CUSTOM structure_type")
             if not total_periods or total_periods <= 0:
-                raise ValidationError(
-                    "total_periods is required and must be > 0 for CUSTOM structure_type"
-                )
+                raise ValidationError("total_periods is required and must be > 0 for CUSTOM structure_type")
         else:
             # YEARLY and SEMESTER don't need these fields
             if "period_length_months" in data and data["period_length_months"] is not None:
-                raise ValidationError(
-                    f"period_length_months is not allowed for {structure_type} structure_type"
-                )
+                raise ValidationError(f"period_length_months is not allowed for {structure_type} structure_type")
             if "total_periods" in data and data["total_periods"] is not None:
-                raise ValidationError(
-                    f"total_periods is not allowed for {structure_type} structure_type"
-                )
+                raise ValidationError(f"total_periods is not allowed for {structure_type} structure_type")
 
     @staticmethod
     def check_finalize_lock(program: Program, data: dict) -> None:
@@ -62,9 +54,7 @@ class ProgramService:
 
         for field in locked_fields:
             if field in data and data[field] != getattr(program, field):
-                raise ValidationError(
-                    f"Cannot modify {field} after program is finalized"
-                )
+                raise ValidationError(f"Cannot modify {field} after program is finalized")
 
     @staticmethod
     @transaction.atomic
@@ -89,7 +79,7 @@ class ProgramService:
 
     @staticmethod
     @transaction.atomic
-    def generate_periods(program: Program) -> List[Period]:
+    def generate_periods(program: Program) -> list[Period]:
         """
         Generate periods for a program based on its structure_type.
         Returns list of created Period objects.
@@ -125,9 +115,7 @@ class ProgramService:
 
         elif program.structure_type == Program.STRUCTURE_TYPE_CUSTOM:
             if not program.period_length_months or not program.total_periods:
-                raise ValidationError(
-                    "period_length_months and total_periods must be set for CUSTOM structure"
-                )
+                raise ValidationError("period_length_months and total_periods must be set for CUSTOM structure")
 
             for i in range(1, program.total_periods + 1):
                 period = Period.objects.create(
@@ -151,45 +139,37 @@ class LearningBlockService:
         - INTEGRATED_BLOCK: modules allowed; department fields MUST be null
         Raises ValidationError if invalid.
         """
-        block_type = data.get("block_type", getattr(block, 'block_type', None))
-        primary_dept = data.get("primary_department", getattr(block, 'primary_department', None))
-        sub_dept = data.get("sub_department", getattr(block, 'sub_department', None))
+        block_type = data.get("block_type", getattr(block, "block_type", None))
+        primary_dept = data.get("primary_department", getattr(block, "primary_department", None))
+        sub_dept = data.get("sub_department", getattr(block, "sub_department", None))
 
         if block_type == LearningBlock.BLOCK_TYPE_ROTATION:
             # ROTATION_BLOCK rules
             if not primary_dept:
-                raise ValidationError(
-                    "primary_department is required for ROTATION_BLOCK"
-                )
+                raise ValidationError("primary_department is required for ROTATION_BLOCK")
 
             if sub_dept:
                 # Check if sub_department is a child of primary_department
                 if sub_dept.parent != primary_dept:
-                    raise ValidationError(
-                        "sub_department must be a child of primary_department"
-                    )
+                    raise ValidationError("sub_department must be a child of primary_department")
 
             # Check for existing modules (if block exists)
-            if hasattr(block, 'pk') and block.pk:
+            if hasattr(block, "pk") and block.pk:
                 module_count = Module.objects.filter(block=block).count()
                 if module_count > 0:
-                    raise ValidationError(
-                        "ROTATION_BLOCK cannot have modules. Please remove existing modules first."
-                    )
+                    raise ValidationError("ROTATION_BLOCK cannot have modules. Please remove existing modules first.")
 
         elif block_type == LearningBlock.BLOCK_TYPE_INTEGRATED:
             # INTEGRATED_BLOCK rules
             if primary_dept is not None:
-                raise ValidationError(
-                    "primary_department must be null for INTEGRATED_BLOCK"
-                )
+                raise ValidationError("primary_department must be null for INTEGRATED_BLOCK")
             if sub_dept is not None:
-                raise ValidationError(
-                    "sub_department must be null for INTEGRATED_BLOCK"
-                )
+                raise ValidationError("sub_department must be null for INTEGRATED_BLOCK")
 
     @staticmethod
-    def validate_overlap(block: LearningBlock, track: Track, start_date: date, end_date: date, exclude_id: Optional[int] = None) -> None:
+    def validate_overlap(
+        block: LearningBlock, track: Track, start_date: date, end_date: date, exclude_id: int | None = None
+    ) -> None:
         """
         Validate that blocks don't overlap within the same track.
         Overlap rule: startA <= endB AND startB <= endA => reject
@@ -228,7 +208,7 @@ class DepartmentService:
     """Service for Department operations"""
 
     @staticmethod
-    def validate_parent_relationship(department: Department, parent: Optional[Department]) -> None:
+    def validate_parent_relationship(department: Department, parent: Department | None) -> None:
         """
         Validate parent department relationship.
         Prevents circular references.
@@ -245,4 +225,3 @@ class DepartmentService:
                 if current.pk == department.pk:
                     raise ValidationError("Cannot set parent: would create circular reference")
                 current = current.parent
-

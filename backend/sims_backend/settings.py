@@ -32,35 +32,21 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 # -------------------------------------------------------------------
 # Host / Origin configuration (Domains + IP fallback)
 # -------------------------------------------------------------------
-DEFAULT_ALLOWED_HOSTS = (
-    "sims.alshifalab.pk,"
-    "api.sims.alshifalab.pk,"
-    "34.16.82.13,"
-    "localhost,"
-    "127.0.0.1"
-)
+DEFAULT_ALLOWED_HOSTS = "sims.alshifalab.pk,api.sims.alshifalab.pk,34.16.82.13,localhost,127.0.0.1"
 
 ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv("DJANGO_ALLOWED_HOSTS", DEFAULT_ALLOWED_HOSTS).split(",")
-    if host.strip()
+    host.strip() for host in os.getenv("DJANGO_ALLOWED_HOSTS", DEFAULT_ALLOWED_HOSTS).split(",") if host.strip()
 ]
 
 # CORS Settings
 # Note: include scheme (http/https) for origins
 DEFAULT_CORS_ALLOWED_ORIGINS = (
-    "https://sims.alshifalab.pk,"
-    "https://api.sims.alshifalab.pk,"
-    "http://34.16.82.13,"
-    "http://localhost,"
-    "http://127.0.0.1"
+    "https://sims.alshifalab.pk,https://api.sims.alshifalab.pk,http://34.16.82.13,http://localhost,http://127.0.0.1"
 )
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv("CORS_ALLOWED_ORIGINS", DEFAULT_CORS_ALLOWED_ORIGINS).split(
-        ","
-    )
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", DEFAULT_CORS_ALLOWED_ORIGINS).split(",")
     if origin.strip()
 ]
 
@@ -69,18 +55,12 @@ CORS_ALLOW_CREDENTIALS = True
 # CSRF Settings
 # Must include scheme. For IP access we allow http://IP as fallback.
 DEFAULT_CSRF_TRUSTED_ORIGINS = (
-    "https://sims.alshifalab.pk,"
-    "https://api.sims.alshifalab.pk,"
-    "http://34.16.82.13,"
-    "http://localhost,"
-    "http://127.0.0.1"
+    "https://sims.alshifalab.pk,https://api.sims.alshifalab.pk,http://34.16.82.13,http://localhost,http://127.0.0.1"
 )
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv(
-        "CSRF_TRUSTED_ORIGINS", DEFAULT_CSRF_TRUSTED_ORIGINS
-    ).split(",")
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", DEFAULT_CSRF_TRUSTED_ORIGINS).split(",")
     if origin.strip()
 ]
 
@@ -233,12 +213,8 @@ REST_FRAMEWORK = {
 
 # JWT Settings
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(
-        minutes=int(os.getenv("JWT_ACCESS_TOKEN_LIFETIME", "60"))
-    ),
-    "REFRESH_TOKEN_LIFETIME": timedelta(
-        minutes=int(os.getenv("JWT_REFRESH_TOKEN_LIFETIME", "1440"))
-    ),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(os.getenv("JWT_ACCESS_TOKEN_LIFETIME", "60"))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=int(os.getenv("JWT_REFRESH_TOKEN_LIFETIME", "1440"))),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
@@ -266,17 +242,13 @@ RQ_QUEUES = {
 }
 
 # Email Settings
-EMAIL_BACKEND = os.getenv(
-    "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
-)
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = os.getenv(
-    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@sims.edu"
-)
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@sims.edu")
 
 # -------------------------------------------------------------------
 # Legacy Module Configuration - REMOVED
@@ -294,7 +266,7 @@ from core.jazzmin import JAZZMIN_SETTINGS, JAZZMIN_UI_TWEAKS  # noqa: E402, F401
 # -------------------------------------------------------------------
 if not DEBUG:
     # HTTPS Enforcement
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = os.getenv("DJANGO_SECURE_SSL_REDIRECT", "True").lower() == "true"
 
     # Trust proxy headers from Caddy reverse proxy (TLS terminates at Caddy)
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

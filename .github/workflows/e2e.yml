@@ -1,17 +1,37 @@
 name: E2E Tests
 
 on:
+  pull_request:
+    branches: [main, develop]
   workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Which test suite to run'
+        required: false
+        default: 'smoke'
+        type: choice
+        options:
+          - smoke
+          - full
+          - auth
+          - admin
+          - faculty
+          - student
+          - examcell
+          - rbac
+  schedule:
+    # Nightly full suite at 02:00 UTC
+    - cron: '0 2 * * *'
 
 permissions:
   contents: read
 
 jobs:
   e2e:
-    name: End-to-End Tests
+    name: E2E Tests (${{ github.event_name == 'pull_request' && 'smoke' || inputs.suite || 'full' }})
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    
+    timeout-minutes: 45
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,8 +45,9 @@ jobs:
           # Django settings
           DJANGO_SECRET_KEY=test-ci-secret-key-do-not-use-in-production
           DJANGO_DEBUG=False
+          DJANGO_SECURE_SSL_REDIRECT=False
           DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-          
+
           # Database
           DB_ENGINE=django.db.backends.postgresql
           DB_NAME=fmu_platform
@@ -34,18 +55,18 @@ jobs:
           DB_PASSWORD=test_password_ci
           DB_HOST=db
           DB_PORT=5432
-          
+
           # PostgreSQL
           POSTGRES_DB=fmu_platform
           POSTGRES_USER=fmu_platform
           POSTGRES_PASSWORD=test_password_ci
-          
+
           # Redis
           REDIS_HOST=redis
           REDIS_PORT=6379
-          
+
           # Frontend
-          VITE_API_URL=http://backend:8000/api
+          VITE_API_URL=/
           EOF
 
       - name: Start docker compose services
@@ -57,7 +78,7 @@ jobs:
       - name: Wait for backend readiness
         run: |
           echo "Waiting for backend to be ready..."
-          timeout 120 bash -c 'until curl -sf http://localhost:8010/api/health/ | jq -e ".checks.db.status == \"ok\" and .checks.migrations.status == \"ok\""; do 
+          timeout 120 bash -c 'until curl -sf http://localhost:8010/api/health/ | jq -e ".checks.db.status == \"ok\" and .checks.migrations.status == \"ok\""; do
             echo "Waiting for readiness... (attempt $((++attempt)))"
             sleep 2
           done' || {
@@ -77,9 +98,27 @@ jobs:
 
       - name: Seed demo data
         run: |
-          docker compose exec -T backend python manage.py seed_demo_scenarios --students 20 || {
-            echo "Seeding failed (continuing anyway)..."
+          docker compose exec -T backend python manage.py seed_demo --students 20 || {
+            echo "Primary seed failed, trying seed_demo_scenarios..."
+            docker compose exec -T backend python manage.py seed_demo_scenarios --students 20 || {
+              echo "Seeding failed (continuing anyway)..."
+            }
           }
+
+      - name: Create ExamCell test user
+        run: |
+          docker compose exec -T backend python manage.py shell -c "
+          from django.contrib.auth import get_user_model
+          from django.contrib.auth.models import Group
+          U = get_user_model()
+          if not U.objects.filter(username='examcell').exists():
+              u = U.objects.create_user(username='examcell', email='examcell@sims.edu', password='examcell123')
+              g, _ = Group.objects.get_or_create(name='EXAMCELL')
+              u.groups.add(g)
+              print('ExamCell user created')
+          else:
+              print('ExamCell user already exists')
+          " || echo "ExamCell user creation skipped (may already exist)"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -94,39 +133,52 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
+      - name: Determine test suite
+        id: suite
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "project=smoke" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "project=full" >> $GITHUB_OUTPUT
+          else
+            echo "project=${{ inputs.suite || 'smoke' }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Run Playwright E2E tests
         working-directory: frontend
         env:
           BASE_URL: http://localhost:8080
           PLAYWRIGHT_BASE_URL: http://localhost:8080
+          API_BASE_URL: http://localhost:8010
+          CI: true
         run: |
-          npx playwright test
+          npx playwright test --project=${{ steps.suite.outputs.project }}
 
-      - name: Upload Playwright report
+      - name: Upload Playwright HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ steps.suite.outputs.project }}
           path: frontend/playwright-report/
-          retention-days: 7
+          retention-days: 14
           if-no-files-found: ignore
 
-      - name: Upload test results
+      - name: Upload test results JSON
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-results
+          name: e2e-results-${{ steps.suite.outputs.project }}
           path: frontend/e2e-results.json
-          retention-days: 7
+          retention-days: 14
           if-no-files-found: ignore
 
-      - name: Upload screenshots on failure
+      - name: Upload screenshots and traces on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-screenshots
+          name: playwright-artifacts-${{ steps.suite.outputs.project }}
           path: frontend/test-results/
-          retention-days: 7
+          retention-days: 14
           if-no-files-found: ignore
 
       - name: Show docker compose logs on failure

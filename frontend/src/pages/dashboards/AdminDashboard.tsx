@@ -57,8 +57,8 @@ export const AdminDashboard = () => {
           coursesService.getAll({ page: 1 }),
           sectionsService.getAll({ page: 1 }),
           sessionsService.getAll({ page: 1 }),
-          resultsService.getAll({ page: 1, published: true }),
-          resultsService.getAll({ page: 1, published: false }),
+          resultsService.getAll({ page: 1, status: 'PUBLISHED' }),
+          resultsService.getAll({ page: 1, status: 'DRAFT' }),
         ])
 
         const unavailable: string[] = []

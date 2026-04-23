@@ -1,6 +1,7 @@
 """
 Tests for Student API (reg_no persistence)
 """
+
 import pytest
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -13,11 +14,7 @@ from sims_backend.students.models import Student
 @pytest.fixture
 def admin_user(db):
     """Create an admin user"""
-    user = User.objects.create_user(
-        username='admin',
-        email='admin@test.com',
-        password='testpass123'
-    )
+    user = User.objects.create_user(username="admin", email="admin@test.com", password="testpass123")
     user.is_staff = True
     user.is_superuser = True
     user.save()
@@ -55,10 +52,10 @@ class TestStudentRegNoField:
             "group": academic_structure["group"].id,
             "status": "active",
         }
-        response = api_client.post('/api/students/', data, format='json')
+        response = api_client.post("/api/students/", data, format="json")
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.data['reg_no'] == "2024-MBBS-001"
-        
+        assert response.data["reg_no"] == "2024-MBBS-001"
+
         # Verify in database
         student = Student.objects.get(reg_no="2024-MBBS-001")
         assert student.name == "John Doe"
@@ -73,18 +70,18 @@ class TestStudentRegNoField:
             program=academic_structure["program"],
             batch=academic_structure["batch"],
             group=academic_structure["group"],
-            status="active"
+            status="active",
         )
-        
+
         # Update student (change name, not reg_no)
         update_data = {
             "name": "Jane Smith",
         }
-        response = api_client.patch(f'/api/students/{student.id}/', update_data, format='json')
+        response = api_client.patch(f"/api/students/{student.id}/", update_data, format="json")
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['reg_no'] == "2024-MBBS-002"
-        assert response.data['name'] == "Jane Smith"
-        
+        assert response.data["reg_no"] == "2024-MBBS-002"
+        assert response.data["name"] == "Jane Smith"
+
         # Verify in database
         student.refresh_from_db()
         assert student.reg_no == "2024-MBBS-002"
@@ -98,13 +95,13 @@ class TestStudentRegNoField:
             program=academic_structure["program"],
             batch=academic_structure["batch"],
             group=academic_structure["group"],
-            status="active"
+            status="active",
         )
-        
-        response = api_client.get(f'/api/students/{student.id}/')
+
+        response = api_client.get(f"/api/students/{student.id}/")
         assert response.status_code == status.HTTP_200_OK
-        assert response.data['reg_no'] == "2024-MBBS-003"
-        assert 'reg_no' in response.data
+        assert response.data["reg_no"] == "2024-MBBS-003"
+        assert "reg_no" in response.data
 
     def test_list_students_includes_reg_no(self, api_client, academic_structure):
         """Listing students includes reg_no"""
@@ -114,16 +111,16 @@ class TestStudentRegNoField:
             program=academic_structure["program"],
             batch=academic_structure["batch"],
             group=academic_structure["group"],
-            status="active"
+            status="active",
         )
-        
-        response = api_client.get('/api/students/')
+
+        response = api_client.get("/api/students/")
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.data['results']) > 0
-        
-        student_data = next((s for s in response.data['results'] if s['reg_no'] == "2024-MBBS-004"), None)
+        assert len(response.data["results"]) > 0
+
+        student_data = next((s for s in response.data["results"] if s["reg_no"] == "2024-MBBS-004"), None)
         assert student_data is not None
-        assert student_data['reg_no'] == "2024-MBBS-004"
+        assert student_data["reg_no"] == "2024-MBBS-004"
 
     def test_reg_no_uniqueness(self, api_client, academic_structure):
         """reg_no must be unique"""
@@ -134,9 +131,9 @@ class TestStudentRegNoField:
             program=academic_structure["program"],
             batch=academic_structure["batch"],
             group=academic_structure["group"],
-            status="active"
+            status="active",
         )
-        
+
         # Try to create second student with same reg_no
         data = {
             "reg_no": "2024-MBBS-UNIQUE",
@@ -146,6 +143,6 @@ class TestStudentRegNoField:
             "group": academic_structure["group"].id,
             "status": "active",
         }
-        response = api_client.post('/api/students/', data, format='json')
+        response = api_client.post("/api/students/", data, format="json")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert 'reg_no' in str(response.data).lower() or 'unique' in str(response.data).lower()
+        assert "reg_no" in str(response.data).lower() or "unique" in str(response.data).lower()

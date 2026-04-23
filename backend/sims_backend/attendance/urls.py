@@ -3,14 +3,15 @@ from rest_framework.routers import DefaultRouter
 
 from sims_backend.attendance.input_views import (
     BiometricPunchAPIView,
-    CSVDryRunAPIView,
     CSVCommitAPIView,
+    CSVDryRunAPIView,
     LiveRosterAPIView,
     LiveSubmitAPIView,
     TickSheetCommitAPIView,
     TickSheetDryRunAPIView,
     TickSheetTemplateAPIView,
 )
+
 from .views import AttendanceViewSet
 
 router = DefaultRouter()
@@ -25,5 +26,7 @@ urlpatterns = [
     path("api/attendance-input/sheet/template/", TickSheetTemplateAPIView.as_view(), name="attendance_sheet_template"),
     path("api/attendance-input/sheet/dry-run/", TickSheetDryRunAPIView.as_view(), name="attendance_sheet_dry_run"),
     path("api/attendance-input/sheet/commit/", TickSheetCommitAPIView.as_view(), name="attendance_sheet_commit"),
-    path("api/attendance-input/biometric/punches/", BiometricPunchAPIView.as_view(), name="attendance_biometric_punches"),
+    path(
+        "api/attendance-input/biometric/punches/", BiometricPunchAPIView.as_view(), name="attendance_biometric_punches"
+    ),
 ]

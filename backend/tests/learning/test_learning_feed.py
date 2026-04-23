@@ -5,7 +5,8 @@ from django.contrib.auth.models import Group, User
 from django.utils import timezone
 from rest_framework import status
 
-from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Group as AcadGroup, Program, Section
+from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Program, Section
+from sims_backend.academics.models import Group as AcadGroup
 from sims_backend.learning.models import LearningMaterial, LearningMaterialAudience
 from sims_backend.students.models import Student
 
@@ -163,14 +164,14 @@ def test_student_feed_multi_field_audience_filtering(api_client, learning_feed_s
     data = learning_feed_setup
     faculty = data["faculty_user"]
     student_user = data["student_user"]
-    student = data["student"]
+    data["student"]
 
     # Create another batch in the same program
     other_batch = Batch.objects.create(name="Batch 2025", program=data["program"], start_year=2025)
     other_group = AcadGroup.objects.create(name="Group C", batch=other_batch)
     other_student_user = User.objects.create_user(username="student2", password="pass")
     other_student_user.groups.add(Group.objects.get(name="STUDENT"))
-    other_student = Student.objects.create(
+    Student.objects.create(
         user=other_student_user,
         reg_no="REG-002",
         name="Student Two",
@@ -293,4 +294,3 @@ def test_student_feed_excludes_published_materials_without_audiences(api_client,
     assert material_with_audience.id in ids, "Should see material with matching audience"
     # Should NOT see material without audience
     assert material_no_audience.id not in ids, "Should NOT see material without audiences"
-

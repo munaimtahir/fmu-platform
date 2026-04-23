@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('settings_app', '0001_initial'),
+        ("settings_app", "0001_initial"),
     ]
 
     operations = [
         migrations.RenameIndex(
-            model_name='appsetting',
-            new_name='settings_ap_key_514ee7_idx',
-            old_name='settings_ap_key_idx',
+            model_name="appsetting",
+            new_name="settings_ap_key_514ee7_idx",
+            old_name="settings_ap_key_idx",
         ),
     ]

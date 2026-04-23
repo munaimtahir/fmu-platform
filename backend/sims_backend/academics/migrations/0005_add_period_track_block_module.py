@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("academics", "0003_program_structure_fields"),
     ]
@@ -16,10 +15,24 @@ class Migration(migrations.Migration):
             name="Period",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created.")),
-                ("updated_at", models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated.")),
-                ("name", models.CharField(help_text="Period name (e.g., 'Year 1', 'Semester 1', 'Period 1')", max_length=128)),
-                ("order", models.PositiveSmallIntegerField(help_text="Order/sequence of this period within the program")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created."),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated."),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Period name (e.g., 'Year 1', 'Semester 1', 'Period 1')", max_length=128
+                    ),
+                ),
+                (
+                    "order",
+                    models.PositiveSmallIntegerField(help_text="Order/sequence of this period within the program"),
+                ),
                 ("start_date", models.DateField(blank=True, help_text="Period start date", null=True)),
                 ("end_date", models.DateField(blank=True, help_text="Period end date", null=True)),
                 (
@@ -40,8 +53,14 @@ class Migration(migrations.Migration):
             name="Track",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created.")),
-                ("updated_at", models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated.")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created."),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated."),
+                ),
                 ("name", models.CharField(help_text="Track name (e.g., 'Track A', 'Clinical Track')", max_length=128)),
                 ("description", models.TextField(blank=True, help_text="Track description")),
                 (
@@ -62,8 +81,14 @@ class Migration(migrations.Migration):
             name="LearningBlock",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created.")),
-                ("updated_at", models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated.")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created."),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated."),
+                ),
                 ("name", models.CharField(help_text="Block name", max_length=128)),
                 (
                     "block_type",
@@ -124,8 +149,14 @@ class Migration(migrations.Migration):
             name="Module",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("created_at", models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created.")),
-                ("updated_at", models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated.")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created."),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated."),
+                ),
                 ("name", models.CharField(help_text="Module name", max_length=128)),
                 ("description", models.TextField(blank=True, help_text="Module description")),
                 ("order", models.PositiveSmallIntegerField(help_text="Order/sequence of this module within the block")),
@@ -149,7 +180,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name="period",
-            constraint=models.UniqueConstraint(fields=("program", "order"), name="academics_period_program_order_unique"),
+            constraint=models.UniqueConstraint(
+                fields=("program", "order"), name="academics_period_program_order_unique"
+            ),
         ),
         migrations.AddConstraint(
             model_name="track",

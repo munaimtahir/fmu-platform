@@ -56,9 +56,7 @@ def setup_academic_structure(db):
 @pytest.fixture
 def student1_user(db):
     """Create first student user"""
-    user = User.objects.create_user(
-        username="student1", email="student1@test.com", password="pass123"
-    )
+    user = User.objects.create_user(username="student1", email="student1@test.com", password="pass123")
     user.groups.add(Group.objects.get(name="STUDENT"))
     return user
 
@@ -66,9 +64,7 @@ def student1_user(db):
 @pytest.fixture
 def student2_user(db):
     """Create second student user"""
-    user = User.objects.create_user(
-        username="student2", email="student2@test.com", password="pass123"
-    )
+    user = User.objects.create_user(username="student2", email="student2@test.com", password="pass123")
     user.groups.add(Group.objects.get(name="STUDENT"))
     return user
 
@@ -128,12 +124,8 @@ class TestAttendancePermissions:
         )
 
         # Create attendance for both students
-        Attendance.objects.create(
-            session=session, student=student1, status=Attendance.STATUS_PRESENT
-        )
-        Attendance.objects.create(
-            session=session, student=student2, status=Attendance.STATUS_ABSENT
-        )
+        Attendance.objects.create(session=session, student=student1, status=Attendance.STATUS_PRESENT)
+        Attendance.objects.create(session=session, student=student2, status=Attendance.STATUS_ABSENT)
 
         # Student 1 logs in and queries attendance
         api_client.force_authenticate(user=student1_user)
@@ -151,9 +143,7 @@ class TestAttendancePermissions:
         assert len(results) == 1
         assert results[0]["student"] == student1.id
 
-    def test_student_without_student_record_sees_nothing(
-        self, api_client, setup_academic_structure, faculty_user
-    ):
+    def test_student_without_student_record_sees_nothing(self, api_client, setup_academic_structure, faculty_user):
         """Student user without linked Student record should see empty list"""
         # Create a user in STUDENT group but not linked to Student
         orphan_user = User.objects.create_user(username="orphan", password="pass123")
@@ -185,12 +175,8 @@ class TestAttendancePermissions:
             ends_at=datetime.now(UTC),
         )
 
-        Attendance.objects.create(
-            session=session, student=student1, status=Attendance.STATUS_PRESENT
-        )
-        Attendance.objects.create(
-            session=session, student=student2, status=Attendance.STATUS_ABSENT
-        )
+        Attendance.objects.create(session=session, student=student1, status=Attendance.STATUS_PRESENT)
+        Attendance.objects.create(session=session, student=student2, status=Attendance.STATUS_ABSENT)
 
         api_client.force_authenticate(user=admin_user)
         response = api_client.get("/api/attendance/")
@@ -253,9 +239,7 @@ class TestResultsPermissions:
         assert len(results) == 1
         assert results[0]["student"] == student1.id
 
-    def test_student_cannot_see_draft_results(
-        self, api_client, student1_user, student1, setup_academic_structure
-    ):
+    def test_student_cannot_see_draft_results(self, api_client, student1_user, student1, setup_academic_structure):
         """Student should not see draft results"""
         exam = Exam.objects.create(
             title="Final Exam",
@@ -285,9 +269,7 @@ class TestResultsPermissions:
 
         assert len(results) == 0
 
-    def test_admin_sees_all_results(
-        self, api_client, admin_user, student1, student2, setup_academic_structure
-    ):
+    def test_admin_sees_all_results(self, api_client, admin_user, student1, student2, setup_academic_structure):
         """Admin should see all results regardless of status"""
         exam = Exam.objects.create(
             title="Midterm",
@@ -382,9 +364,7 @@ class TestFinancePermissions:
 
         assert len(results) == 0
 
-    def test_admin_sees_all_ledger_items(
-        self, api_client, admin_user, student1, student2, setup_academic_structure
-    ):
+    def test_admin_sees_all_ledger_items(self, api_client, admin_user, student1, student2, setup_academic_structure):
         """Admin/Finance should see all ledger entries"""
         LedgerEntry.objects.create(
             student=student1,
@@ -415,5 +395,3 @@ class TestFinancePermissions:
             results = data
 
         assert len(results) == 2
-
-

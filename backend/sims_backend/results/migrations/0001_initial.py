@@ -6,69 +6,163 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('exams', '0001_initial'),
-        ('students', '0001_initial'),
+        ("exams", "0001_initial"),
+        ("students", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ResultHeader',
+            name="ResultHeader",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='The timestamp when the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='The timestamp when the record was last updated.')),
-                ('total_obtained', models.DecimalField(decimal_places=2, default=0, help_text='Total marks obtained', max_digits=10, validators=[django.core.validators.MinValueValidator(0)])),
-                ('total_max', models.DecimalField(decimal_places=2, default=0, help_text='Total maximum marks', max_digits=10, validators=[django.core.validators.MinValueValidator(0)])),
-                ('final_outcome', models.CharField(choices=[('PASS', 'Pass'), ('FAIL', 'Fail'), ('PENDING', 'Pending')], default='PENDING', help_text='Final pass/fail outcome (computed)', max_length=16)),
-                ('status', models.CharField(choices=[('DRAFT', 'Draft'), ('VERIFIED', 'Verified'), ('PUBLISHED', 'Published')], default='DRAFT', help_text='Workflow status', max_length=16)),
-                ('exam', models.ForeignKey(help_text='Exam this result is for', on_delete=django.db.models.deletion.PROTECT, related_name='result_headers', to='exams.exam')),
-                ('student', models.ForeignKey(help_text='Student this result is for', on_delete=django.db.models.deletion.CASCADE, related_name='result_headers', to='students.student')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created."),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated."),
+                ),
+                (
+                    "total_obtained",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        help_text="Total marks obtained",
+                        max_digits=10,
+                        validators=[django.core.validators.MinValueValidator(0)],
+                    ),
+                ),
+                (
+                    "total_max",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        help_text="Total maximum marks",
+                        max_digits=10,
+                        validators=[django.core.validators.MinValueValidator(0)],
+                    ),
+                ),
+                (
+                    "final_outcome",
+                    models.CharField(
+                        choices=[("PASS", "Pass"), ("FAIL", "Fail"), ("PENDING", "Pending")],
+                        default="PENDING",
+                        help_text="Final pass/fail outcome (computed)",
+                        max_length=16,
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("DRAFT", "Draft"), ("VERIFIED", "Verified"), ("PUBLISHED", "Published")],
+                        default="DRAFT",
+                        help_text="Workflow status",
+                        max_length=16,
+                    ),
+                ),
+                (
+                    "exam",
+                    models.ForeignKey(
+                        help_text="Exam this result is for",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="result_headers",
+                        to="exams.exam",
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        help_text="Student this result is for",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="result_headers",
+                        to="students.student",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['exam', 'student'],
+                "ordering": ["exam", "student"],
             },
         ),
         migrations.CreateModel(
-            name='ResultComponentEntry',
+            name="ResultComponentEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='The timestamp when the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='The timestamp when the record was last updated.')),
-                ('marks_obtained', models.DecimalField(decimal_places=2, default=0, help_text='Marks obtained in this component', max_digits=10, validators=[django.core.validators.MinValueValidator(0)])),
-                ('component_outcome', models.CharField(choices=[('PASS', 'Pass'), ('FAIL', 'Fail'), ('NA', 'Not Applicable')], default='NA', help_text='Pass/fail outcome for this component (computed)', max_length=16)),
-                ('exam_component', models.ForeignKey(help_text='Exam component this entry is for', on_delete=django.db.models.deletion.PROTECT, related_name='result_entries', to='exams.examcomponent')),
-                ('result_header', models.ForeignKey(help_text='Result header this entry belongs to', on_delete=django.db.models.deletion.CASCADE, related_name='component_entries', to='results.resultheader')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created."),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated."),
+                ),
+                (
+                    "marks_obtained",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        help_text="Marks obtained in this component",
+                        max_digits=10,
+                        validators=[django.core.validators.MinValueValidator(0)],
+                    ),
+                ),
+                (
+                    "component_outcome",
+                    models.CharField(
+                        choices=[("PASS", "Pass"), ("FAIL", "Fail"), ("NA", "Not Applicable")],
+                        default="NA",
+                        help_text="Pass/fail outcome for this component (computed)",
+                        max_length=16,
+                    ),
+                ),
+                (
+                    "exam_component",
+                    models.ForeignKey(
+                        help_text="Exam component this entry is for",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="result_entries",
+                        to="exams.examcomponent",
+                    ),
+                ),
+                (
+                    "result_header",
+                    models.ForeignKey(
+                        help_text="Result header this entry belongs to",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="component_entries",
+                        to="results.resultheader",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['result_header', 'exam_component__sequence'],
+                "ordering": ["result_header", "exam_component__sequence"],
             },
         ),
         migrations.AddIndex(
-            model_name='resultheader',
-            index=models.Index(fields=['exam', 'student'], name='results_res_exam_id_9e99b3_idx'),
+            model_name="resultheader",
+            index=models.Index(fields=["exam", "student"], name="results_res_exam_id_9e99b3_idx"),
         ),
         migrations.AddIndex(
-            model_name='resultheader',
-            index=models.Index(fields=['status'], name='results_res_status_9c7ca9_idx'),
+            model_name="resultheader",
+            index=models.Index(fields=["status"], name="results_res_status_9c7ca9_idx"),
         ),
         migrations.AddIndex(
-            model_name='resultheader',
-            index=models.Index(fields=['final_outcome'], name='results_res_final_o_e6f712_idx'),
+            model_name="resultheader",
+            index=models.Index(fields=["final_outcome"], name="results_res_final_o_e6f712_idx"),
         ),
         migrations.AlterUniqueTogether(
-            name='resultheader',
-            unique_together={('exam', 'student')},
+            name="resultheader",
+            unique_together={("exam", "student")},
         ),
         migrations.AddIndex(
-            model_name='resultcomponententry',
-            index=models.Index(fields=['result_header', 'exam_component'], name='results_res_result__75ed61_idx'),
+            model_name="resultcomponententry",
+            index=models.Index(fields=["result_header", "exam_component"], name="results_res_result__75ed61_idx"),
         ),
         migrations.AlterUniqueTogether(
-            name='resultcomponententry',
-            unique_together={('result_header', 'exam_component')},
+            name="resultcomponententry",
+            unique_together={("result_header", "exam_component")},
         ),
     ]

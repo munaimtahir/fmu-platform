@@ -16,22 +16,16 @@ from .serializers import AuditLogSerializer
 class AuditLogFilter(filters.FilterSet):
     """Filter for audit logs."""
 
-    actor = filters.CharFilter(
-        field_name="actor__username", lookup_expr="icontains"
-    )
+    actor = filters.CharFilter(field_name="actor__username", lookup_expr="icontains")
     entity = filters.CharFilter(field_name="entity", lookup_expr="icontains")
     action = filters.CharFilter(field_name="action", lookup_expr="iexact")
-    date_from = filters.DateTimeFilter(
-        field_name="timestamp", lookup_expr="gte"
-    )
+    date_from = filters.DateTimeFilter(field_name="timestamp", lookup_expr="gte")
     date_to = filters.DateTimeFilter(field_name="timestamp", lookup_expr="lte")
     method = filters.CharFilter(field_name="method", lookup_expr="iexact")
 
     class Meta:
         model = AuditLog
-        fields = [
-            "actor", "entity", "action", "date_from", "date_to", "method"
-        ]
+        fields = ["actor", "entity", "action", "date_from", "date_to", "method"]
 
 
 class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
@@ -56,37 +50,35 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
         """
         # Check export permission
         from core.permissions import has_permission_task
+
         if not has_permission_task(request.user, "audit.events.export"):
-            return Response(
-                {"error": "Permission denied"}, status=403
-            )
+            return Response({"error": "Permission denied"}, status=403)
 
         # Apply filters
         queryset = self.filter_queryset(self.get_queryset())
 
         # Create CSV response
         response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = (
-            'attachment; filename="audit_events.csv"'
-        )
+        response["Content-Disposition"] = 'attachment; filename="audit_events.csv"'
 
         writer = csv.writer(response)
-        writer.writerow([
-            "ID", "Timestamp", "Actor", "Method", "Path", "Entity",
-            "Entity ID", "Action", "Summary", "IP Address"
-        ])
+        writer.writerow(
+            ["ID", "Timestamp", "Actor", "Method", "Path", "Entity", "Entity ID", "Action", "Summary", "IP Address"]
+        )
 
         for log in queryset[:10000]:  # Limit to 10k records
-            writer.writerow([
-                str(log.id),
-                log.timestamp.isoformat(),
-                log.actor.username if log.actor else "System",
-                log.method,
-                log.path,
-                log.entity or log.model or "",
-                log.entity_id or log.object_id or "",
-                log.action,
-                log.summary[:200],  # Truncate long summaries
-                log.ip_address or "",
-            ])
+            writer.writerow(
+                [
+                    str(log.id),
+                    log.timestamp.isoformat(),
+                    log.actor.username if log.actor else "System",
+                    log.method,
+                    log.path,
+                    log.entity or log.model or "",
+                    log.entity_id or log.object_id or "",
+                    log.action,
+                    log.summary[:200],  # Truncate long summaries
+                    log.ip_address or "",
+                ]
+            )
         return response

@@ -126,10 +126,7 @@ class ResultHeader(TimeStampedModel):
     def publish(self, user) -> None:
         """Publish the result."""
         if not self.is_publishable:
-            raise ResultError(
-                code="NOT_PUBLISHABLE",
-                message=f"Cannot publish result with status {self.status}"
-            )
+            raise ResultError(code="NOT_PUBLISHABLE", message=f"Cannot publish result with status {self.status}")
         self.status = self.STATUS_PUBLISHED
         self.published_at = timezone.now()
         self.published_by = user
@@ -138,10 +135,7 @@ class ResultHeader(TimeStampedModel):
     def freeze(self, user) -> None:
         """Freeze the result (make immutable)."""
         if not self.is_freezable:
-            raise ResultError(
-                code="NOT_FREEZABLE",
-                message=f"Cannot freeze result with status {self.status}"
-            )
+            raise ResultError(code="NOT_FREEZABLE", message=f"Cannot freeze result with status {self.status}")
         self.status = self.STATUS_FROZEN
         self.frozen_at = timezone.now()
         self.frozen_by = user

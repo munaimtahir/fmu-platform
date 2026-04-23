@@ -2,11 +2,11 @@
 Comprehensive tests for Academics module business rules and validations.
 Tests all locked rules: overlap, type rules, department parent, finalize lock, generate periods.
 """
-from datetime import date, timedelta
+
+from datetime import date
 
 import pytest
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User
 
 from sims_backend.academics.models import (
     Department,
@@ -138,30 +138,26 @@ class TestProgramStructure:
     def test_program_custom_structure_requires_fields(self, db):
         """CUSTOM structure_type requires period_length_months and total_periods"""
         program = Program(structure_type=Program.STRUCTURE_TYPE_CUSTOM)
-        
+
         with pytest.raises(ValidationError) as exc_info:
             ProgramService.validate_structure_fields(program, {"structure_type": Program.STRUCTURE_TYPE_CUSTOM})
-        
+
         assert "period_length_months" in str(exc_info.value)
 
     def test_program_yearly_structure_rejects_custom_fields(self, program):
         """YEARLY structure_type rejects period_length_months and total_periods"""
         with pytest.raises(ValidationError) as exc_info:
             ProgramService.validate_structure_fields(
-                program,
-                {"structure_type": Program.STRUCTURE_TYPE_YEARLY, "period_length_months": 3}
+                program, {"structure_type": Program.STRUCTURE_TYPE_YEARLY, "period_length_months": 3}
             )
-        
+
         assert "not allowed" in str(exc_info.value).lower()
 
     def test_program_finalize_locks_structure_fields(self, finalized_program):
         """Finalized program cannot have structure fields modified"""
         with pytest.raises(ValidationError) as exc_info:
-            ProgramService.check_finalize_lock(
-                finalized_program,
-                {"structure_type": Program.STRUCTURE_TYPE_SEMESTER}
-            )
-        
+            ProgramService.check_finalize_lock(finalized_program, {"structure_type": Program.STRUCTURE_TYPE_SEMESTER})
+
         assert "Cannot modify" in str(exc_info.value)
 
     def test_program_finalize_success(self, program):
@@ -173,7 +169,7 @@ class TestProgramStructure:
         """Cannot finalize an already finalized program"""
         with pytest.raises(ValidationError) as exc_info:
             ProgramService.finalize_program(finalized_program)
-        
+
         assert "already finalized" in str(exc_info.value).lower()
 
     def test_program_generate_periods_yearly(self, finalized_program):
@@ -208,7 +204,7 @@ class TestProgramStructure:
         """Cannot generate periods for non-finalized program"""
         with pytest.raises(ValidationError) as exc_info:
             ProgramService.generate_periods(program)
-        
+
         assert "must be finalized" in str(exc_info.value).lower()
 
 
@@ -226,7 +222,7 @@ class TestLearningBlockOverlap:
             end_date=date(2024, 3, 31),
             primary_department=department,
         )
-        
+
         # Same dates in different track - should be allowed
         block2 = LearningBlock.objects.create(
             period=period,
@@ -237,13 +233,13 @@ class TestLearningBlockOverlap:
             end_date=date(2024, 3, 31),
             primary_department=department,
         )
-        
+
         # Should not raise error
         assert block1.track != block2.track
 
     def test_blocks_cannot_overlap_same_track(self, period, track, department):
         """Blocks cannot overlap within the same track"""
-        block1 = LearningBlock.objects.create(
+        LearningBlock.objects.create(
             period=period,
             track=track,
             name="Block 1",
@@ -252,7 +248,7 @@ class TestLearningBlockOverlap:
             end_date=date(2024, 3, 31),
             primary_department=department,
         )
-        
+
         # Overlapping block in same track - should raise error
         with pytest.raises(ValidationError) as exc_info:
             LearningBlockService.validate_overlap(
@@ -262,12 +258,12 @@ class TestLearningBlockOverlap:
                 date(2024, 4, 30),
                 None,
             )
-        
+
         assert "overlaps" in str(exc_info.value).lower()
 
     def test_blocks_touching_edges_allowed(self, period, track, department):
         """Blocks that touch at edges (no overlap) are allowed"""
-        block1 = LearningBlock.objects.create(
+        LearningBlock.objects.create(
             period=period,
             track=track,
             name="Block 1",
@@ -276,7 +272,7 @@ class TestLearningBlockOverlap:
             end_date=date(2024, 3, 31),
             primary_department=department,
         )
-        
+
         # Block starting exactly when block1 ends - should be allowed
         LearningBlockService.validate_overlap(
             LearningBlock(),
@@ -298,7 +294,7 @@ class TestLearningBlockOverlap:
             end_date=date(2024, 3, 31),
             primary_department=department,
         )
-        
+
         # Updating the same block should not trigger overlap error
         LearningBlockService.validate_overlap(
             block,
@@ -317,17 +313,16 @@ class TestLearningBlockTypeRules:
         """ROTATION_BLOCK requires primary_department"""
         with pytest.raises(ValidationError) as exc_info:
             LearningBlockService.validate_block_type_rules(
-                LearningBlock(),
-                {"block_type": LearningBlock.BLOCK_TYPE_ROTATION}
+                LearningBlock(), {"block_type": LearningBlock.BLOCK_TYPE_ROTATION}
             )
-        
+
         assert "primary_department is required" in str(exc_info.value)
 
     def test_rotation_block_sub_department_must_be_child(self, period, track, department, sub_department):
         """ROTATION_BLOCK sub_department must be child of primary_department"""
         # Try to set sub_department that is not a child
         wrong_sub = Department.objects.create(name="Wrong Sub", code="WRONG", parent=None)
-        
+
         with pytest.raises(ValidationError) as exc_info:
             LearningBlockService.validate_block_type_rules(
                 LearningBlock(),
@@ -335,23 +330,22 @@ class TestLearningBlockTypeRules:
                     "block_type": LearningBlock.BLOCK_TYPE_ROTATION,
                     "primary_department": department,
                     "sub_department": wrong_sub,
-                }
+                },
             )
-        
+
         assert "must be a child" in str(exc_info.value).lower()
 
     def test_rotation_block_cannot_have_modules(self, rotation_block):
         """ROTATION_BLOCK cannot have modules"""
         # Try to add a module to rotation block
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValidationError):
             LearningBlockService.validate_block_type_rules(
-                rotation_block,
-                {"block_type": LearningBlock.BLOCK_TYPE_ROTATION}
+                rotation_block, {"block_type": LearningBlock.BLOCK_TYPE_ROTATION}
             )
-        
+
         # This should be caught when trying to create module, but let's check the block itself
         # Actually, the validation should prevent modules from being added
-        module = Module(block=rotation_block, name="Test Module", order=1)
+        Module(block=rotation_block, name="Test Module", order=1)
         # The validation happens in ModuleViewSet.perform_create
 
     def test_integrated_block_departments_must_be_null(self, period, track, department):
@@ -362,9 +356,9 @@ class TestLearningBlockTypeRules:
                 {
                     "block_type": LearningBlock.BLOCK_TYPE_INTEGRATED,
                     "primary_department": department,
-                }
+                },
             )
-        
+
         assert "must be null" in str(exc_info.value).lower()
 
     def test_integrated_block_can_have_modules(self, integrated_block):
@@ -396,7 +390,7 @@ class TestDepartmentHierarchy:
                 department,
                 sub_department,  # Try to set sub_department as parent of its parent
             )
-        
+
         assert "circular reference" in str(exc_info.value).lower()
 
     def test_department_get_ancestors(self, department, sub_department):
@@ -429,8 +423,8 @@ class TestModuleRules:
         """Modules have order within their block"""
         module1 = Module.objects.create(block=integrated_block, name="Module 1", order=1)
         module2 = Module.objects.create(block=integrated_block, name="Module 2", order=2)
-        
-        modules = Module.objects.filter(block=integrated_block).order_by('order')
+
+        modules = Module.objects.filter(block=integrated_block).order_by("order")
         assert list(modules) == [module1, module2]
 
 
@@ -440,33 +434,21 @@ class TestProgramFinalizeLock:
     def test_finalize_locks_structure_type(self, finalized_program):
         """Finalized program cannot change structure_type"""
         with pytest.raises(ValidationError):
-            ProgramService.check_finalize_lock(
-                finalized_program,
-                {"structure_type": Program.STRUCTURE_TYPE_SEMESTER}
-            )
+            ProgramService.check_finalize_lock(finalized_program, {"structure_type": Program.STRUCTURE_TYPE_SEMESTER})
 
     def test_finalize_locks_period_length_months(self, finalized_program):
         """Finalized program cannot change period_length_months"""
         with pytest.raises(ValidationError):
-            ProgramService.check_finalize_lock(
-                finalized_program,
-                {"period_length_months": 6}
-            )
+            ProgramService.check_finalize_lock(finalized_program, {"period_length_months": 6})
 
     def test_finalize_locks_total_periods(self, finalized_program):
         """Finalized program cannot change total_periods"""
         with pytest.raises(ValidationError):
-            ProgramService.check_finalize_lock(
-                finalized_program,
-                {"total_periods": 10}
-            )
+            ProgramService.check_finalize_lock(finalized_program, {"total_periods": 10})
 
     def test_finalize_allows_other_fields(self, finalized_program):
         """Finalized program can still modify non-structure fields"""
         # Should not raise error
         ProgramService.check_finalize_lock(
-            finalized_program,
-            {"name": "Updated Name", "description": "Updated description"}
+            finalized_program, {"name": "Updated Name", "description": "Updated description"}
         )
-
-

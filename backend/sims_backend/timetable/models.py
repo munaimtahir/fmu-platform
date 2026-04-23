@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.db import models
 from django.core.exceptions import ValidationError
+from django.db import models
 
 from core.models import TimeStampedModel
 
@@ -49,23 +49,23 @@ class Session(TimeStampedModel):
 
 class WeeklyTimetable(TimeStampedModel):
     """Weekly timetable for a specific batch and week.
-    
+
     Groups within the batch can be assigned to specific slots/cells,
     which can be indicated in the cell text lines (line1, line2, line3).
     """
-    
+
     STATUS_CHOICES = [
-        ('draft', 'Draft'),
-        ('published', 'Published'),
+        ("draft", "Draft"),
+        ("published", "Published"),
     ]
-    
+
     DAY_CHOICES = [
-        (0, 'Monday'),
-        (1, 'Tuesday'),
-        (2, 'Wednesday'),
-        (3, 'Thursday'),
-        (4, 'Friday'),
-        (5, 'Saturday'),
+        (0, "Monday"),
+        (1, "Tuesday"),
+        (2, "Wednesday"),
+        (3, "Thursday"),
+        (4, "Friday"),
+        (5, "Saturday"),
     ]
 
     academic_period = models.ForeignKey(
@@ -80,14 +80,9 @@ class WeeklyTimetable(TimeStampedModel):
         related_name="weekly_timetables",
         help_text="Batch this timetable is for",
     )
-    week_start_date = models.DateField(
-        help_text="Monday of the week this timetable covers"
-    )
+    week_start_date = models.DateField(help_text="Monday of the week this timetable covers")
     status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='draft',
-        help_text="Status of the timetable (draft/published)"
+        max_length=20, choices=STATUS_CHOICES, default="draft", help_text="Status of the timetable (draft/published)"
     )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -106,7 +101,7 @@ class WeeklyTimetable(TimeStampedModel):
         constraints = [
             models.UniqueConstraint(
                 fields=["batch", "academic_period", "week_start_date"],
-                name="unique_weekly_timetable_per_batch_period_week"
+                name="unique_weekly_timetable_per_batch_period_week",
             )
         ]
 
@@ -114,7 +109,7 @@ class WeeklyTimetable(TimeStampedModel):
         """Ensure week_start_date is a Monday"""
         if self.week_start_date.weekday() != 0:  # Monday is 0
             raise ValidationError("week_start_date must be a Monday")
-    
+
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
@@ -125,14 +120,14 @@ class WeeklyTimetable(TimeStampedModel):
 
 class TimetableCell(TimeStampedModel):
     """Individual cell in a weekly timetable grid"""
-    
+
     DAY_CHOICES = [
-        (0, 'Monday'),
-        (1, 'Tuesday'),
-        (2, 'Wednesday'),
-        (3, 'Thursday'),
-        (4, 'Friday'),
-        (5, 'Saturday'),
+        (0, "Monday"),
+        (1, "Tuesday"),
+        (2, "Wednesday"),
+        (3, "Thursday"),
+        (4, "Friday"),
+        (5, "Saturday"),
     ]
 
     weekly_timetable = models.ForeignKey(
@@ -141,28 +136,18 @@ class TimetableCell(TimeStampedModel):
         related_name="cells",
         help_text="Weekly timetable this cell belongs to",
     )
-    day_of_week = models.IntegerField(
-        choices=DAY_CHOICES,
-        help_text="Day of the week (0=Monday, 5=Saturday)"
-    )
-    time_slot = models.CharField(
-        max_length=50,
-        help_text="Time slot identifier (e.g., '09:00-10:00')"
-    )
+    day_of_week = models.IntegerField(choices=DAY_CHOICES, help_text="Day of the week (0=Monday, 5=Saturday)")
+    time_slot = models.CharField(max_length=50, help_text="Time slot identifier (e.g., '09:00-10:00')")
     line1 = models.CharField(
         max_length=200,
         blank=True,
-        help_text="First line of cell content (e.g., course name, or groups like 'Group A, Group B')"
+        help_text="First line of cell content (e.g., course name, or groups like 'Group A, Group B')",
     )
     line2 = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="Second line of cell content (e.g., room number, or additional groups)"
+        max_length=200, blank=True, help_text="Second line of cell content (e.g., room number, or additional groups)"
     )
     line3 = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="Third line of cell content (e.g., faculty name, or additional info)"
+        max_length=200, blank=True, help_text="Third line of cell content (e.g., faculty name, or additional info)"
     )
 
     class Meta:
@@ -172,11 +157,9 @@ class TimetableCell(TimeStampedModel):
         ]
         constraints = [
             models.UniqueConstraint(
-                fields=["weekly_timetable", "day_of_week", "time_slot"],
-                name="unique_cell_per_timetable_day_time"
+                fields=["weekly_timetable", "day_of_week", "time_slot"], name="unique_cell_per_timetable_day_time"
             )
         ]
 
     def __str__(self):
         return f"{self.get_day_of_week_display()} {self.time_slot} - {self.line1 or 'Empty'}"
-

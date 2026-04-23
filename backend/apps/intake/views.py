@@ -16,41 +16,46 @@ def student_intake_form(request):
     """Public form view for student intake submissions."""
 
     # Check cooldown (anti-spam)
-    last_submission_time = request.session.get('last_intake_submission_time')
+    last_submission_time = request.session.get("last_intake_submission_time")
     if last_submission_time:
-        time_diff = (timezone.now().timestamp() - last_submission_time)
+        time_diff = timezone.now().timestamp() - last_submission_time
         if time_diff < 60:  # 60 seconds cooldown
             remaining = int(60 - time_diff)
-            messages.error(
+            messages.error(request, f"Please wait {remaining} seconds before submitting again.")
+            return render(
                 request,
-                f'Please wait {remaining} seconds before submitting again.'
+                "intake/student_intake_form.html",
+                {
+                    "form": StudentIntakeForm(),
+                    "cooldown_remaining": remaining,
+                },
             )
-            return render(request, 'intake/student_intake_form.html', {
-                'form': StudentIntakeForm(),
-                'cooldown_remaining': remaining,
-            })
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = StudentIntakeForm(request.POST, request.FILES)
         if form.is_valid():
             # Create submission with PENDING status
             submission = form.save(commit=False)
-            submission.status = 'PENDING'
+            submission.status = "PENDING"
             submission.save()
 
             # Update session cooldown
-            request.session['last_intake_submission_time'] = timezone.now().timestamp()
+            request.session["last_intake_submission_time"] = timezone.now().timestamp()
 
             # Redirect to success page
-            return redirect('intake:success', submission_id=submission.submission_id)
+            return redirect("intake:success", submission_id=submission.submission_id)
         else:
-            messages.error(request, 'Please correct the errors below.')
+            messages.error(request, "Please correct the errors below.")
     else:
         form = StudentIntakeForm()
 
-    return render(request, 'intake/student_intake_form.html', {
-        'form': form,
-    })
+    return render(
+        request,
+        "intake/student_intake_form.html",
+        {
+            "form": form,
+        },
+    )
 
 
 def student_intake_success(request, submission_id):
@@ -58,9 +63,13 @@ def student_intake_success(request, submission_id):
     try:
         submission = StudentIntakeSubmission.objects.get(submission_id=submission_id)
     except StudentIntakeSubmission.DoesNotExist:
-        messages.error(request, 'Invalid submission ID.')
-        return redirect('intake:form')
+        messages.error(request, "Invalid submission ID.")
+        return redirect("intake:form")
 
-    return render(request, 'intake/student_intake_success.html', {
-        'submission': submission,
-    })
+    return render(
+        request,
+        "intake/student_intake_success.html",
+        {
+            "submission": submission,
+        },
+    )

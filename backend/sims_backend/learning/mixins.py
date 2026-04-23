@@ -11,10 +11,10 @@ class AudiencePermissionMixin:
 
     def _validate_audience_permissions(self, data: dict) -> None:
         """Validate that the user has permission to create/manage audiences with the given data.
-        
+
         Args:
             data: Validated data containing audience scope fields
-            
+
         Raises:
             PermissionError: If user doesn't have permission to manage this audience
         """

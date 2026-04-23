@@ -17,7 +17,7 @@ from datetime import date
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from core.demo_scenarios import DemoScenarioGenerator
+from core.demo_scenarios import DemoScenarioGenerator, create_voucher_for_student
 from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group
 from sims_backend.results.models import ResultHeader
 
@@ -90,15 +90,15 @@ class Command(BaseCommand):
         program = generator.get_or_create_program(program_name)
 
         # Step 2: Create or get academic period
-        academic_period = generator.get_or_create_academic_period(
-            term_name, AcademicPeriod.PERIOD_TYPE_BLOCK
-        )
+        academic_period = generator.get_or_create_academic_period(term_name, AcademicPeriod.PERIOD_TYPE_BLOCK)
 
         # Step 3: Get or create batch and groups
         batch, _ = Batch.objects.get_or_create(
             program=program,
             name=f"{program_name} {academic_period.start_date.year if academic_period.start_date else date.today().year} Batch",
-            defaults={"start_year": academic_period.start_date.year if academic_period.start_date else date.today().year},
+            defaults={
+                "start_year": academic_period.start_date.year if academic_period.start_date else date.today().year
+            },
         )
 
         groups = []
@@ -121,9 +121,7 @@ class Command(BaseCommand):
                 {"name": "Physiology", "code": "PHYS"},
                 {"name": "Biochemistry", "code": "BIOCHEM"},
             ]:
-                dept, _ = Department.objects.get_or_create(
-                    code=dept_data["code"], defaults=dept_data
-                )
+                dept, _ = Department.objects.get_or_create(code=dept_data["code"], defaults=dept_data)
                 departments.append(dept)
             self.stdout.write(f"  ✓ Created {len(departments)} departments")
 
@@ -143,9 +141,7 @@ class Command(BaseCommand):
 
         # Step 8: Create students
         self.stdout.write(f"\n👥 Creating {num_students} students...")
-        students, student_logins = generator.create_demo_students(
-            program, batch, groups, num_students=num_students
-        )
+        students, student_logins = generator.create_demo_students(program, batch, groups, num_students=num_students)
 
         # Step 9: Enroll all students
         self.stdout.write("\n📝 Enrolling students in sections...")
@@ -170,36 +166,26 @@ class Command(BaseCommand):
         for student in bucket2_students:
             num_sessions_to_mark = 4  # Mark 4 out of 5 sessions
             sessions_to_mark = sessions[:num_sessions_to_mark]
-            generator.create_attendance_records(
-                [student], sessions_to_mark, attendance_percentage=75
-            )
+            generator.create_attendance_records([student], sessions_to_mark, attendance_percentage=75)
         self.stdout.write(f"  ✓ Bucket 2 (ATTENDANCE_STARTED): {len(bucket2_students)} students")
 
         # Bucket 3: LOW_ATTENDANCE_AT_RISK (3 students) - < 70% attendance
         bucket3_students = students[7:10]
         for student in bucket3_students:
-            generator.create_attendance_records(
-                [student], sessions, attendance_percentage=65
-            )
+            generator.create_attendance_records([student], sessions, attendance_percentage=65)
         self.stdout.write(f"  ✓ Bucket 3 (LOW_ATTENDANCE_AT_RISK): {len(bucket3_students)} students")
 
         # Bucket 4: ASSESSMENT_SCORES_PARTIAL (3 students) - Quiz scores only
         bucket4_students = students[10:13]
         for student in bucket4_students:
-            generator.create_attendance_records(
-                [student], sessions, attendance_percentage=85
-            )
+            generator.create_attendance_records([student], sessions, attendance_percentage=85)
         generator.create_assessment_scores(bucket4_students, sections, score_range=(70, 90))
-        self.stdout.write(
-            f"  ✓ Bucket 4 (ASSESSMENT_SCORES_PARTIAL): {len(bucket4_students)} students"
-        )
+        self.stdout.write(f"  ✓ Bucket 4 (ASSESSMENT_SCORES_PARTIAL): {len(bucket4_students)} students")
 
         # Bucket 5: ASSESSMENT_COMPLETE_RESULTS_DRAFT (3 students)
         bucket5_students = students[13:16]
         for student in bucket5_students:
-            generator.create_attendance_records(
-                [student], sessions, attendance_percentage=90
-            )
+            generator.create_attendance_records([student], sessions, attendance_percentage=90)
         generator.create_assessment_scores(bucket5_students, sections, score_range=(75, 95))
         generator.create_exam_and_results(
             bucket5_students,
@@ -207,16 +193,12 @@ class Command(BaseCommand):
             departments[0],
             ResultHeader.STATUS_DRAFT,
         )
-        self.stdout.write(
-            f"  ✓ Bucket 5 (ASSESSMENT_COMPLETE_RESULTS_DRAFT): {len(bucket5_students)} students"
-        )
+        self.stdout.write(f"  ✓ Bucket 5 (ASSESSMENT_COMPLETE_RESULTS_DRAFT): {len(bucket5_students)} students")
 
         # Bucket 6: RESULTS_PUBLISHED (2 students)
         bucket6_students = students[16:18]
         for student in bucket6_students:
-            generator.create_attendance_records(
-                [student], sessions, attendance_percentage=92
-            )
+            generator.create_attendance_records([student], sessions, attendance_percentage=92)
         generator.create_assessment_scores(bucket6_students, sections, score_range=(80, 95))
         generator.create_exam_and_results(
             bucket6_students,
@@ -224,16 +206,12 @@ class Command(BaseCommand):
             departments[0],
             ResultHeader.STATUS_PUBLISHED,
         )
-        self.stdout.write(
-            f"  ✓ Bucket 6 (RESULTS_PUBLISHED): {len(bucket6_students)} students"
-        )
+        self.stdout.write(f"  ✓ Bucket 6 (RESULTS_PUBLISHED): {len(bucket6_students)} students")
 
         # Bucket 7: RESULTS_FROZEN (1 student)
         bucket7_students = students[18:19]
         for student in bucket7_students:
-            generator.create_attendance_records(
-                [student], sessions, attendance_percentage=95
-            )
+            generator.create_attendance_records([student], sessions, attendance_percentage=95)
         generator.create_assessment_scores(bucket7_students, sections, score_range=(85, 98))
         generator.create_exam_and_results(
             bucket7_students,
@@ -241,20 +219,13 @@ class Command(BaseCommand):
             departments[0],
             ResultHeader.STATUS_FROZEN,
         )
-        self.stdout.write(
-            f"  ✓ Bucket 7 (RESULTS_FROZEN): {len(bucket7_students)} students"
-        )
+        self.stdout.write(f"  ✓ Bucket 7 (RESULTS_FROZEN): {len(bucket7_students)} students")
 
         # Bucket 8: FEES_VOUCHER_GENERATED (1 student)
         bucket8_students = students[19:20]
         for student in bucket8_students:
-            generator.create_attendance_records(
-                [student], sessions, attendance_percentage=88
-            )
-            # Create voucher
-            # create_voucher_for_student(student, academic_period, amount=Decimal("50000.00"))
-            # students_by_scenario["FEES_VOUCHER_GENERATED"].append((student, user))
-            pass
+            generator.create_attendance_records([student], sessions, attendance_percentage=88)
+            create_voucher_for_student(student, academic_period)
 
         # Print summary
         self._print_summary(
@@ -316,9 +287,7 @@ class Command(BaseCommand):
         for i, (bucket_name, bucket_students) in enumerate(zip(bucket_names, buckets), 1):
             self.stdout.write(f"\n  {i}. {bucket_name} ({len(bucket_students)} students):")
             for student in bucket_students:
-                login = next(
-                    (s for s in student_logins if s["reg_no"] == student.reg_no), None
-                )
+                login = next((s for s in student_logins if s["reg_no"] == student.reg_no), None)
                 if login:
                     self.stdout.write(
                         f"     • {student.reg_no} - {student.name} ({login['username']} / {login['password']})"
@@ -331,7 +300,5 @@ class Command(BaseCommand):
         self.stdout.write("\n💡 QUICK START:")
         self.stdout.write("  • Admin: http://localhost:8010/admin")
         self.stdout.write("  • API: http://localhost:8010/api")
-        self.stdout.write(
-            "  • To reset: python manage.py seed_demo_scenarios --reset --students 20"
-        )
+        self.stdout.write("  • To reset: python manage.py seed_demo_scenarios --reset --students 20")
         self.stdout.write("\n")

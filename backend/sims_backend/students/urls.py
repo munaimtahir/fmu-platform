@@ -11,4 +11,3 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("", include("sims_backend.students.imports.urls")),
 ]
-

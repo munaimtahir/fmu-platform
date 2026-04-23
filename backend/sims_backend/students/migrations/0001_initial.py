@@ -5,33 +5,79 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('academics', '0001_initial'),
+        ("academics", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Student',
+            name="Student",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='The timestamp when the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='The timestamp when the record was last updated.')),
-                ('reg_no', models.CharField(help_text='Student registration number', max_length=32, unique=True)),
-                ('name', models.CharField(help_text='Full name of the student', max_length=255)),
-                ('status', models.CharField(choices=[('active', 'Active'), ('inactive', 'Inactive'), ('graduated', 'Graduated'), ('suspended', 'Suspended')], default='active', help_text='Current status of the student', max_length=32)),
-                ('email', models.EmailField(blank=True, help_text='Student email address', max_length=254)),
-                ('phone', models.CharField(blank=True, help_text='Student phone number', max_length=20)),
-                ('date_of_birth', models.DateField(blank=True, help_text='Student date of birth', null=True)),
-                ('batch', models.ForeignKey(help_text='Batch the student belongs to', on_delete=django.db.models.deletion.PROTECT, related_name='students', to='academics.batch')),
-                ('group', models.ForeignKey(help_text='Group the student belongs to', on_delete=django.db.models.deletion.PROTECT, related_name='students', to='academics.group')),
-                ('program', models.ForeignKey(help_text='Program the student is enrolled in', on_delete=django.db.models.deletion.PROTECT, related_name='students', to='academics.program')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, help_text="The timestamp when the record was created."),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, help_text="The timestamp when the record was last updated."),
+                ),
+                ("reg_no", models.CharField(help_text="Student registration number", max_length=32, unique=True)),
+                ("name", models.CharField(help_text="Full name of the student", max_length=255)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("active", "Active"),
+                            ("inactive", "Inactive"),
+                            ("graduated", "Graduated"),
+                            ("suspended", "Suspended"),
+                        ],
+                        default="active",
+                        help_text="Current status of the student",
+                        max_length=32,
+                    ),
+                ),
+                ("email", models.EmailField(blank=True, help_text="Student email address", max_length=254)),
+                ("phone", models.CharField(blank=True, help_text="Student phone number", max_length=20)),
+                ("date_of_birth", models.DateField(blank=True, help_text="Student date of birth", null=True)),
+                (
+                    "batch",
+                    models.ForeignKey(
+                        help_text="Batch the student belongs to",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="students",
+                        to="academics.batch",
+                    ),
+                ),
+                (
+                    "group",
+                    models.ForeignKey(
+                        help_text="Group the student belongs to",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="students",
+                        to="academics.group",
+                    ),
+                ),
+                (
+                    "program",
+                    models.ForeignKey(
+                        help_text="Program the student is enrolled in",
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="students",
+                        to="academics.program",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['reg_no'],
-                'indexes': [models.Index(fields=['program', 'batch', 'group'], name='students_st_program_622925_idx'), models.Index(fields=['status'], name='students_st_status_5e2210_idx'), models.Index(fields=['reg_no'], name='students_st_reg_no_de76a0_idx')],
+                "ordering": ["reg_no"],
+                "indexes": [
+                    models.Index(fields=["program", "batch", "group"], name="students_st_program_622925_idx"),
+                    models.Index(fields=["status"], name="students_st_status_5e2210_idx"),
+                    models.Index(fields=["reg_no"], name="students_st_reg_no_de76a0_idx"),
+                ],
             },
         ),
     ]

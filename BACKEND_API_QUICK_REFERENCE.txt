@@ -1,0 +1,272 @@
+╔════════════════════════════════════════════════════════════════════════════════════════╗
+║                   FMU SIMS BACKEND API - QUICK REFERENCE                              ║
+╚════════════════════════════════════════════════════════════════════════════════════════╝
+
+📊 SYSTEM OVERVIEW:
+  - Django REST Framework backend for Student Information Management System
+  - 18 apps + core RBAC module
+  - RESTful API with DefaultRouter viewsets
+  - Database: All timestamped with created_at/updated_at fields
+  - Auth: JWT token-based with unified login endpoint
+
+─────────────────────────────────────────────────────────────────────────────────────────
+
+🔑 KEY ENDPOINTS QUICK LOOKUP:
+
+AUTHENTICATION (sims_backend/urls.py root):
+  POST   /api/auth/login/              - Unified login (returns access + refresh tokens)
+  POST   /api/auth/logout/             - Logout
+  POST   /api/auth/refresh/            - Refresh access token
+  GET    /api/auth/me/                 - Current user info
+  POST   /api/auth/change-password/    - Change password
+  GET    /health/                      - Health check with DB/Redis/migration status
+  GET    /api/docs/                    - Swagger UI documentation
+
+ACADEMICS (api/academics/):
+  GET|POST      /programs/             - List/create programs (MBBS, BDS, etc.)
+  GET|POST      /batches/              - Batches per program (graduation year cohorts)
+  GET|POST      /academic-periods/     - Year/Block/Module hierarchical periods
+  GET|POST      /courses/              - Courses/Subjects
+  GET|POST      /sections/             - Course sections with faculty
+  GET|POST      /groups/               - Student groups within batches
+  GET|POST      /departments/          - Departments
+  GET|POST      /periods/              - Periods per program
+  GET|POST      /tracks/               - Program tracks
+  GET|POST      /blocks/               - Learning blocks (Integrated/Rotation)
+  GET|POST      /modules/              - Modules within blocks
+
+STUDENTS (api/):
+  GET|POST      /students/             - Student CRUD
+    Fields: reg_no, name, program, batch, group, status, email, phone, enrollment_year
+  GET|POST      /leave-periods/        - Leave requests (medical/personal/academic)
+  POST          /api/admin/students/import/  - CSV bulk import
+
+PEOPLE (api/people/):
+  GET|POST      /persons/              - Central identity records
+  GET|POST      /contact-info/         - Contact info (phone, email)
+  GET|POST      /addresses/            - Addresses
+  GET|POST      /identity-documents/   - IDs (passports, CNICs)
+
+ATTENDANCE (api/):
+  GET|POST      /attendance/           - Attendance records (PRESENT/ABSENT/LATE/LEAVE)
+  POST          /attendance-input/live/roster/        - Live attendance entry
+  POST          /attendance-input/csv/dry-run/        - CSV upload preview
+  POST          /attendance-input/csv/commit/         - Commit CSV attendance
+  POST          /attendance-input/sheet/template/     - Ticket sheet template
+  POST          /attendance-input/sheet/dry-run/      - Sheet OCR preview
+  POST          /attendance-input/sheet/commit/       - Finalize sheet
+  POST          /attendance-input/biometric/punches/  - Biometric device data
+
+TIMETABLE (api/timetable/):
+  GET|POST      /sessions/             - Sessions (faculty, group, time slot)
+  GET|POST      /weekly-timetables/    - Weekly timetable per batch
+  GET|POST      /timetable-cells/      - Grid cells (day, time, line1/2/3 content)
+
+EXAMS (api/):
+  GET|POST      /exams/                - Exam records
+  GET|POST      /exam-components/      - Components (written, practical, oral, etc.)
+
+RESULTS (api/):
+  GET|POST      /results/              - Result headers (DRAFT/VERIFIED/PUBLISHED/FROZEN)
+    Fields: exam, student, total_obtained, total_max, final_outcome, status
+  GET|POST      /result-components/    - Per-component results (marks, outcome)
+
+FINANCE (api/):
+  GET|POST      /finance/fee-types/          - Fee categories (TUITION, EXAM, LIBRARY)
+  GET|POST      /finance/fee-plans/          - Fee amounts per program/term
+  GET|POST      /finance/vouchers/           - Payment vouchers (GENERATED/PAID)
+  GET|POST      /finance/payments/           - Payment records
+  GET|POST      /finance/ledger/             - Ledger transactions
+  GET|POST      /finance/adjustments/        - Fee adjustments
+  GET|POST      /finance/policies/           - Finance policies
+  GET|POST      /finance/students/           - Student finance summary
+  GET|POST      /finance/reports/            - Financial reports
+
+NOTIFICATIONS (api/):
+  GET|POST      /notifications/         - Admin notification management
+  GET|POST      /my/notifications/      - Personal inbox
+
+COMPLIANCE (api/compliance/):
+  GET|POST      /my-compliance/         - Student compliance status
+  GET|POST      /admin-compliance/      - Admin management
+  GET|POST      /definitions/           - Requirement definitions
+
+ADMIN (api/):
+  GET           /admin/dashboard/       - Admin dashboard data
+  POST          /admin/impersonation/start/  - Begin impersonation
+  POST          /admin/impersonation/stop/   - End impersonation
+  GET|POST      /admin/users/           - Admin user management
+
+RBAC (api/core/):
+  GET|POST      /roles/                 - Roles
+  GET|POST      /permission-tasks/      - Permission tasks
+  GET|POST      /role-task-assignments/ - Role task assignments
+  GET|POST      /user-task-assignments/ - User task assignments
+
+AUDIT (api/):
+  GET           /audit/                 - Audit logs
+
+LEARNING (api/):
+  GET|POST      /learning/materials/    - Learning materials
+  GET|POST      /learning/audiences/    - Material audiences
+  GET           /learning/student-feed/ - Student feed
+
+TRANSCRIPTS (api/):
+  GET           /transcripts/<id>/      - Get transcript
+  GET           /transcripts/verify/<token>/  - Verify transcript
+  POST          /transcripts/enqueue/   - Queue generation
+
+OTHER:
+  POST          /api/admin/faculty/import/  - Faculty CSV bulk import
+  GET|POST      /api/admin/syllabus/        - Syllabus items
+  GET|POST      /api/admin/settings/        - App settings
+
+─────────────────────────────────────────────────────────────────────────────────────────
+
+📋 CORE MODELS & KEY FIELDS:
+
+STUDENT:
+  id, user(FK), person(FK), reg_no(unique), name, program(FK), batch(FK), 
+  group(FK), status(ACTIVE/INACTIVE/GRADUATED/SUSPENDED/ON_LEAVE), 
+  email, phone, date_of_birth, enrollment_year, expected_graduation_year, 
+  actual_graduation_year, created_at, updated_at
+
+ATTENDANCE:
+  id, session(FK), student(FK), status(PRESENT/ABSENT/LATE/LEAVE), 
+  marked_by(FK), marked_at, created_at, updated_at
+  Unique: (session, student)
+
+RESULT_HEADER (Exam Result):
+  id, exam(FK), student(FK), total_obtained, total_max, 
+  final_outcome(PASS/FAIL/PENDING), 
+  status(DRAFT/VERIFIED/PUBLISHED/FROZEN),
+  published_at, published_by(FK), frozen_at, frozen_by(FK), created_at, updated_at
+  Unique: (exam, student)
+  Properties: is_editable, is_publishable, is_freezable
+
+RESULT_COMPONENT_ENTRY:
+  id, result_header(FK), exam_component(FK), marks_obtained, 
+  component_outcome(PASS/FAIL/NA), created_at, updated_at
+  Unique: (result_header, exam_component)
+
+PROGRAM:
+  id, name(unique), description, is_active, structure_type(YEARLY/SEMESTER/CUSTOM),
+  is_finalized, period_length_months, total_periods, created_at, updated_at
+
+BATCH:
+  id, program(FK), name, start_year (GRADUATION year, not intake!), is_active, 
+  created_at, updated_at
+  Unique: (program, name)
+
+SESSION (Timetable):
+  id, academic_period(FK), group(FK), faculty(FK), department(FK),
+  starts_at, ends_at, created_at, updated_at
+
+VOUCHER (Finance):
+  id, voucher_no(unique), student(FK), term(FK), 
+  status(GENERATED/PARTIALLY_PAID/PAID/OVERDUE/CANCELLED),
+  issue_date, due_date, total_amount, notes, created_by(FK), 
+  created_at, updated_at
+
+LEAVE_PERIOD:
+  id, student(FK), type(MEDICAL/PERSONAL/ACADEMIC/ABSENCE), 
+  start_date, end_date, reason, status(PENDING/APPROVED/REJECTED/COMPLETED),
+  approved_by(FK), counts_toward_graduation, created_at, updated_at
+
+─────────────────────────────────────────────────────────────────────────────────────────
+
+🔧 MANAGEMENT COMMANDS:
+  python manage.py seed_demo                  # Demo data seeding
+  python manage.py seed_demo_scenarios        # Test scenarios
+  python manage.py generate_login_credentials # User credentials
+  python manage.py create_role_groups         # RBAC setup
+  python manage.py seed_academics_demo        # Academic-specific data
+
+─────────────────────────────────────────────────────────────────────────────────────────
+
+📁 APPS DIRECTORY STRUCTURE:
+  sims_backend/
+  ├── academics/          (Programs, Batches, Courses, Departments)
+  ├── students/           (Students, Leave Periods)
+  │   └── imports/        (CSV bulk import)
+  ├── attendance/         (Attendance, Input Jobs, Biometric)
+  ├── timetable/          (Sessions, Weekly Timetables, Cells)
+  ├── exams/              (Exams, Components)
+  ├── results/            (Result Headers, Component Entries)
+  ├── finance/            (Fee Types, Plans, Vouchers, Payments, Ledger)
+  ├── people/             (Persons, Contacts, Addresses, IDs)
+  ├── notifications/      (Notifications)
+  ├── learning/           (Materials, Audiences, Feed)
+  ├── compliance/         (Student/Admin Compliance)
+  ├── admin/              (Dashboard, Impersonation, Users)
+  ├── audit/              (Audit Logs)
+  ├── transcripts/        (Transcript generation/verification)
+  ├── syllabus/           (Syllabus Items)
+  ├── settings_app/       (App Settings)
+  ├── faculty/            (Faculty Profiles)
+  │   └── imports/        (CSV bulk import)
+  ├── common/             (Shared utilities)
+  └── core/               (RBAC - Roles, Tasks, Permissions)
+
+─────────────────────────────────────────────────────────────────────────────────────────
+
+🔗 IMPORTANT RELATIONSHIPS:
+  User → Person (1:1) → Student (1:1)
+  Program → Batch → Group → Student (many levels)
+  Program → Fee Plans → Vouchers
+  Academic Period → Sessions → Attendance
+  Exam → Result Headers → Result Component Entries
+  Session → Timetable Cells
+
+─────────────────────────────────────────────────────────────────────────────────────────
+
+📝 TEST FIXTURE EXAMPLE (JSON for creating):
+
+POST /api/students/
+{
+  "reg_no": "STU20240001",
+  "name": "John Doe",
+  "program": 1,
+  "batch": 1,
+  "group": 1,
+  "status": "active",
+  "email": "john.doe@fmu.edu",
+  "phone": "+923001234567",
+  "enrollment_year": 2024
+}
+
+POST /api/attendance/
+{
+  "session": 1,
+  "student": 1,
+  "status": "PRESENT"
+}
+
+POST /api/results/
+{
+  "exam": 1,
+  "student": 1,
+  "total_obtained": "85.50",
+  "total_max": "100",
+  "final_outcome": "PASS",
+  "status": "DRAFT"
+}
+
+POST /api/finance/vouchers/
+{
+  "voucher_no": "V-STU001-2024",
+  "student": 1,
+  "term": 1,
+  "total_amount": "50000.00",
+  "due_date": "2024-12-31"
+}
+
+─────────────────────────────────────────────────────────────────────────────────────────
+
+✅ FILES LOCATION:
+  Main config:          /backend/config/urls.py
+  Root URLs:            /backend/sims_backend/urls.py
+  Core URLs:            /backend/core/urls.py
+  Full docs:            /BACKEND_API_STRUCTURE.md (comprehensive reference)
+
+═════════════════════════════════════════════════════════════════════════════════════════

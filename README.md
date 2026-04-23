@@ -15,8 +15,8 @@ FMU SIMS digitizes all student-related records and processes for **Faisalabad Me
 - **Finance**: Fee collection and financial operations
 - **Students**: Access to personal academic records and services
 
-### Major Workflows
-**Admissions** → **Enrollment** → **Attendance** → **Assessments** → **Results/Transcripts** → **Clinical Rotations/Logbooks** → **Certificates** → **Graduation/Alumni**
+### Major Workflows (Active Scope)
+**Auth & RBAC** → **Student Registry** → **Academic Structure** → **Attendance** → **Exams/Results** → **Finance** → **Transcript Verification**
 
 ## 🎯 Key Features
 

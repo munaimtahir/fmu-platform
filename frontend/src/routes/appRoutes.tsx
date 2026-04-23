@@ -455,7 +455,7 @@ export const router = createBrowserRouter([
   {
     path: '/transcripts',
     element: (
-      <ProtectedRoute allowedRoles={['Admin', 'Registrar', 'Student']} path="/transcripts">
+      <ProtectedRoute allowedRoles={['Admin', 'Registrar', 'Student', 'ExamCell']} path="/transcripts">
         <TranscriptsPage />
       </ProtectedRoute>
     ),

@@ -3,9 +3,25 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 def in_group(user, group_name: str) -> bool:
     try:
-        return bool(user.groups.filter(name=group_name).exists())
+        return bool(user.groups.filter(name__iexact=group_name).exists())
     except (AttributeError, TypeError):
         return False
+
+
+def has_non_admin_role(user) -> bool:
+    """Return true when a user carries a domain role that must not inherit admin-only access."""
+    return any(
+        in_group(user, role)
+        for role in [
+            "REGISTRAR",
+            "EXAMCELL",
+            "FACULTY",
+            "FINANCE",
+            "STUDENT",
+            "COORDINATOR",
+            "OFFICE_ASSISTANT",
+        ]
+    )
 
 
 class IsAdminOrRegistrarReadOnlyFacultyStudent(BasePermission):
@@ -30,7 +46,7 @@ class IsAdmin(BasePermission):
         u = request.user
         if not u or not u.is_authenticated:
             return False
-        return u.is_superuser or in_group(u, "ADMIN")
+        return u.is_superuser or (in_group(u, "ADMIN") and not has_non_admin_role(u))
 
 
 class IsAdminOrCoordinator(BasePermission):
@@ -132,6 +148,9 @@ def can_transition_workflow_state(user, from_state: str, to_state: str) -> bool:
     Validate workflow state transition based on user role.
     Returns True if transition is allowed, False otherwise.
     """
+    if user is None:
+        return False
+
     if user.is_superuser or in_group(user, "ADMIN") or in_group(user, "COORDINATOR"):
         # Admin/Coordinator can transition: DRAFT -> VERIFIED -> PUBLISHED
         valid_transitions = [

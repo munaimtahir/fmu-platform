@@ -29,9 +29,8 @@ class Command(BaseCommand):
     users, programs, courses, students, and more, to facilitate testing and
     demonstration of the SIMS application.
     """
-    help = (
-        "Seed demo data for SIMS (Programs, Batches, Groups, Departments, Students, etc.)"
-    )
+
+    help = "Seed demo data for SIMS (Programs, Batches, Groups, Departments, Students, etc.)"
 
     def add_arguments(self, parser):
         """
@@ -84,9 +83,7 @@ class Command(BaseCommand):
         academic_periods = self._create_academic_periods()
 
         # Create students with user accounts
-        students, student_logins = self._create_students(
-            programs, batches, groups, num_students, users
-        )
+        students, student_logins = self._create_students(programs, batches, groups, num_students, users)
 
         # Create timetable sessions
         sessions = self._create_sessions(academic_periods, groups, departments, users)
@@ -105,7 +102,7 @@ class Command(BaseCommand):
             term2 = finance_meta.get("term2")
             term_line = ", ".join([t.name for t in [term1, term2] if t])
             self.stdout.write(f"  - Finance Terms: {term_line}")
-        
+
         # Write login credentials
         self._print_login_credentials(student_logins)
 
@@ -236,7 +233,7 @@ class Command(BaseCommand):
         else:
             users["student"] = User.objects.get(username="student")
         users["student"].groups.add(student_group, student_upper)
-        
+
         # Create defaulter student user (STUDENT_DEFAULTER)
         if not User.objects.filter(username="student_defaulter").exists():
             users["student_defaulter"] = User.objects.create_user(
@@ -251,7 +248,7 @@ class Command(BaseCommand):
         else:
             users["student_defaulter"] = User.objects.get(username="student_defaulter")
             users["student_defaulter"].groups.add(student_group, student_upper)
-        
+
         # Create partial student user (STUDENT_PARTIAL)
         if not User.objects.filter(username="student_partial").exists():
             users["student_partial"] = User.objects.create_user(
@@ -266,7 +263,7 @@ class Command(BaseCommand):
         else:
             users["student_partial"] = User.objects.get(username="student_partial")
             users["student_partial"].groups.add(student_group, student_upper)
-        
+
         # Create waiver student user (STUDENT_WAIVER)
         if not User.objects.filter(username="student_waiver").exists():
             users["student_waiver"] = User.objects.create_user(
@@ -281,7 +278,7 @@ class Command(BaseCommand):
         else:
             users["student_waiver"] = User.objects.get(username="student_waiver")
             users["student_waiver"].groups.add(student_group, student_upper)
-        
+
         # Create reversal student user (STUDENT_REVERSAL)
         if not User.objects.filter(username="student_reversal").exists():
             users["student_reversal"] = User.objects.create_user(
@@ -345,7 +342,6 @@ class Command(BaseCommand):
         Returns:
             tuple: A tuple containing (batches, groups) lists.
         """
-        from django.contrib.auth.models import Group as AuthGroup
 
         batches = []
         groups = []
@@ -372,9 +368,7 @@ class Command(BaseCommand):
                     )
                     groups.append(group)
 
-        self.stdout.write(
-            f"  ✓ Created {len(batches)} batches and {len(groups)} groups"
-        )
+        self.stdout.write(f"  ✓ Created {len(batches)} batches and {len(groups)} groups")
         return batches, groups
 
     def _create_departments(self):
@@ -395,9 +389,7 @@ class Command(BaseCommand):
 
         departments = []
         for data in departments_data:
-            department, created = Department.objects.get_or_create(
-                code=data["code"], defaults=data
-            )
+            department, created = Department.objects.get_or_create(code=data["code"], defaults=data)
             departments.append(department)
 
         self.stdout.write(f"  ✓ Created {len(departments)} departments")
@@ -472,9 +464,7 @@ class Command(BaseCommand):
         student_group, _ = AuthGroup.objects.get_or_create(name="Student")
 
         # Get batches for MBBS program (use first program if MBBS not found)
-        mbbs_program = next(
-            (p for p in programs if "MBBS" in p.name), programs[0]
-        )
+        mbbs_program = next((p for p in programs if "MBBS" in p.name), programs[0])
         mbbs_batches = [b for b in batches if b.program == mbbs_program]
         mbbs_groups = [g for g in groups if g.batch in mbbs_batches]
 
@@ -491,7 +481,7 @@ class Command(BaseCommand):
             ("student_waiver", f"{mbbs_batches[0].start_year}-MBBS-WAI", "Sam", "Waiver", "STUDENT_WAIVER"),
             ("student_reversal", f"{mbbs_batches[0].start_year}-MBBS-REV", "Pat", "Reversal", "STUDENT_REVERSAL"),
         ]
-        
+
         demo_students_map = {}
         for username_key, reg_no, first_name, last_name, demo_type in demo_students_config:
             user = users.get(username_key)
@@ -546,9 +536,7 @@ class Command(BaseCommand):
 
             # Assign to batch and group (round-robin)
             batch = mbbs_batches[i % len(mbbs_batches)]
-            group = [g for g in mbbs_groups if g.batch == batch][
-                (i // len(mbbs_batches)) % 2
-            ]
+            group = [g for g in mbbs_groups if g.batch == batch][(i // len(mbbs_batches)) % 2]
 
             student, created = Student.objects.get_or_create(
                 reg_no=reg_no,
@@ -608,9 +596,7 @@ class Command(BaseCommand):
         self.stdout.write("\n👥 STUDENT USERS:")
         self.stdout.write(f"  Total Students: {len(student_logins)}")
         self.stdout.write("\n  Demo Student:")
-        demo_student = next(
-            (s for s in student_logins if s["username"] == "student"), None
-        )
+        demo_student = next((s for s in student_logins if s["username"] == "student"), None)
         if demo_student:
             self.stdout.write(f"    Reg No: {demo_student['reg_no']}")
             self.stdout.write(f"    Name: {demo_student['name']}")
@@ -635,9 +621,7 @@ class Command(BaseCommand):
             self.stdout.write(f"     Password: {login['password']}")
 
         if len(student_logins) > 10:
-            self.stdout.write(
-                f"\n  ... and {len(student_logins) - 10} more students"
-            )
+            self.stdout.write(f"\n  ... and {len(student_logins) - 10} more students")
 
         self.stdout.write("\n" + "=" * 80)
 
@@ -761,14 +745,16 @@ class Command(BaseCommand):
 
         due_date = date.today() + timedelta(days=10)
         finance_user = users.get("finance") or users.get("admin")
-        
+
         # Get the 5 specific demo students
         student_paid = next((s for s in students if getattr(s.user, "username", None) == "student"), None)
-        student_defaulter = next((s for s in students if getattr(s.user, "username", None) == "student_defaulter"), None)
+        student_defaulter = next(
+            (s for s in students if getattr(s.user, "username", None) == "student_defaulter"), None
+        )
         student_partial = next((s for s in students if getattr(s.user, "username", None) == "student_partial"), None)
         student_waiver = next((s for s in students if getattr(s.user, "username", None) == "student_waiver"), None)
         student_reversal = next((s for s in students if getattr(s.user, "username", None) == "student_reversal"), None)
-        
+
         # STUDENT_PAID: Fully paid
         if student_paid:
             voucher = create_voucher_from_feeplan(
@@ -787,7 +773,7 @@ class Command(BaseCommand):
             )
             verify_payment(payment, approved_by=finance_user)
             self.stdout.write("  ✓ STUDENT_PAID: Voucher created and fully paid")
-        
+
         # STUDENT_PARTIAL: Partially paid (50%)
         if student_partial:
             voucher = create_voucher_from_feeplan(
@@ -808,7 +794,7 @@ class Command(BaseCommand):
             )
             verify_payment(payment, approved_by=finance_user)
             self.stdout.write("  ✓ STUDENT_PARTIAL: Voucher created and 50% paid")
-        
+
         # STUDENT_DEFAULTER: Unpaid, overdue
         if student_defaulter:
             create_voucher_from_feeplan(
@@ -818,7 +804,7 @@ class Command(BaseCommand):
                 due_date=date.today() - timedelta(days=2),  # Overdue
             )
             self.stdout.write("  ✓ STUDENT_DEFAULTER: Overdue voucher created")
-        
+
         # STUDENT_WAIVER: Approved waiver/scholarship
         if student_waiver:
             voucher = create_voucher_from_feeplan(
@@ -830,6 +816,7 @@ class Command(BaseCommand):
             # Create and approve an adjustment (waiver)
             from sims_backend.finance.models import Adjustment
             from sims_backend.finance.services import approve_adjustment
+
             adjustment = Adjustment.objects.create(
                 student=student_waiver,
                 term=term1,
@@ -841,7 +828,7 @@ class Command(BaseCommand):
             )
             approve_adjustment(adjustment, approver=finance_user)
             self.stdout.write("  ✓ STUDENT_WAIVER: Voucher created and waiver approved")
-        
+
         # STUDENT_REVERSAL: Payment reversed/refunded
         if student_reversal:
             voucher = create_voucher_from_feeplan(
@@ -862,6 +849,7 @@ class Command(BaseCommand):
             # Reverse the payment (will be implemented in services)
             # For now, we'll create a reversal ledger entry manually
             from sims_backend.finance.models import LedgerEntry
+
             LedgerEntry.objects.create(
                 student=student_reversal,
                 term=term1,
@@ -873,13 +861,17 @@ class Command(BaseCommand):
                 created_by=finance_user,
             )
             self.stdout.write("  ✓ STUDENT_REVERSAL: Payment created, verified, and reversed")
-        
+
         # Create additional students for variety (10 paid, 5 partial, 5 unpaid)
-        seeded_students = [s for s in students if s not in [student_paid, student_partial, student_defaulter, student_waiver, student_reversal]]
+        seeded_students = [
+            s
+            for s in students
+            if s not in [student_paid, student_partial, student_defaulter, student_waiver, student_reversal]
+        ]
         paid_students = seeded_students[:10]
         partial_candidates = seeded_students[10:15]
         unpaid_students = seeded_students[15:20]
-        
+
         for student in paid_students:
             voucher = create_voucher_from_feeplan(
                 student=student,

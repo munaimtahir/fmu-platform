@@ -1,5 +1,5 @@
-from decimal import Decimal
 from datetime import date
+from decimal import Decimal
 
 import pytest
 from django.contrib.auth.models import Group, User
@@ -200,7 +200,7 @@ def test_transcript_allowed_when_dues_paid(finance_setup):
         created_by=finance_setup["finance_user"],
         due_date=date.today(),
     ).voucher
-    
+
     # Pay the voucher
     payment = post_payment(
         student=finance_setup["student"],

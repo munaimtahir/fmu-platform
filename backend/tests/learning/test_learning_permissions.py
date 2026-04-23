@@ -5,7 +5,8 @@ from django.contrib.auth.models import Group, User
 from django.utils import timezone
 from rest_framework import status
 
-from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Group as AcadGroup, Program, Section
+from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Program, Section
+from sims_backend.academics.models import Group as AcadGroup
 from sims_backend.learning.models import LearningMaterial, LearningMaterialAudience
 from sims_backend.students.models import Student
 
@@ -186,4 +187,3 @@ def test_faculty_can_delete_own_audiences(api_client, learning_context):
 
     # Verify audience is deleted
     assert not LearningMaterialAudience.objects.filter(id=audience.id).exists()
-

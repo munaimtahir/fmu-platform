@@ -22,9 +22,7 @@ class Program(TimeStampedModel):
         help_text="Program name (e.g., MBBS, BDS, MD, etc.)",
     )
     description = models.TextField(blank=True, help_text="Program description")
-    is_active = models.BooleanField(
-        default=True, help_text="Whether this program is currently active"
-    )
+    is_active = models.BooleanField(default=True, help_text="Whether this program is currently active")
     # New structure fields
     structure_type = models.CharField(
         max_length=16,
@@ -61,7 +59,7 @@ class Program(TimeStampedModel):
 class Batch(TimeStampedModel):
     """
     Batch belonging to a Program.
-    
+
     Note: The start_year field represents the graduation year, not the intake year.
     For example, students enrolling in 2026 in a 5-year MBBS program would graduate in 2031,
     so the batch would have start_year=2031 (represented as 'b31' in usernames/emails).
@@ -80,10 +78,7 @@ class Batch(TimeStampedModel):
     start_year = models.PositiveSmallIntegerField(
         help_text="Graduation year for this batch (not intake year). Example: Students enrolling in 2026 for a 5-year program would have start_year=2031."
     )
-    is_active = models.BooleanField(
-        default=True,
-        help_text="Whether this batch is currently active"
-    )
+    is_active = models.BooleanField(default=True, help_text="Whether this batch is currently active")
 
     class Meta:
         ordering = ["program", "start_year"]
@@ -316,6 +311,7 @@ class Section(TimeStampedModel):
 
 
 # New Academics Module Models
+
 
 class Period(TimeStampedModel):
     """Period within a Program"""

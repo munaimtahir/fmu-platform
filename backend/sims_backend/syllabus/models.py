@@ -1,4 +1,5 @@
 """Syllabus models."""
+
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -8,14 +9,14 @@ from core.models import TimeStampedModel
 class SyllabusItem(TimeStampedModel):
     """
     Syllabus item attached to academic hierarchy nodes.
-    
+
     Can be attached to:
     - Program (top level)
     - Period (within a program)
     - LearningBlock (within a period/track)
     - Module (within an integrated block)
     """
-    
+
     # Academic hierarchy anchors (at least one must be set)
     program = models.ForeignKey(
         "academics.Program",
@@ -49,7 +50,7 @@ class SyllabusItem(TimeStampedModel):
         blank=True,
         help_text="Module this syllabus item belongs to",
     )
-    
+
     # Syllabus content
     title = models.CharField(
         max_length=255,
@@ -76,7 +77,7 @@ class SyllabusItem(TimeStampedModel):
         default=True,
         help_text="Whether this syllabus item is active",
     )
-    
+
     class Meta:
         ordering = ["order_no", "title"]
         indexes = [
@@ -86,29 +87,29 @@ class SyllabusItem(TimeStampedModel):
             models.Index(fields=["module", "is_active"]),
             models.Index(fields=["order_no"]),
         ]
-    
+
     def __str__(self):
         anchor = self.module or self.learning_block or self.period or self.program
         return f"{self.title} ({anchor})"
-    
+
     def clean(self):
         """Validate that at least one anchor is set."""
         anchors = [self.program, self.period, self.learning_block, self.module]
         if not any(anchors):
             raise ValidationError("At least one academic anchor (program, period, block, or module) must be set.")
-        
+
         if self.order_no < 1:
             raise ValidationError("order_no must be >= 1")
-        
+
         # Validate hierarchy consistency if multiple anchors are set
         if self.module and self.learning_block:
             if self.module.block != self.learning_block:
                 raise ValidationError("Module must belong to the specified learning block.")
-        
+
         if self.learning_block and self.period:
             if self.learning_block.period != self.period:
                 raise ValidationError("Learning block must belong to the specified period.")
-        
+
         if self.period and self.program:
             if self.period.program != self.program:
                 raise ValidationError("Period must belong to the specified program.")

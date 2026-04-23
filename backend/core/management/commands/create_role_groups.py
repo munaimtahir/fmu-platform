@@ -21,6 +21,8 @@ class Command(BaseCommand):
         """Create all role groups."""
         roles = [
             "ADMIN",
+            "REGISTRAR",
+            "EXAMCELL",
             "COORDINATOR",
             "FACULTY",
             "FINANCE",
@@ -38,23 +40,15 @@ class Command(BaseCommand):
         for role in roles:
             group, created = Group.objects.get_or_create(name=role)
             if created:
-                self.stdout.write(
-                    self.style.SUCCESS(f"✓ Created group: {role}")
-                )
+                self.stdout.write(self.style.SUCCESS(f"✓ Created group: {role}"))
                 created_count += 1
             else:
-                self.stdout.write(
-                    self.style.WARNING(f"→ Group already exists: {role}")
-                )
+                self.stdout.write(self.style.WARNING(f"→ Group already exists: {role}"))
                 existing_count += 1
 
         self.stdout.write("")
         self.stdout.write(self.style.SUCCESS("=" * 60))
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Summary: {created_count} created, {existing_count} already existed"
-            )
-        )
+        self.stdout.write(self.style.SUCCESS(f"Summary: {created_count} created, {existing_count} already existed"))
 
         # Verify all groups exist
         self.stdout.write("")
@@ -65,25 +59,9 @@ class Command(BaseCommand):
                 missing_groups.append(role)
 
         if missing_groups:
-            self.stdout.write(
-                self.style.ERROR(
-                    f"ERROR: Missing groups: {', '.join(missing_groups)}"
-                )
-            )
+            self.stdout.write(self.style.ERROR(f"ERROR: Missing groups: {', '.join(missing_groups)}"))
             return
 
-        self.stdout.write(
-            self.style.SUCCESS("✓ All 6 role groups verified successfully")
-        )
+        self.stdout.write(self.style.SUCCESS("✓ All 6 role groups verified successfully"))
         self.stdout.write("")
-        self.stdout.write(
-            self.style.SUCCESS("Role groups setup complete!")
-        )
-
-
-
-
-
-
-
-
+        self.stdout.write(self.style.SUCCESS("Role groups setup complete!"))

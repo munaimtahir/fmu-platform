@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import csv
 import hashlib
+from collections.abc import Iterable, Mapping, MutableMapping
 from dataclasses import dataclass
 from datetime import date
-from io import StringIO
-from typing import Iterable, List, Mapping, MutableMapping, Optional
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -17,7 +16,6 @@ from sims_backend.common_permissions import in_group
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
 
-
 STATUS_PRESENT = Attendance.STATUS_PRESENT
 STATUS_ABSENT = Attendance.STATUS_ABSENT
 
@@ -26,17 +24,14 @@ STATUS_ABSENT = Attendance.STATUS_ABSENT
 class AttendanceInputJobSummary:
     matched: int
     unknown: int
-    errors: List[Mapping[str, object]]
-    duplicates: List[str]
-    records: List[Mapping[str, object]]
+    errors: list[Mapping[str, object]]
+    duplicates: list[str]
+    records: list[Mapping[str, object]]
 
 
 def _has_admin_override(user: User) -> bool:
     return bool(
-        user.is_superuser
-        or in_group(user, "ADMIN")
-        or in_group(user, "COORDINATOR")
-        or in_group(user, "Admin")
+        user.is_superuser or in_group(user, "ADMIN") or in_group(user, "COORDINATOR") or in_group(user, "Admin")
     )
 
 
@@ -52,15 +47,13 @@ def parse_status_value(value: str | int | bool | None, default: str = STATUS_PRE
     return default
 
 
-def build_roster_for_session(
-    *, session: Session, default_status: str = STATUS_PRESENT
-) -> List[dict]:
+def build_roster_for_session(*, session: Session, default_status: str = STATUS_PRESENT) -> list[dict]:
     """Return roster for the session's group with any existing attendance."""
     students = Student.objects.filter(group=session.group).order_by("reg_no")
     existing = Attendance.objects.filter(session=session)
     status_map = {att.student_id: att.status for att in existing}
 
-    roster: List[dict] = []
+    roster: list[dict] = []
     for student in students:
         roster.append(
             {
@@ -74,7 +67,7 @@ def build_roster_for_session(
     return roster
 
 
-def _validate_date(session: Session, target_date: Optional[date], user: User) -> None:
+def _validate_date(session: Session, target_date: date | None, user: User) -> None:
     """Validate date editing rules."""
     if not target_date:
         return
@@ -94,7 +87,7 @@ def bulk_upsert_attendance_for_session(
     records: Iterable[Mapping[str, object]],
     default_status: str,
     actor: User,
-    target_date: Optional[date] = None,
+    target_date: date | None = None,
 ) -> Mapping[str, int]:
     """Upsert attendance rows for a session given minimal payload."""
     _validate_date(session, target_date, actor)
@@ -111,10 +104,12 @@ def bulk_upsert_attendance_for_session(
     else:
         # Fallback: try to convert to list, but limit iteration to prevent infinite loops
         try:
-            records_list = list(records) if hasattr(records, '__iter__') and not isinstance(records, (str, bytes)) else []
+            records_list = (
+                list(records) if hasattr(records, "__iter__") and not isinstance(records, (str, bytes)) else []
+            )
         except (TypeError, ValueError):
             records_list = []
-    
+
     processed_count = 0
     for record in records_list:
         # Handle both dict and other formats
@@ -143,16 +138,17 @@ def bulk_upsert_attendance_for_session(
     # Debug: log if records weren't processed
     if processed_count == 0 and len(records_list) > 0:
         import logging
+
         logger = logging.getLogger(__name__)
         first_rec = records_list[0] if records_list else None
         first_sid = first_rec.get("student_id") if isinstance(first_rec, dict) else None
-        logger.warning(f"bulk_upsert: {len(records_list)} records provided but 0 processed. valid_ids sample: {list(valid_ids)[:5]}, first record type: {type(first_rec)}, first student_id: {first_sid}, first record keys: {list(first_rec.keys()) if isinstance(first_rec, dict) else 'N/A'}")
+        logger.warning(
+            f"bulk_upsert: {len(records_list)} records provided but 0 processed. valid_ids sample: {list(valid_ids)[:5]}, first record type: {type(first_rec)}, first student_id: {first_sid}, first record keys: {list(first_rec.keys()) if isinstance(first_rec, dict) else 'N/A'}"
+        )
 
     # Bulk upsert to avoid N update_or_create calls.
     # Fetch existing attendance records for this session and these students.
-    existing_attendance_qs = Attendance.objects.filter(
-        session=session, student_id__in=statuses.keys()
-    )
+    existing_attendance_qs = Attendance.objects.filter(session=session, student_id__in=statuses.keys())
     existing_by_student_id = {att.student_id: att for att in existing_attendance_qs}
 
     now = timezone.now()
@@ -202,11 +198,11 @@ def parse_csv_payload(
 ) -> AttendanceInputJobSummary:
     """Parse a CSV upload into normalized records using streaming for memory efficiency."""
     import codecs
-    
+
     file_obj.seek(0)
     # Use codecs.iterdecode for memory-efficient streaming
     # This avoids loading the entire file into memory at once
-    text_stream = codecs.iterdecode(file_obj, 'utf-8', errors='replace')
+    text_stream = codecs.iterdecode(file_obj, "utf-8", errors="replace")
     reader = csv.DictReader(text_stream)
 
     students = Student.objects.filter(group=session.group)
@@ -250,11 +246,11 @@ def compute_file_fingerprint(file_obj) -> str:
     """Return a short fingerprint for storage."""
     try:
         file_obj.seek(0)
-    except (AttributeError, IOError, OSError):
+    except (AttributeError, OSError):
         pass
     digest = _hash_file(file_obj)
     try:
         file_obj.seek(0)
-    except (AttributeError, IOError, OSError):
+    except (AttributeError, OSError):
         pass
     return digest[:16]

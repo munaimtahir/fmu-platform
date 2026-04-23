@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("academics", "0004_add_academicperiod_status_fields"),
         ("academics", "0005_add_period_track_block_module"),

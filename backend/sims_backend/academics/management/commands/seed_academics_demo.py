@@ -2,7 +2,8 @@
 Management command to seed demo data for Academics module.
 Creates MBBS program with 5 periods, 2 tracks, parallel blocks, modules, and departments.
 """
-from datetime import date, timedelta
+
+from datetime import date
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -92,7 +93,7 @@ class Command(BaseCommand):
 
             # Create learning blocks
             self.stdout.write("Creating learning blocks...")
-            
+
             # Year 1 - Integrated blocks
             period1 = periods[0]
             integrated1 = LearningBlock.objects.create(
@@ -103,7 +104,7 @@ class Command(BaseCommand):
                 start_date=date(2024, 1, 1),
                 end_date=date(2024, 6, 30),
             )
-            
+
             # Add modules to integrated block
             Module.objects.create(
                 block=integrated1,
@@ -146,7 +147,7 @@ class Command(BaseCommand):
 
             # Year 2 - Rotation blocks
             period2 = periods[1]
-            rotation1 = LearningBlock.objects.create(
+            LearningBlock.objects.create(
                 period=period2,
                 track=track_a,
                 name="Medicine Rotation",
@@ -157,7 +158,7 @@ class Command(BaseCommand):
                 sub_department=cardiology,
             )
 
-            rotation2 = LearningBlock.objects.create(
+            LearningBlock.objects.create(
                 period=period2,
                 track=track_a,
                 name="Surgery Rotation",
@@ -169,7 +170,7 @@ class Command(BaseCommand):
             )
 
             # Parallel rotation in Track B
-            rotation1b = LearningBlock.objects.create(
+            LearningBlock.objects.create(
                 period=period2,
                 track=track_b,
                 name="Medicine Rotation",
@@ -200,7 +201,7 @@ class Command(BaseCommand):
                 order=2,
             )
 
-            rotation3 = LearningBlock.objects.create(
+            LearningBlock.objects.create(
                 period=period3,
                 track=track_a,
                 name="Pediatrics Rotation",
@@ -234,18 +235,10 @@ class Command(BaseCommand):
                 primary_department=surgery,
             )
 
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"Created {LearningBlock.objects.count()} learning blocks"
-                )
-            )
-            self.stdout.write(
-                self.style.SUCCESS(f"Created {Module.objects.count()} modules")
-            )
+            self.stdout.write(self.style.SUCCESS(f"Created {LearningBlock.objects.count()} learning blocks"))
+            self.stdout.write(self.style.SUCCESS(f"Created {Module.objects.count()} modules"))
 
-        self.stdout.write(
-            self.style.SUCCESS("\n✅ Academics demo data seeded successfully!")
-        )
+        self.stdout.write(self.style.SUCCESS("\n✅ Academics demo data seeded successfully!"))
         self.stdout.write("\nSummary:")
         self.stdout.write(f"  - Programs: {Program.objects.count()}")
         self.stdout.write(f"  - Periods: {Period.objects.count()}")
@@ -253,5 +246,3 @@ class Command(BaseCommand):
         self.stdout.write(f"  - Learning Blocks: {LearningBlock.objects.count()}")
         self.stdout.write(f"  - Modules: {Module.objects.count()}")
         self.stdout.write(f"  - Departments: {Department.objects.count()}")
-
-

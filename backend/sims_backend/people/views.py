@@ -1,4 +1,5 @@
 """Views for people module."""
+
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
@@ -6,13 +7,13 @@ from rest_framework.permissions import IsAuthenticated
 
 from core.permissions import PermissionTaskRequired, has_permission_task
 
-from .models import Person, ContactInfo, Address, IdentityDocument
+from .models import Address, ContactInfo, IdentityDocument, Person
 from .serializers import (
-    PersonSerializer,
-    PersonListSerializer,
-    ContactInfoSerializer,
     AddressSerializer,
+    ContactInfoSerializer,
     IdentityDocumentSerializer,
+    PersonListSerializer,
+    PersonSerializer,
 )
 
 
@@ -31,7 +32,7 @@ class PersonFilter(filters.FilterSet):
 class PersonViewSet(viewsets.ModelViewSet):
     """
     ViewSet for Person model.
-    
+
     Permissions:
     - list/retrieve: people.persons.view
     - create: people.persons.create
@@ -40,9 +41,7 @@ class PersonViewSet(viewsets.ModelViewSet):
     - Object-level: Users can view their own person record
     """
 
-    queryset = Person.objects.all().prefetch_related(
-        "contact_info", "addresses", "identity_documents"
-    )
+    queryset = Person.objects.all().prefetch_related("contact_info", "addresses", "identity_documents")
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filterset_class = PersonFilter
     filter_backends = [filters.DjangoFilterBackend, SearchFilter]

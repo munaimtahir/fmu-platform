@@ -1,8 +1,6 @@
 """Comprehensive tests for attendance input methods (Live, CSV, Scanned Sheet)."""
 
-import csv
-import io
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from io import BytesIO
 
 import pytest
@@ -11,7 +9,8 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group as AcadGroup, Program
+from sims_backend.academics.models import AcademicPeriod, Batch, Department, Program
+from sims_backend.academics.models import Group as AcadGroup
 from sims_backend.attendance.models import Attendance, AttendanceInputJob
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
@@ -178,27 +177,27 @@ def test_live_submit_absentees_only_marks_others_present(api_client, setup_atten
                 {"student_id": student2.id, "status": "A"},
             ],
         },
-        format='json',
+        format="json",
     )
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["total"] == 20
-    
+
     # Check database first to see what was actually saved
     attendances = Attendance.objects.filter(session=session)
     absent_count = attendances.filter(status=Attendance.STATUS_ABSENT).count()
     present_count = attendances.filter(status=Attendance.STATUS_PRESENT).count()
-    
+
     # Debug output
     print(f"DEBUG: Response absent count: {response.data.get('absent')}")
     print(f"DEBUG: Database absent count: {absent_count}")
     print(f"DEBUG: Database present count: {present_count}")
-    
+
     # The response might have a bug in counting, but database should be correct
     # So we check database first, then fix the response counting if needed
     assert absent_count == 2, f"Expected 2 absent in database, got {absent_count}"
     assert present_count == 18, f"Expected 18 present in database, got {present_count}"
-    
+
     # Also check response (this might fail due to a bug in the service function)
     # But we'll fix that separately
     if response.data.get("absent") != 2:
@@ -207,7 +206,7 @@ def test_live_submit_absentees_only_marks_others_present(api_client, setup_atten
     # Verify all students have attendance
     attendances = Attendance.objects.filter(session=session)
     assert attendances.count() == 20
-    
+
     # Debug: check actual statuses
     att1 = attendances.filter(student=student1).first()
     att2 = attendances.filter(student=student2).first()
@@ -218,7 +217,7 @@ def test_live_submit_absentees_only_marks_others_present(api_client, setup_atten
         print(f"DEBUG: student2 status = {att2.status}, expected ABSENT")
     if att3:
         print(f"DEBUG: student3 status = {att3.status}, expected PRESENT")
-    
+
     assert attendances.filter(student=student1, status=Attendance.STATUS_ABSENT).exists()
     assert attendances.filter(student=student2, status=Attendance.STATUS_ABSENT).exists()
     assert attendances.filter(student=student3, status=Attendance.STATUS_PRESENT).exists()
@@ -234,9 +233,7 @@ def test_live_submit_full_roster(api_client, setup_attendance_test_data):
     api_client.force_authenticate(user=data["faculty_user"])
 
     # Submit full roster
-    records = [
-        {"student_id": s.id, "status": "A" if i < 5 else "P"} for i, s in enumerate(students)
-    ]
+    records = [{"student_id": s.id, "status": "A" if i < 5 else "P"} for i, s in enumerate(students)]
 
     response = api_client.post(
         "/api/attendance-input/live/submit/",
@@ -301,7 +298,7 @@ def test_permissions_faculty_own_section_only(api_client, setup_attendance_test_
     """Test that faculty can only access their own sections."""
     data = setup_attendance_test_data
     faculty_user = data["faculty_user"]
-    other_faculty_user = data["other_faculty_user"]
+    data["other_faculty_user"]
     session1 = data["session1"]  # Owned by faculty_user
     session2 = data["session2"]  # Owned by other_faculty_user
 
@@ -357,7 +354,9 @@ def test_past_date_edit_restriction(api_client, setup_attendance_test_data):
         },
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "past dates" in response.data["error"]["message"].lower() or "date" in response.data["error"]["message"].lower()
+    assert (
+        "past dates" in response.data["error"]["message"].lower() or "date" in response.data["error"]["message"].lower()
+    )
 
     # Admin can edit past dates
     api_client.force_authenticate(user=admin_user)
@@ -381,7 +380,7 @@ def test_csv_dry_run_unknown_regno(api_client, setup_attendance_test_data):
     """Test CSV dry-run detects unknown reg_no."""
     data = setup_attendance_test_data
     session = data["session1"]
-    student1 = data["students"][0]
+    data["students"][0]
 
     # Create CSV with unknown reg_no
     csv_content = "reg_no,status\nSTU-0001,P\nUNKNOWN-9999,A\n"
@@ -749,9 +748,7 @@ def test_audit_log_created_for_attendance_writes(api_client, setup_attendance_te
     assert final_count > initial_count
 
     # Check that audit log entry exists for this request
-    audit_entry = AuditLog.objects.filter(
-        path="/api/attendance-input/live/submit/", actor=data["faculty_user"]
-    ).first()
+    audit_entry = AuditLog.objects.filter(path="/api/attendance-input/live/submit/", actor=data["faculty_user"]).first()
     assert audit_entry is not None
     assert audit_entry.method == "POST"
     assert audit_entry.status_code == 200

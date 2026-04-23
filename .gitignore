@@ -234,3 +234,12 @@ backend/tests_disabled/
 *password*.txt
 *secrets*.txt
 *keys*.txt
+
+# Runtime / generated verification artifacts
+e2e-results.json
+frontend/e2e-results.json
+frontend/playwright-report/
+frontend/test-results/
+docs/verification/artifacts/screenshots/*.png
+docs/verification/artifacts/logs/*.txt
+docs/admin-runtime-report/screenshots/*.png

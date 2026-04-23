@@ -52,9 +52,7 @@ class SeedDemoScenariosTests(TestCase):
         call_command("seed_demo_scenarios", "--students", "20", stdout=StringIO())
 
         # Get students from the RESULTS_PUBLISHED bucket (students 16-17, 0-indexed)
-        students = list(
-            Student.objects.filter(reg_no__startswith="DEMO_").order_by("reg_no")[16:18]
-        )
+        students = list(Student.objects.filter(reg_no__startswith="DEMO_").order_by("reg_no")[16:18])
         self.assertEqual(len(students), 2)
 
         # Check that they have published results
@@ -70,9 +68,7 @@ class SeedDemoScenariosTests(TestCase):
         call_command("seed_demo_scenarios", "--students", "20", stdout=StringIO())
 
         # Get students from LOW_ATTENDANCE_AT_RISK bucket (students 7-9, 0-indexed)
-        students = list(
-            Student.objects.filter(reg_no__startswith="DEMO_").order_by("reg_no")[7:10]
-        )
+        students = list(Student.objects.filter(reg_no__startswith="DEMO_").order_by("reg_no")[7:10])
         self.assertEqual(len(students), 3)
 
         # Check attendance percentage - should be around 65% but with randomness

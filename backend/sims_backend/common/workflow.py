@@ -26,7 +26,9 @@ def validate_workflow_transition(user, entity, from_state: str, to_state: str) -
 
     if not can_transition_workflow_state(user, from_state, to_state):
         # Determine role for error message
-        if user.is_superuser or in_group(user, "ADMIN") or in_group(user, "COORDINATOR"):
+        if user is None:
+            role_msg = "anonymous users"
+        elif user.is_superuser or in_group(user, "ADMIN") or in_group(user, "COORDINATOR"):
             role_msg = "Admin/Coordinator"
         elif in_group(user, "OFFICE_ASSISTANT"):
             role_msg = "Office Assistant (can only keep records in DRAFT state)"
@@ -34,7 +36,5 @@ def validate_workflow_transition(user, entity, from_state: str, to_state: str) -
             role_msg = "your role"
 
         raise PermissionDenied(
-            f"Invalid workflow state transition: {from_state} -> {to_state}. "
-            f"Not allowed for {role_msg}."
+            f"Invalid workflow state transition: {from_state} -> {to_state}. Not allowed for {role_msg}."
         )
-

@@ -37,9 +37,7 @@ class NotificationAudienceSerializer(serializers.ModelSerializer):
 
         required_field = required_field_map.get(audience_type)
         if required_field and not attrs.get(required_field):
-            raise serializers.ValidationError(
-                {required_field: f"{required_field} is required for {audience_type}."}
-            )
+            raise serializers.ValidationError({required_field: f"{required_field} is required for {audience_type}."})
         return attrs
 
 

@@ -20,11 +20,11 @@ from sims_backend.academics.models import (
     Section,
 )
 from sims_backend.attendance.models import Attendance
-from sims_backend.students.models import Student
 from sims_backend.exams.models import Exam, ExamComponent
 from sims_backend.finance.models import FeePlan, FeeType, Voucher
 from sims_backend.finance.services import create_voucher_from_feeplan
 from sims_backend.results.models import ResultComponentEntry, ResultHeader
+from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
 
 User = get_user_model()
@@ -100,9 +100,7 @@ class DemoScenarioGenerator:
                 {"name": "Physiology", "code": "PHYS"},
                 {"name": "Biochemistry", "code": "BIOCHEM"},
             ]:
-                dept, _ = Department.objects.get_or_create(
-                    code=dept_data["code"], defaults=dept_data
-                )
+                dept, _ = Department.objects.get_or_create(code=dept_data["code"], defaults=dept_data)
                 departments.append(dept)
 
         course_names = [
@@ -234,7 +232,7 @@ class DemoScenarioGenerator:
 
             dob = fake.date_of_birth(minimum_age=18, maximum_age=25)
             # Generate phone number in Pakistan format (13 chars: +92 + 10 digits)
-            phone = fake.numerify(text='+92##########')
+            phone = fake.numerify(text="+92##########")
 
             # Create canonical student record
             student, _ = Student.objects.get_or_create(
@@ -247,7 +245,6 @@ class DemoScenarioGenerator:
                     "status": Student.STATUS_ACTIVE,
                     "enrollment_year": current_year,
                     "expected_graduation_year": current_year + self.DEFAULT_GRADUATING_YEARS_AHEAD,
-                    "status": Student.STATUS_ACTIVE,
                     "email": email,
                     "phone": phone,
                     "date_of_birth": dob,
@@ -272,7 +269,7 @@ class DemoScenarioGenerator:
     def enroll_students_in_sections(self, students, sections, term_name):
         """Enroll students in sections - LEGACY FUNCTION DISABLED (enrollment module removed)"""
         # Legacy enrollment module removed - enrollment tracking should be handled via students app
-        self.log(f"  ⚠ Enrollment function disabled - legacy enrollment module removed")
+        self.log("  ⚠ Enrollment function disabled - legacy enrollment module removed")
         return []
 
     def create_attendance_records(self, students, sessions, attendance_percentage):
@@ -301,7 +298,7 @@ class DemoScenarioGenerator:
     def create_assessment_scores(self, students, sections, score_range=(60, 95)):
         """Create assessment scores for students - LEGACY FUNCTION DISABLED (assessments module removed)"""
         # Legacy assessments module removed - use exams and results modules instead
-        self.log(f"  ⚠ Assessment scores function disabled - legacy assessments module removed")
+        self.log("  ⚠ Assessment scores function disabled - legacy assessments module removed")
         return []
 
     def create_exam_and_results(self, students, academic_period, department, status):
@@ -341,11 +338,7 @@ class DemoScenarioGenerator:
                 defaults={
                     "total_obtained": Decimal(str(marks)),
                     "total_max": Decimal("100.00"),
-                    "final_outcome": (
-                        ResultHeader.OUTCOME_PASS
-                        if marks >= 50
-                        else ResultHeader.OUTCOME_FAIL
-                    ),
+                    "final_outcome": (ResultHeader.OUTCOME_PASS if marks >= 50 else ResultHeader.OUTCOME_FAIL),
                     "status": status,
                 },
             )
@@ -359,45 +352,12 @@ class DemoScenarioGenerator:
                     defaults={
                         "marks_obtained": Decimal(str(marks)),
                         "component_outcome": (
-                            ResultComponentEntry.OUTCOME_PASS
-                            if marks >= 50
-                            else ResultComponentEntry.OUTCOME_FAIL
+                            ResultComponentEntry.OUTCOME_PASS if marks >= 50 else ResultComponentEntry.OUTCOME_FAIL
                         ),
                     },
                 )
 
         return results
-
-    def create_fee_voucher(self, student, academic_period):
-        """Create a fee voucher (challan) for a student"""
-        # Create charge
-        charge, _ = Charge.objects.get_or_create(
-            title=f"{self.demo_prefix}Tuition Fee",
-            due_date=date.today() + timedelta(days=30),
-            academic_period=academic_period,
-            defaults={"amount": Decimal("50000.00")},
-        )
-
-        # Create ledger item
-        ledger_item, _ = StudentLedgerItem.objects.get_or_create(
-            student=student,
-            charge=charge,
-            defaults={"status": StudentLedgerItem.STATUS_PENDING},
-        )
-
-        # Create challan
-        challan_no = f"{self.demo_prefix}CH-{student.reg_no}-001"
-        challan, created = Challan.objects.get_or_create(
-            challan_no=challan_no,
-            defaults={
-                "student": student,
-                "ledger_item": ledger_item,
-                "amount_total": charge.amount,
-                "status": Challan.STATUS_PENDING,
-            },
-        )
-
-        return challan if created else None
 
     def create_sessions_for_period(self, academic_period, groups, faculty_users, departments, num_sessions=5):
         """Create timetable sessions"""
@@ -446,26 +406,18 @@ class DemoScenarioGenerator:
             # Legacy enrollment module removed - no cleanup needed
 
             # Delete results and exams
-            ResultComponentEntry.objects.filter(
-                result_header__exam__title__startswith=self.demo_prefix
-            ).delete()
+            ResultComponentEntry.objects.filter(result_header__exam__title__startswith=self.demo_prefix).delete()
             ResultHeader.objects.filter(exam__title__startswith=self.demo_prefix).delete()
             ExamComponent.objects.filter(exam__title__startswith=self.demo_prefix).delete()
             Exam.objects.filter(title__startswith=self.demo_prefix).delete()
 
-            # Delete finance records
-            Challan.objects.filter(challan_no__startswith=self.demo_prefix).delete()
-            StudentLedgerItem.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
-            Charge.objects.filter(title__startswith=self.demo_prefix).delete()
-
-            # Legacy assessments module removed - no cleanup needed
-            Assessment.objects.filter(section__name__startswith=self.demo_prefix).delete()
+            # Delete current finance records. Legacy Challan/Charge/LedgerItem
+            # and assessment modules have been removed.
+            Voucher.objects.filter(student__reg_no__startswith=self.demo_prefix).delete()
 
             # Delete sessions before faculty users (to avoid protected foreign key error)
             # Only delete sessions where faculty is a demo user
-            demo_faculty_usernames = [
-                f"{self.demo_prefix.lower()}faculty{i}" for i in range(1, 10)
-            ]
+            demo_faculty_usernames = [f"{self.demo_prefix.lower()}faculty{i}" for i in range(1, 10)]
             Session.objects.filter(faculty__username__in=demo_faculty_usernames).delete()
 
             # Delete sections and courses
@@ -474,14 +426,13 @@ class DemoScenarioGenerator:
 
             # Now safe to delete students (both models)
             from sims_backend.students.models import Student as StudentsStudent
+
             StudentsStudent.objects.filter(reg_no__startswith=self.demo_prefix).delete()
             Student.objects.filter(reg_no__startswith=self.demo_prefix).delete()
 
             # Finally delete users - only delete those with demo prefix
             User.objects.filter(username__in=demo_faculty_usernames).delete()
-            demo_student_usernames = User.objects.filter(
-                username__startswith=f"{self.demo_prefix.lower()}student"
-            )
+            demo_student_usernames = User.objects.filter(username__startswith=f"{self.demo_prefix.lower()}student")
             demo_student_usernames.delete()
 
             self.log("  ✓ Demo objects deleted")
@@ -522,36 +473,3 @@ def create_voucher_for_student(
         due_date=date.today() + timedelta(days=30),
     )
     return result.voucher
-
-
-def delete_demo_objects():
-    """Delete all objects tagged with DEMO_ prefix."""
-    # Delete in reverse dependency order
-    from sims_backend.finance.models import Adjustment, FinancePolicy, LedgerEntry, Payment
-
-    LedgerEntry.objects.all().delete()
-    Payment.objects.all().delete()
-    Adjustment.objects.all().delete()
-    Voucher.objects.all().delete()
-    FeePlan.objects.filter(fee_type__code__in=["TUITION", "EXAM", "LIBRARY"]).delete()
-    FinancePolicy.objects.filter(rule_key__startswith="BLOCK_").delete()
-    FeeType.objects.filter(code__in=["TUITION", "EXAM", "LIBRARY"]).delete()
-    
-    ResultComponentEntry.objects.filter(result_header__exam__title__startswith=DEMO_TAG_PREFIX).delete()
-    ResultHeader.objects.filter(exam__title__startswith=DEMO_TAG_PREFIX).delete()
-    
-    ExamComponent.objects.filter(exam__title__startswith=DEMO_TAG_PREFIX).delete()
-    Exam.objects.filter(title__startswith=DEMO_TAG_PREFIX).delete()
-    
-    Attendance.objects.filter(session__academic_period__name__startswith=DEMO_TAG_PREFIX).delete()
-    Session.objects.filter(group__name__startswith=DEMO_TAG_PREFIX).delete()
-    Session.objects.filter(academic_period__name__startswith=DEMO_TAG_PREFIX).delete()
-
-    Student.objects.filter(group__name__startswith=DEMO_TAG_PREFIX).delete()
-    Student.objects.filter(reg_no__contains=DEMO_TAG_PREFIX).delete()
-    Group.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()
-    Batch.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()
-    AcademicPeriod.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()
-    Program.objects.filter(name__startswith=DEMO_TAG_PREFIX).delete()
-    
-    # Note: We don't delete users as they might be reused

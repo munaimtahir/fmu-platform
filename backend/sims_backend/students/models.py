@@ -194,4 +194,3 @@ class LeavePeriod(TimeStampedModel):
         if self.type == self.TYPE_ABSENCE:
             self.counts_toward_graduation = False
         super().save(*args, **kwargs)
-

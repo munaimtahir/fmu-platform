@@ -1,6 +1,5 @@
 from decimal import Decimal
 
-from django.db.models import Sum
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -11,8 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core.permissions import PermissionTaskRequired, has_permission_task
-
 from sims_backend.academics.models import Program
+from sims_backend.common_permissions import in_group
 from sims_backend.finance.models import (
     Adjustment,
     FeePlan,
@@ -40,11 +39,8 @@ from sims_backend.finance.serializers import (
 from sims_backend.finance.services import (
     aging_report,
     approve_adjustment,
-    cancel_voucher,
     collection_report,
-    compute_student_balance,
     create_voucher_from_feeplan,
-    generate_voucher_number as create_voucher_number,
     defaulters,
     finance_gate_checks,
     post_payment,
@@ -53,6 +49,9 @@ from sims_backend.finance.services import (
     reverse_payment,
     student_statement,
     verify_payment,
+)
+from sims_backend.finance.services import (
+    generate_voucher_number as create_voucher_number,
 )
 from sims_backend.students.models import Student
 
@@ -149,8 +148,8 @@ class VoucherViewSet(viewsets.ModelViewSet):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         # Skip balance calculation for list views to avoid N+1 queries
-        if self.action == 'list':
-            context['skip_balance'] = True
+        if self.action == "list":
+            context["skip_balance"] = True
         return context
 
     def create(self, request, *args, **kwargs):
@@ -303,13 +302,15 @@ class PaymentViewSet(viewsets.ModelViewSet):
         payment = self.get_object()
         buffer = payment_receipt_pdf(payment)
         return FileResponse(buffer, as_attachment=True, filename=f"receipt_{payment.receipt_no}.pdf")
-    
+
     @action(detail=True, methods=["post"], url_path="reverse")
     def reverse(self, request, pk=None):
         payment = self.get_object()
         reason = request.data.get("reason", "")
         if not reason:
-            return Response({"error": {"code": "REASON_REQUIRED", "message": "Reversal reason is required"}}, status=400)
+            return Response(
+                {"error": {"code": "REASON_REQUIRED", "message": "Reversal reason is required"}}, status=400
+            )
         try:
             reverse_payment(payment, reversed_by=request.user, reason=reason)
             return Response(PaymentSerializer(payment).data)
@@ -317,10 +318,19 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return Response({"error": {"code": "INVALID_OPERATION", "message": str(e)}}, status=400)
 
 
+class LedgerEntryPermission(PermissionTaskRequired):
+    """Allow students to read their own ledger; staff visibility remains task-gated."""
+
+    def has_permission(self, request, view):
+        if getattr(view, "action", None) in {"list", "retrieve"} and in_group(request.user, "STUDENT"):
+            return True
+        return super().has_permission(request, view)
+
+
 class LedgerEntryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = LedgerEntry.objects.select_related("student", "term", "voucher").all()
     serializer_class = LedgerEntrySerializer
-    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    permission_classes = [IsAuthenticated, LedgerEntryPermission]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["student", "term", "entry_type", "reference_type"]
     search_fields = ["student__reg_no", "voucher__voucher_no", "reference_id"]
@@ -473,21 +483,22 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
         }
         serializer = StudentFinanceSummarySerializer(payload)
         return Response(serializer.data)
-    
+
     @action(detail=True, methods=["get"], url_path="statement")
     def statement(self, request, pk=None):
         try:
             student = Student.objects.get(pk=pk)
         except Student.DoesNotExist:
             return Response({"error": {"code": "STUDENT_NOT_FOUND", "message": "Student not found"}}, status=404)
-        
+
         user = request.user
         # Object-level permission: Students can view own statement
         if not has_permission_task(user, "finance.summary.view"):
             if hasattr(user, "student") and user.student != student:
                 raise PermissionDenied("You can only view your own statement.")
-        
+
         from sims_backend.academics.models import AcademicPeriod
+
         term_id = request.query_params.get("term")
         term = None
         if term_id:
@@ -495,24 +506,25 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
                 term = AcademicPeriod.objects.get(pk=term_id)
             except AcademicPeriod.DoesNotExist:
                 return Response({"error": {"code": "TERM_NOT_FOUND", "message": "Invalid term"}}, status=404)
-        
+
         statement = student_statement(student, term)
         return Response(statement)
-    
+
     @action(detail=True, methods=["get"], url_path="statement/pdf")
     def statement_pdf(self, request, pk=None):
         try:
             student = Student.objects.get(pk=pk)
         except Student.DoesNotExist:
             return Response({"error": {"code": "STUDENT_NOT_FOUND", "message": "Student not found"}}, status=404)
-        
+
         user = request.user
         # Object-level permission: Students can view own statement
         if not has_permission_task(user, "finance.summary.view"):
             if hasattr(user, "student") and user.student != student:
                 raise PermissionDenied("You can only view your own statement.")
-        
+
         from sims_backend.academics.models import AcademicPeriod
+
         term_id = request.query_params.get("term")
         term = None
         if term_id:
@@ -520,11 +532,12 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
                 term = AcademicPeriod.objects.get(pk=term_id)
             except AcademicPeriod.DoesNotExist:
                 return Response({"error": {"code": "TERM_NOT_FOUND", "message": "Invalid term"}}, status=404)
-        
+
         statement = student_statement(student, term)
-        
+
         # Generate PDF
         from sims_backend.finance.pdf import student_statement_pdf
+
         buffer = student_statement_pdf(statement)
         filename = f"statement_{student.reg_no}_{term.name if term else 'all'}.pdf"
         return FileResponse(buffer, as_attachment=True, filename=filename)
@@ -555,50 +568,62 @@ class FinanceReportViewSet(viewsets.ViewSet):
             return Response({"error": {"code": "TERM_NOT_FOUND", "message": "Invalid term"}}, status=404)
 
         rows = defaulters(program, term, min_outstanding)
-        
+
         # CSV export
         if request.query_params.get("format") == "csv":
             import csv
+
             from django.http import HttpResponse
+
             response = HttpResponse(content_type="text/csv")
             response["Content-Disposition"] = f'attachment; filename="defaulters_{term.name}.csv"'
             writer = csv.writer(response)
             writer.writerow(["Reg No", "Name", "Outstanding", "Overdue Days", "Latest Voucher", "Phone", "Email"])
             for row in rows:
-                writer.writerow([
-                    row["reg_no"],
-                    row["name"],
-                    row["outstanding"],
-                    row.get("overdue_days", 0),
-                    row.get("latest_voucher_no", ""),
-                    row.get("phone", ""),
-                    row.get("email", ""),
-                ])
+                writer.writerow(
+                    [
+                        row["reg_no"],
+                        row["name"],
+                        row["outstanding"],
+                        row.get("overdue_days", 0),
+                        row.get("latest_voucher_no", ""),
+                        row.get("phone", ""),
+                        row.get("email", ""),
+                    ]
+                )
             return response
-        
+
         return Response({"rows": rows})
 
     @action(detail=False, methods=["get"], url_path="collection")
     def collection(self, request):
         from datetime import datetime
+
         start_str = request.query_params.get("start")
         end_str = request.query_params.get("end")
-        
+
         if not start_str or not end_str:
-            return Response({"error": {"code": "DATE_RANGE_REQUIRED", "message": "start and end dates are required (YYYY-MM-DD)"}}, status=400)
-        
+            return Response(
+                {"error": {"code": "DATE_RANGE_REQUIRED", "message": "start and end dates are required (YYYY-MM-DD)"}},
+                status=400,
+            )
+
         try:
             start_date = datetime.strptime(start_str, "%Y-%m-%d").date()
             end_date = datetime.strptime(end_str, "%Y-%m-%d").date()
         except ValueError:
-            return Response({"error": {"code": "INVALID_DATE_FORMAT", "message": "Dates must be in YYYY-MM-DD format"}}, status=400)
-        
+            return Response(
+                {"error": {"code": "INVALID_DATE_FORMAT", "message": "Dates must be in YYYY-MM-DD format"}}, status=400
+            )
+
         report = collection_report(start_date, end_date)
-        
+
         # CSV export
         if request.query_params.get("format") == "csv":
             import csv
+
             from django.http import HttpResponse
+
             response = HttpResponse(content_type="text/csv")
             response["Content-Disposition"] = f'attachment; filename="collection_{start_date}_{end_date}.csv"'
             writer = csv.writer(response)
@@ -607,12 +632,13 @@ class FinanceReportViewSet(viewsets.ViewSet):
                 writer.writerow([method, data["total"], data["count"]])
             writer.writerow(["TOTAL", report["total_collected"], report["total_count"]])
             return response
-        
+
         return Response(report)
-    
+
     @action(detail=False, methods=["get"], url_path="aging")
     def aging(self, request):
         from sims_backend.academics.models import AcademicPeriod
+
         term_id = request.query_params.get("term")
         term = None
         if term_id:
@@ -620,21 +646,29 @@ class FinanceReportViewSet(viewsets.ViewSet):
                 term = AcademicPeriod.objects.get(id=term_id)
             except AcademicPeriod.DoesNotExist:
                 return Response({"error": {"code": "TERM_NOT_FOUND", "message": "Invalid term"}}, status=404)
-        
+
         report = aging_report(term)
-        
+
         # CSV export
         if request.query_params.get("format") == "csv":
             import csv
+
             from django.http import HttpResponse
+
             response = HttpResponse(content_type="text/csv")
             response["Content-Disposition"] = f'attachment; filename="aging_report_{term.name if term else "all"}.csv"'
             writer = csv.writer(response)
             writer.writerow(["Bucket", "Days", "Count", "Amount"])
             writer.writerow(["0-7 days", "0-7", report["buckets"]["0_7"]["count"], report["buckets"]["0_7"]["amount"]])
-            writer.writerow(["8-30 days", "8-30", report["buckets"]["8_30"]["count"], report["buckets"]["8_30"]["amount"]])
-            writer.writerow(["31-60 days", "31-60", report["buckets"]["31_60"]["count"], report["buckets"]["31_60"]["amount"]])
-            writer.writerow(["60+ days", "60+", report["buckets"]["60_plus"]["count"], report["buckets"]["60_plus"]["amount"]])
+            writer.writerow(
+                ["8-30 days", "8-30", report["buckets"]["8_30"]["count"], report["buckets"]["8_30"]["amount"]]
+            )
+            writer.writerow(
+                ["31-60 days", "31-60", report["buckets"]["31_60"]["count"], report["buckets"]["31_60"]["amount"]]
+            )
+            writer.writerow(
+                ["60+ days", "60+", report["buckets"]["60_plus"]["count"], report["buckets"]["60_plus"]["amount"]]
+            )
             return response
-        
+
         return Response(report)

@@ -36,6 +36,8 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     reporters: 'default',
+    include: ['src/**/*.test.{ts,tsx}'],
+    exclude: ['node_modules', 'dist', 'e2e', 'test-results', 'playwright-report'],
     setupFiles: ['./src/test/setup.ts'],
   },
 })

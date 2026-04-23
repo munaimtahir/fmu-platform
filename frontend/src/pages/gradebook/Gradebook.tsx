@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/Card'
 import { SimpleTable } from '@/components/ui/SimpleTable'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
-import { Input } from '@/components/ui/Input'
 
 interface Section {
   id: number
@@ -24,13 +23,6 @@ interface Assessment {
   section: number
 }
 
-interface AssessmentScore {
-  id: number
-  assessment: number
-  student: { id: number; reg_no: string; full_name: string }
-  score: number
-}
-
 interface GradebookEntry {
   student_id: number
   student_name: string
@@ -43,7 +35,6 @@ export function Gradebook() {
   const [sections, setSections] = useState<Section[]>([])
   const [selectedSection, setSelectedSection] = useState<number | null>(null)
   const [assessments, setAssessments] = useState<Assessment[]>([])
-  const [scores, setScores] = useState<AssessmentScore[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [editMode, setEditMode] = useState(false)
@@ -73,56 +64,12 @@ export function Gradebook() {
       // Legacy assessments module removed - gradebook needs to be updated to use exams/results
       // TODO: Update gradebook to use exams and results modules instead of assessments
       setAssessments([])
-      setScores([])
       setError('Gradebook temporarily disabled - legacy assessments module removed. Please use Results page instead.')
     } catch (err) {
       setError('Failed to load gradebook data')
       console.error(err)
     } finally {
       setLoading(false)
-    }
-  }
-
-  // Legacy function disabled - gradebook needs update to use exams/results
-  // @ts-ignore - buildGradebook unused until gradebook is updated to use exams/results
-  const buildGradebook = (
-    _assessmentsList: Assessment[],
-    _scoresList: AssessmentScore[]
-  ) => {
-    // Function disabled - needs update to use exams/results
-    // TODO: Implement using exams and results modules
-  }
-
-  const handleScoreUpdate = async (
-    assessmentId: number,
-    studentId: number,
-    newScore: number
-  ) => {
-    try {
-      // Find existing score
-      const existingScore = scores.find(
-        (s) => s.assessment === assessmentId && s.student.id === studentId
-      )
-
-      if (existingScore) {
-        await api.patch(`/api/assessment-scores/${existingScore.id}/`, {
-          score: newScore,
-        })
-      } else {
-        await api.post('/api/assessment-scores/', {
-          assessment: assessmentId,
-          student: studentId,
-          score: newScore,
-        })
-      }
-
-      // Refresh data
-      if (selectedSection) {
-        handleSectionChange(selectedSection)
-      }
-    } catch (err) {
-      setError('Failed to update score')
-      console.error(err)
     }
   }
 
@@ -173,24 +120,7 @@ export function Gradebook() {
       key: `score_${assessment.id}`,
       label: `${assessment.name} (${assessment.weight}%)`,
       render: (entry: GradebookEntry) =>
-        editMode ? (
-          <Input
-            type="number"
-            min="0"
-            max={assessment.max_score}
-            value={entry.scores[assessment.id] || 0}
-            onChange={(e) =>
-              handleScoreUpdate(
-                assessment.id,
-                entry.student_id,
-                Number(e.target.value)
-              )
-            }
-            className="w-20"
-          />
-        ) : (
-          <span>{entry.scores[assessment.id] || 0}</span>
-        ),
+        <span>{entry.scores[assessment.id] || 0}</span>,
     })),
     {
       key: 'total_weighted',

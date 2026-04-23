@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 
+
 class ComplianceConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'sims_backend.compliance'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "sims_backend.compliance"

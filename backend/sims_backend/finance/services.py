@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import uuid
+from collections.abc import Iterable
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Iterable, Optional
 
 from django.db import transaction
 from django.db.models import Count, Sum
@@ -42,9 +42,11 @@ class VoucherResult:
 
 def is_term_locked(term, user=None) -> tuple[bool, str]:
     """Check if a term is locked (end_date in past). Admin can override."""
-    if user and (user.is_superuser or hasattr(user, "groups") and user.groups.filter(name__in=["ADMIN", "Admin"]).exists()):
+    if user and (
+        user.is_superuser or hasattr(user, "groups") and user.groups.filter(name__in=["ADMIN", "Admin"]).exists()
+    ):
         return False, ""  # Admin can override
-    
+
     if term.end_date and term.end_date < timezone.now().date():
         return True, f"Term {term.name} is locked (ended on {term.end_date}). Contact admin for override."
     return False, ""
@@ -55,14 +57,14 @@ def create_voucher_from_feeplan(
     term,
     created_by,
     due_date,
-    selected_fee_types: Optional[Iterable[int]] = None,
+    selected_fee_types: Iterable[int] | None = None,
 ) -> VoucherResult:
     """Create a voucher (and ledger debit) from active fee plans for the student."""
     # Check term lock
     locked, message = is_term_locked(term, created_by)
     if locked:
         raise ValueError(message)
-    
+
     fee_plans = FeePlan.objects.filter(program=student.program, term=term, is_active=True)
     if selected_fee_types:
         fee_plans = fee_plans.filter(fee_type_id__in=selected_fee_types)
@@ -127,14 +129,14 @@ def post_payment(
     locked, message = is_term_locked(term, received_by)
     if locked:
         raise ValueError(message)
-    
+
     # Check for duplicate receipt_no (shouldn't happen with UUID, but defensive)
     # Check for duplicate reference_no per method if provided
     if reference_no:
         existing = Payment.objects.filter(method=method, reference_no=reference_no, status=Payment.STATUS_VERIFIED)
         if existing.exists():
             raise ValueError(f"Duplicate reference number '{reference_no}' for method {method}")
-    
+
     with transaction.atomic():
         payment = Payment.objects.create(
             receipt_no=generate_receipt_number(),
@@ -188,7 +190,7 @@ def reverse_payment(payment: Payment, reversed_by, reason: str) -> Payment:
     """Reverse a verified payment by creating a compensating ledger entry."""
     if payment.status != Payment.STATUS_VERIFIED:
         raise ValueError("Only verified payments can be reversed.")
-    
+
     with transaction.atomic():
         # Create compensating ledger entry (debit to offset the credit)
         LedgerEntry.objects.create(
@@ -202,16 +204,16 @@ def reverse_payment(payment: Payment, reversed_by, reason: str) -> Payment:
             voucher=payment.voucher,
             created_by=reversed_by,
         )
-        
+
         # Update payment status (add reversed status if model supports it)
         # For now, we'll use notes to track reversal
         payment.notes = f"{payment.notes or ''}\n[REVERSED] {reason}".strip()
         payment.save(update_fields=["notes", "updated_at"])
-        
+
         # Reconcile affected vouchers
         if payment.voucher:
             reconcile_voucher_status(payment.voucher)
-    
+
     return payment
 
 
@@ -219,7 +221,7 @@ def cancel_voucher(voucher: Voucher, cancelled_by, reason: str) -> Voucher:
     """Cancel a voucher by creating reversal ledger entries."""
     if voucher.status == Voucher.STATUS_CANCELLED:
         return voucher
-    
+
     with transaction.atomic():
         # Create reversal ledger entries for all debit entries linked to this voucher
         voucher_debits = LedgerEntry.objects.filter(
@@ -227,7 +229,7 @@ def cancel_voucher(voucher: Voucher, cancelled_by, reason: str) -> Voucher:
             entry_type=LedgerEntry.ENTRY_DEBIT,
             voided_at__isnull=True,
         )
-        
+
         for debit_entry in voucher_debits:
             # Create compensating credit entry
             LedgerEntry.objects.create(
@@ -241,12 +243,12 @@ def cancel_voucher(voucher: Voucher, cancelled_by, reason: str) -> Voucher:
                 voucher=voucher,
                 created_by=cancelled_by,
             )
-        
+
         # Mark voucher as cancelled
         voucher.status = Voucher.STATUS_CANCELLED
         voucher.notes = f"{voucher.notes or ''}\n[CANCELLED] {reason}".strip()
         voucher.save(update_fields=["status", "notes", "updated_at"])
-    
+
     return voucher
 
 
@@ -379,14 +381,18 @@ def defaulters(program: Program | None, term, min_outstanding: Decimal) -> list[
         if outstanding >= min_outstanding:
             # Get latest voucher and overdue days
             latest_voucher = (
-                Voucher.objects.filter(student=student, term=term, status__in=[Voucher.STATUS_GENERATED, Voucher.STATUS_OVERDUE, Voucher.STATUS_PARTIAL])
+                Voucher.objects.filter(
+                    student=student,
+                    term=term,
+                    status__in=[Voucher.STATUS_GENERATED, Voucher.STATUS_OVERDUE, Voucher.STATUS_PARTIAL],
+                )
                 .order_by("-due_date")
                 .first()
             )
             overdue_days = 0
             if latest_voucher and latest_voucher.due_date < timezone.now().date():
                 overdue_days = (timezone.now().date() - latest_voucher.due_date).days
-            
+
             rows.append(
                 {
                     "student_id": student.id,
@@ -409,23 +415,20 @@ def collection_report(start_date, end_date) -> dict:
         received_at__date__gte=start_date,
         received_at__date__lte=end_date,
     )
-    
+
     total_collected = payments.aggregate(total=Sum("amount")).get("total") or Decimal("0")
     total_count = payments.count()
-    
+
     # Group by method
-    by_method = payments.values("method").annotate(
-        total=Sum("amount"),
-        count=Count("id")
-    )
-    
+    by_method = payments.values("method").annotate(total=Sum("amount"), count=Count("id"))
+
     method_totals = {}
     for item in by_method:
         method_totals[item["method"]] = {
             "total": item["total"] or Decimal("0"),
             "count": item["count"],
         }
-    
+
     return {
         "start_date": start_date,
         "end_date": end_date,
@@ -437,12 +440,13 @@ def collection_report(start_date, end_date) -> dict:
 
 def aging_report(term=None) -> dict:
     """Aging report with buckets: 0-7, 8-30, 31-60, 60+ days."""
-    from datetime import date, timedelta
-    
-    vouchers = Voucher.objects.filter(status__in=[Voucher.STATUS_GENERATED, Voucher.STATUS_OVERDUE, Voucher.STATUS_PARTIAL])
+
+    vouchers = Voucher.objects.filter(
+        status__in=[Voucher.STATUS_GENERATED, Voucher.STATUS_OVERDUE, Voucher.STATUS_PARTIAL]
+    )
     if term:
         vouchers = vouchers.filter(term=term)
-    
+
     today = timezone.now().date()
     buckets = {
         "0_7": {"count": 0, "amount": Decimal("0")},
@@ -450,21 +454,21 @@ def aging_report(term=None) -> dict:
         "31_60": {"count": 0, "amount": Decimal("0")},
         "60_plus": {"count": 0, "amount": Decimal("0")},
     }
-    
+
     for voucher in vouchers:
         # Calculate days since due date (or issue date if not overdue yet)
         if voucher.due_date < today:
             days_overdue = (today - voucher.due_date).days
         else:
             days_overdue = 0
-        
+
         # Get outstanding for this voucher
         balance = compute_student_balance(voucher.student, term=voucher.term, voucher=voucher)
         outstanding = balance["outstanding"]
-        
+
         if outstanding <= 0:
             continue  # Skip paid vouchers
-        
+
         if days_overdue <= 7:
             bucket = "0_7"
         elif days_overdue <= 30:
@@ -473,10 +477,10 @@ def aging_report(term=None) -> dict:
             bucket = "31_60"
         else:
             bucket = "60_plus"
-        
+
         buckets[bucket]["count"] += 1
         buckets[bucket]["amount"] += outstanding
-    
+
     return {
         "term_id": term.id if term else None,
         "term_name": term.name if term else "All Terms",
@@ -490,28 +494,30 @@ def student_statement(student: Student, term=None) -> dict:
     if term:
         entries = entries.filter(term=term)
     entries = entries.select_related("term", "voucher", "created_by").order_by("created_at")
-    
+
     statement_entries = []
     running_balance = Decimal("0")
-    
+
     for entry in entries:
         if entry.entry_type == LedgerEntry.ENTRY_DEBIT:
             running_balance += entry.amount
         else:
             running_balance -= entry.amount
-        
-        statement_entries.append({
-            "date": entry.created_at.date(),
-            "description": entry.description,
-            "entry_type": entry.entry_type,
-            "debit": entry.amount if entry.entry_type == LedgerEntry.ENTRY_DEBIT else None,
-            "credit": entry.amount if entry.entry_type == LedgerEntry.ENTRY_CREDIT else None,
-            "reference_type": entry.reference_type,
-            "reference_id": entry.reference_id,
-            "voucher_no": entry.voucher.voucher_no if entry.voucher else None,
-            "running_balance": running_balance,
-        })
-    
+
+        statement_entries.append(
+            {
+                "date": entry.created_at.date(),
+                "description": entry.description,
+                "entry_type": entry.entry_type,
+                "debit": entry.amount if entry.entry_type == LedgerEntry.ENTRY_DEBIT else None,
+                "credit": entry.amount if entry.entry_type == LedgerEntry.ENTRY_CREDIT else None,
+                "reference_type": entry.reference_type,
+                "reference_id": entry.reference_id,
+                "voucher_no": entry.voucher.voucher_no if entry.voucher else None,
+                "running_balance": running_balance,
+            }
+        )
+
     # Calculate opening and closing balances
     opening_balance = Decimal("0")
     if term:
@@ -521,12 +527,16 @@ def student_statement(student: Student, term=None) -> dict:
             voided_at__isnull=True,
             created_at__lt=term.start_date if term.start_date else timezone.now(),
         )
-        opening_debits = opening_entries.filter(entry_type=LedgerEntry.ENTRY_DEBIT).aggregate(total=Sum("amount")).get("total") or Decimal("0")
-        opening_credits = opening_entries.filter(entry_type=LedgerEntry.ENTRY_CREDIT).aggregate(total=Sum("amount")).get("total") or Decimal("0")
+        opening_debits = opening_entries.filter(entry_type=LedgerEntry.ENTRY_DEBIT).aggregate(total=Sum("amount")).get(
+            "total"
+        ) or Decimal("0")
+        opening_credits = opening_entries.filter(entry_type=LedgerEntry.ENTRY_CREDIT).aggregate(
+            total=Sum("amount")
+        ).get("total") or Decimal("0")
         opening_balance = opening_debits - opening_credits
-    
+
     closing_balance = running_balance
-    
+
     return {
         "student_id": student.id,
         "student_name": student.name,

@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("students", "0003_importjob"),
         ("people", "0001_initial"),  # Assuming people has initial migration

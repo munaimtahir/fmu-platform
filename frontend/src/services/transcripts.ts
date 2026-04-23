@@ -8,6 +8,12 @@ export interface TranscriptJob {
   email?: string
 }
 
+export interface TranscriptVerification {
+  valid: boolean
+  student_id?: number
+  reason: string
+}
+
 export const transcriptsService = {
   /**
    * Generate transcript for a student (downloads PDF)
@@ -29,8 +35,8 @@ export const transcriptsService = {
   /**
    * Verify transcript token
    */
-  async verify(token: string): Promise<any> {
-    const response = await api.get(`/api/transcripts/verify/${token}/`)
+  async verify(token: string): Promise<TranscriptVerification> {
+    const response = await api.get<TranscriptVerification>(`/api/transcripts/verify/${encodeURIComponent(token)}/`)
     return response.data
   },
 }

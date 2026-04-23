@@ -25,6 +25,7 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
+
 # Disable migrations for tests
 class DisableMigrations:
     def __contains__(self, item):

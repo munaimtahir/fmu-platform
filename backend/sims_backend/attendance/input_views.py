@@ -22,11 +22,11 @@ from sims_backend.attendance.models import (
     BiometricPunch,
 )
 from sims_backend.attendance.services import (
-        build_roster_for_session,
-        bulk_upsert_attendance_for_session,
-        compute_file_fingerprint,
-        parse_csv_payload,
-        parse_status_value,
+    build_roster_for_session,
+    bulk_upsert_attendance_for_session,
+    compute_file_fingerprint,
+    parse_csv_payload,
+    parse_status_value,
 )
 from sims_backend.common_permissions import in_group
 from sims_backend.students.models import Student
@@ -106,7 +106,7 @@ class LiveSubmitAPIView(APIView):
         records = payload.get("records", [])
         # Ensure records is a list
         if not isinstance(records, list):
-            if hasattr(records, '__iter__') and not isinstance(records, (str, bytes)):
+            if hasattr(records, "__iter__") and not isinstance(records, (str, bytes)):
                 records = list(records)
             else:
                 records = []
@@ -148,8 +148,8 @@ class CSVDryRunAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         # File size validation (10MB limit)
-        MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
-        
+        max_file_size = 10 * 1024 * 1024  # 10MB in bytes
+
         session_id = request.data.get("session_id")
         upload = request.FILES.get("file")
         date_str = request.data.get("date")
@@ -157,9 +157,9 @@ class CSVDryRunAPIView(APIView):
             return _json_error("session_id is required")
         if not upload:
             return _json_error("file is required")
-        
-        if upload.size > MAX_FILE_SIZE:
-            return _json_error(f"File size exceeds maximum limit of {MAX_FILE_SIZE // (1024 * 1024)}MB")
+
+        if upload.size > max_file_size:
+            return _json_error(f"File size exceeds maximum limit of {max_file_size // (1024 * 1024)}MB")
 
         try:
             session = _get_session(session_id)
@@ -263,7 +263,7 @@ class TickSheetTemplateAPIView(APIView):
 
         students = Student.objects.filter(group=session.group).order_by("reg_no")
         response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = f'attachment; filename=\"attendance_sheet_{session.id}.pdf\"'
+        response["Content-Disposition"] = f'attachment; filename="attendance_sheet_{session.id}.pdf"'
 
         pdf = canvas.Canvas(response, pagesize=letter)
         width, height = letter
@@ -307,16 +307,16 @@ class TickSheetDryRunAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
         # File size validation (20MB limit for scanned documents)
-        MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB in bytes
-        
+        max_file_size = 20 * 1024 * 1024  # 20MB in bytes
+
         session_id = request.data.get("session_id")
         upload = request.FILES.get("file")
         date_str = request.data.get("date")
         if not session_id or not upload:
             return _json_error("session_id and file are required")
-        
-        if upload.size > MAX_FILE_SIZE:
-            return _json_error(f"File size exceeds maximum limit of {MAX_FILE_SIZE // (1024 * 1024)}MB")
+
+        if upload.size > max_file_size:
+            return _json_error(f"File size exceeds maximum limit of {max_file_size // (1024 * 1024)}MB")
 
         try:
             session = _get_session(session_id)

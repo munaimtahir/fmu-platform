@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -46,9 +45,7 @@ class Migration(migrations.Migration):
                 ("description", models.TextField(blank=True)),
                 (
                     "kind",
-                    models.CharField(
-                        choices=[("FILE", "File"), ("LINK", "Link")], max_length=10
-                    ),
+                    models.CharField(choices=[("FILE", "File"), ("LINK", "Link")], max_length=10),
                 ),
                 (
                     "file",
@@ -195,9 +192,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="learningmaterial",
-            index=models.Index(
-                fields=["published_at"], name="learning_le_publish_56e22d_idx"
-            ),
+            index=models.Index(fields=["published_at"], name="learning_le_publish_56e22d_idx"),
         ),
         migrations.AddIndex(
             model_name="learningmaterial",
@@ -208,44 +203,30 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="learningmaterialaudience",
-            index=models.Index(
-                fields=["material", "program"], name="learning_le_materia_b31f88_idx"
-            ),
+            index=models.Index(fields=["material", "program"], name="learning_le_materia_b31f88_idx"),
         ),
         migrations.AddIndex(
             model_name="learningmaterialaudience",
-            index=models.Index(
-                fields=["material", "batch"], name="learning_le_materia_1291cd_idx"
-            ),
+            index=models.Index(fields=["material", "batch"], name="learning_le_materia_1291cd_idx"),
         ),
         migrations.AddIndex(
             model_name="learningmaterialaudience",
-            index=models.Index(
-                fields=["material", "term"], name="learning_le_materia_c01aef_idx"
-            ),
+            index=models.Index(fields=["material", "term"], name="learning_le_materia_c01aef_idx"),
         ),
         migrations.AddIndex(
             model_name="learningmaterialaudience",
-            index=models.Index(
-                fields=["material", "course"], name="learning_le_materia_26467d_idx"
-            ),
+            index=models.Index(fields=["material", "course"], name="learning_le_materia_26467d_idx"),
         ),
         migrations.AddIndex(
             model_name="learningmaterialaudience",
-            index=models.Index(
-                fields=["material", "section"], name="learning_le_materia_cb5d01_idx"
-            ),
+            index=models.Index(fields=["material", "section"], name="learning_le_materia_cb5d01_idx"),
         ),
         migrations.AddIndex(
             model_name="learningmaterialreadreceipt",
-            index=models.Index(
-                fields=["student", "seen_at"], name="learning_le_student_4b0ce8_idx"
-            ),
+            index=models.Index(fields=["student", "seen_at"], name="learning_le_student_4b0ce8_idx"),
         ),
         migrations.AddConstraint(
             model_name="learningmaterialreadreceipt",
-            constraint=models.UniqueConstraint(
-                fields=("material", "student"), name="uniq_learning_read_receipt"
-            ),
+            constraint=models.UniqueConstraint(fields=("material", "student"), name="uniq_learning_read_receipt"),
         ),
     ]

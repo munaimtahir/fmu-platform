@@ -5,6 +5,7 @@ import logging
 from django.db.models import Sum
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.decorators import api_view, permission_classes
@@ -13,7 +14,6 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -26,26 +26,26 @@ from sims_backend.results.models import ResultHeader
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
 
+from .permissions import PermissionTaskRequired
 from .serializers import (
     AUTH_ERROR_CODES,
     EmailTokenObtainPairSerializer,
+    PasswordChangeSerializer,
+    PermissionTaskSerializer,
+    ProfileUpdateSerializer,
     RoleSerializer,
     RoleTaskAssignmentSerializer,
-    PermissionTaskSerializer,
-    PasswordChangeSerializer,
-    ProfileUpdateSerializer,
     TokenRefreshSerializer,
     UnifiedLoginSerializer,
     UserMeSerializer,
     UserSerializer,
     UserTaskAssignmentSerializer,
 )
-from .permissions import PermissionTaskRequired
 
 logger = logging.getLogger(__name__)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name="dispatch")
 class UnifiedLoginView(APIView):
     """
     Unified login endpoint that accepts identifier (email OR username) and password.
@@ -73,50 +73,54 @@ class UnifiedLoginView(APIView):
             if not isinstance(request_data, dict) or len(request_data) == 0:
                 # Fallback: manually parse JSON body if DRF didn't parse it
                 import json
+
                 try:
-                    if hasattr(request, 'body') and request.body:
-                        parsed_data = json.loads(request.body.decode('utf-8'))
+                    if hasattr(request, "body") and request.body:
+                        parsed_data = json.loads(request.body.decode("utf-8"))
                         if not isinstance(parsed_data, dict):
                             raise ValueError("Request body must be a JSON object")
                         # Create a new DRF request with parsed data
                         from rest_framework.request import Request
+
                         drf_request = Request(request, parsers=[JSONParser()])
                         drf_request._full_data = parsed_data
                         request = drf_request
                     else:
                         return Response(
                             {"error": {"code": "invalid_request", "message": "Request body is required"}},
-                            status=status.HTTP_400_BAD_REQUEST
+                            status=status.HTTP_400_BAD_REQUEST,
                         )
                 except (json.JSONDecodeError, UnicodeDecodeError, AttributeError, ValueError) as e:
                     logger.error(f"Failed to parse request body: {e}")
                     return Response(
                         {"error": {"code": "invalid_request", "message": f"Invalid JSON in request body: {str(e)}"}},
-                        status=status.HTTP_400_BAD_REQUEST
+                        status=status.HTTP_400_BAD_REQUEST,
                     )
         except Exception as e:
             # Handle any exceptions during request parsing
             logger.error(f"Error accessing request data: {e}")
             import json
+
             try:
-                if hasattr(request, 'body') and request.body:
-                    parsed_data = json.loads(request.body.decode('utf-8'))
+                if hasattr(request, "body") and request.body:
+                    parsed_data = json.loads(request.body.decode("utf-8"))
                     from rest_framework.request import Request
+
                     drf_request = Request(request, parsers=[JSONParser()])
                     drf_request._full_data = parsed_data
                     request = drf_request
                 else:
                     return Response(
                         {"error": {"code": "invalid_request", "message": f"Invalid request: {str(e)}"}},
-                        status=status.HTTP_400_BAD_REQUEST
+                        status=status.HTTP_400_BAD_REQUEST,
                     )
             except Exception as parse_error:
                 logger.error(f"Failed to parse request body: {parse_error}")
                 return Response(
                     {"error": {"code": "invalid_request", "message": f"Invalid request: {str(parse_error)}"}},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-        
+
         serializer = UnifiedLoginSerializer(data=request.data)
 
         if not serializer.is_valid():
@@ -127,12 +131,8 @@ class UnifiedLoginView(APIView):
                 error_data = errors["error"]
                 # If it's a list (from ValidationError), take the first one
                 if isinstance(error_data, list) and len(error_data) > 0:
-                    return Response(
-                        {"error": error_data[0]}, status=status.HTTP_401_UNAUTHORIZED
-                    )
-                return Response(
-                    {"error": error_data}, status=status.HTTP_401_UNAUTHORIZED
-                )
+                    return Response({"error": error_data[0]}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({"error": error_data}, status=status.HTTP_401_UNAUTHORIZED)
             # Handle field-level errors
             if "non_field_errors" in errors:
                 error_detail = errors["non_field_errors"][0]
@@ -209,12 +209,8 @@ class TokenRefreshView(APIView):
             if "error" in errors:
                 error_data = errors["error"]
                 if isinstance(error_data, list) and len(error_data) > 0:
-                    return Response(
-                        {"error": error_data[0]}, status=status.HTTP_401_UNAUTHORIZED
-                    )
-                return Response(
-                    {"error": error_data}, status=status.HTTP_401_UNAUTHORIZED
-                )
+                    return Response({"error": error_data[0]}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({"error": error_data}, status=status.HTTP_401_UNAUTHORIZED)
             if "non_field_errors" in errors:
                 error_detail = errors["non_field_errors"][0]
                 if isinstance(error_detail, dict) and "error" in error_detail:
@@ -238,7 +234,7 @@ class MeView(APIView):
 
     GET /api/auth/me
     Response: { "id", "username", "email", "full_name", "role", "is_active" }
-    
+
     PATCH /api/auth/me
     Request: { "first_name": "...", "last_name": "...", "email": "..." }
     Response: { "id", "username", "email", "full_name", "role", "is_active" }
@@ -249,20 +245,17 @@ class MeView(APIView):
     def get(self, request):
         """Return current user information."""
         return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
-    
+
     def patch(self, request):
         """Update current user profile information."""
         serializer = ProfileUpdateSerializer(
-            request.user,
-            data=request.data,
-            partial=True,
-            context={"request": request}
+            request.user, data=request.data, partial=True, context={"request": request}
         )
-        
+
         if serializer.is_valid():
             serializer.save()
             return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -279,18 +272,12 @@ class ChangePasswordView(APIView):
 
     def post(self, request):
         """Change user password."""
-        serializer = PasswordChangeSerializer(
-            data=request.data,
-            context={"request": request}
-        )
-        
+        serializer = PasswordChangeSerializer(data=request.data, context={"request": request})
+
         if serializer.is_valid():
             serializer.save()
-            return Response(
-                {"message": "Password changed successfully."},
-                status=status.HTTP_200_OK
-            )
-        
+            return Response({"message": "Password changed successfully."}, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -358,18 +345,19 @@ def dashboard_stats(request):
     elif in_group(user, "FACULTY"):
         # Faculty sees only their own sessions and students
         faculty_sessions = Session.objects.filter(faculty=user)
-        session_ids = faculty_sessions.values_list('id', flat=True)
+        session_ids = faculty_sessions.values_list("id", flat=True)
 
         # Count unique students from faculty's sessions via attendance
-        student_ids = Attendance.objects.filter(session_id__in=session_ids).values_list('student_id', flat=True).distinct()
+        student_ids = (
+            Attendance.objects.filter(session_id__in=session_ids).values_list("student_id", flat=True).distinct()
+        )
 
         stats = {
             "my_sessions": faculty_sessions.count(),
             "my_students": student_ids.count() if student_ids else 0,
-            "draft_results": ResultHeader.objects.filter(
-                exam__academic_period__sessions__faculty=user,
-                status="DRAFT"
-            ).distinct().count(),
+            "draft_results": ResultHeader.objects.filter(exam__academic_period__sessions__faculty=user, status="DRAFT")
+            .distinct()
+            .count(),
         }
     elif in_group(user, "FINANCE"):
         # Finance sees finance-related statistics
@@ -403,15 +391,11 @@ def dashboard_stats(request):
                 status__in=[Attendance.STATUS_PRESENT, Attendance.STATUS_LATE],
             ).count()
 
-            total_attendance_records = Attendance.objects.filter(
-                student=student
-            ).count()
+            total_attendance_records = Attendance.objects.filter(student=student).count()
 
             attendance_pct = 0
             if total_attendance_records > 0:
-                attendance_pct = round(
-                    (present_count / total_attendance_records) * 100, 1
-                )
+                attendance_pct = round((present_count / total_attendance_records) * 100, 1)
 
             # Finance stats
             pending_dues_count = Voucher.objects.filter(
@@ -459,24 +443,26 @@ def dashboard_stats(request):
 
 # Core RBAC Viewsets
 
+
 class RoleViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing roles.
-    
+
     Permissions:
     - list/create/update/delete: core.roles.*
     """
+
     from core.models import Role
-    
+
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ["name", "description"]
     filterset_fields = ["is_system_role"]
-    
+
     required_tasks = ["core.roles.view", "core.roles.create", "core.roles.update", "core.roles.delete"]
-    
+
     def get_permissions(self):
         """Override to set required_tasks based on action."""
         if self.action in ["list", "retrieve"]:
@@ -488,54 +474,57 @@ class RoleViewSet(viewsets.ModelViewSet):
         elif self.action == "destroy":
             self.required_tasks = ["core.roles.delete"]
         return super().get_permissions()
-    
+
     def destroy(self, request, *args, **kwargs):
         """Prevent deletion of system roles."""
         instance = self.get_object()
         if instance.is_system_role:
-            return Response(
-                {"error": "Cannot delete system roles"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({"error": "Cannot delete system roles"}, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(request, *args, **kwargs)
 
 
 class PermissionTaskViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for viewing permission tasks (read-only).
-    
+
     Permissions:
     - list/retrieve: core.permission_tasks.view
     """
+
     from core.models import PermissionTask
-    
+
     queryset = PermissionTask.objects.all()
     serializer_class = PermissionTaskSerializer
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ["code", "name", "description"]
     filterset_fields = ["module"]
-    
+
     required_tasks = ["core.permission_tasks.view"]
 
 
 class RoleTaskAssignmentViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing role-task assignments.
-    
+
     Permissions:
     - list/create/delete: core.role_task_assignments.*
     """
+
     from core.models import RoleTaskAssignment
-    
+
     queryset = RoleTaskAssignment.objects.all().select_related("role", "task")
     serializer_class = RoleTaskAssignmentSerializer
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["role", "task"]
-    
-    required_tasks = ["core.role_task_assignments.view", "core.role_task_assignments.create", "core.role_task_assignments.delete"]
-    
+
+    required_tasks = [
+        "core.role_task_assignments.view",
+        "core.role_task_assignments.create",
+        "core.role_task_assignments.delete",
+    ]
+
     def get_permissions(self):
         """Override to set required_tasks based on action."""
         if self.action in ["list", "retrieve"]:
@@ -550,21 +539,26 @@ class RoleTaskAssignmentViewSet(viewsets.ModelViewSet):
 class UserTaskAssignmentViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing user-task assignments.
-    
+
     Permissions:
     - list/create/delete: core.user_task_assignments.*
     - Object-level: Users can view their own assignments
     """
+
     from core.models import UserTaskAssignment
-    
+
     queryset = UserTaskAssignment.objects.all().select_related("user", "task", "granted_by")
     serializer_class = UserTaskAssignmentSerializer
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["user", "task"]
-    
-    required_tasks = ["core.user_task_assignments.view", "core.user_task_assignments.create", "core.user_task_assignments.delete"]
-    
+
+    required_tasks = [
+        "core.user_task_assignments.view",
+        "core.user_task_assignments.create",
+        "core.user_task_assignments.delete",
+    ]
+
     def get_permissions(self):
         """Override to set required_tasks based on action."""
         if self.action in ["list", "retrieve"]:
@@ -574,17 +568,18 @@ class UserTaskAssignmentViewSet(viewsets.ModelViewSet):
         elif self.action == "destroy":
             self.required_tasks = ["core.user_task_assignments.delete"]
         return super().get_permissions()
-    
+
     def get_queryset(self):
         """Object-level permission: users can view their own assignments."""
         qs = super().get_queryset()
         user = self.request.user
-        
+
         # If user has permission to view all, return all
         from core.permissions import has_permission_task
+
         if has_permission_task(user, "core.user_task_assignments.view"):
             return qs
-        
+
         # Otherwise, return only own assignments
         return qs.filter(user=user)
 
@@ -592,11 +587,12 @@ class UserTaskAssignmentViewSet(viewsets.ModelViewSet):
 class UserMeViewSet(viewsets.ViewSet):
     """
     ViewSet for /api/core/users/me/ endpoint.
-    
+
     Returns current user info with roles and permission tasks.
     """
+
     permission_classes = [IsAuthenticated]
-    
+
     def list(self, request):
         """GET /api/core/users/me/"""
         serializer = UserMeSerializer(request.user)

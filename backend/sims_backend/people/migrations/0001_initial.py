@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -58,9 +57,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "middle_name",
-                    models.CharField(
-                        blank=True, help_text="Middle name(s)", max_length=100
-                    ),
+                    models.CharField(blank=True, help_text="Middle name(s)", max_length=100),
                 ),
                 (
                     "last_name",
@@ -68,9 +65,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "date_of_birth",
-                    models.DateField(
-                        blank=True, help_text="Date of birth", null=True
-                    ),
+                    models.DateField(blank=True, help_text="Date of birth", null=True),
                 ),
                 (
                     "gender",
@@ -113,9 +108,7 @@ class Migration(migrations.Migration):
                         fields=["last_name", "first_name"],
                         name="people_person_last_na_2b8c1d_idx",
                     ),
-                    models.Index(
-                        fields=["national_id"], name="people_person_nationa_8f3e4a_idx"
-                    ),
+                    models.Index(fields=["national_id"], name="people_person_nationa_8f3e4a_idx"),
                 ],
                 "verbose_name_plural": "People",
             },
@@ -183,9 +176,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "is_verified",
-                    models.BooleanField(
-                        default=False, help_text="Has this contact been verified?"
-                    ),
+                    models.BooleanField(default=False, help_text="Has this contact been verified?"),
                 ),
                 (
                     "person",
@@ -258,27 +249,19 @@ class Migration(migrations.Migration):
                 ("city", models.CharField(help_text="City", max_length=100)),
                 (
                     "state",
-                    models.CharField(
-                        blank=True, help_text="State/Province", max_length=100
-                    ),
+                    models.CharField(blank=True, help_text="State/Province", max_length=100),
                 ),
                 (
                     "postal_code",
-                    models.CharField(
-                        blank=True, help_text="Postal/ZIP code", max_length=20
-                    ),
+                    models.CharField(blank=True, help_text="Postal/ZIP code", max_length=20),
                 ),
                 (
                     "country",
-                    models.CharField(
-                        default="Pakistan", help_text="Country", max_length=100
-                    ),
+                    models.CharField(default="Pakistan", help_text="Country", max_length=100),
                 ),
                 (
                     "is_primary",
-                    models.BooleanField(
-                        default=False, help_text="Is this the primary address?"
-                    ),
+                    models.BooleanField(default=False, help_text="Is this the primary address?"),
                 ),
                 (
                     "person",
@@ -346,21 +329,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "issue_date",
-                    models.DateField(
-                        blank=True, help_text="Date of issue", null=True
-                    ),
+                    models.DateField(blank=True, help_text="Date of issue", null=True),
                 ),
                 (
                     "expiry_date",
-                    models.DateField(
-                        blank=True, help_text="Expiry date", null=True
-                    ),
+                    models.DateField(blank=True, help_text="Expiry date", null=True),
                 ),
                 (
                     "issuing_authority",
-                    models.CharField(
-                        blank=True, help_text="Issuing authority", max_length=255
-                    ),
+                    models.CharField(blank=True, help_text="Issuing authority", max_length=255),
                 ),
                 (
                     "document_file",
@@ -373,9 +350,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "is_verified",
-                    models.BooleanField(
-                        default=False, help_text="Has this document been verified?"
-                    ),
+                    models.BooleanField(default=False, help_text="Has this document been verified?"),
                 ),
                 (
                     "person",

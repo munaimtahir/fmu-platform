@@ -7,8 +7,8 @@ from django.utils import timezone
 
 from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group, Program
 from sims_backend.attendance.models import Attendance
-from sims_backend.timetable.models import Session
 from sims_backend.students.models import Student
+from sims_backend.timetable.models import Session
 
 
 @pytest.fixture()
@@ -95,15 +95,56 @@ def test_csv_dry_run_flags_unknown_student(api_client, admin_user, session_with_
     assert body["job_id"]
 
 
-def test_sheet_dry_run_returns_unknown_records(api_client, admin_user, session_with_students):
+def test_csv_commit_marks_attendance(api_client, admin_user, session_with_students):
     session, students = session_with_students
     api_client.force_authenticate(user=admin_user)
-    dummy = SimpleUploadedFile("sheet.png", b"image-bytes", content_type="image/png")
-    response = api_client.post(
-        "/api/attendance-input/sheet/dry-run/",
-        {"session_id": session.id, "file": dummy},
+    
+    # Create a job manually for commit
+    from sims_backend.attendance.models import AttendanceInputJob
+    job = AttendanceInputJob.objects.create(
+        session=session,
+        date=session.starts_at.date(),
+        uploaded_by=admin_user,
+        input_type=AttendanceInputJob.TYPE_CSV,
+        status=AttendanceInputJob.STATUS_DRAFT,
+        summary={"records": [{"student_id": students[0].id, "status": "P"}]}
     )
+    
+    response = api_client.post("/api/attendance-input/csv/commit/", {"job_id": job.id}, format="json")
     assert response.status_code == 200
-    payload = response.json()
-    assert len(payload["results"]) == len(students)
-    assert payload["results"][0]["detected_status"] == "UNKNOWN"
+    assert response.data["committed"] is True
+    assert Attendance.objects.filter(session=session, student=students[0]).exists()
+
+def test_biometric_punch_flow(api_client, admin_user, session_with_students):
+    session, students = session_with_students
+    api_client.force_authenticate(user=admin_user)
+    
+    payload = {
+        "punches": [
+            {"reg_no": "REG-001", "raw_identifier": "CARD_123"},
+            {"student_id": students[1].id, "raw_identifier": "CARD_456"}
+        ]
+    }
+    response = api_client.post("/api/attendance-input/biometric/punches/", payload, format="json")
+    assert response.status_code == 200
+    assert response.data["accepted"] == 2
+    from sims_backend.attendance.models import BiometricPunch
+    assert BiometricPunch.objects.count() == 2
+
+def test_tick_sheet_commit(api_client, admin_user, session_with_students):
+    session, students = session_with_students
+    api_client.force_authenticate(user=admin_user)
+    
+    from sims_backend.attendance.models import AttendanceInputJob
+    job = AttendanceInputJob.objects.create(
+        session=session,
+        date=session.starts_at.date(),
+        uploaded_by=admin_user,
+        input_type=AttendanceInputJob.TYPE_SHEET,
+        status=AttendanceInputJob.STATUS_DRAFT,
+        summary={"results": [{"student_id": students[0].id, "detected_status": "PRESENT"}]}
+    )
+    
+    response = api_client.post("/api/attendance-input/sheet/commit/", {"job_id": job.id}, format="json")
+    assert response.status_code == 200
+    assert Attendance.objects.filter(session=session, student=students[0]).exists()

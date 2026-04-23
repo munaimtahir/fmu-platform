@@ -16,9 +16,7 @@ class WorkflowTransitionTest(TestCase):
 
     def setUp(self):
         """Set up test users."""
-        self.admin_user = User.objects.create_user(
-            username="admin", email="admin@test.com", password="testpass"
-        )
+        self.admin_user = User.objects.create_user(username="admin", email="admin@test.com", password="testpass")
         self.admin_user.groups.create(name="ADMIN")
 
         self.office_assistant = User.objects.create_user(
@@ -29,32 +27,21 @@ class WorkflowTransitionTest(TestCase):
     def test_same_state_transition(self):
         """Test that transitioning to the same state is allowed."""
         # Should not raise for same state
-        validate_workflow_transition(
-            self.admin_user, None, "DRAFT", "DRAFT"
-        )
+        validate_workflow_transition(self.admin_user, None, "DRAFT", "DRAFT")
 
     def test_admin_can_transition_forward(self):
         """Test that admin can transition forward through states."""
         # DRAFT -> VERIFIED
-        validate_workflow_transition(
-            self.admin_user, None, "DRAFT", "VERIFIED"
-        )
+        validate_workflow_transition(self.admin_user, None, "DRAFT", "VERIFIED")
 
         # VERIFIED -> PUBLISHED
-        validate_workflow_transition(
-            self.admin_user, None, "VERIFIED", "PUBLISHED"
-        )
+        validate_workflow_transition(self.admin_user, None, "VERIFIED", "PUBLISHED")
 
     def test_office_assistant_cannot_transition(self):
         """Test that office assistant cannot transition states."""
         # Should raise PermissionDenied for any transition
         with self.assertRaises(PermissionDenied):
-            validate_workflow_transition(
-                self.office_assistant, None, "DRAFT", "VERIFIED"
-            )
+            validate_workflow_transition(self.office_assistant, None, "DRAFT", "VERIFIED")
 
         with self.assertRaises(PermissionDenied):
-            validate_workflow_transition(
-                self.office_assistant, None, "DRAFT", "PUBLISHED"
-            )
-
+            validate_workflow_transition(self.office_assistant, None, "DRAFT", "PUBLISHED")

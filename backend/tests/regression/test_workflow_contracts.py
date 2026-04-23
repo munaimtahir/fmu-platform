@@ -42,9 +42,7 @@ def setup_academic_structure(db):
 @pytest.fixture
 def student1_user(db):
     """Create first student user"""
-    user = User.objects.create_user(
-        username="student1", email="student1@test.com", password="pass123"
-    )
+    user = User.objects.create_user(username="student1", email="student1@test.com", password="pass123")
     user.groups.add(Group.objects.get(name="STUDENT"))
     return user
 
@@ -106,9 +104,7 @@ class TestResultFreezeRules:
         result.save()
         assert result.status == ResultHeader.STATUS_FROZEN
 
-    def test_result_cannot_skip_workflow_stages(
-        self, setup_academic_structure, student1
-    ):
+    def test_result_cannot_skip_workflow_stages(self, setup_academic_structure, student1):
         """Results cannot skip workflow stages"""
         exam = Exam.objects.create(
             title="Midterm Exam",
@@ -129,18 +125,14 @@ class TestResultFreezeRules:
         from sims_backend.common.workflow import validate_workflow_transition
 
         with pytest.raises((PermissionDenied, ValueError)):
-            validate_workflow_transition(
-                None, result, ResultHeader.STATUS_DRAFT, ResultHeader.STATUS_PUBLISHED
-            )
+            validate_workflow_transition(None, result, ResultHeader.STATUS_DRAFT, ResultHeader.STATUS_PUBLISHED)
 
 
 @pytest.mark.django_db
 class TestFrozenResultsImmutable:
     """Contract: FROZEN results are immutable"""
 
-    def test_frozen_results_cannot_be_updated(
-        self, api_client, admin_user, setup_academic_structure, student1
-    ):
+    def test_frozen_results_cannot_be_updated(self, api_client, admin_user, setup_academic_structure, student1):
         """Frozen results cannot be updated via API"""
         exam = Exam.objects.create(
             title="Final Exam",
@@ -210,9 +202,7 @@ class TestFrozenResultsImmutable:
 class TestPendingChangeApproval:
     """Contract: Changes to PUBLISHED results require approval workflow"""
 
-    def test_pending_change_approval_enforced(
-        self, api_client, faculty_user, setup_academic_structure, student1
-    ):
+    def test_pending_change_approval_enforced(self, api_client, faculty_user, setup_academic_structure, student1):
         """Changes to published results should require approval"""
         exam = Exam.objects.create(
             title="Midterm Exam",

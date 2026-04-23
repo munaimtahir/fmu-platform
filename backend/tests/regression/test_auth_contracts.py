@@ -14,11 +14,11 @@ from rest_framework import status
 from sims_backend.academics.models import AcademicPeriod, Batch, Department, Program
 from sims_backend.academics.models import Group as StudentGroup
 from sims_backend.attendance.models import Attendance
+from sims_backend.exams.models import Exam
 from sims_backend.finance.models import LedgerEntry
 from sims_backend.results.models import ResultHeader
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
-from sims_backend.exams.models import Exam
 
 
 @pytest.fixture
@@ -44,9 +44,7 @@ def setup_academic_structure(db):
 @pytest.fixture
 def student1_user(db):
     """Create first student user"""
-    user = User.objects.create_user(
-        username="student1", email="student1@test.com", password="pass123"
-    )
+    user = User.objects.create_user(username="student1", email="student1@test.com", password="pass123")
     user.groups.add(Group.objects.get(name="STUDENT"))
     return user
 
@@ -54,9 +52,7 @@ def student1_user(db):
 @pytest.fixture
 def student2_user(db):
     """Create second student user"""
-    user = User.objects.create_user(
-        username="student2", email="student2@test.com", password="pass123"
-    )
+    user = User.objects.create_user(username="student2", email="student2@test.com", password="pass123")
     user.groups.add(Group.objects.get(name="STUDENT"))
     return user
 
@@ -122,12 +118,8 @@ class TestStudentIsolation:
             ends_at="2024-01-15T11:00:00Z",
         )
 
-        Attendance.objects.create(
-            session=session, student=student1, status=Attendance.STATUS_PRESENT
-        )
-        Attendance.objects.create(
-            session=session, student=student2, status=Attendance.STATUS_ABSENT
-        )
+        Attendance.objects.create(session=session, student=student1, status=Attendance.STATUS_PRESENT)
+        Attendance.objects.create(session=session, student=student2, status=Attendance.STATUS_ABSENT)
 
         api_client.force_authenticate(user=student1_user)
         response = api_client.get("/api/attendance/")
@@ -236,9 +228,7 @@ class TestFacultyAccessControl:
             ends_at="2024-01-15T11:00:00Z",
         )
 
-        Attendance.objects.create(
-            session=session, student=student1, status=Attendance.STATUS_PRESENT
-        )
+        Attendance.objects.create(session=session, student=student1, status=Attendance.STATUS_PRESENT)
 
         # faculty_user tries to access attendance
         api_client.force_authenticate(user=faculty_user)
@@ -251,9 +241,7 @@ class TestFacultyAccessControl:
         # Should not see attendance for unassigned session
         assert len(results) == 0, "Faculty must not see attendance for unassigned sections"
 
-    def test_faculty_can_access_assigned_sections(
-        self, api_client, faculty_user, setup_academic_structure, student1
-    ):
+    def test_faculty_can_access_assigned_sections(self, api_client, faculty_user, setup_academic_structure, student1):
         """Faculty should see attendance for sections they're assigned to"""
         session = Session.objects.create(
             academic_period=setup_academic_structure["academic_period"],
@@ -264,9 +252,7 @@ class TestFacultyAccessControl:
             ends_at="2024-01-15T11:00:00Z",
         )
 
-        Attendance.objects.create(
-            session=session, student=student1, status=Attendance.STATUS_PRESENT
-        )
+        Attendance.objects.create(session=session, student=student1, status=Attendance.STATUS_PRESENT)
 
         api_client.force_authenticate(user=faculty_user)
         response = api_client.get("/api/attendance/")
@@ -304,7 +290,7 @@ class TestRoleBasedAPIAccess:
 
         # Faculty endpoints - should work
         assert api_client.get("/api/auth/me/").status_code == status.HTTP_200_OK
-        assert api_client.get("/api/sections/").status_code == status.HTTP_200_OK
+        assert api_client.get("/api/academics/sections/").status_code == status.HTTP_200_OK
 
         # Student finance endpoints - should be blocked
         assert api_client.get("/api/finance/vouchers/").status_code in [

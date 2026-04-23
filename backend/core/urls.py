@@ -1,13 +1,14 @@
 """URL routing for core app."""
-from django.urls import path, include
+
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from core.views import (
-    RoleViewSet,
     PermissionTaskViewSet,
     RoleTaskAssignmentViewSet,
-    UserTaskAssignmentViewSet,
+    RoleViewSet,
     UserMeViewSet,
+    UserTaskAssignmentViewSet,
 )
 
 router = DefaultRouter()

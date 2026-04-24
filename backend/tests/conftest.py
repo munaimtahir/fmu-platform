@@ -120,6 +120,64 @@ def unauthenticated_client():
     return APIClient()
 
 
+@pytest.fixture()
+def examcell_user(db):
+    """Create an examcell user."""
+    user = User.objects.create_user(username="examcell1", password="pass")
+    group, _ = Group.objects.get_or_create(name="EXAMCELL")
+    user.groups.add(group)
+    user.is_staff = True
+    user.save()
+    return user
+
+
+@pytest.fixture()
+def examcell_client(examcell_user):
+    """API client authenticated as examcell."""
+    client = APIClient()
+    client.force_authenticate(user=examcell_user)
+    return client
+
+
+@pytest.fixture()
+def coordinator_user(db):
+    """Create a coordinator user."""
+    user = User.objects.create_user(username="coordinator1", password="pass")
+    group, _ = Group.objects.get_or_create(name="COORDINATOR")
+    user.groups.add(group)
+    user.is_staff = True
+    user.save()
+    return user
+
+
+@pytest.fixture()
+def coordinator_client(coordinator_user):
+    """API client authenticated as coordinator."""
+    client = APIClient()
+    client.force_authenticate(user=coordinator_user)
+    return client
+
+
+@pytest.fixture()
+def office_assistant_user(db):
+    """Create an office assistant user."""
+    user = User.objects.create_user(username="office1", password="pass")
+    group, _ = Group.objects.get_or_create(name="OFFICE_ASSISTANT")
+    user.groups.add(group)
+    user.is_staff = True
+    user.save()
+    return user
+
+
+@pytest.fixture()
+def office_assistant_client(office_assistant_user):
+    """API client authenticated as office assistant."""
+    client = APIClient()
+    client.force_authenticate(user=office_assistant_user)
+    return client
+
+
+
 # ============================================================================
 # Academic Structure Factories
 # ============================================================================

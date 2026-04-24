@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Date:** 2026-04-23  
 **Data Source:** pytest --cov=sims_backend --cov=core --cov-report=term-missing  
-**Coverage State:** 65% line coverage (2824/8012 lines covered)
+**Coverage State:** 65% line coverage (5,188/8,012 lines covered)
 
 ---
 

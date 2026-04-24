@@ -1,7 +1,7 @@
 # Blocker Decisions: FMU Platform Coverage Closure
 
-**Version:** 1.0  
-**Date:** 2026-04-23  
+**Version:** 1.1  
+**Date:** 2026-04-24 (All decisions finalized)  
 **Authority:** Coverage Contract § 4 (Deprecated Code Rule), Freeze Scope (docs/_freeze/01_FROZEN_SCOPE.md)
 
 ---

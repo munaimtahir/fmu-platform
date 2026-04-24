@@ -563,3 +563,110 @@ def populated_students(db, populated_academic_structure):
 
     return students
 
+
+
+# ============================================================================
+# Faculty Import Service Fixtures
+# ============================================================================
+
+@pytest.fixture()
+def valid_faculty_csv():
+    """Return valid CSV content for faculty import."""
+    return (
+        "email,first_name,last_name,department\n"
+        "john.doe@university.edu,John,Doe,Computer Science\n"
+        "jane.smith@university.edu,Jane,Smith,Engineering\n"
+        "bob.wilson@university.edu,Bob,Wilson,Mathematics\n"
+    )
+
+
+@pytest.fixture()
+def faculty_csv_with_duplicates():
+    """Return CSV with duplicate emails (should fail validation)."""
+    return (
+        "email,first_name,last_name,department\n"
+        "john.doe@university.edu,John,Doe,Computer Science\n"
+        "john.doe@university.edu,John,Duplicate,Computer Science\n"
+    )
+
+
+@pytest.fixture()
+def faculty_csv_malformed():
+    """Return CSV missing required columns."""
+    return (
+        "name,dept\n"
+        "John Doe,Computer Science\n"
+    )
+
+
+@pytest.fixture()
+def faculty_csv_empty():
+    """Return empty CSV (no data rows)."""
+    return "email,first_name,last_name,department\n"
+
+
+@pytest.fixture()
+def faculty_import_factory(db):
+    """Factory for creating FacultyImportJob objects with realistic state."""
+    from django.core.files.base import ContentFile
+    from sims_backend.faculty.imports.models import FacultyImportJob
+    import uuid
+    
+    def create_import_job(
+        created_by,
+        filename="test_import.csv",
+        status=FacultyImportJob.STATUS_PENDING,
+        mode=FacultyImportJob.MODE_CREATE_ONLY,
+        csv_content=None,
+        total_rows=0,
+        valid_rows=0,
+        invalid_rows=0,
+    ):
+        if csv_content is None:
+            csv_content = b"email,first_name,last_name,department\n"
+        
+        file_hash = FacultyImportJob.compute_file_hash(
+            type('obj', (object,), {'chunks': lambda: [csv_content], 'seek': lambda x: None})()
+        )
+        
+        job = FacultyImportJob.objects.create(
+            created_by=created_by,
+            original_filename=filename,
+            file_hash=file_hash,
+            status=status,
+            mode=mode,
+            total_rows=total_rows,
+            valid_rows=valid_rows,
+            invalid_rows=invalid_rows,
+        )
+        
+        # Store CSV content as file
+        job.file.save(filename, ContentFile(csv_content), save=True)
+        return job
+    
+    return create_import_job
+
+
+@pytest.fixture()
+def faculty_csv_dataset():
+    """Complete set of test CSV datasets."""
+    return {
+        "valid_3_rows": (
+            "email,first_name,last_name,department\n"
+            "john.doe@university.edu,John,Doe,Computer Science\n"
+            "jane.smith@university.edu,Jane,Smith,Engineering\n"
+            "bob.wilson@university.edu,Bob,Wilson,Mathematics\n"
+        ),
+        "with_validation_errors": (
+            "email,first_name,last_name,department\n"
+            "invalid-email,John,Doe,Computer Science\n"
+            "jane.smith@university.edu,Jane,Smith,Engineering\n"
+        ),
+        "empty": "email,first_name,last_name,department\n",
+        "duplicate_emails": (
+            "email,first_name,last_name,department\n"
+            "john.doe@university.edu,John,Doe,Computer Science\n"
+            "john.doe@university.edu,John,Duplicate,Engineering\n"
+        ),
+    }
+

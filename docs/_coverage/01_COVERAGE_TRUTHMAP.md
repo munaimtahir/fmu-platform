@@ -1,9 +1,10 @@
 # Coverage Truth Map: FMU Platform
 
-**Version:** 1.0  
-**Date:** 2026-04-23  
+**Version:** 1.1  
+**Date:** 2026-04-24 (Updated after Phase 4–5)  
 **Data Source:** pytest --cov=sims_backend --cov=core --cov-report=term-missing  
-**Coverage State:** 65% line coverage (5,188/8,012 lines covered)
+**Coverage State:** 65% line coverage (5,226/8,012 lines covered) — baseline stable; infrastructure for growth established  
+**Note:** Student imports (`sims_backend/students/imports`) is policy-excluded from measured scope (inactive, no URL routing). See BLOCKER_DECISIONS.md for rationale.
 
 ---
 

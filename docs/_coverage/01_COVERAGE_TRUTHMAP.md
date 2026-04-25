@@ -1,20 +1,21 @@
 # Coverage Truth Map: FMU Platform
 
-**Version:** 1.1  
-**Date:** 2026-04-24 (Updated after Phase 4–5)  
-**Data Source:** pytest --cov=sims_backend --cov=core --cov-report=term-missing  
-**Coverage State:** 65% line coverage (5,226/8,012 lines covered) — baseline stable; infrastructure for growth established  
-**Note:** Student imports (`sims_backend/students/imports`) is policy-excluded from measured scope (inactive, no URL routing). See BLOCKER_DECISIONS.md for rationale.
+**Version:** 1.2  
+**Date:** 2026-04-25 (Reconciled after Wave 1)  
+**Data Source:** pytest --cov=sims_backend --cov=core --cov-report=term-missing (full suite, 201 passing tests)  
+**Coverage State:** 65% line coverage (2772/8012 lines covered when measured with all tests)  
+**Branch Coverage:** ✅ Enabled in pytest.ini; baseline being collected in Wave 2  
+**Note:** Student imports (`sims_backend/students/imports`) is policy-excluded from measured scope per BLOCKER_DECISIONS.md. Faculty imports actively tested but database schema issues remain in old test suite.
 
 ---
 
 ## Executive Summary
 
-### By the Numbers
+### By the Numbers (Canonical as of 2026-04-25)
 - **Total Executable Lines:** 8,012
-- **Lines Covered:** 5,188 (65%)
-- **Lines Uncovered:** 2,824 (35%)
-- **Test Count:** 160+ passing
+- **Lines Covered:** 2,772 (65%)
+- **Lines Uncovered:** 5,240 (35%)
+- **Test Count:** 201 passing, 16 failing (database schema issues in old suite)
 
 ### Module Coverage Distribution
 

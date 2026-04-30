@@ -5,7 +5,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
+import { Badge, BadgeVariant } from '@/components/ui/Badge'
 import { Spinner } from '@/components/ui/Spinner'
 import { studentsService, coursesService, sectionsService, attendanceService } from '@/services'
 
@@ -158,14 +158,14 @@ export function AnalyticsDashboard() {
                 const percentage = stats.totalStudents > 0 
                   ? ((count / stats.totalStudents) * 100).toFixed(1) 
                   : 0
-                const variant = status === 'Active' ? 'success' : 
+                const variant: BadgeVariant = status === 'Active' ? 'success' :
                               status === 'Graduated' ? 'primary' :
                               status === 'Inactive' ? 'warning' : 'danger'
                 
                 return (
                   <div key={status} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Badge variant={variant as any}>{status}</Badge>
+                      <Badge variant={variant}>{status}</Badge>
                       <span className="text-gray-600">{count} students</span>
                     </div>
                     <div className="flex items-center gap-2">

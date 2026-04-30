@@ -10,7 +10,7 @@ import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Badge } from '@/components/ui/Badge'
+import { Badge, BadgeVariant } from '@/components/ui/Badge'
 import { studentsService } from '@/services'
 import { Student } from '@/types'
 import { StudentForm } from './StudentForm'
@@ -80,10 +80,10 @@ export function StudentsPage() {
         header: 'Status',
         cell: ({ row }) => {
           const status = row.getValue('status') as string
-          const variant = status === 'Active' ? 'success' : 
+          const variant: BadgeVariant = status === 'Active' ? 'success' :
                         status === 'Inactive' ? 'warning' : 
                         status === 'Graduated' ? 'info' : 'danger'
-          return <Badge variant={variant as any}>{status}</Badge>
+          return <Badge variant={variant}>{status}</Badge>
         },
       },
       {

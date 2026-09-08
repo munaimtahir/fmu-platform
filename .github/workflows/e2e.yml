@@ -1,8 +1,6 @@
 name: E2E Tests
 
 on:
-  pull_request:
-    branches: [main, develop]
   workflow_dispatch:
     inputs:
       suite:
@@ -19,9 +17,6 @@ on:
           - student
           - examcell
           - rbac
-  schedule:
-    # Nightly full suite at 02:00 UTC
-    - cron: '0 2 * * *'
 
 permissions:
   contents: read

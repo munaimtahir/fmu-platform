@@ -1,0 +1,33 @@
+<URLResolver <URLPattern list> (admin:admin) 'admin/'>
+<URLPattern 'health/' [name='health']>
+<URLPattern 'healthz/' [name='healthz']>
+<URLPattern 'api/health/' [name='api_health']>
+<URLPattern 'api/auth/login/' [name='auth_login']>
+<URLPattern 'api/auth/logout/' [name='auth_logout']>
+<URLPattern 'api/auth/refresh/' [name='auth_refresh']>
+<URLPattern 'api/auth/me/' [name='auth_me']>
+<URLPattern 'api/auth/change-password/' [name='auth_change_password']>
+<URLPattern 'api/auth/token/' [name='token_obtain_pair']>
+<URLPattern 'api/auth/token/refresh/' [name='token_refresh_legacy']>
+<URLPattern 'api/dashboard/stats/' [name='dashboard_stats']>
+<URLPattern 'api/schema/' [name='api-schema']>
+<URLPattern 'api/docs/' [name='swagger-ui']>
+<URLPattern 'api/redoc/' [name='redoc']>
+<URLResolver <module 'core.urls' from '/home/munaim/srv/apps/fmu-platform/backend/core/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.people.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/people/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.academics.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/academics/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.students.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/students/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.compliance.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/compliance/urls.py'> (None:None) 'api/compliance/'>
+<URLResolver <module 'sims_backend.faculty.imports.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/faculty/imports/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.timetable.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/timetable/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.attendance.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/attendance/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.notifications.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/notifications/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.exams.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/exams/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.results.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/results/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.finance.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/finance/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.audit.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/audit/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.transcripts.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/transcripts/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.admin.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/admin/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.syllabus.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/syllabus/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.settings_app.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/settings_app/urls.py'> (None:None) ''>
+<URLResolver <module 'sims_backend.learning.urls' from '/home/munaim/srv/apps/fmu-platform/backend/sims_backend/learning/urls.py'> (None:None) ''>

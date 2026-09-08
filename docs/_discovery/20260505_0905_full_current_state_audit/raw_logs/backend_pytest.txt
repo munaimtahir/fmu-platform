@@ -1,0 +1,1495 @@
+........................................................................ [ 31%]
+........................................FFF.F..F.........FFF..FFF..FFF.. [ 63%]
+FF................................................................FFFFFF [ 95%]
+...........                                                              [100%]
+=================================== FAILURES ===================================
+___________ TestFacultyImportPreview.test_preview_success_with_admin ___________
+tests/test_faculty_imports.py:53: in test_preview_success_with_admin
+    assert response.status_code == status.HTTP_200_OK
+E   assert 500 == 200
+E    +  where 500 = <Response status_code=500, "application/json">.status_code
+E    +  and   200 = status.HTTP_200_OK
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/preview/
+________ TestFacultyImportPreview.test_preview_success_with_coordinator ________
+tests/test_faculty_imports.py:69: in test_preview_success_with_coordinator
+    assert response.status_code == status.HTTP_200_OK
+E   assert 500 == 200
+E    +  where 500 = <Response status_code=500, "application/json">.status_code
+E    +  and   200 = status.HTTP_200_OK
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/preview/
+__________ TestFacultyImportPreview.test_preview_with_mode_parameter ___________
+tests/test_faculty_imports.py:84: in test_preview_with_mode_parameter
+    assert response.status_code == status.HTTP_200_OK
+E   assert 500 == 200
+E    +  where 500 = <Response status_code=500, "application/json">.status_code
+E    +  and   200 = status.HTTP_200_OK
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/preview/
+_________ TestFacultyImportPreview.test_preview_handles_malformed_csv __________
+tests/test_faculty_imports.py:120: in test_preview_handles_malformed_csv
+    assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
+E   assert 500 in [200, 400]
+E    +  where 500 = <Response status_code=500, "application/json">.status_code
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/preview/
+__________ TestFacultyImportCommit.test_commit_requires_confirmation ___________
+tests/test_faculty_imports.py:151: in test_commit_requires_confirmation
+    assert "confirm" in data.get("error", "").lower()
+E   AssertionError: assert 'confirm' in ''
+E    +  where '' = <built-in method lower of str object at 0xb3b3f0>()
+E    +    where <built-in method lower of str object at 0xb3b3f0> = ''.lower
+E    +      where '' = <built-in method get of dict object at 0x7943f8001c40>('error', '')
+E    +        where <built-in method get of dict object at 0x7943f8001c40> = {'import_job_id': ['Must be a valid UUID.']}.get
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:248 Bad Request: /api/admin/faculty/import/commit/
+_______________ TestFacultyImportJobs.test_jobs_admin_list_empty _______________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:224: in test_jobs_admin_list_empty
+    response = admin_client.get("/api/admin/faculty/import/jobs/")
+venv/lib/python3.12/site-packages/rest_framework/test.py:288: in get
+    response = super().get(path, data=data, **extra)
+venv/lib/python3.12/site-packages/rest_framework/test.py:205: in get
+    return self.generic('GET', path, **r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:233: in generic
+    return super().generic(
+venv/lib/python3.12/site-packages/django/test/client.py:676: in generic
+    return self.request(**r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:285: in request
+    return super().request(**kwargs)
+venv/lib/python3.12/site-packages/rest_framework/test.py:237: in request
+    request = super().request(**kwargs)
+venv/lib/python3.12/site-packages/django/test/client.py:1092: in request
+    self.check_exception(response)
+venv/lib/python3.12/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+venv/lib/python3.12/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+venv/lib/python3.12/site-packages/django/core/handlers/base.py:197: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv/lib/python3.12/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/viewsets.py:124: in view
+    return self.dispatch(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:480: in raise_uncaught_exception
+    raise exc
+venv/lib/python3.12/site-packages/rest_framework/views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+sims_backend/faculty/imports/views.py:94: in jobs
+    return Response(serializer.data, status=status.HTTP_200_OK)
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:795: in data
+    ret = super().data
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:249: in data
+    self._data = self.to_representation(self.instance)
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:713: in to_representation
+    return [
+venv/lib/python3.12/site-packages/django/db/models/query.py:400: in __iter__
+    self._fetch_all()
+venv/lib/python3.12/site-packages/django/db/models/query.py:1928: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+venv/lib/python3.12/site-packages/django/db/models/query.py:91: in __iter__
+    results = compiler.execute_sql(
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1574: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/jobs/
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/sims_backend/faculty/imports/views.py", line 94, in jobs
+    return Response(serializer.data, status=status.HTTP_200_OK)
+                    ^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 795, in data
+    ret = super().data
+          ^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 249, in data
+    self._data = self.to_representation(self.instance)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 713, in to_representation
+    return [
+           ^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+____________ TestFacultyImportJobs.test_jobs_coordinator_list_empty ____________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:231: in test_jobs_coordinator_list_empty
+    response = coordinator_client.get("/api/admin/faculty/import/jobs/")
+venv/lib/python3.12/site-packages/rest_framework/test.py:288: in get
+    response = super().get(path, data=data, **extra)
+venv/lib/python3.12/site-packages/rest_framework/test.py:205: in get
+    return self.generic('GET', path, **r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:233: in generic
+    return super().generic(
+venv/lib/python3.12/site-packages/django/test/client.py:676: in generic
+    return self.request(**r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:285: in request
+    return super().request(**kwargs)
+venv/lib/python3.12/site-packages/rest_framework/test.py:237: in request
+    request = super().request(**kwargs)
+venv/lib/python3.12/site-packages/django/test/client.py:1092: in request
+    self.check_exception(response)
+venv/lib/python3.12/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+venv/lib/python3.12/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+venv/lib/python3.12/site-packages/django/core/handlers/base.py:197: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv/lib/python3.12/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/viewsets.py:124: in view
+    return self.dispatch(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:480: in raise_uncaught_exception
+    raise exc
+venv/lib/python3.12/site-packages/rest_framework/views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+sims_backend/faculty/imports/views.py:94: in jobs
+    return Response(serializer.data, status=status.HTTP_200_OK)
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:795: in data
+    ret = super().data
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:249: in data
+    self._data = self.to_representation(self.instance)
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:713: in to_representation
+    return [
+venv/lib/python3.12/site-packages/django/db/models/query.py:400: in __iter__
+    self._fetch_all()
+venv/lib/python3.12/site-packages/django/db/models/query.py:1928: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+venv/lib/python3.12/site-packages/django/db/models/query.py:91: in __iter__
+    results = compiler.execute_sql(
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1574: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/jobs/
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/sims_backend/faculty/imports/views.py", line 94, in jobs
+    return Response(serializer.data, status=status.HTTP_200_OK)
+                    ^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 795, in data
+    ret = super().data
+          ^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 249, in data
+    self._data = self.to_representation(self.instance)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 713, in to_representation
+    return [
+           ^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+_____________ TestFacultyImportJobs.test_jobs_list_filters_by_user _____________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:239: in test_jobs_list_filters_by_user
+    job1 = FacultyImportJob.objects.create(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:679: in create
+    obj.save(force_insert=True, using=self.db)
+venv/lib/python3.12/site-packages/django/db/models/base.py:892: in save
+    self.save_base(
+venv/lib/python3.12/site-packages/django/db/models/base.py:998: in save_base
+    updated = self._save_table(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1161: in _save_table
+    results = self._do_insert(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1202: in _do_insert
+    return manager._insert(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:1847: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1836: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+_____________ TestFacultyImportJobDetail.test_job_detail_not_found _____________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:285: in test_job_detail_not_found
+    response = admin_client.get("/api/admin/faculty/import/00000000-0000-0000-0000-000000000000/detail/")
+venv/lib/python3.12/site-packages/rest_framework/test.py:288: in get
+    response = super().get(path, data=data, **extra)
+venv/lib/python3.12/site-packages/rest_framework/test.py:205: in get
+    return self.generic('GET', path, **r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:233: in generic
+    return super().generic(
+venv/lib/python3.12/site-packages/django/test/client.py:676: in generic
+    return self.request(**r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:285: in request
+    return super().request(**kwargs)
+venv/lib/python3.12/site-packages/rest_framework/test.py:237: in request
+    request = super().request(**kwargs)
+venv/lib/python3.12/site-packages/django/test/client.py:1092: in request
+    self.check_exception(response)
+venv/lib/python3.12/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+venv/lib/python3.12/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+venv/lib/python3.12/site-packages/django/core/handlers/base.py:197: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv/lib/python3.12/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/viewsets.py:124: in view
+    return self.dispatch(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:480: in raise_uncaught_exception
+    raise exc
+venv/lib/python3.12/site-packages/rest_framework/views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+sims_backend/faculty/imports/views.py:102: in job_detail
+    job = FacultyImportJob.objects.get(id=pk, created_by=request.user)
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:645: in get
+    num = len(clone)
+venv/lib/python3.12/site-packages/django/db/models/query.py:382: in __len__
+    self._fetch_all()
+venv/lib/python3.12/site-packages/django/db/models/query.py:1928: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+venv/lib/python3.12/site-packages/django/db/models/query.py:91: in __iter__
+    results = compiler.execute_sql(
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1574: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/00000000-0000-0000-0000-000000000000/detail/
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/sims_backend/faculty/imports/views.py", line 102, in job_detail
+    job = FacultyImportJob.objects.get(id=pk, created_by=request.user)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 645, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+__________ TestFacultyImportJobDetail.test_job_detail_user_isolation ___________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:291: in test_job_detail_user_isolation
+    job = FacultyImportJob.objects.create(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:679: in create
+    obj.save(force_insert=True, using=self.db)
+venv/lib/python3.12/site-packages/django/db/models/base.py:892: in save
+    self.save_base(
+venv/lib/python3.12/site-packages/django/db/models/base.py:998: in save_base
+    updated = self._save_table(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1161: in _save_table
+    results = self._do_insert(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1202: in _do_insert
+    return manager._insert(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:1847: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1836: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+______________ TestFacultyImportJobDetail.test_job_detail_success ______________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:304: in test_job_detail_success
+    job = FacultyImportJob.objects.create(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:679: in create
+    obj.save(force_insert=True, using=self.db)
+venv/lib/python3.12/site-packages/django/db/models/base.py:892: in save
+    self.save_base(
+venv/lib/python3.12/site-packages/django/db/models/base.py:998: in save_base
+    updated = self._save_table(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1161: in _save_table
+    results = self._do_insert(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1202: in _do_insert
+    return manager._insert(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:1847: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1836: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+___________ TestFacultyImportErrorsCSV.test_errors_csv_not_found_job ___________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:342: in test_errors_csv_not_found_job
+    response = admin_client.get("/api/admin/faculty/import/00000000-0000-0000-0000-000000000000/errors.csv/")
+venv/lib/python3.12/site-packages/rest_framework/test.py:288: in get
+    response = super().get(path, data=data, **extra)
+venv/lib/python3.12/site-packages/rest_framework/test.py:205: in get
+    return self.generic('GET', path, **r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:233: in generic
+    return super().generic(
+venv/lib/python3.12/site-packages/django/test/client.py:676: in generic
+    return self.request(**r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:285: in request
+    return super().request(**kwargs)
+venv/lib/python3.12/site-packages/rest_framework/test.py:237: in request
+    request = super().request(**kwargs)
+venv/lib/python3.12/site-packages/django/test/client.py:1092: in request
+    self.check_exception(response)
+venv/lib/python3.12/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+venv/lib/python3.12/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+venv/lib/python3.12/site-packages/django/core/handlers/base.py:197: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv/lib/python3.12/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/viewsets.py:124: in view
+    return self.dispatch(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:480: in raise_uncaught_exception
+    raise exc
+venv/lib/python3.12/site-packages/rest_framework/views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+sims_backend/faculty/imports/views.py:115: in errors_csv
+    job = FacultyImportJob.objects.get(id=pk, created_by=request.user)
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:645: in get
+    num = len(clone)
+venv/lib/python3.12/site-packages/django/db/models/query.py:382: in __len__
+    self._fetch_all()
+venv/lib/python3.12/site-packages/django/db/models/query.py:1928: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+venv/lib/python3.12/site-packages/django/db/models/query.py:91: in __iter__
+    results = compiler.execute_sql(
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1574: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/00000000-0000-0000-0000-000000000000/errors.csv/
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/sims_backend/faculty/imports/views.py", line 115, in errors_csv
+    job = FacultyImportJob.objects.get(id=pk, created_by=request.user)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 645, in get
+    num = len(clone)
+          ^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 382, in __len__
+    self._fetch_all()
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+__________ TestFacultyImportErrorsCSV.test_errors_csv_user_isolation ___________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:347: in test_errors_csv_user_isolation
+    job = FacultyImportJob.objects.create(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:679: in create
+    obj.save(force_insert=True, using=self.db)
+venv/lib/python3.12/site-packages/django/db/models/base.py:892: in save
+    self.save_base(
+venv/lib/python3.12/site-packages/django/db/models/base.py:998: in save_base
+    updated = self._save_table(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1161: in _save_table
+    results = self._do_insert(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1202: in _do_insert
+    return manager._insert(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:1847: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1836: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+___________ TestFacultyImportErrorsCSV.test_errors_csv_not_available ___________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:359: in test_errors_csv_not_available
+    job = FacultyImportJob.objects.create(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:679: in create
+    obj.save(force_insert=True, using=self.db)
+venv/lib/python3.12/site-packages/django/db/models/base.py:892: in save
+    self.save_base(
+venv/lib/python3.12/site-packages/django/db/models/base.py:998: in save_base
+    updated = self._save_table(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1161: in _save_table
+    results = self._do_insert(
+venv/lib/python3.12/site-packages/django/db/models/base.py:1202: in _do_insert
+    return manager._insert(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:1847: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1836: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+_________ TestFacultyImportPermissions.test_all_endpoints_allow_admin __________
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:427: in test_all_endpoints_allow_admin
+    response = admin_client.get(endpoint)
+venv/lib/python3.12/site-packages/rest_framework/test.py:288: in get
+    response = super().get(path, data=data, **extra)
+venv/lib/python3.12/site-packages/rest_framework/test.py:205: in get
+    return self.generic('GET', path, **r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:233: in generic
+    return super().generic(
+venv/lib/python3.12/site-packages/django/test/client.py:676: in generic
+    return self.request(**r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:285: in request
+    return super().request(**kwargs)
+venv/lib/python3.12/site-packages/rest_framework/test.py:237: in request
+    request = super().request(**kwargs)
+venv/lib/python3.12/site-packages/django/test/client.py:1092: in request
+    self.check_exception(response)
+venv/lib/python3.12/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+venv/lib/python3.12/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+venv/lib/python3.12/site-packages/django/core/handlers/base.py:197: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv/lib/python3.12/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/viewsets.py:124: in view
+    return self.dispatch(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:480: in raise_uncaught_exception
+    raise exc
+venv/lib/python3.12/site-packages/rest_framework/views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+sims_backend/faculty/imports/views.py:94: in jobs
+    return Response(serializer.data, status=status.HTTP_200_OK)
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:795: in data
+    ret = super().data
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:249: in data
+    self._data = self.to_representation(self.instance)
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:713: in to_representation
+    return [
+venv/lib/python3.12/site-packages/django/db/models/query.py:400: in __iter__
+    self._fetch_all()
+venv/lib/python3.12/site-packages/django/db/models/query.py:1928: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+venv/lib/python3.12/site-packages/django/db/models/query.py:91: in __iter__
+    results = compiler.execute_sql(
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1574: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/jobs/
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/sims_backend/faculty/imports/views.py", line 94, in jobs
+    return Response(serializer.data, status=status.HTTP_200_OK)
+                    ^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 795, in data
+    ret = super().data
+          ^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 249, in data
+    self._data = self.to_representation(self.instance)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 713, in to_representation
+    return [
+           ^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+______ TestFacultyImportPermissions.test_all_endpoints_allow_coordinator _______
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+tests/test_faculty_imports.py:448: in test_all_endpoints_allow_coordinator
+    response = coordinator_client.get(endpoint)
+venv/lib/python3.12/site-packages/rest_framework/test.py:288: in get
+    response = super().get(path, data=data, **extra)
+venv/lib/python3.12/site-packages/rest_framework/test.py:205: in get
+    return self.generic('GET', path, **r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:233: in generic
+    return super().generic(
+venv/lib/python3.12/site-packages/django/test/client.py:676: in generic
+    return self.request(**r)
+venv/lib/python3.12/site-packages/rest_framework/test.py:285: in request
+    return super().request(**kwargs)
+venv/lib/python3.12/site-packages/rest_framework/test.py:237: in request
+    request = super().request(**kwargs)
+venv/lib/python3.12/site-packages/django/test/client.py:1092: in request
+    self.check_exception(response)
+venv/lib/python3.12/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+venv/lib/python3.12/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+venv/lib/python3.12/site-packages/django/core/handlers/base.py:197: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv/lib/python3.12/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/viewsets.py:124: in view
+    return self.dispatch(request, *args, **kwargs)
+venv/lib/python3.12/site-packages/rest_framework/views.py:509: in dispatch
+    response = self.handle_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:469: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv/lib/python3.12/site-packages/rest_framework/views.py:480: in raise_uncaught_exception
+    raise exc
+venv/lib/python3.12/site-packages/rest_framework/views.py:506: in dispatch
+    response = handler(request, *args, **kwargs)
+sims_backend/faculty/imports/views.py:94: in jobs
+    return Response(serializer.data, status=status.HTTP_200_OK)
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:795: in data
+    ret = super().data
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:249: in data
+    self._data = self.to_representation(self.instance)
+venv/lib/python3.12/site-packages/rest_framework/serializers.py:713: in to_representation
+    return [
+venv/lib/python3.12/site-packages/django/db/models/query.py:400: in __iter__
+    self._fetch_all()
+venv/lib/python3.12/site-packages/django/db/models/query.py:1928: in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+venv/lib/python3.12/site-packages/django/db/models/query.py:91: in __iter__
+    results = compiler.execute_sql(
+venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py:1574: in execute_sql
+    cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:79: in execute
+    return self._execute_with_wrappers(
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:92: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:100: in _execute
+    with self.db.wrap_database_errors:
+venv/lib/python3.12/site-packages/django/db/utils.py:91: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv/lib/python3.12/site-packages/django/db/backends/utils.py:105: in _execute
+    return self.cursor.execute(sql, params)
+venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py:354: in execute
+    return super().execute(query, params)
+E   django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:248 Internal Server Error: /api/admin/faculty/import/jobs/
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: faculty_facultyimportjob
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/sims_backend/faculty/imports/views.py", line 94, in jobs
+    return Response(serializer.data, status=status.HTTP_200_OK)
+                    ^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 795, in data
+    ret = super().data
+          ^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 249, in data
+    self._data = self.to_representation(self.instance)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 713, in to_representation
+    return [
+           ^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 400, in __iter__
+    self._fetch_all()
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 354, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: faculty_facultyimportjob
+________________ TestFinancePaymentLogic.test_voucher_creation _________________
+tests/test_wave2_business_logic.py:36: in test_voucher_creation
+    program = Program.objects.create(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:677: in create
+    obj = self.model(**kwargs)
+venv/lib/python3.12/site-packages/django/db/models/base.py:567: in __init__
+    raise TypeError(
+E   TypeError: Program() got unexpected keyword arguments: 'code', 'duration_years'
+_______________ TestFinancePaymentLogic.test_payment_full_amount _______________
+tests/test_wave2_business_logic.py:74: in test_payment_full_amount
+    program = Program.objects.create(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:677: in create
+    obj = self.model(**kwargs)
+venv/lib/python3.12/site-packages/django/db/models/base.py:567: in __init__
+    raise TypeError(
+E   TypeError: Program() got unexpected keyword arguments: 'code', 'duration_years'
+________ TestFinancePaymentLogic.test_payment_partial_multiple_entries _________
+tests/test_wave2_business_logic.py:116: in test_payment_partial_multiple_entries
+    program = Program.objects.create(
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:677: in create
+    obj = self.model(**kwargs)
+venv/lib/python3.12/site-packages/django/db/models/base.py:567: in __init__
+    raise TypeError(
+E   TypeError: Program() got unexpected keyword arguments: 'code', 'duration_years'
+____________ TestResultsStateTransitions.test_result_draft_creation ____________
+tests/test_wave2_business_logic.py:172: in test_result_draft_creation
+    dept = Department.objects.create(name="Medicine", code="MED", is_active=True)
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:677: in create
+    obj = self.model(**kwargs)
+venv/lib/python3.12/site-packages/django/db/models/base.py:567: in __init__
+    raise TypeError(
+E   TypeError: Department() got unexpected keyword arguments: 'is_active'
+__________ TestResultsStateTransitions.test_result_publish_from_draft __________
+tests/test_wave2_business_logic.py:197: in test_result_publish_from_draft
+    dept = Department.objects.create(name="Medicine", code="MED", is_active=True)
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:677: in create
+    obj = self.model(**kwargs)
+venv/lib/python3.12/site-packages/django/db/models/base.py:567: in __init__
+    raise TypeError(
+E   TypeError: Department() got unexpected keyword arguments: 'is_active'
+_________ TestResultsStateTransitions.test_result_freeze_after_publish _________
+tests/test_wave2_business_logic.py:228: in test_result_freeze_after_publish
+    dept = Department.objects.create(name="Medicine", code="MED", is_active=True)
+venv/lib/python3.12/site-packages/django/db/models/manager.py:87: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv/lib/python3.12/site-packages/django/db/models/query.py:677: in create
+    obj = self.model(**kwargs)
+venv/lib/python3.12/site-packages/django/db/models/base.py:567: in __init__
+    raise TypeError(
+E   TypeError: Department() got unexpected keyword arguments: 'is_active'
+=============================== warnings summary ===============================
+venv/lib/python3.12/site-packages/reportlab/lib/rl_safe_eval.py:12
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/reportlab/lib/rl_safe_eval.py:12: DeprecationWarning: ast.NameConstant is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    haveNameConstant = hasattr(ast,'NameConstant')
+
+tests/learning/test_learning_feed.py: 17 warnings
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/urlpatterns.py:108: RemovedInDjango60Warning: Converter 'drf_format_suffix' is already registered. Support for overriding registered converters is deprecated and will be removed in Django 6.0.
+    register_converter(suffix_converter, converter_name)
+
+tests/regression/test_auth_contracts.py: 2 warnings
+tests/regression/test_stabilization_contracts.py: 1 warning
+tests/regression/test_workflow_contracts.py: 2 warnings
+tests/test_finance_extended.py: 2 warnings
+tests/test_permissions.py: 4 warnings
+tests/test_results_extended.py: 6 warnings
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/rest_framework/fields.py:992: UserWarning: min_value should be a Decimal instance.
+    warnings.warn("min_value should be a Decimal instance.")
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_export
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-01 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_export
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-01 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-02 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-02 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-03 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-03 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-04 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-04 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-05 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-05 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-06 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-06 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-07 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-07 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-08 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-08 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-09 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-09 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.starts_at received a naive datetime (2024-01-10 09:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_attendance_extended.py::TestAttendanceExtended::test_attendance_eligibility
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Session.ends_at received a naive datetime (2024-01-10 10:00:00) while time zone support is active.
+    warnings.warn(
+
+tests/test_finance_extended.py::TestFinanceActions::test_voucher_pdf_view
+tests/test_finance_pdf.py::test_voucher_pdf
+  /home/munaim/srv/apps/fmu-platform/backend/sims_backend/finance/pdf.py:66: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    story.append(Paragraph(f"Generated on {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", styles["Italic"]))
+
+tests/test_finance_pdf.py::test_voucher_pdf
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Payment.received_at received a naive datetime (2026-05-05 09:12:13.453672) while time zone support is active.
+    warnings.warn(
+
+tests/test_finance_pdf.py::test_payment_receipt_pdf
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Payment.received_at received a naive datetime (2026-05-05 09:12:13.508100) while time zone support is active.
+    warnings.warn(
+
+tests/test_finance_pdf.py::test_payment_receipt_pdf
+  /home/munaim/srv/apps/fmu-platform/backend/sims_backend/finance/pdf.py:107: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    story.append(Paragraph(f"Generated on {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", styles["Italic"]))
+
+tests/test_finance_pdf.py::test_student_statement_pdf
+  /home/munaim/srv/apps/fmu-platform/backend/venv/lib/python3.12/site-packages/django/db/models/fields/__init__.py:1665: RuntimeWarning: DateTimeField Payment.received_at received a naive datetime (2026-05-05 09:12:13.557673) while time zone support is active.
+    warnings.warn(
+
+tests/test_finance_pdf.py::test_student_statement_pdf
+  /home/munaim/srv/apps/fmu-platform/backend/sims_backend/finance/pdf.py:184: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    story.append(Paragraph(f"Generated on {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}", styles["Italic"]))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform linux, python 3.12.3-final-0 -----------
+Name                                                Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------------------
+core/__init__.py                                        0      0   100%
+core/admin.py                                          44      6    86%   36-38, 66-68
+core/apps.py                                            4      0   100%
+core/demo_scenarios.py                                202     20    90%   68-69, 74-75, 98-104, 157-158, 160-161, 163-164, 166-167, 431-438
+core/exceptions.py                                     12     12     0%   1-45
+core/jazzmin.py                                         2      0   100%
+core/management/__init__.py                             0      0   100%
+core/models.py                                         73     17    77%   39-42, 66, 91-92, 119, 122-126, 129-131, 163, 189, 223
+core/permissions.py                                    56     10    82%   24, 40, 49, 60-61, 70, 118, 128, 149, 155
+core/serializers.py                                   204     69    66%   40-42, 95, 119, 130, 141, 162-178, 203-235, 284-287, 306-310, 330-335, 378, 404-414, 418-427, 431-434, 451-455, 459-462
+core/tests.py                                           0      0   100%
+core/urls.py                                           10      0   100%
+core/views.py                                         241    100    59%   75-119, 134, 137-142, 182, 204-228, 251-259, 275-281, 320-332, 427-435, 468-476, 480-483, 530-536, 564-570, 574-584, 598-599
+sims_backend/__init__.py                                0      0   100%
+sims_backend/academics/admin.py                        40      0   100%
+sims_backend/academics/apps.py                          6      0   100%
+sims_backend/academics/management/__init__.py           0      0   100%
+sims_backend/academics/models.py                      145     18    88%   88, 158-159, 181, 211, 215-220, 224, 262, 310, 348, 371, 434, 460
+sims_backend/academics/serializers.py                 130     40    69%   42-46, 119, 123-125, 153-191, 262, 266-280, 336
+sims_backend/academics/services.py                    105     17    84%   32, 37-38, 47, 72, 89, 118, 157-160, 166-167, 179, 189, 204, 218
+sims_backend/academics/urls.py                         16      0   100%
+sims_backend/academics/views.py                       343    187    45%   54-64, 68-116, 121-127, 135-141, 159-167, 182-192, 197-207, 212-222, 237-245, 260-268, 286-294, 299-338, 362-370, 389-397, 401-406, 410-415, 430-438, 442-447, 451-456, 471-479, 496-501, 516
+sims_backend/admin/__init__.py                          0      0   100%
+sims_backend/admin/authentication.py                   17     11    35%   15-30
+sims_backend/admin/conftest.py                         14     14     0%   3-23
+sims_backend/admin/impersonation.py                    18      0   100%
+sims_backend/admin/impersonation_views.py              68     13    81%   45, 51, 55-56, 63, 82, 108-109, 137-138, 143, 167-168
+sims_backend/admin/serializers.py                      61     24    61%   45, 50, 77-90, 111-129
+sims_backend/admin/tests.py                           101    101     0%   3-197
+sims_backend/admin/urls.py                              7      0   100%
+sims_backend/admin/views.py                           127     87    31%   42-96, 133-137, 141-156, 160-177, 185-213, 217-244, 249-270, 281-297, 302-328, 338-358
+sims_backend/asgi.py                                    0      0   100%
+sims_backend/attendance/admin.py                       24      0   100%
+sims_backend/attendance/apps.py                         6      0   100%
+sims_backend/attendance/input_views.py                242    107    56%   37, 43-44, 57-60, 69, 73-74, 79-82, 103, 109-112, 119-122, 132-134, 157, 159, 162, 167-170, 212, 221-224, 252-301, 310-351, 368, 376-379, 401, 417, 421
+sims_backend/attendance/models.py                      59      4    93%   62, 113, 127, 150
+sims_backend/attendance/serializers.py                 14      2    86%   32-33
+sims_backend/attendance/services/__init__.py            2      0   100%
+sims_backend/attendance/services/input_methods.py     159     22    86%   101, 106-111, 117, 125-126, 128, 140-145, 219-220, 222-223, 249-250, 254-255
+sims_backend/attendance/urls.py                         7      0   100%
+sims_backend/attendance/utils.py                       22      7    68%   71-81
+sims_backend/attendance/views.py                      110     28    75%   30-36, 40-47, 85-87, 109, 132-150, 178-179
+sims_backend/audit/admin.py                            15      3    80%   29, 33, 37
+sims_backend/audit/apps.py                              6      0   100%
+sims_backend/audit/middleware.py                       96     18    81%   47, 51-59, 66-67, 72, 90-96, 121
+sims_backend/audit/models.py                           34      1    97%   114
+sims_backend/audit/serializers.py                       8      0   100%
+sims_backend/audit/urls.py                              6      0   100%
+sims_backend/audit/views.py                            41     11    73%   52-84
+sims_backend/common/__init__.py                         0      0   100%
+sims_backend/common/workflow.py                        14      6    57%   25, 31-36
+sims_backend/common_permissions.py                     81     48    41%   7-8, 13, 34-39, 48, 58, 66-69, 76-79, 86-89, 96-99, 106-109, 128-131, 136-143, 154-169
+sims_backend/compliance/__init__.py                     0      0   100%
+sims_backend/compliance/apps.py                         4      0   100%
+sims_backend/compliance/models.py                      54      4    93%   27, 75, 87, 99
+sims_backend/compliance/serializers.py                 27      0   100%
+sims_backend/compliance/urls.py                         8      0   100%
+sims_backend/compliance/views.py                       86     12    86%   27, 41, 48, 83, 85, 91-93, 135-136, 143-144
+sims_backend/exams/__init__.py                          0      0   100%
+sims_backend/exams/admin.py                            19      0   100%
+sims_backend/exams/apps.py                              4      0   100%
+sims_backend/exams/logic.py                            75     15    80%   43-47, 66, 79-82, 97, 103, 115-116, 119-120
+sims_backend/exams/models.py                           40      3    92%   92-93, 156
+sims_backend/exams/serializers.py                      37     18    51%   29-44, 76-91
+sims_backend/exams/services.py                         16     13    19%   19-51
+sims_backend/exams/urls.py                              7      0   100%
+sims_backend/exams/views.py                            40      9    78%   24-27, 32-36, 51
+sims_backend/faculty/__init__.py                        0      0   100%
+sims_backend/faculty/apps.py                            4      0   100%
+sims_backend/faculty/imports/__init__.py                0      0   100%
+sims_backend/faculty/imports/admin.py                   9      9     0%   1-37
+sims_backend/faculty/imports/models.py                 43      7    84%   114, 119-124
+sims_backend/faculty/imports/serializers.py            37      0   100%
+sims_backend/faculty/imports/services.py              237    202    15%   34-50, 55-63, 71-81, 86-95, 104-109, 117-121, 129-136, 141, 159-211, 228-370, 379-501
+sims_backend/faculty/imports/templates.py              14      1    93%   46
+sims_backend/faculty/imports/urls.py                    6      0   100%
+sims_backend/faculty/imports/utils.py                   2      0   100%
+sims_backend/faculty/imports/views.py                  73     25    66%   43-44, 46, 59-72, 104-107, 117-126
+sims_backend/finance/__init__.py                        0      0   100%
+sims_backend/finance/admin.py                          41      0   100%
+sims_backend/finance/apps.py                            4      0   100%
+sims_backend/finance/models.py                        154      7    95%   38, 91, 150, 180, 330, 396, 424
+sims_backend/finance/pdf.py                            81      1    99%   176
+sims_backend/finance/serializers.py                   135     41    70%   56-68, 110-112, 115-127, 130-157, 160, 192-194, 258-260
+sims_backend/finance/services.py                      234     66    72%   51, 66, 70, 80, 131, 136-138, 157, 185, 192, 215, 222-252, 257, 305, 314, 342-344, 352, 394, 448, 460-482, 493-540
+sims_backend/finance/urls.py                           14      0   100%
+sims_backend/finance/views.py                         452    206    54%   70-78, 93-101, 123, 125, 127, 130-131, 144-146, 156-160, 175, 183-184, 220-222, 240, 242, 244, 261-263, 267-286, 295, 302-304, 311, 317-318, 367-377, 381-391, 394, 398-409, 423-431, 443-485, 489-511, 515-543, 567-568, 574-594, 606, 614-615, 623-634, 645-648, 654-672
+sims_backend/learning/__init__.py                       0      0   100%
+sims_backend/learning/admin.py                         18      0   100%
+sims_backend/learning/apps.py                           4      0   100%
+sims_backend/learning/mixins.py                        21     12    43%   21-31, 36
+sims_backend/learning/models.py                        91     18    80%   70, 83-84, 87, 147-159, 184
+sims_backend/learning/permissions.py                   33     12    64%   11, 19, 21, 23, 26-32, 39
+sims_backend/learning/serializers.py                   64     27    58%   27-37, 83-86, 89, 91, 93, 95, 104-106, 111-115
+sims_backend/learning/urls.py                           7      0   100%
+sims_backend/learning/views.py                        134     48    64%   41-47, 50-56, 59-62, 69, 74, 84-98, 102-119, 136-141, 165, 232
+sims_backend/notifications/__init__.py                  0      0   100%
+sims_backend/notifications/admin.py                    26      0   100%
+sims_backend/notifications/apps.py                      4      0   100%
+sims_backend/notifications/jobs.py                     91     14    85%   33-36, 45-50, 52, 55-57, 134-136
+sims_backend/notifications/models.py                   88      9    90%   63, 66-70, 137, 158, 199
+sims_backend/notifications/serializers.py              53     17    68%   29-41, 91-103
+sims_backend/notifications/urls.py                      7      0   100%
+sims_backend/notifications/views.py                    74     33    55%   45-47, 50-55, 59-71, 82-93, 97-98, 102-106, 110-111
+sims_backend/people/__init__.py                         0      0   100%
+sims_backend/people/admin.py                           33      0   100%
+sims_backend/people/apps.py                             5      0   100%
+sims_backend/people/models.py                          89      9    90%   87, 92-96, 152, 217, 285
+sims_backend/people/serializers.py                     32      0   100%
+sims_backend/people/urls.py                             9      0   100%
+sims_backend/people/views.py                           91     37    59%   54, 59-64, 77-79, 92-100, 113-121, 134-142
+sims_backend/results/admin.py                          22      0   100%
+sims_backend/results/apps.py                            6      0   100%
+sims_backend/results/models.py                         74      3    96%   109, 138, 201
+sims_backend/results/serializers.py                    38     13    66%   56-69, 76-80
+sims_backend/results/urls.py                            7      0   100%
+sims_backend/results/views.py                         127     15    88%   45, 49, 91-93, 105-107, 121, 146-147, 170, 172, 175-176, 189-191
+sims_backend/settings.py                               57      0   100%
+sims_backend/settings_app/__init__.py                   0      0   100%
+sims_backend/settings_app/admin.py                      9      0   100%
+sims_backend/settings_app/conftest.py                  14     14     0%   3-23
+sims_backend/settings_app/models.py                    51     31    39%   84, 88-105, 110-114, 119-146
+sims_backend/settings_app/serializers.py               22     13    41%   31-48
+sims_backend/settings_app/tests.py                     54     54     0%   3-105
+sims_backend/settings_app/urls.py                       6      0   100%
+sims_backend/settings_app/views.py                     39     21    46%   27, 31-38, 42-50, 55-73
+sims_backend/students/__init__.py                       0      0   100%
+sims_backend/students/admin.py                         16      0   100%
+sims_backend/students/apps.py                           4      0   100%
+sims_backend/students/imports/__init__.py               0      0   100%
+sims_backend/students/imports/models.py                44      7    84%   118, 123-128
+sims_backend/students/imports/serializers.py           39      0   100%
+sims_backend/students/imports/services.py             254    180    29%   144-146, 171-344, 353-556
+sims_backend/students/imports/templates.py             14     10    29%   14-55, 60
+sims_backend/students/imports/urls.py                   6      0   100%
+sims_backend/students/imports/utils.py                 65     57    12%   14-31, 36-39, 44, 52-66, 83-131
+sims_backend/students/imports/validators.py           174    156    10%   20-28, 33-45, 53-63, 74-102, 116-143, 151-177, 188-254, 265-300, 305-319, 324-330, 335-347, 352-362, 370-375
+sims_backend/students/imports/views.py                 75     52    31%   35-49, 57-74, 81-87, 94-96, 103-109, 116-128
+sims_backend/students/models.py                        57      5    91%   111, 190, 194-196
+sims_backend/students/serializers.py                   32     10    69%   45-50, 54-59
+sims_backend/students/urls.py                           7      0   100%
+sims_backend/students/views.py                         85     41    52%   35-42, 55-57, 62-67, 72-81, 96-104, 108-118
+sims_backend/syllabus/__init__.py                       0      0   100%
+sims_backend/syllabus/admin.py                          9      0   100%
+sims_backend/syllabus/conftest.py                      14     14     0%   3-23
+sims_backend/syllabus/models.py                        35     16    54%   92-93, 97-115
+sims_backend/syllabus/serializers.py                   18      6    67%   42-56
+sims_backend/syllabus/tests.py                         60     60     0%   3-123
+sims_backend/syllabus/urls.py                           6      0   100%
+sims_backend/syllabus/views.py                         46     19    59%   49-83
+sims_backend/timetable/__init__.py                      0      0   100%
+sims_backend/timetable/admin.py                        21      0   100%
+sims_backend/timetable/apps.py                          4      0   100%
+sims_backend/timetable/models.py                       50      3    94%   111, 118, 165
+sims_backend/timetable/serializers.py                  50      5    90%   88-89, 124-126, 130
+sims_backend/timetable/urls.py                          8      0   100%
+sims_backend/timetable/views.py                       184     47    74%   33-36, 39-46, 64, 73, 96, 102, 151, 174, 181-182, 185, 197, 255-266, 272, 290, 294-308, 312-326
+sims_backend/transcripts/urls.py                        3      0   100%
+sims_backend/transcripts/views.py                     115     35    70%   40, 42, 45-46, 89-118, 153-154, 170-176, 228-267
+sims_backend/urls.py                                   68      7    90%   46-47, 63, 65-67, 121, 203
+sims_backend/wsgi.py                                    0      0   100%
+---------------------------------------------------------------------------------
+TOTAL                                                8012   2772    65%
+Coverage HTML written to dir htmlcov
+
+=========================== short test summary info ============================
+FAILED tests/test_faculty_imports.py::TestFacultyImportPreview::test_preview_success_with_admin
+FAILED tests/test_faculty_imports.py::TestFacultyImportPreview::test_preview_success_with_coordinator
+FAILED tests/test_faculty_imports.py::TestFacultyImportPreview::test_preview_with_mode_parameter
+FAILED tests/test_faculty_imports.py::TestFacultyImportPreview::test_preview_handles_malformed_csv
+FAILED tests/test_faculty_imports.py::TestFacultyImportCommit::test_commit_requires_confirmation
+FAILED tests/test_faculty_imports.py::TestFacultyImportJobs::test_jobs_admin_list_empty
+FAILED tests/test_faculty_imports.py::TestFacultyImportJobs::test_jobs_coordinator_list_empty
+FAILED tests/test_faculty_imports.py::TestFacultyImportJobs::test_jobs_list_filters_by_user
+FAILED tests/test_faculty_imports.py::TestFacultyImportJobDetail::test_job_detail_not_found
+FAILED tests/test_faculty_imports.py::TestFacultyImportJobDetail::test_job_detail_user_isolation
+FAILED tests/test_faculty_imports.py::TestFacultyImportJobDetail::test_job_detail_success
+FAILED tests/test_faculty_imports.py::TestFacultyImportErrorsCSV::test_errors_csv_not_found_job
+FAILED tests/test_faculty_imports.py::TestFacultyImportErrorsCSV::test_errors_csv_user_isolation
+FAILED tests/test_faculty_imports.py::TestFacultyImportErrorsCSV::test_errors_csv_not_available
+FAILED tests/test_faculty_imports.py::TestFacultyImportPermissions::test_all_endpoints_allow_admin
+FAILED tests/test_faculty_imports.py::TestFacultyImportPermissions::test_all_endpoints_allow_coordinator
+FAILED tests/test_wave2_business_logic.py::TestFinancePaymentLogic::test_voucher_creation
+FAILED tests/test_wave2_business_logic.py::TestFinancePaymentLogic::test_payment_full_amount
+FAILED tests/test_wave2_business_logic.py::TestFinancePaymentLogic::test_payment_partial_multiple_entries
+FAILED tests/test_wave2_business_logic.py::TestResultsStateTransitions::test_result_draft_creation
+FAILED tests/test_wave2_business_logic.py::TestResultsStateTransitions::test_result_publish_from_draft
+FAILED tests/test_wave2_business_logic.py::TestResultsStateTransitions::test_result_freeze_after_publish

@@ -1,0 +1,5 @@
+NAME           IMAGE                   COMMAND                  SERVICE    CREATED       STATUS                PORTS
+fmu_backend    fmu-platform-backend    "/entrypoint.sh guni…"   backend    11 days ago   Up 4 days             127.0.0.1:8010->8000/tcp
+fmu_db         postgres:16-alpine      "docker-entrypoint.s…"   db         11 days ago   Up 4 days             127.0.0.1:5432->5432/tcp
+fmu_frontend   fmu-platform-frontend   "/docker-entrypoint.…"   frontend   11 days ago   Up 4 days             127.0.0.1:8080->80/tcp
+fmu_redis      redis:7-alpine          "docker-entrypoint.s…"   redis      11 days ago   Up 4 days (healthy)   6379/tcp

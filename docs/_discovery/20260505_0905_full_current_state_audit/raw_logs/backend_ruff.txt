@@ -1,0 +1,2141 @@
+sims_backend/attendance/input_views.py:109:53: UP038 Use `X | Y` in `isinstance` call instead of `(X, Y)`
+    |
+107 |         # Ensure records is a list
+108 |         if not isinstance(records, list):
+109 |             if hasattr(records, "__iter__") and not isinstance(records, (str, bytes)):
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ UP038
+110 |                 records = list(records)
+111 |             else:
+    |
+    = help: Convert to `X | Y`
+
+sims_backend/attendance/services/input_methods.py:108:71: UP038 Use `X | Y` in `isinstance` call instead of `(X, Y)`
+    |
+106 |         try:
+107 |             records_list = (
+108 |                 list(records) if hasattr(records, "__iter__") and not isinstance(records, (str, bytes)) else []
+    |                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ UP038
+109 |             )
+110 |         except (TypeError, ValueError):
+    |
+    = help: Convert to `X | Y`
+
+tests/conftest.py:611:1: I001 [*] Import block is un-sorted or un-formatted
+    |
+609 |   def faculty_import_factory(db):
+610 |       """Factory for creating FacultyImportJob objects with realistic state."""
+611 | /     from django.core.files.base import ContentFile
+612 | |     from sims_backend.faculty.imports.models import FacultyImportJob
+613 | |     import uuid
+614 | |     
+    | |_^ I001
+615 |       def create_import_job(
+616 |           created_by,
+    |
+    = help: Organize imports
+
+tests/conftest.py:613:12: F401 [*] `uuid` imported but unused
+    |
+611 |     from django.core.files.base import ContentFile
+612 |     from sims_backend.faculty.imports.models import FacultyImportJob
+613 |     import uuid
+    |            ^^^^ F401
+614 |     
+615 |     def create_import_job(
+    |
+    = help: Remove unused import: `uuid`
+
+tests/conftest.py:614:1: W293 [*] Blank line contains whitespace
+    |
+612 |     from sims_backend.faculty.imports.models import FacultyImportJob
+613 |     import uuid
+614 |     
+    | ^^^^ W293
+615 |     def create_import_job(
+616 |         created_by,
+    |
+    = help: Remove whitespace from blank line
+
+tests/conftest.py:627:1: W293 [*] Blank line contains whitespace
+    |
+625 |         if csv_content is None:
+626 |             csv_content = b"email,first_name,last_name,department\n"
+627 |         
+    | ^^^^^^^^ W293
+628 |         file_hash = FacultyImportJob.compute_file_hash(
+629 |             type('obj', (object,), {'chunks': lambda: [csv_content], 'seek': lambda x: None})()
+    |
+    = help: Remove whitespace from blank line
+
+tests/conftest.py:631:1: W293 [*] Blank line contains whitespace
+    |
+629 |             type('obj', (object,), {'chunks': lambda: [csv_content], 'seek': lambda x: None})()
+630 |         )
+631 |         
+    | ^^^^^^^^ W293
+632 |         job = FacultyImportJob.objects.create(
+633 |             created_by=created_by,
+    |
+    = help: Remove whitespace from blank line
+
+tests/conftest.py:642:1: W293 [*] Blank line contains whitespace
+    |
+640 |             invalid_rows=invalid_rows,
+641 |         )
+642 |         
+    | ^^^^^^^^ W293
+643 |         # Store CSV content as file
+644 |         job.file.save(filename, ContentFile(csv_content), save=True)
+    |
+    = help: Remove whitespace from blank line
+
+tests/conftest.py:646:1: W293 [*] Blank line contains whitespace
+    |
+644 |         job.file.save(filename, ContentFile(csv_content), save=True)
+645 |         return job
+646 |     
+    | ^^^^ W293
+647 |     return create_import_job
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+  |
+1 | / import pytest
+2 | | from django.core.exceptions import ValidationError
+3 | | from datetime import date
+4 | | from sims_backend.academics.models import Program, Period, Track, LearningBlock, Department, Module
+5 | | from sims_backend.academics.services import ProgramService, LearningBlockService, DepartmentService
+6 | | 
+7 | | @pytest.mark.django_db
+  | |_^ I001
+8 |   class TestAcademicsServices:
+9 |       def test_program_structure_validation_custom(self):
+  |
+  = help: Organize imports
+
+tests/test_academics_extended.py:4:94: F401 [*] `sims_backend.academics.models.Module` imported but unused
+  |
+2 | from django.core.exceptions import ValidationError
+3 | from datetime import date
+4 | from sims_backend.academics.models import Program, Period, Track, LearningBlock, Department, Module
+  |                                                                                              ^^^^^^ F401
+5 | from sims_backend.academics.services import ProgramService, LearningBlockService, DepartmentService
+  |
+  = help: Remove unused import: `sims_backend.academics.models.Module`
+
+tests/test_academics_extended.py:14:1: W293 [*] Blank line contains whitespace
+   |
+12 |         with pytest.raises(ValidationError):
+13 |             ProgramService.validate_structure_fields(program, {"structure_type": Program.STRUCTURE_TYPE_CUSTOM})
+14 |         
+   | ^^^^^^^^ W293
+15 |         # Correct fields should pass
+16 |         ProgramService.validate_structure_fields(program, {
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:34:1: W293 [*] Blank line contains whitespace
+   |
+32 |         ProgramService.finalize_program(program)
+33 |         assert program.is_finalized
+34 |         
+   | ^^^^^^^^ W293
+35 |         with pytest.raises(ValidationError):
+36 |             ProgramService.check_finalize_lock(program, {"structure_type": Program.STRUCTURE_TYPE_SEMESTER})
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:37:1: W293 [*] Blank line contains whitespace
+   |
+35 |         with pytest.raises(ValidationError):
+36 |             ProgramService.check_finalize_lock(program, {"structure_type": Program.STRUCTURE_TYPE_SEMESTER})
+37 |         
+   | ^^^^^^^^ W293
+38 |         with pytest.raises(ValidationError):
+39 |             ProgramService.finalize_program(program)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:56:27: W291 [*] Trailing whitespace
+   |
+54 |     def test_generate_periods_custom(self):
+55 |         program = Program.objects.create(
+56 |             name="Custom", 
+   |                           ^ W291
+57 |             structure_type=Program.STRUCTURE_TYPE_CUSTOM,
+58 |             period_length_months=4,
+   |
+   = help: Remove trailing whitespace
+
+tests/test_academics_extended.py:67:9: F841 Local variable `dept2` is assigned to but never used
+   |
+65 |     def test_learning_block_rotation_rules(self):
+66 |         dept1 = Department.objects.create(name="Surgery")
+67 |         dept2 = Department.objects.create(name="General Surgery", parent=dept1)
+   |         ^^^^^ F841
+68 |         dept3 = Department.objects.create(name="Cardiology")
+   |
+   = help: Remove assignment to unused variable `dept2`
+
+tests/test_academics_extended.py:69:1: W293 [*] Blank line contains whitespace
+   |
+67 |         dept2 = Department.objects.create(name="General Surgery", parent=dept1)
+68 |         dept3 = Department.objects.create(name="Cardiology")
+69 |         
+   | ^^^^^^^^ W293
+70 |         block = LearningBlock(name="Rotation", block_type=LearningBlock.BLOCK_TYPE_ROTATION)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:71:1: W293 [*] Blank line contains whitespace
+   |
+70 |         block = LearningBlock(name="Rotation", block_type=LearningBlock.BLOCK_TYPE_ROTATION)
+71 |         
+   | ^^^^^^^^ W293
+72 |         # Missing primary dept
+73 |         with pytest.raises(ValidationError, match="primary_department is required"):
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:75:1: W293 [*] Blank line contains whitespace
+   |
+73 |         with pytest.raises(ValidationError, match="primary_department is required"):
+74 |             LearningBlockService.validate_block_type_rules(block, {"block_type": LearningBlock.BLOCK_TYPE_ROTATION})
+75 |             
+   | ^^^^^^^^^^^^ W293
+76 |         # Wrong sub dept parent
+77 |         with pytest.raises(ValidationError, match="sub_department must be a child"):
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:87:1: W293 [*] Blank line contains whitespace
+   |
+85 |         dept1 = Department.objects.create(name="Surgery")
+86 |         block = LearningBlock(name="Integrated", block_type=LearningBlock.BLOCK_TYPE_INTEGRATED)
+87 |         
+   | ^^^^^^^^ W293
+88 |         with pytest.raises(ValidationError, match="primary_department must be null"):
+89 |             LearningBlockService.validate_block_type_rules(block, {
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:98:1: W293 [*] Blank line contains whitespace
+    |
+ 96 |         period = Period.objects.create(program=program, name="P1", order=1)
+ 97 |         track = Track.objects.create(program=program, name="T1")
+ 98 |         
+    | ^^^^^^^^ W293
+ 99 |         LearningBlock.objects.create(
+100 |             track=track, period=period, name="B1", 
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:100:51: W291 [*] Trailing whitespace
+    |
+ 99 |         LearningBlock.objects.create(
+100 |             track=track, period=period, name="B1", 
+    |                                                   ^ W291
+101 |             start_date=date(2024, 1, 1), 
+102 |             end_date=date(2024, 1, 31)
+    |
+    = help: Remove trailing whitespace
+
+tests/test_academics_extended.py:101:41: W291 [*] Trailing whitespace
+    |
+ 99 |         LearningBlock.objects.create(
+100 |             track=track, period=period, name="B1", 
+101 |             start_date=date(2024, 1, 1), 
+    |                                         ^ W291
+102 |             end_date=date(2024, 1, 31)
+103 |         )
+    |
+    = help: Remove trailing whitespace
+
+tests/test_academics_extended.py:104:1: W293 [*] Blank line contains whitespace
+    |
+102 |             end_date=date(2024, 1, 31)
+103 |         )
+104 |         
+    | ^^^^^^^^ W293
+105 |         new_block = LearningBlock(track=track, name="B2")
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:106:1: W293 [*] Blank line contains whitespace
+    |
+105 |         new_block = LearningBlock(track=track, name="B2")
+106 |         
+    | ^^^^^^^^ W293
+107 |         # Exact overlap
+108 |         with pytest.raises(ValidationError, match="overlaps"):
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_academics_extended.py:114:1: W293 [*] Blank line contains whitespace
+    |
+112 |         d1 = Department.objects.create(name="D1")
+113 |         d2 = Department.objects.create(name="D2", parent=d1)
+114 |         
+    | ^^^^^^^^ W293
+115 |         with pytest.raises(ValidationError, match="circular reference"):
+116 |             DepartmentService.validate_parent_relationship(d1, d2)
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_admin_views_extended.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+  |
+1 | / import pytest
+2 | | from rest_framework import status
+3 | | from django.contrib.auth.models import Group, User
+4 | | from sims_backend.audit.models import AuditLog
+5 | | 
+6 | | @pytest.fixture
+  | |_^ I001
+7 |   def impersonation_setup(db):
+8 |       admin_user = User.objects.create_superuser(username="admin_imp", password="pass")
+  |
+  = help: Organize imports
+
+tests/test_admin_views_extended.py:2:28: F401 [*] `rest_framework.status` imported but unused
+  |
+1 | import pytest
+2 | from rest_framework import status
+  |                            ^^^^^^ F401
+3 | from django.contrib.auth.models import Group, User
+4 | from sims_backend.audit.models import AuditLog
+  |
+  = help: Remove unused import: `rest_framework.status`
+
+tests/test_admin_views_extended.py:11:1: W293 [*] Blank line contains whitespace
+   |
+ 9 |     admin_group, _ = Group.objects.get_or_create(name="ADMIN")
+10 |     admin_user.groups.add(admin_group)
+11 |     
+   | ^^^^ W293
+12 |     target_user = User.objects.create_user(username="target_user", password="pass")
+13 |     student_group, _ = Group.objects.get_or_create(name="STUDENT")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_admin_views_extended.py:15:1: W293 [*] Blank line contains whitespace
+   |
+13 |     student_group, _ = Group.objects.get_or_create(name="STUDENT")
+14 |     target_user.groups.add(student_group)
+15 |     
+   | ^^^^ W293
+16 |     return {
+17 |         "admin": admin_user,
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_admin_views_extended.py:28:1: W293 [*] Blank line contains whitespace
+   |
+26 |         data = {"target_user_id": impersonation_setup["target"].id}
+27 |         response = api_client.post(url, data, format="json")
+28 |         
+   | ^^^^^^^^ W293
+29 |         assert response.status_code == 200
+30 |         assert "access" in response.data
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_admin_views_extended.py:39:1: W293 [*] Blank line contains whitespace
+   |
+37 |         data = {"target_user_id": impersonation_setup["admin"].id}
+38 |         response = api_client.post(url, data, format="json")
+39 |         
+   | ^^^^^^^^ W293
+40 |         # Cannot impersonate other admins (including self)
+41 |         assert response.status_code == 403
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_admin_views_extended.py:48:1: W293 [*] Blank line contains whitespace
+   |
+46 |         data = {"target_user_id": impersonation_setup["target"].id}
+47 |         response = api_client.post(url, data, format="json")
+48 |         
+   | ^^^^^^^^ W293
+49 |         assert response.status_code == 200
+50 |         assert response.data["success"] is True
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_inputs.py:101:1: W293 [*] Blank line contains whitespace
+    |
+ 99 |     session, students = session_with_students
+100 |     api_client.force_authenticate(user=admin_user)
+101 |     
+    | ^^^^ W293
+102 |     # Create a job manually for commit
+103 |     from sims_backend.attendance.models import AttendanceInputJob
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_attendance_inputs.py:112:1: W293 [*] Blank line contains whitespace
+    |
+110 |         summary={"records": [{"student_id": students[0].id, "status": "P"}]}
+111 |     )
+112 |     
+    | ^^^^ W293
+113 |     response = api_client.post("/api/attendance-input/csv/commit/", {"job_id": job.id}, format="json")
+114 |     assert response.status_code == 200
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_attendance_inputs.py:121:1: W293 [*] Blank line contains whitespace
+    |
+119 |     session, students = session_with_students
+120 |     api_client.force_authenticate(user=admin_user)
+121 |     
+    | ^^^^ W293
+122 |     payload = {
+123 |         "punches": [
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_attendance_inputs.py:137:1: W293 [*] Blank line contains whitespace
+    |
+135 |     session, students = session_with_students
+136 |     api_client.force_authenticate(user=admin_user)
+137 |     
+    | ^^^^ W293
+138 |     from sims_backend.attendance.models import AttendanceInputJob
+139 |     job = AttendanceInputJob.objects.create(
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_attendance_inputs.py:147:1: W293 [*] Blank line contains whitespace
+    |
+145 |         summary={"results": [{"student_id": students[0].id, "detected_status": "PRESENT"}]}
+146 |     )
+147 |     
+    | ^^^^ W293
+148 |     response = api_client.post("/api/attendance-input/sheet/commit/", {"job_id": job.id}, format="json")
+149 |     assert response.status_code == 200
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+ 1 | / import pytest
+ 2 | | from datetime import date, timedelta
+ 3 | | from django.utils import timezone
+ 4 | | from django.contrib.auth.models import User, Group
+ 5 | | from sims_backend.attendance.models import Attendance
+ 6 | | from sims_backend.attendance.services.input_methods import parse_status_value, _validate_date, bulk_upsert_attendance_for_session
+ 7 | | from sims_backend.academics.models import Program, Batch, Group as AcadGroup, AcademicPeriod, Department
+ 8 | | from sims_backend.timetable.models import Session
+ 9 | | 
+10 | | def test_parse_status_value():
+   | |_^ I001
+11 |       assert parse_status_value("p") == Attendance.STATUS_PRESENT
+12 |       assert parse_status_value("PRESENT") == Attendance.STATUS_PRESENT
+   |
+   = help: Organize imports
+
+tests/test_attendance_logic.py:2:22: F401 [*] `datetime.date` imported but unused
+  |
+1 | import pytest
+2 | from datetime import date, timedelta
+  |                      ^^^^ F401
+3 | from django.utils import timezone
+4 | from django.contrib.auth.models import User, Group
+  |
+  = help: Remove unused import: `datetime.date`
+
+tests/test_attendance_logic.py:4:46: F401 [*] `django.contrib.auth.models.Group` imported but unused
+  |
+2 | from datetime import date, timedelta
+3 | from django.utils import timezone
+4 | from django.contrib.auth.models import User, Group
+  |                                              ^^^^^ F401
+5 | from sims_backend.attendance.models import Attendance
+6 | from sims_backend.attendance.services.input_methods import parse_status_value, _validate_date, bulk_upsert_attendance_for_session
+  |
+  = help: Remove unused import: `django.contrib.auth.models.Group`
+
+tests/test_attendance_logic.py:23:1: W293 [*] Blank line contains whitespace
+   |
+21 |     admin = User.objects.create_superuser(username="a_tt", password="p")
+22 |     faculty = User.objects.create_user(username="f_tt", password="p")
+23 |     
+   | ^^^^ W293
+24 |     period = AcademicPeriod.objects.create(name="P", period_type="YEAR")
+25 |     dept = Department.objects.create(name="D")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:29:1: W293 [*] Blank line contains whitespace
+   |
+27 |     batch = Batch.objects.create(program=program, name="B", start_year=2024)
+28 |     group = AcadGroup.objects.create(batch=batch, name="G")
+29 |     
+   | ^^^^ W293
+30 |     today = timezone.localdate()
+31 |     session = Session.objects.create(
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:35:1: W293 [*] Blank line contains whitespace
+   |
+33 |         starts_at=timezone.now(), ends_at=timezone.now() + timedelta(hours=1)
+34 |     )
+35 |     
+   | ^^^^ W293
+36 |     # Admin can do anything
+37 |     _validate_date(session, today - timedelta(days=10), admin)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:38:1: W293 [*] Blank line contains whitespace
+   |
+36 |     # Admin can do anything
+37 |     _validate_date(session, today - timedelta(days=10), admin)
+38 |     
+   | ^^^^ W293
+39 |     # Faculty cannot edit past dates
+40 |     with pytest.raises(ValueError, match="admin privileges"):
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:42:1: W293 [*] Blank line contains whitespace
+   |
+40 |     with pytest.raises(ValueError, match="admin privileges"):
+41 |         _validate_date(session, today - timedelta(days=1), faculty)
+42 |         
+   | ^^^^^^^^ W293
+43 |     # Faculty cannot edit wrong session date
+44 |     with pytest.raises(ValueError, match="schedule"):
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:55:1: W293 [*] Blank line contains whitespace
+   |
+53 |     period = AcademicPeriod.objects.create(name="P", period_type="YEAR")
+54 |     dept = Department.objects.create(name="D")
+55 |     
+   | ^^^^ W293
+56 |     from sims_backend.students.models import Student
+57 |     s1 = Student.objects.create(reg_no="S1", name="Stu 1", program=program, batch=batch, group=group)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:59:1: W293 [*] Blank line contains whitespace
+   |
+57 |     s1 = Student.objects.create(reg_no="S1", name="Stu 1", program=program, batch=batch, group=group)
+58 |     s2 = Student.objects.create(reg_no="S2", name="Stu 2", program=program, batch=batch, group=group)
+59 |     
+   | ^^^^ W293
+60 |     session = Session.objects.create(
+61 |         academic_period=period, department=dept, group=group, faculty=admin,
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:64:1: W293 [*] Blank line contains whitespace
+   |
+62 |         starts_at=timezone.now(), ends_at=timezone.now() + timedelta(hours=1)
+63 |     )
+64 |     
+   | ^^^^ W293
+65 |     records = [
+66 |         {"student_id": s1.id, "status": "PRESENT"},
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:69:1: W293 [*] Blank line contains whitespace
+   |
+67 |         {"reg_no": "S2", "status": "ABSENT"}
+68 |     ]
+69 |     
+   | ^^^^ W293
+70 |     res = bulk_upsert_attendance_for_session(
+71 |         session=session, records=records, default_status="PRESENT", actor=admin
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_attendance_logic.py:76:1: W293 [*] Blank line contains whitespace
+   |
+74 |     assert Attendance.objects.filter(session=session, student=s1, status="PRESENT").exists()
+75 |     assert Attendance.objects.filter(session=session, student=s2, status="ABSENT").exists()
+76 |     
+   | ^^^^ W293
+77 |     # Update
+78 |     records2 = [{"reg_no": "S1", "status": "ABSENT"}]
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+ 1 | / import pytest
+ 2 | | from rest_framework import status
+ 3 | | from django.contrib.auth.models import Group, User
+ 4 | | from sims_backend.compliance.models import RequirementDefinition, RequirementInstance, RequirementSubmission
+ 5 | | from sims_backend.students.models import Student
+ 6 | | from sims_backend.academics.models import Program, Batch, Group as AcadGroup
+ 7 | | 
+ 8 | | @pytest.fixture
+   | |_^ I001
+ 9 |   def compliance_setup(db):
+10 |       program = Program.objects.create(name="MBBS")
+   |
+   = help: Organize imports
+
+tests/test_compliance_extended.py:2:28: F401 [*] `rest_framework.status` imported but unused
+  |
+1 | import pytest
+2 | from rest_framework import status
+  |                            ^^^^^^ F401
+3 | from django.contrib.auth.models import Group, User
+4 | from sims_backend.compliance.models import RequirementDefinition, RequirementInstance, RequirementSubmission
+  |
+  = help: Remove unused import: `rest_framework.status`
+
+tests/test_compliance_extended.py:3:40: F401 [*] `django.contrib.auth.models.Group` imported but unused
+  |
+1 | import pytest
+2 | from rest_framework import status
+3 | from django.contrib.auth.models import Group, User
+  |                                        ^^^^^ F401
+4 | from sims_backend.compliance.models import RequirementDefinition, RequirementInstance, RequirementSubmission
+5 | from sims_backend.students.models import Student
+  |
+  = help: Remove unused import: `django.contrib.auth.models.Group`
+
+tests/test_compliance_extended.py:13:1: W293 [*] Blank line contains whitespace
+   |
+11 |     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
+12 |     group = AcadGroup.objects.create(batch=batch, name="A")
+13 |     
+   | ^^^^ W293
+14 |     student_user = User.objects.create_user(username="stu_comp", password="pass")
+15 |     student = Student.objects.create(user=student_user, reg_no="C1", name="Stu", program=program, batch=batch, group=group)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:16:1: W293 [*] Blank line contains whitespace
+   |
+14 |     student_user = User.objects.create_user(username="stu_comp", password="pass")
+15 |     student = Student.objects.create(user=student_user, reg_no="C1", name="Stu", program=program, batch=batch, group=group)
+16 |     
+   | ^^^^ W293
+17 |     admin_user = User.objects.create_superuser(username="admin_comp", password="pass")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:18:1: W293 [*] Blank line contains whitespace
+   |
+17 |     admin_user = User.objects.create_superuser(username="admin_comp", password="pass")
+18 |     
+   | ^^^^ W293
+19 |     definition = RequirementDefinition.objects.create(
+20 |         title="B-Form", 
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:20:24: W291 [*] Trailing whitespace
+   |
+19 |     definition = RequirementDefinition.objects.create(
+20 |         title="B-Form", 
+   |                        ^ W291
+21 |         requirement_type="document"
+22 |     )
+   |
+   = help: Remove trailing whitespace
+
+tests/test_compliance_extended.py:23:1: W293 [*] Blank line contains whitespace
+   |
+21 |         requirement_type="document"
+22 |     )
+23 |     
+   | ^^^^ W293
+24 |     instance = RequirementInstance.objects.create(
+25 |         student=student,
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:29:1: W293 [*] Blank line contains whitespace
+   |
+27 |         status=RequirementInstance.STATUS_PENDING
+28 |     )
+29 |     
+   | ^^^^ W293
+30 |     return {
+31 |         "student_user": student_user,
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:46:1: W293 [*] Blank line contains whitespace
+   |
+44 |         data = {"value": "Submitted value"}
+45 |         response = api_client.post(url, data, format="json")
+46 |         
+   | ^^^^^^^^ W293
+47 |         assert response.status_code == 200
+48 |         instance.refresh_from_db()
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:55:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+53 |           api_client.force_authenticate(user=compliance_setup["student_user"])
+54 |           instance = compliance_setup["instance"]
+55 | /         from django.utils import timezone
+56 | |         from datetime import timedelta
+57 | |         # set due date to 1 hour from now (locks if < 72h)
+   | |_^ I001
+58 |           instance.due_at = timezone.now() + timedelta(hours=1)
+59 |           instance.save()
+   |
+   = help: Organize imports
+
+tests/test_compliance_extended.py:60:1: W293 [*] Blank line contains whitespace
+   |
+58 |         instance.due_at = timezone.now() + timedelta(hours=1)
+59 |         instance.save()
+60 |         
+   | ^^^^^^^^ W293
+61 |         url = f"/api/compliance/my-compliance/{instance.id}/submit/"
+62 |         response = api_client.post(url, {"value": "x"}, format="json")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:72:1: W293 [*] Blank line contains whitespace
+   |
+70 |         instance.status = RequirementInstance.STATUS_SUBMITTED
+71 |         instance.save()
+72 |         
+   | ^^^^^^^^ W293
+73 |         url = f"/api/compliance/admin-compliance/{instance.id}/verify/"
+74 |         response = api_client.post(url, {"notes": "All good"}, format="json")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:75:1: W293 [*] Blank line contains whitespace
+   |
+73 |         url = f"/api/compliance/admin-compliance/{instance.id}/verify/"
+74 |         response = api_client.post(url, {"notes": "All good"}, format="json")
+75 |         
+   | ^^^^^^^^ W293
+76 |         assert response.status_code == 200
+77 |         instance.refresh_from_db()
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_compliance_extended.py:85:1: W293 [*] Blank line contains whitespace
+   |
+83 |         url = f"/api/compliance/admin-compliance/{instance.id}/reject/"
+84 |         response = api_client.post(url, {"notes": "Incorrect"}, format="json")
+85 |         
+   | ^^^^^^^^ W293
+86 |         assert response.status_code == 200
+87 |         instance.refresh_from_db()
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_core_serializers.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+  |
+1 | / import pytest
+2 | | from core.serializers import UserSerializer, UserMeSerializer, RoleSerializer, PermissionTaskSerializer
+3 | | from django.contrib.auth.models import Group, User
+4 | | from core.models import Role, PermissionTask
+5 | | 
+6 | | @pytest.mark.django_db
+  | |_^ I001
+7 |   class TestCoreSerializers:
+8 |       def test_user_serializer(self):
+  |
+  = help: Organize imports
+
+tests/test_core_serializers.py:12:1: W293 [*] Blank line contains whitespace
+   |
+10 |         group, _ = Group.objects.get_or_create(name="STUDENT")
+11 |         user.groups.add(group)
+12 |         
+   | ^^^^^^^^ W293
+13 |         serializer = UserSerializer(user)
+14 |         data = serializer.data
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_core_serializers.py:22:1: W293 [*] Blank line contains whitespace
+   |
+20 |         group, _ = Group.objects.get_or_create(name="ADMIN")
+21 |         user.groups.add(group)
+22 |         
+   | ^^^^^^^^ W293
+23 |         serializer = UserMeSerializer(user)
+24 |         data = serializer.data
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_core_views_extended.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+  |
+1 | / import pytest
+2 | | from rest_framework import status
+3 | | from django.contrib.auth.models import Group, User
+4 | | from sims_backend.students.models import Student
+5 | | from sims_backend.academics.models import Program, Batch, Group as AcadGroup
+6 | | 
+7 | | @pytest.mark.django_db
+  | |_^ I001
+8 |   class TestCoreViewsExtended:
+9 |       def test_unified_login_email(self, api_client):
+  |
+  = help: Organize imports
+
+tests/test_core_views_extended.py:2:28: F401 [*] `rest_framework.status` imported but unused
+  |
+1 | import pytest
+2 | from rest_framework import status
+  |                            ^^^^^^ F401
+3 | from django.contrib.auth.models import Group, User
+4 | from sims_backend.students.models import Student
+  |
+  = help: Remove unused import: `rest_framework.status`
+
+tests/test_core_views_extended.py:43:1: W293 [*] Blank line contains whitespace
+   |
+41 |         faculty_group, _ = Group.objects.get_or_create(name="FACULTY")
+42 |         faculty_user.groups.add(faculty_group)
+43 |         
+   | ^^^^^^^^ W293
+44 |         api_client.force_authenticate(user=faculty_user)
+45 |         response = api_client.get("/api/dashboard/stats/")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_core_views_extended.py:53:1: W293 [*] Blank line contains whitespace
+   |
+51 |         batch = Batch.objects.create(program=program, name="2024", start_year=2024)
+52 |         group = AcadGroup.objects.create(batch=batch, name="A")
+53 |         
+   | ^^^^^^^^ W293
+54 |         student_user = User.objects.create_user(username="stu1", password="pass")
+55 |         student_group, _ = Group.objects.get_or_create(name="STUDENT")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_core_views_extended.py:58:1: W293 [*] Blank line contains whitespace
+   |
+56 |         student_user.groups.add(student_group)
+57 |         Student.objects.create(user=student_user, reg_no="S1", name="Stu", program=program, batch=batch, group=group)
+58 |         
+   | ^^^^^^^^ W293
+59 |         api_client.force_authenticate(user=student_user)
+60 |         response = api_client.get("/api/dashboard/stats/")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_core_views_extended.py:68:1: W293 [*] Blank line contains whitespace
+   |
+66 |         fin_group, _ = Group.objects.get_or_create(name="FINANCE")
+67 |         fin_user.groups.add(fin_group)
+68 |         
+   | ^^^^^^^^ W293
+69 |         api_client.force_authenticate(user=fin_user)
+70 |         response = api_client.get("/api/dashboard/stats/")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_core_views_extended.py:78:1: W293 [*] Blank line contains whitespace
+   |
+76 |         student_group, _ = Group.objects.get_or_create(name="STUDENT")
+77 |         student_user.groups.add(student_group)
+78 |         
+   | ^^^^^^^^ W293
+79 |         api_client.force_authenticate(user=student_user)
+80 |         response = api_client.get("/api/dashboard/stats/")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_coverage_unblock_sprint.py:14:44: F401 [*] `django.core.files.uploadedfile.SimpleUploadedFile` imported but unused
+   |
+12 | import pytest
+13 | from django.contrib.auth import get_user_model
+14 | from django.core.files.uploadedfile import SimpleUploadedFile
+   |                                            ^^^^^^^^^^^^^^^^^^ F401
+15 | from rest_framework import status
+   |
+   = help: Remove unused import: `django.core.files.uploadedfile.SimpleUploadedFile`
+
+tests/test_exam_logic.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+  |
+1 | / import pytest
+2 | | from decimal import Decimal
+3 | | from sims_backend.academics.models import AcademicPeriod
+4 | | from sims_backend.exams.models import Exam, ExamComponent
+5 | | from sims_backend.exams.logic import compute_passing_status
+6 | | 
+7 | | @pytest.fixture
+  | |_^ I001
+8 |   def exam_setup(db):
+9 |       period = AcademicPeriod.objects.create(name="Test Period", period_type="YEAR")
+  |
+  = help: Organize imports
+
+tests/test_exam_logic.py:19:1: W293 [*] Blank line contains whitespace
+   |
+17 |     exam.passing_mode = Exam.PASSING_MODE_TOTAL_ONLY
+18 |     exam.pass_total_marks = 75
+19 |     
+   | ^^^^ W293
+20 |     # Pass
+21 |     res = compute_passing_status(exam, Decimal("80"), Decimal("150"), [])
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:23:1: W293 [*] Blank line contains whitespace
+   |
+21 |     res = compute_passing_status(exam, Decimal("80"), Decimal("150"), [])
+22 |     assert res["final_outcome"] == "PASS"
+23 |     
+   | ^^^^ W293
+24 |     # Fail
+25 |     res = compute_passing_status(exam, Decimal("70"), Decimal("150"), [])
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:32:1: W293 [*] Blank line contains whitespace
+   |
+30 |     exam.passing_mode = Exam.PASSING_MODE_TOTAL_ONLY
+31 |     exam.pass_total_percent = 50
+32 |     
+   | ^^^^ W293
+33 |     # Pass
+34 |     res = compute_passing_status(exam, Decimal("75"), Decimal("150"), [])
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:36:1: W293 [*] Blank line contains whitespace
+   |
+34 |     res = compute_passing_status(exam, Decimal("75"), Decimal("150"), [])
+35 |     assert res["final_outcome"] == "PASS"
+36 |     
+   | ^^^^ W293
+37 |     # Fail
+38 |     res = compute_passing_status(exam, Decimal("70"), Decimal("150"), [])
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:45:1: W293 [*] Blank line contains whitespace
+   |
+43 |     exam.passing_mode = Exam.PASSING_MODE_COMPONENT_WISE
+44 |     exam.fail_if_any_component_fail = False
+45 |     
+   | ^^^^ W293
+46 |     t_id = exam_setup["theory"].id
+47 |     p_id = exam_setup["practical"].id
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:48:1: W293 [*] Blank line contains whitespace
+   |
+46 |     t_id = exam_setup["theory"].id
+47 |     p_id = exam_setup["practical"].id
+48 |     
+   | ^^^^ W293
+49 |     # Theory mandatory, pass theory (80/100, pass_marks=50)
+50 |     exam_setup["theory"].pass_marks = 50
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:52:1: W293 [*] Blank line contains whitespace
+   |
+50 |     exam_setup["theory"].pass_marks = 50
+51 |     exam_setup["theory"].save()
+52 |     
+   | ^^^^ W293
+53 |     entries = [
+54 |         {"exam_component_id": t_id, "marks_obtained": 60, "max_marks": 100},
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:57:1: W293 [*] Blank line contains whitespace
+   |
+55 |         {"exam_component_id": p_id, "marks_obtained": 10, "max_marks": 50}
+56 |     ]
+57 |     
+   | ^^^^ W293
+58 |     res = compute_passing_status(exam, Decimal("70"), Decimal("150"), entries)
+59 |     assert res["final_outcome"] == "PASS"
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:67:1: W293 [*] Blank line contains whitespace
+   |
+65 |     exam.passing_mode = Exam.PASSING_MODE_COMPONENT_WISE
+66 |     exam.fail_if_any_component_fail = True
+67 |     
+   | ^^^^ W293
+68 |     t_id = exam_setup["theory"].id
+69 |     p_id = exam_setup["practical"].id
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:70:1: W293 [*] Blank line contains whitespace
+   |
+68 |     t_id = exam_setup["theory"].id
+69 |     p_id = exam_setup["practical"].id
+70 |     
+   | ^^^^ W293
+71 |     exam_setup["theory"].pass_marks = 50
+72 |     exam_setup["theory"].save()
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:75:1: W293 [*] Blank line contains whitespace
+   |
+73 |     exam_setup["practical"].pass_marks = 25
+74 |     exam_setup["practical"].save()
+75 |     
+   | ^^^^ W293
+76 |     entries = [
+77 |         {"exam_component_id": t_id, "marks_obtained": 60, "max_marks": 100},
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:80:1: W293 [*] Blank line contains whitespace
+   |
+78 |         {"exam_component_id": p_id, "marks_obtained": 10, "max_marks": 50} # Fails practical
+79 |     ]
+80 |     
+   | ^^^^ W293
+81 |     res = compute_passing_status(exam, Decimal("70"), Decimal("150"), entries)
+82 |     assert res["final_outcome"] == "FAIL"
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:88:1: W293 [*] Blank line contains whitespace
+   |
+86 |     exam.passing_mode = Exam.PASSING_MODE_HYBRID
+87 |     exam.pass_total_percent = 50
+88 |     
+   | ^^^^ W293
+89 |     t_id = exam_setup["theory"].id
+90 |     exam_setup["theory"].pass_marks = 50
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:92:1: W293 [*] Blank line contains whitespace
+   |
+90 |     exam_setup["theory"].pass_marks = 50
+91 |     exam_setup["theory"].save()
+92 |     
+   | ^^^^ W293
+93 |     # Case 1: Total pass, component pass -> PASS
+94 |     entries = [{"exam_component_id": t_id, "marks_obtained": 60, "max_marks": 100}]
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:97:1: W293 [*] Blank line contains whitespace
+   |
+95 |     res = compute_passing_status(exam, Decimal("80"), Decimal("150"), entries)
+96 |     assert res["final_outcome"] == "PASS"
+97 |     
+   | ^^^^ W293
+98 |     # Case 2: Total pass, component fail -> FAIL
+99 |     entries = [{"exam_component_id": t_id, "marks_obtained": 40, "max_marks": 100}]
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_exam_logic.py:102:1: W293 [*] Blank line contains whitespace
+    |
+100 |     res = compute_passing_status(exam, Decimal("80"), Decimal("150"), entries)
+101 |     assert res["final_outcome"] == "FAIL"
+102 |     
+    | ^^^^ W293
+103 |     # Case 3: Total fail, component pass -> FAIL
+104 |     entries = [{"exam_component_id": t_id, "marks_obtained": 60, "max_marks": 100}]
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_faculty_imports.py:7:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+ 5 |   """
+ 6 |   
+ 7 | / import io
+ 8 | | import pytest
+ 9 | | from django.contrib.auth import get_user_model
+10 | | from django.core.files.uploadedfile import SimpleUploadedFile
+11 | | from rest_framework import status
+12 | | 
+13 | | from sims_backend.faculty.imports.models import FacultyImportJob
+14 | | 
+15 | | User = get_user_model()
+   | |_^ I001
+   |
+   = help: Organize imports
+
+tests/test_faculty_imports.py:7:8: F401 [*] `io` imported but unused
+  |
+5 | """
+6 | 
+7 | import io
+  |        ^^ F401
+8 | import pytest
+9 | from django.contrib.auth import get_user_model
+  |
+  = help: Remove unused import: `io`
+
+tests/test_faculty_imports.py:437:91: F541 [*] f-string without any placeholders
+    |
+435 |             format="multipart"
+436 |         )
+437 |         assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], f"POST preview failed for admin"
+    |                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ F541
+438 | 
+439 |     def test_all_endpoints_allow_coordinator(self, coordinator_client):
+    |
+    = help: Remove extraneous `f` prefix
+
+tests/test_faculty_imports.py:456:91: F541 [*] f-string without any placeholders
+    |
+454 |             format="multipart"
+455 |         )
+456 |         assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], f"POST preview failed for coordinator"
+    |                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ F541
+    |
+    = help: Remove extraneous `f` prefix
+
+tests/test_finance_extended.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+ 1 | / import pytest
+ 2 | | from decimal import Decimal
+ 3 | | from datetime import date, timedelta
+ 4 | | from django.contrib.auth.models import Group, User
+ 5 | | from rest_framework.test import APIClient
+ 6 | | from sims_backend.academics.models import AcademicPeriod, Batch, Program, Group as AcadGroup
+ 7 | | from sims_backend.finance.models import FeePlan, FeeType, Voucher, Payment, LedgerEntry
+ 8 | | 
+ 9 | | @pytest.fixture
+   | |_^ I001
+10 |   def finance_api_setup(db):
+11 |       program = Program.objects.create(name="Finance Ext Program")
+   |
+   = help: Organize imports
+
+tests/test_finance_extended.py:4:40: F401 [*] `django.contrib.auth.models.Group` imported but unused
+  |
+2 | from decimal import Decimal
+3 | from datetime import date, timedelta
+4 | from django.contrib.auth.models import Group, User
+  |                                        ^^^^^ F401
+5 | from rest_framework.test import APIClient
+6 | from sims_backend.academics.models import AcademicPeriod, Batch, Program, Group as AcadGroup
+  |
+  = help: Remove unused import: `django.contrib.auth.models.Group`
+
+tests/test_finance_extended.py:14:1: W293 [*] Blank line contains whitespace
+   |
+12 |     term = AcademicPeriod.objects.create(period_type=AcademicPeriod.PERIOD_TYPE_YEAR, name="ExtTerm1")
+13 |     fee_type = FeeType.objects.create(code="EXT_TUITION", name="Ext Tuition Fee")
+14 |     
+   | ^^^^ W293
+15 |     admin_user = User.objects.create_superuser(username="admin_fin", password="pass", email="admin@sims.edu")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:16:1: W293 [*] Blank line contains whitespace
+   |
+15 |     admin_user = User.objects.create_superuser(username="admin_fin", password="pass", email="admin@sims.edu")
+16 |     
+   | ^^^^ W293
+17 |     # Create Finance role and user
+18 |     from django.contrib.auth.models import Group as AuthGroup
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:22:1: W293 [*] Blank line contains whitespace
+   |
+20 |     finance_user = User.objects.create_user(username="fin_user", password="pass")
+21 |     finance_user.groups.add(finance_group)
+22 |     
+   | ^^^^ W293
+23 |     # Give finance user permissions via task codes if needed, but for ViewSet we use PermissionTaskRequired
+24 |     # In tests, sometimes easier to just use admin or mock permissions.
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:26:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+24 |       # In tests, sometimes easier to just use admin or mock permissions.
+25 |       # But let's try to do it properly.
+26 | /     from core.models import Role, PermissionTask, RoleTaskAssignment
+27 | |     role, _ = Role.objects.get_or_create(name="FINANCE")
+   | |_^ I001
+28 |       tasks = [
+29 |           "finance.vouchers.view", "finance.vouchers.create", "finance.vouchers.generate",
+   |
+   = help: Organize imports
+
+tests/test_finance_extended.py:45:1: W293 [*] Blank line contains whitespace
+   |
+43 |         status=Student.STATUS_ACTIVE
+44 |     )
+45 |     
+   | ^^^^ W293
+46 |     return {
+47 |         "program": program,
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:60:1: W293 [*] Blank line contains whitespace
+   |
+58 |         client = APIClient()
+59 |         client.force_authenticate(user=finance_api_setup["admin_user"])
+60 |         
+   | ^^^^^^^^ W293
+61 |         # Create a voucher with dues
+62 |         from sims_backend.finance.services import create_voucher_from_feeplan
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:72:1: W293 [*] Blank line contains whitespace
+   |
+70 |         due_date = date.today() + timedelta(days=30)
+71 |         create_voucher_from_feeplan(finance_api_setup["student"], finance_api_setup["term"], finance_api_setup["admin_user"], due_date=due_date)
+72 |         
+   | ^^^^^^^^ W293
+73 |         from django.urls import reverse
+74 |         url = reverse("finance-reports-defaulters")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:84:1: W293 [*] Blank line contains whitespace
+   |
+82 |         client = APIClient()
+83 |         client.force_authenticate(user=finance_api_setup["admin_user"])
+84 |         
+   | ^^^^^^^^ W293
+85 |         # Post and verify a payment
+86 |         from sims_backend.finance.services import post_payment, verify_payment
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:88:69: W291 [*] Trailing whitespace
+   |
+86 |         from sims_backend.finance.services import post_payment, verify_payment
+87 |         payment = post_payment(
+88 |             finance_api_setup["student"], finance_api_setup["term"], 
+   |                                                                     ^ W291
+89 |             Decimal("1000.00"), Payment.METHOD_CASH, received_by=finance_api_setup["admin_user"]
+90 |         )
+   |
+   = help: Remove trailing whitespace
+
+tests/test_finance_extended.py:92:1: W293 [*] Blank line contains whitespace
+   |
+90 |         )
+91 |         verify_payment(payment, approved_by=finance_api_setup["admin_user"])
+92 |         
+   | ^^^^^^^^ W293
+93 |         today = date.today().isoformat()
+94 |         url = f"/api/finance/reports/collection/?start={today}&end={today}"
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:113:1: W293 [*] Blank line contains whitespace
+    |
+111 |         client = APIClient()
+112 |         client.force_authenticate(user=finance_api_setup["finance_user"])
+113 |         
+    | ^^^^^^^^ W293
+114 |         FeePlan.objects.create(
+115 |             program=finance_api_setup["program"],
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:121:1: W293 [*] Blank line contains whitespace
+    |
+119 |             is_mandatory=True
+120 |         )
+121 |         
+    | ^^^^^^^^ W293
+122 |         url = "/api/finance/vouchers/generate/"
+123 |         data = {
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:135:1: W293 [*] Blank line contains whitespace
+    |
+133 |         client = APIClient()
+134 |         client.force_authenticate(user=finance_api_setup["admin_user"])
+135 |         
+    | ^^^^^^^^ W293
+136 |         from sims_backend.finance.services import post_payment, verify_payment
+137 |         payment = post_payment(
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:138:69: W291 [*] Trailing whitespace
+    |
+136 |         from sims_backend.finance.services import post_payment, verify_payment
+137 |         payment = post_payment(
+138 |             finance_api_setup["student"], finance_api_setup["term"], 
+    |                                                                     ^ W291
+139 |             Decimal("1000.00"), Payment.METHOD_CASH, received_by=finance_api_setup["admin_user"]
+140 |         )
+    |
+    = help: Remove trailing whitespace
+
+tests/test_finance_extended.py:142:1: W293 [*] Blank line contains whitespace
+    |
+140 |         )
+141 |         verify_payment(payment, approved_by=finance_api_setup["admin_user"])
+142 |         
+    | ^^^^^^^^ W293
+143 |         url = f"/api/finance/payments/{payment.id}/reverse/"
+144 |         response = client.post(url, {"reason": "Duplicate entry"})
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:147:1: W293 [*] Blank line contains whitespace
+    |
+145 |         assert response.status_code == 200
+146 |         assert "REVERSED" in response.data["notes"]
+147 |         
+    | ^^^^^^^^ W293
+148 |         # Check ledger entries for reversal (original credit should have a corresponding debit)
+149 |         # Reversal service usually creates a balancing entry
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:155:1: W293 [*] Blank line contains whitespace
+    |
+153 |         client = APIClient()
+154 |         client.force_authenticate(user=finance_api_setup["admin_user"])
+155 |         
+    | ^^^^^^^^ W293
+156 |         from sims_backend.finance.services import post_payment
+157 |         payment = post_payment(
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:158:69: W291 [*] Trailing whitespace
+    |
+156 |         from sims_backend.finance.services import post_payment
+157 |         payment = post_payment(
+158 |             finance_api_setup["student"], finance_api_setup["term"], 
+    |                                                                     ^ W291
+159 |             Decimal("1000.00"), Payment.METHOD_BANK_TRANSFER, received_by=finance_api_setup["admin_user"]
+160 |         )
+    |
+    = help: Remove trailing whitespace
+
+tests/test_finance_extended.py:161:1: W293 [*] Blank line contains whitespace
+    |
+159 |             Decimal("1000.00"), Payment.METHOD_BANK_TRANSFER, received_by=finance_api_setup["admin_user"]
+160 |         )
+161 |         
+    | ^^^^^^^^ W293
+162 |         url = f"/api/finance/payments/{payment.id}/verify/"
+163 |         response = client.post(url, {"approve": False, "notes": "Invalid receipt"}, format="json")
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:170:1: W293 [*] Blank line contains whitespace
+    |
+168 |         from sims_backend.finance.models import Adjustment
+169 |         from sims_backend.finance.services import approve_adjustment
+170 |         
+    | ^^^^^^^^ W293
+171 |         adjustment = Adjustment.objects.create(
+172 |             student=finance_api_setup["student"],
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:179:1: W293 [*] Blank line contains whitespace
+    |
+177 |             requested_by=finance_api_setup["admin_user"]
+178 |         )
+179 |         
+    | ^^^^^^^^ W293
+180 |         approved = approve_adjustment(adjustment, finance_api_setup["admin_user"])
+181 |         assert approved.status == Adjustment.STATUS_APPROVED
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:185:1: I001 [*] Import block is un-sorted or un-formatted
+    |
+184 |       def test_voucher_reconciliation(self, finance_api_setup):
+185 | /         from sims_backend.finance.services import create_voucher_from_feeplan, post_payment, reconcile_voucher_status
+186 | |         from sims_backend.finance.models import FeePlan
+187 | |         FeePlan.objects.create(
+    | |_^ I001
+188 |               program=finance_api_setup["program"],
+189 |               term=finance_api_setup["term"],
+    |
+    = help: Organize imports
+
+tests/test_finance_extended.py:200:1: W293 [*] Blank line contains whitespace
+    |
+198 |         )
+199 |         voucher = voucher_res.voucher
+200 |         
+    | ^^^^^^^^ W293
+201 |         # Partially pay
+202 |         from sims_backend.finance.services import verify_payment
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:204:69: W291 [*] Trailing whitespace
+    |
+202 |         from sims_backend.finance.services import verify_payment
+203 |         payment = post_payment(
+204 |             finance_api_setup["student"], finance_api_setup["term"], 
+    |                                                                     ^ W291
+205 |             Decimal("400.00"), Payment.METHOD_CASH, received_by=finance_api_setup["admin_user"],
+206 |             voucher=voucher
+    |
+    = help: Remove trailing whitespace
+
+tests/test_finance_extended.py:209:1: W293 [*] Blank line contains whitespace
+    |
+207 |         )
+208 |         verify_payment(payment, approved_by=finance_api_setup["admin_user"])
+209 |         
+    | ^^^^^^^^ W293
+210 |         reconciled = reconcile_voucher_status(voucher)
+211 |         assert reconciled.status == Voucher.STATUS_PARTIAL
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:214:1: I001 [*] Import block is un-sorted or un-formatted
+    |
+213 |       def test_voucher_pdf_view(self, finance_api_setup):
+214 | /         from sims_backend.finance.services import create_voucher_from_feeplan
+215 | |         from sims_backend.finance.models import FeePlan
+216 | |         client = APIClient()
+    | |_^ I001
+217 |           client.force_authenticate(user=finance_api_setup["admin_user"])
+    |
+    = help: Organize imports
+
+tests/test_finance_extended.py:218:1: W293 [*] Blank line contains whitespace
+    |
+216 |         client = APIClient()
+217 |         client.force_authenticate(user=finance_api_setup["admin_user"])
+218 |         
+    | ^^^^^^^^ W293
+219 |         FeePlan.objects.create(
+220 |             program=finance_api_setup["program"],
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_extended.py:232:1: W293 [*] Blank line contains whitespace
+    |
+230 |         )
+231 |         voucher = voucher_res.voucher
+232 |         
+    | ^^^^^^^^ W293
+233 |         url = f"/api/finance/vouchers/{voucher.id}/pdf/"
+234 |         response = client.get(url)
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_finance_pdf.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+ 1 | / import pytest
+ 2 | | import io
+ 3 | | from decimal import Decimal
+ 4 | | from datetime import datetime
+ 5 | | from sims_backend.finance.models import Voucher, Payment, VoucherItem, FeeType
+ 6 | | from sims_backend.finance.pdf import voucher_pdf, payment_receipt_pdf, student_statement_pdf
+ 7 | | from sims_backend.students.models import Student
+ 8 | | from sims_backend.academics.models import Program, AcademicPeriod, Batch, Group as AcadGroup
+ 9 | | 
+10 | | @pytest.fixture
+   | |_^ I001
+11 |   def finance_pdf_setup(db):
+12 |       program = Program.objects.create(name="PDF Program")
+   |
+   = help: Organize imports
+
+tests/test_finance_pdf.py:18:1: W293 [*] Blank line contains whitespace
+   |
+16 |     student = Student.objects.create(reg_no="PDF-001", name="PDF Student", program=program, batch=batch, group=group)
+17 |     fee_type = FeeType.objects.create(code="TUI", name="Tuition")
+18 |     
+   | ^^^^ W293
+19 |     voucher = Voucher.objects.create(
+20 |         student=student, term=term, voucher_no="V-001", 
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_pdf.py:20:56: W291 [*] Trailing whitespace
+   |
+19 |     voucher = Voucher.objects.create(
+20 |         student=student, term=term, voucher_no="V-001", 
+   |                                                        ^ W291
+21 |         total_amount=Decimal("1000.00"), due_date=datetime.now().date()
+22 |     )
+   |
+   = help: Remove trailing whitespace
+
+tests/test_finance_pdf.py:24:1: W293 [*] Blank line contains whitespace
+   |
+22 |     )
+23 |     VoucherItem.objects.create(voucher=voucher, fee_type=fee_type, amount=Decimal("1000.00"))
+24 |     
+   | ^^^^ W293
+25 |     payment = Payment.objects.create(
+26 |         student=student, term=term, receipt_no="R-001",
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_finance_pdf.py:30:1: W293 [*] Blank line contains whitespace
+   |
+28 |         voucher=voucher, status="verified", received_at=datetime.now()
+29 |     )
+30 |     
+   | ^^^^ W293
+31 |     return {"voucher": voucher, "payment": payment, "student": student, "term": term}
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_health_endpoint.py:36:16: UP038 Use `X | Y` in `isinstance` call instead of `(X, Y)`
+   |
+34 |         assert "status" in db_check
+35 |         assert "latency_ms" in db_check
+36 |         assert isinstance(db_check["latency_ms"], (int, float))
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ UP038
+37 |         assert db_check["latency_ms"] >= 0
+   |
+   = help: Convert to `X | Y`
+
+tests/test_notification_jobs.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+ 1 | / import pytest
+ 2 | | from unittest.mock import patch, MagicMock
+ 3 | | from sims_backend.notifications.models import Notification, NotificationAudience, NotificationInbox, NotificationDeliveryLog
+ 4 | | from sims_backend.notifications.jobs import expand_audience_and_create_inbox, send_notification_email_batch
+ 5 | | from sims_backend.students.models import Student
+ 6 | | from sims_backend.academics.models import Program, Batch, Group as AcadGroup
+ 7 | | from django.contrib.auth.models import User
+ 8 | | 
+ 9 | | @pytest.fixture
+   | |_^ I001
+10 |   def notification_setup(db):
+11 |       admin = User.objects.create_superuser(username="admin_notif", password="pass")
+   |
+   = help: Organize imports
+
+tests/test_notification_jobs.py:12:1: W293 [*] Blank line contains whitespace
+   |
+10 | def notification_setup(db):
+11 |     admin = User.objects.create_superuser(username="admin_notif", password="pass")
+12 |     
+   | ^^^^ W293
+13 |     program = Program.objects.create(name="MBBS")
+14 |     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:16:1: W293 [*] Blank line contains whitespace
+   |
+14 |     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
+15 |     group = AcadGroup.objects.create(batch=batch, name="A")
+16 |     
+   | ^^^^ W293
+17 |     student_user = User.objects.create_user(username="stu_notif", password="pass", email="stu@test.com")
+18 |     student = Student.objects.create(user=student_user, reg_no="N1", name="Stu", program=program, batch=batch, group=group)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:19:1: W293 [*] Blank line contains whitespace
+   |
+17 |     student_user = User.objects.create_user(username="stu_notif", password="pass", email="stu@test.com")
+18 |     student = Student.objects.create(user=student_user, reg_no="N1", name="Stu", program=program, batch=batch, group=group)
+19 |     
+   | ^^^^ W293
+20 |     notification = Notification.objects.create(
+21 |         title="Test Notif", 
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:21:28: W291 [*] Trailing whitespace
+   |
+20 |     notification = Notification.objects.create(
+21 |         title="Test Notif", 
+   |                            ^ W291
+22 |         body="Body", 
+23 |         created_by=admin,
+   |
+   = help: Remove trailing whitespace
+
+tests/test_notification_jobs.py:22:21: W291 [*] Trailing whitespace
+   |
+20 |     notification = Notification.objects.create(
+21 |         title="Test Notif", 
+22 |         body="Body", 
+   |                     ^ W291
+23 |         created_by=admin,
+24 |         send_email=True
+   |
+   = help: Remove trailing whitespace
+
+tests/test_notification_jobs.py:26:1: W293 [*] Blank line contains whitespace
+   |
+24 |         send_email=True
+25 |     )
+26 |     
+   | ^^^^ W293
+27 |     return {
+28 |         "admin": admin,
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:39:1: W293 [*] Blank line contains whitespace
+   |
+37 | @pytest.mark.django_db
+38 | class TestNotificationJobs:
+39 |     
+   | ^^^^ W293
+40 |     @patch('django_rq.get_queue')
+41 |     def test_expand_audience_all_students(self, mock_get_queue, notification_setup):
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:47:1: W293 [*] Blank line contains whitespace
+   |
+45 |         mock_queue.enqueue.return_value = mock_job
+46 |         mock_get_queue.return_value = mock_queue
+47 |         
+   | ^^^^^^^^ W293
+48 |         notif = notification_setup["notification"]
+49 |         NotificationAudience.objects.create(
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:50:32: W291 [*] Trailing whitespace
+   |
+48 |         notif = notification_setup["notification"]
+49 |         NotificationAudience.objects.create(
+50 |             notification=notif, 
+   |                                ^ W291
+51 |             audience_type=NotificationAudience.AUDIENCE_ALL_STUDENTS
+52 |         )
+   |
+   = help: Remove trailing whitespace
+
+tests/test_notification_jobs.py:53:1: W293 [*] Blank line contains whitespace
+   |
+51 |             audience_type=NotificationAudience.AUDIENCE_ALL_STUDENTS
+52 |         )
+53 |         
+   | ^^^^^^^^ W293
+54 |         res = expand_audience_and_create_inbox(notif.id)
+55 |         assert res["target_count"] == 1
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:63:1: W293 [*] Blank line contains whitespace
+   |
+61 |         notif.send_email = False # skip RQ
+62 |         notif.save()
+63 |         
+   | ^^^^^^^^ W293
+64 |         NotificationAudience.objects.create(
+65 |             notification=notif, 
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:65:32: W291 [*] Trailing whitespace
+   |
+64 |         NotificationAudience.objects.create(
+65 |             notification=notif, 
+   |                                ^ W291
+66 |             audience_type=NotificationAudience.AUDIENCE_STUDENT,
+67 |             student=notification_setup["student"]
+   |
+   = help: Remove trailing whitespace
+
+tests/test_notification_jobs.py:69:1: W293 [*] Blank line contains whitespace
+   |
+67 |             student=notification_setup["student"]
+68 |         )
+69 |         
+   | ^^^^^^^^ W293
+70 |         res = expand_audience_and_create_inbox(notif.id)
+71 |         assert res["target_count"] == 1
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:77:1: W293 [*] Blank line contains whitespace
+   |
+75 |         notif.send_email = False
+76 |         notif.save()
+77 |         
+   | ^^^^^^^^ W293
+78 |         NotificationAudience.objects.create(
+79 |             notification=notif, 
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:79:32: W291 [*] Trailing whitespace
+   |
+78 |         NotificationAudience.objects.create(
+79 |             notification=notif, 
+   |                                ^ W291
+80 |             audience_type=NotificationAudience.AUDIENCE_PROGRAM,
+81 |             program=notification_setup["program"]
+   |
+   = help: Remove trailing whitespace
+
+tests/test_notification_jobs.py:83:1: W293 [*] Blank line contains whitespace
+   |
+81 |             program=notification_setup["program"]
+82 |         )
+83 |         
+   | ^^^^^^^^ W293
+84 |         res = expand_audience_and_create_inbox(notif.id)
+85 |         assert res["target_count"] == 1
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:91:1: W293 [*] Blank line contains whitespace
+   |
+89 |         notif = notification_setup["notification"]
+90 |         user = notification_setup["student_user"]
+91 |         
+   | ^^^^^^^^ W293
+92 |         res = send_notification_email_batch(notif.id, [user.id])
+93 |         assert res["success_count"] == 1
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:95:1: W293 [*] Blank line contains whitespace
+   |
+93 |         assert res["success_count"] == 1
+94 |         assert mock_send_mail.called
+95 |         
+   | ^^^^^^^^ W293
+96 |         log = NotificationDeliveryLog.objects.filter(notification=notif, channel="EMAIL").first()
+97 |         assert log.status == "SENT"
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:104:1: W293 [*] Blank line contains whitespace
+    |
+102 |         notif = notification_setup["notification"]
+103 |         user = notification_setup["student_user"]
+104 |         
+    | ^^^^^^^^ W293
+105 |         res = send_notification_email_batch(notif.id, [user.id])
+106 |         assert res["failure_count"] == 1
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_notification_jobs.py:107:1: W293 [*] Blank line contains whitespace
+    |
+105 |         res = send_notification_email_batch(notif.id, [user.id])
+106 |         assert res["failure_count"] == 1
+107 |         
+    | ^^^^^^^^ W293
+108 |         log = NotificationDeliveryLog.objects.filter(notification=notif, channel="EMAIL").first()
+109 |         assert log.status == "FAILED"
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_reporting_edge_cases.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+  |
+1 | / import pytest
+2 | | from rest_framework import status
+3 | | from django.contrib.auth.models import User
+4 | | from rest_framework.test import APIClient
+5 | | 
+6 | | @pytest.fixture
+  | |_^ I001
+7 |   def admin_client(db):
+8 |       admin = User.objects.create_superuser(username="admin_rep", password="pass")
+  |
+  = help: Organize imports
+
+tests/test_reporting_edge_cases.py:2:28: F401 [*] `rest_framework.status` imported but unused
+  |
+1 | import pytest
+2 | from rest_framework import status
+  |                            ^^^^^^ F401
+3 | from django.contrib.auth.models import User
+4 | from rest_framework.test import APIClient
+  |
+  = help: Remove unused import: `rest_framework.status`
+
+tests/test_student_imports_extended.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+  |
+1 | / import pytest
+2 | | from sims_backend.students.imports.services import StudentImportService
+3 | | 
+4 | | def test_extract_name_parts():
+  | |_^ I001
+5 |       # Regular name
+6 |       assert StudentImportService._extract_name_parts("John Doe") == ("john", "doe")
+  |
+  = help: Organize imports
+
+tests/test_student_imports_extended.py:34:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+32 |   @pytest.mark.django_db
+33 |   def test_create_student_user(db):
+34 | /     from sims_backend.students.models import Student
+35 | |     from sims_backend.academics.models import Program, Batch, Group as AcadGroup
+36 | |     program = Program.objects.create(name="MBBS")
+   | |_^ I001
+37 |       batch = Batch.objects.create(program=program, name="2031", start_year=2031) # start_year is grad year here
+38 |       group = AcadGroup.objects.create(batch=batch, name="A")
+   |
+   = help: Organize imports
+
+tests/test_student_imports_extended.py:39:1: W293 [*] Blank line contains whitespace
+   |
+37 |     batch = Batch.objects.create(program=program, name="2031", start_year=2031) # start_year is grad year here
+38 |     group = AcadGroup.objects.create(batch=batch, name="A")
+39 |     
+   | ^^^^ W293
+40 |     student = Student.objects.create(reg_no="REG-123", name="John Doe", program=program, batch=batch, group=group)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_student_imports_extended.py:41:1: W293 [*] Blank line contains whitespace
+   |
+40 |     student = Student.objects.create(reg_no="REG-123", name="John Doe", program=program, batch=batch, group=group)
+41 |     
+   | ^^^^ W293
+42 |     user, created = StudentImportService._create_student_user(student, graduation_year=2031)
+43 |     assert created is True
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:1:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+ 1 | / import pytest
+ 2 | | from datetime import date, timedelta
+ 3 | | from rest_framework import status
+ 4 | | from django.contrib.auth.models import Group, User
+ 5 | | from sims_backend.academics.models import AcademicPeriod, Batch, Program
+ 6 | | from sims_backend.timetable.models import WeeklyTimetable, TimetableCell
+ 7 | | 
+ 8 | | @pytest.fixture
+   | |_^ I001
+ 9 |   def timetable_setup(db):
+10 |       admin_user = User.objects.create_superuser(username="admin_tt", password="pass")
+   |
+   = help: Organize imports
+
+tests/test_timetable_extended.py:2:28: F401 [*] `datetime.timedelta` imported but unused
+  |
+1 | import pytest
+2 | from datetime import date, timedelta
+  |                            ^^^^^^^^^ F401
+3 | from rest_framework import status
+4 | from django.contrib.auth.models import Group, User
+  |
+  = help: Remove unused import: `datetime.timedelta`
+
+tests/test_timetable_extended.py:3:28: F401 [*] `rest_framework.status` imported but unused
+  |
+1 | import pytest
+2 | from datetime import date, timedelta
+3 | from rest_framework import status
+  |                            ^^^^^^ F401
+4 | from django.contrib.auth.models import Group, User
+5 | from sims_backend.academics.models import AcademicPeriod, Batch, Program
+  |
+  = help: Remove unused import: `rest_framework.status`
+
+tests/test_timetable_extended.py:14:1: W293 [*] Blank line contains whitespace
+   |
+12 |     fac_group, _ = Group.objects.get_or_create(name="FACULTY")
+13 |     faculty_user.groups.add(fac_group)
+14 |     
+   | ^^^^ W293
+15 |     student_user = User.objects.create_user(username="stu_tt", password="pass")
+16 |     stu_group, _ = Group.objects.get_or_create(name="STUDENT")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:18:1: W293 [*] Blank line contains whitespace
+   |
+16 |     stu_group, _ = Group.objects.get_or_create(name="STUDENT")
+17 |     student_user.groups.add(stu_group)
+18 |     
+   | ^^^^ W293
+19 |     program = Program.objects.create(name="TT Program")
+20 |     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:22:26: W291 [*] Trailing whitespace
+   |
+20 |     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
+21 |     period = AcademicPeriod.objects.create(
+22 |         name="TT Period", 
+   |                          ^ W291
+23 |         start_date=date(2024, 1, 1), 
+24 |         end_date=date(2024, 3, 31),
+   |
+   = help: Remove trailing whitespace
+
+tests/test_timetable_extended.py:23:37: W291 [*] Trailing whitespace
+   |
+21 |     period = AcademicPeriod.objects.create(
+22 |         name="TT Period", 
+23 |         start_date=date(2024, 1, 1), 
+   |                                     ^ W291
+24 |         end_date=date(2024, 3, 31),
+25 |         period_type="YEAR"
+   |
+   = help: Remove trailing whitespace
+
+tests/test_timetable_extended.py:27:1: W293 [*] Blank line contains whitespace
+   |
+25 |         period_type="YEAR"
+26 |     )
+27 |     
+   | ^^^^ W293
+28 |     timetable = WeeklyTimetable.objects.create(
+29 |         batch=batch, academic_period=period, 
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:29:45: W291 [*] Trailing whitespace
+   |
+28 |     timetable = WeeklyTimetable.objects.create(
+29 |         batch=batch, academic_period=period, 
+   |                                             ^ W291
+30 |         week_start_date=date(2024, 1, 1),
+31 |         created_by=faculty_user, status="draft"
+   |
+   = help: Remove trailing whitespace
+
+tests/test_timetable_extended.py:33:1: W293 [*] Blank line contains whitespace
+   |
+31 |         created_by=faculty_user, status="draft"
+32 |     )
+33 |     
+   | ^^^^ W293
+34 |     return {
+35 |         "admin": admin_user,
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:49:1: W293 [*] Blank line contains whitespace
+   |
+47 |         tt = timetable_setup["timetable"]
+48 |         api_client.force_authenticate(user=timetable_setup["faculty"])
+49 |         
+   | ^^^^^^^^ W293
+50 |         # Create only 1 cell for Monday
+51 |         TimetableCell.objects.create(weekly_timetable=tt, day_of_week=0, time_slot=1, line1="Class 1")
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:52:1: W293 [*] Blank line contains whitespace
+   |
+50 |         # Create only 1 cell for Monday
+51 |         TimetableCell.objects.create(weekly_timetable=tt, day_of_week=0, time_slot=1, line1="Class 1")
+52 |         
+   | ^^^^^^^^ W293
+53 |         url = f"/api/timetable/weekly-timetables/{tt.id}/publish/"
+54 |         response = api_client.post(url)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:61:1: W293 [*] Blank line contains whitespace
+   |
+59 |         tt = timetable_setup["timetable"]
+60 |         api_client.force_authenticate(user=timetable_setup["faculty"])
+61 |         
+   | ^^^^^^^^ W293
+62 |         # Create 3 cells for EVERY day (0-5)
+63 |         for day in range(6):
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:68:1: W293 [*] Blank line contains whitespace
+   |
+66 |                     weekly_timetable=tt, day_of_week=day, time_slot=slot, line1=f"Class {day}-{slot}"
+67 |                 )
+68 |         
+   | ^^^^^^^^ W293
+69 |         url = f"/api/timetable/weekly-timetables/{tt.id}/publish/"
+70 |         response = api_client.post(url)
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:79:1: W293 [*] Blank line contains whitespace
+   |
+77 |         tt.status = "published"
+78 |         tt.save()
+79 |         
+   | ^^^^^^^^ W293
+80 |         # Faculty cannot unpublish
+81 |         api_client.force_authenticate(user=timetable_setup["faculty"])
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:85:1: W293 [*] Blank line contains whitespace
+   |
+83 |         response = api_client.post(url)
+84 |         assert response.status_code == 403
+85 |         
+   | ^^^^^^^^ W293
+86 |         # Admin can
+87 |         api_client.force_authenticate(user=timetable_setup["admin"])
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:111:1: W293 [*] Blank line contains whitespace
+    |
+109 |         tt.status = "published"
+110 |         tt.save()
+111 |         
+    | ^^^^^^^^ W293
+112 |         api_client.force_authenticate(user=timetable_setup["admin"])
+113 |         url = "/api/timetable/timetable-cells/"
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:123:1: W293 [*] Blank line contains whitespace
+    |
+121 |         fac_group = Group.objects.get(name="FACULTY")
+122 |         other_fac.groups.add(fac_group)
+123 |         
+    | ^^^^^^^^ W293
+124 |         tt = timetable_setup["timetable"] # created by fac_tt
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_timetable_extended.py:125:1: W293 [*] Blank line contains whitespace
+    |
+124 |         tt = timetable_setup["timetable"] # created by fac_tt
+125 |         
+    | ^^^^^^^^ W293
+126 |         api_client.force_authenticate(user=other_fac)
+127 |         url = "/api/timetable/timetable-cells/"
+    |
+    = help: Remove whitespace from blank line
+
+tests/test_wave2_business_logic.py:12:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+10 |   """
+11 |   
+12 | / import pytest
+13 | | from decimal import Decimal
+14 | | from django.contrib.auth import get_user_model
+15 | | from django.contrib.auth.models import Group
+16 | | from rest_framework import status
+17 | | from datetime import date, timedelta
+18 | | 
+19 | | User = get_user_model()
+   | |_^ I001
+   |
+   = help: Organize imports
+
+tests/test_wave2_business_logic.py:32:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+30 |       def test_voucher_creation(self, db):
+31 |           """Create voucher with items."""
+32 | /         from sims_backend.finance.models import FeeType, Voucher, VoucherItem
+33 | |         from sims_backend.academics.models import Program, Batch
+34 | |         from sims_backend.students.models import Student
+35 | | 
+   | |_^ I001
+36 |           program = Program.objects.create(
+37 |               name="MBBS", code="MBBS", duration_years=5, is_active=True
+   |
+   = help: Organize imports
+
+tests/test_wave2_business_logic.py:42:1: W293 [*] Blank line contains whitespace
+   |
+40 |             program=program, batch_number="2023", start_year=2023, is_active=True
+41 |         )
+42 |         
+   | ^^^^^^^^ W293
+43 |         user = User.objects.create_user(username="stu-wave2-01", password="pass")
+44 |         user.groups.add(Group.objects.get(name="STUDENT"))
+   |
+   = help: Remove whitespace from blank line
+
+tests/test_wave2_business_logic.py:59:9: F841 Local variable `item` is assigned to but never used
+   |
+57 |         )
+58 | 
+59 |         item = VoucherItem.objects.create(
+   |         ^^^^ F841
+60 |             voucher=voucher,
+61 |             fee_type=tuition,
+   |
+   = help: Remove assignment to unused variable `item`
+
+tests/test_wave2_business_logic.py:70:1: I001 [*] Import block is un-sorted or un-formatted
+   |
+68 |       def test_payment_full_amount(self, db):
+69 |           """Create full payment for voucher."""
+70 | /         from sims_backend.finance.models import FeeType, Voucher, VoucherItem, Payment
+71 | |         from sims_backend.academics.models import Program, Batch
+72 | |         from sims_backend.students.models import Student
+73 | | 
+   | |_^ I001
+74 |           program = Program.objects.create(
+75 |               name="MBBS", code="MBBS", duration_years=5, is_active=True
+   |
+   = help: Organize imports
+
+tests/test_wave2_business_logic.py:112:1: I001 [*] Import block is un-sorted or un-formatted
+    |
+110 |       def test_payment_partial_multiple_entries(self, db):
+111 |           """Create multiple partial payments."""
+112 | /         from sims_backend.finance.models import FeeType, Voucher, VoucherItem, Payment
+113 | |         from sims_backend.academics.models import Program, Batch
+114 | |         from sims_backend.students.models import Student
+115 | | 
+    | |_^ I001
+116 |           program = Program.objects.create(
+117 |               name="MBBS", code="MBBS", duration_years=5, is_active=True
+    |
+    = help: Organize imports
+
+tests/test_wave2_business_logic.py:169:1: I001 [*] Import block is un-sorted or un-formatted
+    |
+167 |       def test_result_draft_creation(self, db):
+168 |           """Create result in draft state."""
+169 | /         from sims_backend.results.models import ResultHeader
+170 | |         from sims_backend.academics.models import AcademicPeriod, Course, Department
+171 | | 
+    | |_^ I001
+172 |           dept = Department.objects.create(name="Medicine", code="MED", is_active=True)
+173 |           course = Course.objects.create(
+    |
+    = help: Organize imports
+
+tests/test_wave2_business_logic.py:194:1: I001 [*] Import block is un-sorted or un-formatted
+    |
+192 |       def test_result_publish_from_draft(self, db):
+193 |           """Publish result from draft state."""
+194 | /         from sims_backend.results.models import ResultHeader
+195 | |         from sims_backend.academics.models import AcademicPeriod, Course, Department
+196 | | 
+    | |_^ I001
+197 |           dept = Department.objects.create(name="Medicine", code="MED", is_active=True)
+198 |           course = Course.objects.create(
+    |
+    = help: Organize imports
+
+tests/test_wave2_business_logic.py:225:1: I001 [*] Import block is un-sorted or un-formatted
+    |
+223 |       def test_result_freeze_after_publish(self, db):
+224 |           """Freeze result after publish."""
+225 | /         from sims_backend.results.models import ResultHeader
+226 | |         from sims_backend.academics.models import AcademicPeriod, Course, Department
+227 | | 
+    | |_^ I001
+228 |           dept = Department.objects.create(name="Medicine", code="MED", is_active=True)
+229 |           course = Course.objects.create(
+    |
+    = help: Organize imports
+
+Found 189 errors.
+[*] 184 fixable with the `--fix` option (5 hidden fixes can be enabled with the `--unsafe-fixes` option).

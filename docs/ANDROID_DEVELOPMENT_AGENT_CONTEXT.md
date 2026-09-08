@@ -607,6 +607,10 @@ Never echo secrets into logs or completion reports.
 
 ## 19. Android Signing
 
+### Canonical Play upload signing
+
+MedSIMS Play upload signing is initialized on the development laptop. Future release builds must reuse `$HOME/.config/vexel/medsims-signing/medsims-upload.jks` and its canonical credential file `$HOME/.config/vexel/medsims-signing/signing.properties`. Do not generate a new upload key except through a deliberate Google Play upload-key reset/recovery process.
+
 Do not commit:
 
 - release keystores;

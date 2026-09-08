@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +8,13 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
+
+val canonicalSigningFile = File(System.getProperty("user.home"), ".config/vexel/medsims-signing/signing.properties")
+val canonicalSigning = Properties().apply {
+    if (canonicalSigningFile.isFile) canonicalSigningFile.inputStream().use(::load)
+}
+val canonicalSigningKeys = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+val hasCanonicalSigning = canonicalSigningFile.isFile && canonicalSigningKeys.all { !canonicalSigning.getProperty(it).isNullOrBlank() } && File(canonicalSigning.getProperty("storeFile", "")).isFile
 
 android {
     namespace = "pk.vexel.medsims"
@@ -19,18 +28,13 @@ android {
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    val signingStore = providers.gradleProperty("MEDSIMS_UPLOAD_STORE_FILE")
-    val signingStorePassword = providers.gradleProperty("MEDSIMS_UPLOAD_STORE_PASSWORD")
-    val signingKeyAlias = providers.gradleProperty("MEDSIMS_UPLOAD_KEY_ALIAS")
-    val signingKeyPassword = providers.gradleProperty("MEDSIMS_UPLOAD_KEY_PASSWORD")
-    val hasPlaySigning = listOf(signingStore, signingStorePassword, signingKeyAlias, signingKeyPassword).all { it.isPresent }
     signingConfigs {
-        if (hasPlaySigning) {
+        if (hasCanonicalSigning) {
             create("playRelease") {
-                storeFile = file(signingStore.get())
-                storePassword = signingStorePassword.get()
-                keyAlias = signingKeyAlias.get()
-                keyPassword = signingKeyPassword.get()
+                storeFile = file(canonicalSigning.getProperty("storeFile"))
+                storePassword = canonicalSigning.getProperty("storePassword")
+                keyAlias = canonicalSigning.getProperty("keyAlias")
+                keyPassword = canonicalSigning.getProperty("keyPassword")
             }
         }
     }
@@ -40,7 +44,7 @@ android {
             isMinifyEnabled = false
             buildConfigField("String", "API_BASE_URL", "\"https://sims.vexel.pk/\"")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            if (hasPlaySigning) signingConfig = signingConfigs.getByName("playRelease")
+            if (hasCanonicalSigning) signingConfig = signingConfigs.getByName("playRelease")
         }
     }
     buildFeatures { compose = true; buildConfig = true }
@@ -50,9 +54,7 @@ android {
 
 tasks.configureEach {
     if (name == "bundleRelease") doFirst {
-        val required = listOf("MEDSIMS_UPLOAD_STORE_FILE", "MEDSIMS_UPLOAD_STORE_PASSWORD", "MEDSIMS_UPLOAD_KEY_ALIAS", "MEDSIMS_UPLOAD_KEY_PASSWORD")
-        val missing = required.filter { providers.gradleProperty(it).orNull.isNullOrBlank() }
-        check(missing.isEmpty()) { "Play bundle signing is not configured. Set local Gradle properties: ${missing.joinToString()}. See android/docs/PLAY_SIGNING.md." }
+        check(hasCanonicalSigning) { "MedSIMS canonical Play signing configuration not found. Expected: $canonicalSigningFile. See android/docs/PLAY_SIGNING.md." }
     }
 }
 

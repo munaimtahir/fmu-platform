@@ -5,6 +5,7 @@
 - [x] Upload key created outside Git; public certificate committed
 - [x] Signed `bundleRelease` generated and `jarsigner` verified
 - [x] Bundle checksum recorded
-- [ ] bundletool validation and release-derived emulator smoke test
+- [x] bundletool 1.18.3 validation
+- [x] AAB-derived installation and cold-launch smoke test on `sims`
 - [ ] External upload-key backup
 - [ ] Play Console Internal Testing upload

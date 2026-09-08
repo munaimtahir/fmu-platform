@@ -1,10 +1,12 @@
 import React from 'react'
 
+export type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary'
+
 export interface BadgeProps {
   /** The content to be rendered inside the badge. */
   children: React.ReactNode
   /** The color scheme of the badge. */
-  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'secondary'
+  variant?: BadgeVariant
   /** Additional CSS classes to apply to the badge. */
   className?: string
 }

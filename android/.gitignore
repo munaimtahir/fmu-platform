@@ -4,3 +4,6 @@ app/build/
 local.properties
 *.jks
 *.keystore
+*.jks
+keystore.properties
+signing.properties

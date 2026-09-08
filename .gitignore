@@ -243,3 +243,8 @@ frontend/test-results/
 docs/verification/artifacts/screenshots/*.png
 docs/verification/artifacts/logs/*.txt
 docs/admin-runtime-report/screenshots/*.png
+# Android signing material must remain outside Git.
+*.jks
+*.keystore
+keystore.properties
+signing.properties

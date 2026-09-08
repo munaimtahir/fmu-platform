@@ -1,7 +1,7 @@
 # Build Results
 
-`assembleDebug`: PASS. Debug APK: `android/app/build/outputs/apk/debug/app-debug.apk` (13,033,750 bytes).
+Normal online dependency resolution completed. A clean debug build passed. Debug APK: `android/app/build/outputs/apk/debug/app-debug.apk`.
 
 `testDebugUnitTest`: PASS (2 unit tests).
 
-The offline `lintDebug` and `assembleRelease` attempts were blocked by missing cached Compose 1.9.1 instrumentation/release AARs; CI resolves dependencies online. No failure was suppressed.
+Release compilation initially exposed a real configuration defect: `HttpLoggingInterceptor` was debug-only although referenced from shared source. It was moved to the compile classpath while construction remains `BuildConfig.DEBUG` guarded. An unsigned release APK was produced at `android/app/build/outputs/apk/release/app-release-unsigned.apk`. No lint suppression was added.

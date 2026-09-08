@@ -13,4 +13,4 @@ Deferred scope: web-domain feature parity, offline mutations, Room replicas, and
 
 ANDROID FOUNDATION: NOT READY
 
-Blockers: complete online lint/release/instrumentation gates and authorized authenticated-backend validation before declaring feature-development readiness.
+Blockers: the actual emulator UI login lifecycle still needs a clean, sanitized end-to-end capture and the complete lint/check closure must be recorded as one finished run. The backend authentication contract and release compilation blocker were validated.

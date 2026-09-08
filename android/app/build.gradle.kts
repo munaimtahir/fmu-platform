@@ -41,7 +41,7 @@ dependencies {
     implementation(platform(libs.compose.bom)); implementation(libs.compose.ui); implementation(libs.compose.material3)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.hilt.android); ksp(libs.hilt.compiler); implementation(libs.hilt.navigation)
-    implementation(libs.retrofit); implementation(libs.retrofit.serialization); implementation(libs.okhttp); debugImplementation(libs.okhttp.logging)
+    implementation(libs.retrofit); implementation(libs.retrofit.serialization); implementation(libs.okhttp); implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.serialization); implementation(libs.security.crypto)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit); androidTestImplementation(libs.espresso); androidTestImplementation(platform(libs.compose.bom)); androidTestImplementation(libs.compose.ui.test)

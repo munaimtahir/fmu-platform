@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers security best practices and deployment configuration for FMU SIMS in production environments.
+This guide covers security best practices and deployment configuration for Vexel MedSIMS in production environments.
 
 ## Table of Contents
 

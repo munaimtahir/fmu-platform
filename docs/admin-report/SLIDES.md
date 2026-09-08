@@ -95,7 +95,7 @@
 **Production Environment Active**
 
 - ✅ System running in production
-- ✅ Accessible at: https://sims.alshifalab.pk
+- ✅ Current deployment: https://sims.vexel.pk
 - ✅ Database and infrastructure operational
 - ✅ Security measures in place
 - ✅ Tested and verified

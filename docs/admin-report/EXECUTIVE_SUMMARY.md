@@ -61,7 +61,7 @@ The FMU Platform is a comprehensive digital system that replaces paper files and
 
 ✅ **System Status**:
 - Deployed and running in production
-- Accessible at: https://sims.alshifalab.pk
+- Current deployment: https://sims.vexel.pk
 - Security and access controls in place
 - Database and infrastructure operational
 - Tested and verified

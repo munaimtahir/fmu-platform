@@ -1,32 +1,34 @@
 import pytest
-from rest_framework import status
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
+
+from sims_backend.academics.models import Batch, Program
+from sims_backend.academics.models import Group as AcadGroup
 from sims_backend.compliance.models import RequirementDefinition, RequirementInstance, RequirementSubmission
 from sims_backend.students.models import Student
-from sims_backend.academics.models import Program, Batch, Group as AcadGroup
+
 
 @pytest.fixture
 def compliance_setup(db):
     program = Program.objects.create(name="MBBS")
     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
     group = AcadGroup.objects.create(batch=batch, name="A")
-    
+
     student_user = User.objects.create_user(username="stu_comp", password="pass")
     student = Student.objects.create(user=student_user, reg_no="C1", name="Stu", program=program, batch=batch, group=group)
-    
+
     admin_user = User.objects.create_superuser(username="admin_comp", password="pass")
-    
+
     definition = RequirementDefinition.objects.create(
-        title="B-Form", 
+        title="B-Form",
         requirement_type="document"
     )
-    
+
     instance = RequirementInstance.objects.create(
         student=student,
         definition=definition,
         status=RequirementInstance.STATUS_PENDING
     )
-    
+
     return {
         "student_user": student_user,
         "student": student,
@@ -43,7 +45,7 @@ class TestStudentCompliance:
         url = f"/api/compliance/my-compliance/{instance.id}/submit/"
         data = {"value": "Submitted value"}
         response = api_client.post(url, data, format="json")
-        
+
         assert response.status_code == 200
         instance.refresh_from_db()
         assert instance.status == RequirementInstance.STATUS_SUBMITTED
@@ -52,12 +54,13 @@ class TestStudentCompliance:
     def test_submit_locked_fails(self, api_client, compliance_setup):
         api_client.force_authenticate(user=compliance_setup["student_user"])
         instance = compliance_setup["instance"]
-        from django.utils import timezone
         from datetime import timedelta
+
+        from django.utils import timezone
         # set due date to 1 hour from now (locks if < 72h)
         instance.due_at = timezone.now() + timedelta(hours=1)
         instance.save()
-        
+
         url = f"/api/compliance/my-compliance/{instance.id}/submit/"
         response = api_client.post(url, {"value": "x"}, format="json")
         assert response.status_code == 403
@@ -69,10 +72,10 @@ class TestAdminCompliance:
         instance = compliance_setup["instance"]
         instance.status = RequirementInstance.STATUS_SUBMITTED
         instance.save()
-        
+
         url = f"/api/compliance/admin-compliance/{instance.id}/verify/"
         response = api_client.post(url, {"notes": "All good"}, format="json")
-        
+
         assert response.status_code == 200
         instance.refresh_from_db()
         assert instance.status == RequirementInstance.STATUS_VERIFIED
@@ -82,7 +85,7 @@ class TestAdminCompliance:
         instance = compliance_setup["instance"]
         url = f"/api/compliance/admin-compliance/{instance.id}/reject/"
         response = api_client.post(url, {"notes": "Incorrect"}, format="json")
-        
+
         assert response.status_code == 200
         instance.refresh_from_db()
         assert instance.status == RequirementInstance.STATUS_REJECTED

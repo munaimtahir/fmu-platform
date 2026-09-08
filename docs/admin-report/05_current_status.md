@@ -212,7 +212,7 @@ These features are either partially implemented, planned but not started, or nee
 
 ### Current Status
 - ✅ System is deployed and running in production
-- ✅ Accessible at: https://sims.alshifalab.pk
+- ✅ Current deployment: https://sims.vexel.pk
 - ✅ Database and infrastructure in place
 - ✅ SSL certificates configured
 - ✅ System monitoring active

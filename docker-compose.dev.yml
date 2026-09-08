@@ -4,20 +4,20 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: fmu_db_dev
+    container_name: vexel_medsims_db_dev
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-fmu_platform}
-      POSTGRES_USER: ${POSTGRES_USER:-fmu_platform}
+      POSTGRES_DB: ${POSTGRES_DB:-vexel_medsims}
+      POSTGRES_USER: ${POSTGRES_USER:-vexel_medsims_app}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - DEV_fmu_pgdata:/var/lib/postgresql/data
+      - vexel_medsims_postgres_data_dev:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    container_name: fmu_redis_dev
+    container_name: vexel_medsims_redis_dev
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -31,7 +31,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: fmu_backend_dev
+    container_name: vexel_medsims_backend_dev
     env_file:
       - .env
     environment:
@@ -51,10 +51,10 @@ services:
       dockerfile: Dockerfile.prod
       args:
         VITE_API_URL: ${VITE_API_URL:-/}
-    container_name: fmu_frontend_dev
+    container_name: vexel_medsims_frontend_dev
     ports:
       - "127.0.0.1:8080:80"
     restart: unless-stopped
 
 volumes:
-  DEV_fmu_pgdata:
+  vexel_medsims_postgres_data_dev:

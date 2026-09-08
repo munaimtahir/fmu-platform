@@ -106,7 +106,7 @@ class LiveSubmitAPIView(APIView):
         records = payload.get("records", [])
         # Ensure records is a list
         if not isinstance(records, list):
-            if hasattr(records, "__iter__") and not isinstance(records, (str, bytes)):
+            if hasattr(records, "__iter__") and not isinstance(records, str | bytes):
                 records = list(records)
             else:
                 records = []

@@ -40,7 +40,7 @@ def generate_csv_template() -> bytes:
         "batch_name": "2031 Batch",  # Graduation year
         "group_name": "Group A",
         "status": "active",
-        "email": "john.doe.b31@pmc.edu.pk",  # Auto-generated if not provided
+        "email": "student1@examplemedical.edu",  # Auto-generated if not provided
         "phone": "+923001234567",
         "date_of_birth": "2000-01-15",
         "password": "",  # Leave empty for auto-generation (format: student{graduation_year})

@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Configure build-time environment
 ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL:-https://sims.alshifalab.pk/api}
+ENV VITE_API_URL=${VITE_API_URL:-/}
 
 # Copy package files
 COPY package*.json ./

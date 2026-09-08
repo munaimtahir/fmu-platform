@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -8,6 +10,8 @@ from sims_backend.common_permissions import in_group
 
 class AudiencePermissionMixin:
     """Mixin for validating audience permissions and handling permission errors."""
+
+    request: Any
 
     def _validate_audience_permissions(self, data: dict) -> None:
         """Validate that the user has permission to create/manage audiences with the given data.

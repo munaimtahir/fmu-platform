@@ -1,6 +1,6 @@
-# Contributing to FMU SIMS
+# Contributing to Vexel MedSIMS
 
-Thank you for contributing to the FMU Student Information Management System! This guide will help you set up your development environment and understand our development workflow.
+Thank you for contributing to Vexel MedSIMS. This guide will help you set up your development environment and understand our development workflow.
 
 ## Table of Contents
 
@@ -256,4 +256,4 @@ Please be respectful and professional in all interactions. We're building this p
 
 ---
 
-Thank you for contributing to FMU SIMS! 🎓
+Thank you for contributing to Vexel MedSIMS! 🎓

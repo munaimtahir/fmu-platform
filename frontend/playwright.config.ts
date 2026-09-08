@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import * as path from 'path';
 
 /**
- * FMU SIMS Playwright Configuration
+ * Vexel MedSIMS Playwright Configuration
  *
  * Projects:
  *   setup      — global auth state generation (runs before all tests)

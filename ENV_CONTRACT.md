@@ -1,6 +1,6 @@
 # Environment Variables Contract
 
-This document defines all environment variables required for the FMU Platform MVP deployment.
+This document defines all environment variables required for a Vexel MedSIMS deployment.
 
 ## Core Settings
 
@@ -206,4 +206,3 @@ python manage.py check --deploy
 - [ ] `CSRF_TRUSTED_ORIGINS` includes production domain
 - [ ] All secrets removed from version control (if applicable)
 - [ ] Environment variables secured in production environment
-

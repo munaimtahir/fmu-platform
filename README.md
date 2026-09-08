@@ -1,10 +1,10 @@
-# FMU SIMS - Student Information Management System
+# Vexel MedSIMS - Student Information and Academic Management System
 
-A comprehensive digital platform for managing student records and academic processes at **Faisalabad Medical University (FMU)**. This system replaces paper files and manual record-keeping with a secure, role-based web application for medical education management.
+A secure platform for medical colleges and health-professions institutions. Vexel MedSIMS supports student records, programmes, enrolment, attendance, assessment, results, transcripts and academic administration through role-based workflows.
 
 ## 🎓 Overview
 
-FMU SIMS digitizes all student-related records and processes for **Faisalabad Medical University**, starting with the Medical College (five graduate programs) and Allied Health Sciences (4-5 BS and diploma programs). The system handles the complete student lifecycle from application and enrollment through attendance, assessments, results, transcripts, and graduation.
+The platform identity is Vexel MedSIMS. Each deployment configures its own institution identity through environment variables while retaining medical-college terminology such as MBBS, BDS, allied health programmes, professional years, clinical postings and examination-cell workflows.
 
 ### Core Users
 - **Super Admin (IT)**: System administration and configuration
@@ -450,8 +450,8 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our development wo
 
 ## 📄 License
 
-Proprietary - Faisalabad Medical University
+Platform by Vexel. Institution identity is configured per deployment.
 
 ---
 
-**Built with ❤️ for Faisalabad Medical University**
+**Built for medical-college academic administration**

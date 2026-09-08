@@ -1,8 +1,8 @@
-# FMU SIMS — Playwright E2E Test Suite
+# Vexel MedSIMS — Playwright E2E Test Suite
 
 ## Overview
 
-This document describes the Playwright end-to-end test suite for FMU SIMS. The suite covers all five user roles, key business workflows, RBAC enforcement, and public verification flows.
+This document describes the Playwright end-to-end test suite for Vexel MedSIMS. The suite covers all five user roles, key business workflows, RBAC enforcement, and public verification flows.
 
 ---
 

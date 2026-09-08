@@ -450,7 +450,7 @@ export const StudentApplicationPage = () => {
             Student Registration Form
           </h1>
           <p className="text-lg text-gray-600">
-            Complete your registration for FMU - MBBS Program
+            Complete your registration for the selected health-professions programme
           </p>
         </div>
 

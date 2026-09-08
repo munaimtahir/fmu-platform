@@ -1,6 +1,6 @@
 # Scripts Directory
 
-This directory contains utility scripts for testing, validation, and deployment of the FMU SIMS application.
+This directory contains utility scripts for testing, validation, and deployment of the Vexel MedSIMS application.
 
 ## Available Scripts
 

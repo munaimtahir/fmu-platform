@@ -1,8 +1,8 @@
-# FMU Platform - Operations Runbook
+# Vexel MedSIMS - Operations Runbook
 
 **Version:** 1.0  
 **Last Updated:** 2025-12-30  
-**Purpose:** Complete operational guide for running, maintaining, and troubleshooting the FMU Platform MVP
+**Purpose:** Complete operational guide for running, maintaining, and troubleshooting the Vexel MedSIMS platform.
 
 ---
 
@@ -228,8 +228,8 @@ DJANGO_SECRET_KEY=<strong-random-key-50+-characters>
 DJANGO_DEBUG=False  # ALWAYS False in production
 
 # Database
-DB_NAME=fmu_platform
-DB_USER=fmu_platform
+DB_NAME=vexel_medsims
+DB_USER=vexel_medsims_app
 DB_PASSWORD=<strong-password>
 DB_HOST=db  # 'db' for Docker, 'localhost' for local
 DB_PORT=5432

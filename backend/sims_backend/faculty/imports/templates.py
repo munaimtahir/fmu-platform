@@ -27,7 +27,7 @@ def generate_csv_template() -> bytes:
     example_row = {
         "name": "Dr. John Smith",
         "department_name": "Anatomy",
-        "email": "john.smith@pmc.edu.pk",
+        "email": "faculty1@examplemedical.edu",
         "phone": "+923001234567",
         "password": "",  # Leave empty for auto-generation (default: faculty123)
     }

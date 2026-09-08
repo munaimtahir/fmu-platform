@@ -1,8 +1,10 @@
 import pytest
-from rest_framework import status
 from django.contrib.auth.models import Group, User
+
+from sims_backend.academics.models import Batch, Program
+from sims_backend.academics.models import Group as AcadGroup
 from sims_backend.students.models import Student
-from sims_backend.academics.models import Program, Batch, Group as AcadGroup
+
 
 @pytest.mark.django_db
 class TestCoreViewsExtended:
@@ -40,7 +42,7 @@ class TestCoreViewsExtended:
         faculty_user = User.objects.create_user(username="fac1", password="pass")
         faculty_group, _ = Group.objects.get_or_create(name="FACULTY")
         faculty_user.groups.add(faculty_group)
-        
+
         api_client.force_authenticate(user=faculty_user)
         response = api_client.get("/api/dashboard/stats/")
         assert response.status_code == 200
@@ -50,12 +52,12 @@ class TestCoreViewsExtended:
         program = Program.objects.create(name="MBBS")
         batch = Batch.objects.create(program=program, name="2024", start_year=2024)
         group = AcadGroup.objects.create(batch=batch, name="A")
-        
+
         student_user = User.objects.create_user(username="stu1", password="pass")
         student_group, _ = Group.objects.get_or_create(name="STUDENT")
         student_user.groups.add(student_group)
         Student.objects.create(user=student_user, reg_no="S1", name="Stu", program=program, batch=batch, group=group)
-        
+
         api_client.force_authenticate(user=student_user)
         response = api_client.get("/api/dashboard/stats/")
         assert response.status_code == 200
@@ -65,7 +67,7 @@ class TestCoreViewsExtended:
         fin_user = User.objects.create_user(username="fin1", password="pass")
         fin_group, _ = Group.objects.get_or_create(name="FINANCE")
         fin_user.groups.add(fin_group)
-        
+
         api_client.force_authenticate(user=fin_user)
         response = api_client.get("/api/dashboard/stats/")
         assert response.status_code == 200
@@ -75,7 +77,7 @@ class TestCoreViewsExtended:
         student_user = User.objects.create_user(username="stu_no_link", password="pass")
         student_group, _ = Group.objects.get_or_create(name="STUDENT")
         student_user.groups.add(student_group)
-        
+
         api_client.force_authenticate(user=student_user)
         response = api_client.get("/api/dashboard/stats/")
         assert response.status_code == 200

@@ -608,10 +608,11 @@ def faculty_csv_empty():
 @pytest.fixture()
 def faculty_import_factory(db):
     """Factory for creating FacultyImportJob objects with realistic state."""
+
     from django.core.files.base import ContentFile
+
     from sims_backend.faculty.imports.models import FacultyImportJob
-    import uuid
-    
+
     def create_import_job(
         created_by,
         filename="test_import.csv",
@@ -624,11 +625,11 @@ def faculty_import_factory(db):
     ):
         if csv_content is None:
             csv_content = b"email,first_name,last_name,department\n"
-        
+
         file_hash = FacultyImportJob.compute_file_hash(
             type('obj', (object,), {'chunks': lambda: [csv_content], 'seek': lambda x: None})()
         )
-        
+
         job = FacultyImportJob.objects.create(
             created_by=created_by,
             original_filename=filename,
@@ -639,11 +640,11 @@ def faculty_import_factory(db):
             valid_rows=valid_rows,
             invalid_rows=invalid_rows,
         )
-        
+
         # Store CSV content as file
         job.file.save(filename, ContentFile(csv_content), save=True)
         return job
-    
+
     return create_import_job
 
 

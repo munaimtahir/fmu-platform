@@ -1,6 +1,6 @@
 # Caddy Reverse Proxy Configuration
 
-This document provides Caddy configuration for routing requests to the FMU Platform MVP backend and frontend services.
+This document provides Caddy configuration for routing requests to Vexel MedSIMS backend and frontend services.
 
 ## Overview
 
@@ -13,12 +13,12 @@ Caddy acts as a reverse proxy in front of:
 ### Caddyfile (Simple Setup)
 
 ```caddyfile
-# FMU Platform MVP - Production Configuration
+# Vexel MedSIMS - Production Configuration
 
 :80 {
     # Frontend (React app)
     handle / {
-        root * /var/www/fmu-frontend/dist
+        root * /var/www/vexel-medsims-frontend/dist
         try_files {path} /index.html
         file_server
     }
@@ -75,15 +75,15 @@ Caddy acts as a reverse proxy in front of:
 ### Caddyfile (HTTPS with Automatic Let's Encrypt)
 
 ```caddyfile
-# FMU Platform MVP - Production with HTTPS
+# Vexel MedSIMS - Production with HTTPS
 
-sims.example.com {
+sims.vexel.pk {
     # Enable automatic HTTPS
     encode gzip
 
     # Frontend (React app)
     handle / {
-        root * /var/www/fmu-frontend/dist
+        root * /var/www/vexel-medsims-frontend/dist
         try_files {path} /index.html
         file_server
     }
@@ -143,7 +143,7 @@ sims.example.com {
 ### Caddyfile (Development with separate frontend dev server)
 
 ```caddyfile
-# FMU Platform MVP - Development Configuration
+# Vexel MedSIMS - Development Configuration
 
 localhost {
     # Frontend (Vite dev server)
@@ -196,9 +196,9 @@ localhost {
 ## Multiple Domains
 
 ```caddyfile
-# FMU Platform MVP - Multiple Domains
+# Vexel MedSIMS - Multiple Domains
 
-sims.example.com {
+sims.vexel.pk {
     # ... same as production config above
 }
 
@@ -223,8 +223,8 @@ When using Caddy, ensure Django's `CORS_ALLOWED_ORIGINS` and `CSRF_TRUSTED_ORIGI
 
 Example:
 ```bash
-CORS_ALLOWED_ORIGINS=https://sims.example.com,http://localhost
-CSRF_TRUSTED_ORIGINS=https://sims.example.com,http://localhost
+CORS_ALLOWED_ORIGINS=https://sims.vexel.pk,http://localhost
+CSRF_TRUSTED_ORIGINS=https://sims.vexel.pk,http://localhost
 ```
 
 ## Docker Compose Integration
@@ -325,7 +325,7 @@ caddy run --config Caddyfile
 
 Example with security headers:
 ```caddyfile
-sims.example.com {
+sims.vexel.pk {
     header {
         # Security headers
         X-Content-Type-Options "nosniff"
@@ -337,4 +337,3 @@ sims.example.com {
     # ... rest of configuration
 }
 ```
-

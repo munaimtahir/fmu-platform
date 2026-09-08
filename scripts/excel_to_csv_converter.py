@@ -3,7 +3,7 @@
 Excel to CSV Converter for Student Import
 
 This script converts an Excel file containing student data into a CSV format
-compatible with the FMU Platform student import system.
+compatible with the Vexel MedSIMS student import system.
 
 Usage:
     python excel_to_csv_converter.py --input "Year 1 formatted data.xlsx" --output "students_import.csv"

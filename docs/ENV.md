@@ -4,12 +4,12 @@
     |------|------|---------|----------|-------|-------|
     | `DJANGO_DEBUG` | bool | `True` | yes (dev) | backend | `False` for production |
     | `DJANGO_SECRET_KEY` | string | _none_ | yes | backend | Use a strong secret in prod |
-    | `DJANGO_ALLOWED_HOSTS` | csv | `172.235.33.181,104.64.0.164,172.237.71.40,localhost,127.0.0.1` | yes | backend | e.g. `app.fmu.edu.pk` |
+    | `DJANGO_ALLOWED_HOSTS` | csv | `localhost,127.0.0.1` | yes | backend | set to the configured `PUBLIC_APP_DOMAIN` in production |
     | `DB_ENGINE` | string | `django.db.backends.postgresql` | yes | backend | Database engine |
-    | `DB_NAME` | string | `sims_db` | yes | backend | Database name |
-    | `DB_USER` | string | `sims_user` | yes | backend | Database user |
-    | `DB_PASSWORD` | string | `sims_password` | yes | backend | Database password |
-    | `DB_HOST` | string | `localhost` | yes | backend | Database host |
+    | `DB_NAME` | string | `vexel_medsims` | yes | backend | PostgreSQL database name |
+    | `DB_USER` | string | `vexel_medsims_app` | yes | backend | PostgreSQL application user |
+    | `DB_PASSWORD` | string | `change-me-in-production` | yes | backend | Store the real secret only in the runtime secret store or ignored `.env` |
+    | `DB_HOST` | string | `db` | yes | backend | `db` in Compose, `localhost` for a host process |
     | `DB_PORT` | string | `5432` | yes | backend | Database port |
     | `REDIS_HOST` | string | `localhost` | yes | backend | Redis host for RQ |
     | `REDIS_PORT` | string | `6379` | yes | backend | Redis port |

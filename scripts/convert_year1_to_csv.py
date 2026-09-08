@@ -104,7 +104,7 @@ def convert_excel_to_csv(input_file, output_file, batch_name="2029 Batch", group
         row_num = idx + 2  # Excel row number (1-indexed + header)
         
         # Extract and normalize data
-        reg_no = format_reg_no(row.get('FMU Roll Number'))
+        reg_no = format_reg_no(row.get('Registration Number'))
         name = str(row.get('Full name (as per CNIC/B-Form)', '')).strip() if pd.notna(row.get('Full name (as per CNIC/B-Form)')) else ''
         program = normalize_program(row.get('Program applied / admitted to'))
         email = get_email(row)
@@ -113,7 +113,7 @@ def convert_excel_to_csv(input_file, output_file, batch_name="2029 Batch", group
         
         # Validation
         if not reg_no:
-            errors.append(f"Row {row_num}: Missing FMU Roll Number")
+            errors.append(f"Row {row_num}: Missing Registration Number")
             continue
         
         if not name:

@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils import timezone
 
+from core.branding import INSTITUTION_EMAIL_DOMAIN
 from sims_backend.students.imports.models import ImportJob
 from sims_backend.students.imports.templates import get_expected_columns
 from sims_backend.students.imports.utils import (
@@ -73,8 +74,8 @@ class StudentImportService:
     @staticmethod
     def _generate_email(name: str, graduation_year: int | None = None, provided_email: str | None = None) -> str:
         """
-        Generate email in format: firstname.lastname.b{year}@pmc.edu.pk
-        Example: 'john.doe.b31@pmc.edu.pk' for John Doe graduating in 2031
+        Generate email in format: firstname.lastname.b{year}@<institution-domain>
+        The domain comes from INSTITUTION_EMAIL_DOMAIN.
         """
         if provided_email:
             return provided_email.strip()
@@ -84,7 +85,7 @@ class StudentImportService:
         first_name_clean = re.sub(r"[^a-zA-Z0-9]", "", first_name)
         last_name_clean = re.sub(r"[^a-zA-Z0-9]", "", last_name.replace(" ", ""))
         batch_code = StudentImportService._format_batch_year(graduation_year)
-        return f"{first_name_clean}.{last_name_clean}.{batch_code}@pmc.edu.pk"
+        return f"{first_name_clean}.{last_name_clean}.{batch_code}@{INSTITUTION_EMAIL_DOMAIN}"
 
     @staticmethod
     def _generate_password(graduation_year: int | None = None) -> str:
@@ -118,7 +119,7 @@ class StudentImportService:
         # Generate username: firstname.b{year}
         username = StudentImportService._generate_username(student.name, graduation_year)
 
-        # Generate email: firstname.lastname.b{year}@pmc.edu.pk
+        # Generate email using the configured institution domain.
         email = StudentImportService._generate_email(student.name, graduation_year, student.email)
 
         # Use provided password or generate one: student{graduation_year}

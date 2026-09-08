@@ -16,7 +16,7 @@ The SIMS system consists of the following services:
 - **Reverse Proxy**: Caddy running on host (not in Docker container)
 - **TLS Termination**: Caddy automatically handles SSL/TLS certificates
 - **App Exposure**: Django container bound to `127.0.0.1:8010` (Docker Pattern A)
-- **Public Access**: `https://sims.alshifalab.pk` → Caddy → `127.0.0.1:8010` → Django
+- **Public Access**: `https://sims.vexel.pk` → Caddy → `127.0.0.1:18010` → Django
 
 **Note:** The `nginx/` directory exists for reference but is **not used** in the current Caddy-based deployment pattern.
 

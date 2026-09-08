@@ -4,7 +4,8 @@ Covers: preview, commit, template, jobs list, job detail, error CSV.
 Tests permission denials, validation errors, and success paths.
 """
 
-import io
+import uuid
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -42,7 +43,7 @@ class TestFacultyImportPreview:
 
     def test_preview_success_with_admin(self, admin_client, admin_user):
         """Admin can successfully preview faculty CSV."""
-        csv_content = b"email,first_name,last_name,department\nadmin@test.com,John,Doe,Computer Science"
+        csv_content = b"name,department_name,email\nJohn Doe,Computer Science,admin@test.com"
         file = SimpleUploadedFile("faculty.csv", csv_content, content_type="text/csv")
 
         response = admin_client.post(
@@ -52,13 +53,13 @@ class TestFacultyImportPreview:
         )
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert "job_id" in data
+        assert "import_job_id" in data
         assert "valid_rows" in data
         assert "invalid_rows" in data
 
     def test_preview_success_with_coordinator(self, coordinator_client, coordinator_user):
         """Coordinator can successfully preview faculty CSV."""
-        csv_content = b"email,first_name,last_name,department\ncoord@test.com,Jane,Smith,Engineering"
+        csv_content = b"name,department_name,email\nJane Smith,Engineering,coord@test.com"
         file = SimpleUploadedFile("faculty.csv", csv_content, content_type="text/csv")
 
         response = coordinator_client.post(
@@ -68,11 +69,11 @@ class TestFacultyImportPreview:
         )
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert "job_id" in data
+        assert "import_job_id" in data
 
     def test_preview_with_mode_parameter(self, admin_client):
         """Preview respects mode parameter (CREATE_ONLY or UPSERT)."""
-        csv_content = b"email,first_name,last_name\nnew@test.com,New,User"
+        csv_content = b"name,department_name,email\nNew User,Engineering,new@test.com"
         file = SimpleUploadedFile("faculty.csv", csv_content, content_type="text/csv")
 
         # Test with CREATE_ONLY
@@ -144,7 +145,7 @@ class TestFacultyImportCommit:
         """Commit requires confirm=True flag."""
         response = admin_client.post(
             "/api/admin/faculty/import/commit/",
-            {"import_job_id": "some-id", "confirm": False}
+            {"import_job_id": str(uuid.uuid4()), "confirm": False}
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         data = response.json()
@@ -434,7 +435,7 @@ class TestFacultyImportPermissions:
             {"file": csv_file},
             format="multipart"
         )
-        assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], f"POST preview failed for admin"
+        assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], "POST preview failed for admin"
 
     def test_all_endpoints_allow_coordinator(self, coordinator_client):
         """All faculty import endpoints allow coordinator users."""
@@ -453,4 +454,4 @@ class TestFacultyImportPermissions:
             {"file": csv_file},
             format="multipart"
         )
-        assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], f"POST preview failed for coordinator"
+        assert response.status_code in [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST], "POST preview failed for coordinator"

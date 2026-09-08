@@ -1,29 +1,33 @@
-import pytest
-from decimal import Decimal
 from datetime import date, timedelta
-from django.contrib.auth.models import Group, User
+from decimal import Decimal
+
+import pytest
+from django.contrib.auth.models import User
 from rest_framework.test import APIClient
-from sims_backend.academics.models import AcademicPeriod, Batch, Program, Group as AcadGroup
-from sims_backend.finance.models import FeePlan, FeeType, Voucher, Payment, LedgerEntry
+
+from sims_backend.academics.models import AcademicPeriod, Batch, Program
+from sims_backend.academics.models import Group as AcadGroup
+from sims_backend.finance.models import FeePlan, FeeType, LedgerEntry, Payment, Voucher
+
 
 @pytest.fixture
 def finance_api_setup(db):
     program = Program.objects.create(name="Finance Ext Program")
     term = AcademicPeriod.objects.create(period_type=AcademicPeriod.PERIOD_TYPE_YEAR, name="ExtTerm1")
     fee_type = FeeType.objects.create(code="EXT_TUITION", name="Ext Tuition Fee")
-    
+
     admin_user = User.objects.create_superuser(username="admin_fin", password="pass", email="admin@sims.edu")
-    
+
     # Create Finance role and user
     from django.contrib.auth.models import Group as AuthGroup
     finance_group, _ = AuthGroup.objects.get_or_create(name="FINANCE")
     finance_user = User.objects.create_user(username="fin_user", password="pass")
     finance_user.groups.add(finance_group)
-    
+
     # Give finance user permissions via task codes if needed, but for ViewSet we use PermissionTaskRequired
     # In tests, sometimes easier to just use admin or mock permissions.
     # But let's try to do it properly.
-    from core.models import Role, PermissionTask, RoleTaskAssignment
+    from core.models import PermissionTask, Role, RoleTaskAssignment
     role, _ = Role.objects.get_or_create(name="FINANCE")
     tasks = [
         "finance.vouchers.view", "finance.vouchers.create", "finance.vouchers.generate",
@@ -42,7 +46,7 @@ def finance_api_setup(db):
         batch=batch, group=group,
         status=Student.STATUS_ACTIVE
     )
-    
+
     return {
         "program": program,
         "term": term,
@@ -57,7 +61,7 @@ class TestFinanceReporting:
     def test_defaulters_report_json(self, finance_api_setup):
         client = APIClient()
         client.force_authenticate(user=finance_api_setup["admin_user"])
-        
+
         # Create a voucher with dues
         from sims_backend.finance.services import create_voucher_from_feeplan
         FeePlan.objects.create(
@@ -69,7 +73,7 @@ class TestFinanceReporting:
         )
         due_date = date.today() + timedelta(days=30)
         create_voucher_from_feeplan(finance_api_setup["student"], finance_api_setup["term"], finance_api_setup["admin_user"], due_date=due_date)
-        
+
         from django.urls import reverse
         url = reverse("finance-reports-defaulters")
         data = {"term_id": finance_api_setup["term"].id, "min_outstanding": 100}
@@ -81,15 +85,15 @@ class TestFinanceReporting:
     def test_collection_report(self, finance_api_setup):
         client = APIClient()
         client.force_authenticate(user=finance_api_setup["admin_user"])
-        
+
         # Post and verify a payment
         from sims_backend.finance.services import post_payment, verify_payment
         payment = post_payment(
-            finance_api_setup["student"], finance_api_setup["term"], 
+            finance_api_setup["student"], finance_api_setup["term"],
             Decimal("1000.00"), Payment.METHOD_CASH, received_by=finance_api_setup["admin_user"]
         )
         verify_payment(payment, approved_by=finance_api_setup["admin_user"])
-        
+
         today = date.today().isoformat()
         url = f"/api/finance/reports/collection/?start={today}&end={today}"
         response = client.get(url)
@@ -110,7 +114,7 @@ class TestFinanceActions:
     def test_voucher_generate_bulk(self, finance_api_setup):
         client = APIClient()
         client.force_authenticate(user=finance_api_setup["finance_user"])
-        
+
         FeePlan.objects.create(
             program=finance_api_setup["program"],
             term=finance_api_setup["term"],
@@ -118,7 +122,7 @@ class TestFinanceActions:
             amount=Decimal("5000.00"),
             is_mandatory=True
         )
-        
+
         url = "/api/finance/vouchers/generate/"
         data = {
             "term_id": finance_api_setup["term"].id,
@@ -132,19 +136,19 @@ class TestFinanceActions:
     def test_payment_reverse(self, finance_api_setup):
         client = APIClient()
         client.force_authenticate(user=finance_api_setup["admin_user"])
-        
+
         from sims_backend.finance.services import post_payment, verify_payment
         payment = post_payment(
-            finance_api_setup["student"], finance_api_setup["term"], 
+            finance_api_setup["student"], finance_api_setup["term"],
             Decimal("1000.00"), Payment.METHOD_CASH, received_by=finance_api_setup["admin_user"]
         )
         verify_payment(payment, approved_by=finance_api_setup["admin_user"])
-        
+
         url = f"/api/finance/payments/{payment.id}/reverse/"
         response = client.post(url, {"reason": "Duplicate entry"})
         assert response.status_code == 200
         assert "REVERSED" in response.data["notes"]
-        
+
         # Check ledger entries for reversal (original credit should have a corresponding debit)
         # Reversal service usually creates a balancing entry
         assert LedgerEntry.objects.filter(student=finance_api_setup["student"], entry_type=LedgerEntry.ENTRY_DEBIT).exists()
@@ -152,13 +156,13 @@ class TestFinanceActions:
     def test_payment_verify_reject(self, finance_api_setup):
         client = APIClient()
         client.force_authenticate(user=finance_api_setup["admin_user"])
-        
+
         from sims_backend.finance.services import post_payment
         payment = post_payment(
-            finance_api_setup["student"], finance_api_setup["term"], 
+            finance_api_setup["student"], finance_api_setup["term"],
             Decimal("1000.00"), Payment.METHOD_BANK_TRANSFER, received_by=finance_api_setup["admin_user"]
         )
-        
+
         url = f"/api/finance/payments/{payment.id}/verify/"
         response = client.post(url, {"approve": False, "notes": "Invalid receipt"}, format="json")
         assert response.status_code == 200
@@ -167,7 +171,7 @@ class TestFinanceActions:
     def test_adjustment_approval_flow(self, finance_api_setup):
         from sims_backend.finance.models import Adjustment
         from sims_backend.finance.services import approve_adjustment
-        
+
         adjustment = Adjustment.objects.create(
             student=finance_api_setup["student"],
             term=finance_api_setup["term"],
@@ -176,14 +180,14 @@ class TestFinanceActions:
             reason="Scholarship",
             requested_by=finance_api_setup["admin_user"]
         )
-        
+
         approved = approve_adjustment(adjustment, finance_api_setup["admin_user"])
         assert approved.status == Adjustment.STATUS_APPROVED
         assert LedgerEntry.objects.filter(student=finance_api_setup["student"], entry_type=LedgerEntry.ENTRY_CREDIT).exists()
 
     def test_voucher_reconciliation(self, finance_api_setup):
-        from sims_backend.finance.services import create_voucher_from_feeplan, post_payment, reconcile_voucher_status
         from sims_backend.finance.models import FeePlan
+        from sims_backend.finance.services import create_voucher_from_feeplan, post_payment, reconcile_voucher_status
         FeePlan.objects.create(
             program=finance_api_setup["program"],
             term=finance_api_setup["term"],
@@ -197,25 +201,25 @@ class TestFinanceActions:
             due_date=due_date
         )
         voucher = voucher_res.voucher
-        
+
         # Partially pay
         from sims_backend.finance.services import verify_payment
         payment = post_payment(
-            finance_api_setup["student"], finance_api_setup["term"], 
+            finance_api_setup["student"], finance_api_setup["term"],
             Decimal("400.00"), Payment.METHOD_CASH, received_by=finance_api_setup["admin_user"],
             voucher=voucher
         )
         verify_payment(payment, approved_by=finance_api_setup["admin_user"])
-        
+
         reconciled = reconcile_voucher_status(voucher)
         assert reconciled.status == Voucher.STATUS_PARTIAL
 
     def test_voucher_pdf_view(self, finance_api_setup):
-        from sims_backend.finance.services import create_voucher_from_feeplan
         from sims_backend.finance.models import FeePlan
+        from sims_backend.finance.services import create_voucher_from_feeplan
         client = APIClient()
         client.force_authenticate(user=finance_api_setup["admin_user"])
-        
+
         FeePlan.objects.create(
             program=finance_api_setup["program"],
             term=finance_api_setup["term"],
@@ -229,7 +233,7 @@ class TestFinanceActions:
             due_date=due_date
         )
         voucher = voucher_res.voucher
-        
+
         url = f"/api/finance/vouchers/{voucher.id}/pdf/"
         response = client.get(url)
         assert response.status_code == 200

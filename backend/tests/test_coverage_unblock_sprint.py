@@ -11,7 +11,6 @@ Strategy:
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
 
 User = get_user_model()

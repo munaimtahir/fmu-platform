@@ -1,11 +1,15 @@
-import pytest
 import io
-from decimal import Decimal
 from datetime import datetime
-from sims_backend.finance.models import Voucher, Payment, VoucherItem, FeeType
-from sims_backend.finance.pdf import voucher_pdf, payment_receipt_pdf, student_statement_pdf
+from decimal import Decimal
+
+import pytest
+
+from sims_backend.academics.models import AcademicPeriod, Batch, Program
+from sims_backend.academics.models import Group as AcadGroup
+from sims_backend.finance.models import FeeType, Payment, Voucher, VoucherItem
+from sims_backend.finance.pdf import payment_receipt_pdf, student_statement_pdf, voucher_pdf
 from sims_backend.students.models import Student
-from sims_backend.academics.models import Program, AcademicPeriod, Batch, Group as AcadGroup
+
 
 @pytest.fixture
 def finance_pdf_setup(db):
@@ -15,19 +19,19 @@ def finance_pdf_setup(db):
     term = AcademicPeriod.objects.create(name="PDF Term", period_type="YEAR")
     student = Student.objects.create(reg_no="PDF-001", name="PDF Student", program=program, batch=batch, group=group)
     fee_type = FeeType.objects.create(code="TUI", name="Tuition")
-    
+
     voucher = Voucher.objects.create(
-        student=student, term=term, voucher_no="V-001", 
+        student=student, term=term, voucher_no="V-001",
         total_amount=Decimal("1000.00"), due_date=datetime.now().date()
     )
     VoucherItem.objects.create(voucher=voucher, fee_type=fee_type, amount=Decimal("1000.00"))
-    
+
     payment = Payment.objects.create(
         student=student, term=term, receipt_no="R-001",
         amount=Decimal("1000.00"), method="CASH",
         voucher=voucher, status="verified", received_at=datetime.now()
     )
-    
+
     return {"voucher": voucher, "payment": payment, "student": student, "term": term}
 
 def test_voucher_pdf(finance_pdf_setup):

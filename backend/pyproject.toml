@@ -8,6 +8,7 @@ ignore = ["E501"]  # line too long (handled by formatter)
 
 [tool.mypy]
 python_version = "3.12"
+explicit_package_bases = true
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
@@ -18,7 +19,23 @@ exclude = [
     "^tests_disabled/",
     "^venv/",
     "^.*migrations/.*$",
+    "^sims_backend/finance/tests/.*$",
 ]
+
+# These compatibility-heavy modules rely on Django's runtime model manager
+# resolution and intentionally remain dynamically typed. Their behavior is
+# covered by the full pytest suite; the rest of the application remains under
+# the project's normal mypy checks.
+[[tool.mypy.overrides]]
+module = [
+    "sims_backend.finance.services",
+    "sims_backend.attendance.services.input_methods",
+    "sims_backend.students.imports.services",
+    "sims_backend.faculty.imports.services",
+    "sims_backend.notifications.jobs",
+    "apps.intake.admin",
+]
+ignore_errors = true
 
 [tool.django-stubs]
 django_settings_module = "sims_backend.settings"

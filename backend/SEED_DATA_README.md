@@ -124,7 +124,7 @@ Each student has:
    ```
 
 2. **Access the application:**
-   - Frontend: https://sims.alshifalab.pk or https://sims.pmc.edu.pk
+   - Frontend: https://<PUBLIC_APP_DOMAIN>
    - Login with any of the generated credentials
    - Test different user roles (Admin, Faculty, Student)
    

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Card } from '../ui/Card'
+import { branding } from '@/config/branding'
 
 export interface AuthLayoutProps {
   children: React.ReactNode
@@ -36,7 +37,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
         
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            Student Information Management System
+            {branding.institutionName} · Powered by {branding.platformName}
           </p>
         </div>
       </div>

@@ -755,3 +755,8 @@ cd backend && python manage.py seed_demo --students 30
 - Admissions Student CRUD + Search (API, permissions, tests, seed).
 - Standardized error shape; pagination enabled.
 - Add demo data and docs snippets (API.students.md, DATAMODEL.students.md).
+# Unreleased — Vexel MedSIMS identity generalisation
+
+- Added centralized environment-backed platform and institution branding configuration.
+- Generalized active admin, email, frontend, domain, import-template, and deployment defaults.
+- Preserved academic workflows, RBAC, authentication, audit logging, and database schema.

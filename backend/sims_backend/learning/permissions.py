@@ -9,7 +9,7 @@ class IsAdminOrFaculty(BasePermission):
         user = request.user
         if not user or not user.is_authenticated:
             return False
-        return user.is_superuser or in_group(user, "ADMIN") or in_group(user, "FACULTY")
+        return bool(user.is_superuser or in_group(user, "ADMIN") or in_group(user, "FACULTY"))
 
 
 class LearningMaterialObjectPermission(BasePermission):
@@ -22,11 +22,11 @@ class LearningMaterialObjectPermission(BasePermission):
         if view.action in {"update", "partial_update", "destroy"}:
             return obj.created_by_id == user.id and obj.status == LearningMaterial.STATUS_DRAFT
         if view.action in {"publish", "archive"}:
-            return obj.created_by_id == user.id
+            return bool(obj.created_by_id == user.id)
         if view.action == "audiences":
             if request.method in SAFE_METHODS:
                 return True
-            return obj.created_by_id == user.id
+            return bool(obj.created_by_id == user.id)
         if request.method in SAFE_METHODS:
             return True
         return False
@@ -37,4 +37,4 @@ class IsStudentOnly(BasePermission):
         user = request.user
         if not user or not user.is_authenticated:
             return False
-        return in_group(user, "STUDENT")
+        return bool(in_group(user, "STUDENT"))

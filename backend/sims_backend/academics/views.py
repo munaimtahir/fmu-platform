@@ -461,7 +461,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ["department", "academic_period", "program"]
+    filterset_fields = ["department", "academic_period"]
     search_fields = ["code", "name"]
     ordering_fields = ["code", "name"]
     ordering = ["code"]

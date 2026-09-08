@@ -14,6 +14,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from core.branding import BRANDING, PUBLIC_APP_DOMAIN
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,7 +34,7 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
 # -------------------------------------------------------------------
 # Host / Origin configuration (Domains + IP fallback)
 # -------------------------------------------------------------------
-DEFAULT_ALLOWED_HOSTS = "sims.alshifalab.pk,api.sims.alshifalab.pk,34.16.82.13,localhost,127.0.0.1"
+DEFAULT_ALLOWED_HOSTS = f"{PUBLIC_APP_DOMAIN},localhost,127.0.0.1"
 
 ALLOWED_HOSTS = [
     host.strip() for host in os.getenv("DJANGO_ALLOWED_HOSTS", DEFAULT_ALLOWED_HOSTS).split(",") if host.strip()
@@ -40,9 +42,7 @@ ALLOWED_HOSTS = [
 
 # CORS Settings
 # Note: include scheme (http/https) for origins
-DEFAULT_CORS_ALLOWED_ORIGINS = (
-    "https://sims.alshifalab.pk,https://api.sims.alshifalab.pk,http://34.16.82.13,http://localhost,http://127.0.0.1"
-)
+DEFAULT_CORS_ALLOWED_ORIGINS = f"https://{PUBLIC_APP_DOMAIN},http://localhost:5173,http://localhost:3000"
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
@@ -54,9 +54,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 # CSRF Settings
 # Must include scheme. For IP access we allow http://IP as fallback.
-DEFAULT_CSRF_TRUSTED_ORIGINS = (
-    "https://sims.alshifalab.pk,https://api.sims.alshifalab.pk,http://34.16.82.13,http://localhost,http://127.0.0.1"
-)
+DEFAULT_CSRF_TRUSTED_ORIGINS = f"https://{PUBLIC_APP_DOMAIN},http://localhost:5173,http://localhost:3000"
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
@@ -248,7 +246,10 @@ EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@sims.edu")
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    EMAIL_HOST_USER or f"{BRANDING['institution_short_name']} via {BRANDING['platform_name']} <noreply@{BRANDING['institution_email_domain']}>",
+)
 
 # -------------------------------------------------------------------
 # Legacy Module Configuration - REMOVED

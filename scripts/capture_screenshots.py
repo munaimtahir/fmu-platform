@@ -17,12 +17,12 @@ User = get_user_model()
 def ensure_demo_users():
     """Create demo users for all roles if they do not exist."""
     role_users = {
-        "Admin": {"username": os.environ.get('FMU_ADMIN_USERNAME', 'admin'), "email": 'admin@sims.edu', "password": os.environ.get('FMU_ADMIN_PASSWORD', 'admin123'), "first_name": 'Admin', "last_name": 'User'},
-        "Faculty": {"username": os.environ.get('FMU_FACULTY_USERNAME', 'demo_faculty1'), "email": 'faculty@sims.edu', "password": os.environ.get('FMU_FACULTY_PASSWORD', 'faculty123'), "first_name": 'Faculty', "last_name": 'Member'},
-        "Student": {"username": os.environ.get('FMU_STUDENT_USERNAME', 'demo_student001'), "email": 'student@sims.edu', "password": os.environ.get('FMU_STUDENT_PASSWORD', 'demo123'), "first_name": 'Student', "last_name": 'User'},
-        "Registrar": {"username": os.environ.get('FMU_REGISTRAR_USERNAME', 'admin'), "email": 'registrar@sims.edu', "password": os.environ.get('FMU_REGISTRAR_PASSWORD', 'admin123'), "first_name": 'Registrar', "last_name": 'User'},
-        "ExamCell": {"username": os.environ.get('FMU_EXAMCELL_USERNAME', 'admin'), "email": 'examcell@sims.edu', "password": os.environ.get('FMU_EXAMCELL_PASSWORD', 'admin123'), "first_name": 'Exam', "last_name": 'Cell'},
-        "Finance": {"username": os.environ.get('FMU_FINANCE_USERNAME', 'admin'), "email": 'finance@sims.edu', "password": os.environ.get('FMU_FINANCE_PASSWORD', 'admin123'), "first_name": 'Finance', "last_name": 'User'},
+        "Admin": {"username": os.environ.get('DEMO_ADMIN_USERNAME', 'admin'), "email": 'admin@examplemedical.edu', "password": os.environ.get('DEMO_ADMIN_PASSWORD', 'admin123'), "first_name": 'Admin', "last_name": 'User'},
+        "Faculty": {"username": os.environ.get('DEMO_FACULTY_USERNAME', 'demo_faculty1'), "email": 'faculty1@examplemedical.edu', "password": os.environ.get('DEMO_FACULTY_PASSWORD', 'faculty123'), "first_name": 'Faculty', "last_name": 'Member'},
+        "Student": {"username": os.environ.get('DEMO_STUDENT_USERNAME', 'demo_student001'), "email": 'student1@examplemedical.edu', "password": os.environ.get('DEMO_STUDENT_PASSWORD', 'demo123'), "first_name": 'Student', "last_name": 'User'},
+        "Registrar": {"username": os.environ.get('DEMO_REGISTRAR_USERNAME', 'admin'), "email": 'registrar@examplemedical.edu', "password": os.environ.get('DEMO_REGISTRAR_PASSWORD', 'admin123'), "first_name": 'Registrar', "last_name": 'User'},
+        "ExamCell": {"username": os.environ.get('DEMO_EXAMCELL_USERNAME', 'admin'), "email": 'examcell@examplemedical.edu', "password": os.environ.get('DEMO_EXAMCELL_PASSWORD', 'admin123'), "first_name": 'Exam', "last_name": 'Cell'},
+        "Finance": {"username": os.environ.get('DEMO_FINANCE_USERNAME', 'admin'), "email": 'finance@examplemedical.edu', "password": os.environ.get('DEMO_FINANCE_PASSWORD', 'admin123'), "first_name": 'Finance', "last_name": 'User'},
     }
     for role, info in role_users.items():
         if not User.objects.filter(username=info['username']).exists():
@@ -53,37 +53,37 @@ except ImportError:
     sys.exit(1)
 
 # Configuration
-DEFAULT_BASE_URL = "https://sims.alshifalab.pk"
+DEFAULT_BASE_URL = os.environ.get("PUBLIC_APP_URL", "http://localhost:8080")
 
 # Default credentials for different roles
 # These can be overridden by environment variables
 CREDENTIALS = {
     "Admin": {
-        "username": os.environ.get("FMU_ADMIN_USERNAME", "admin"),
-        "password": os.environ.get("FMU_ADMIN_PASSWORD", "admin123")
+        "username": os.environ.get("DEMO_ADMIN_USERNAME", "admin"),
+        "password": os.environ.get("DEMO_ADMIN_PASSWORD", "admin123")
     },
     "Faculty": {
-        "username": os.environ.get("FMU_FACULTY_USERNAME", "demo_faculty1"),
-        "password": os.environ.get("FMU_FACULTY_PASSWORD", "faculty123")
+        "username": os.environ.get("DEMO_FACULTY_USERNAME", "demo_faculty1"),
+        "password": os.environ.get("DEMO_FACULTY_PASSWORD", "faculty123")
     },
     "Student": {
-        "username": os.environ.get("FMU_STUDENT_USERNAME", "demo_student001"),
-        "password": os.environ.get("FMU_STUDENT_PASSWORD", "demo123")
+        "username": os.environ.get("DEMO_STUDENT_USERNAME", "demo_student001"),
+        "password": os.environ.get("DEMO_STUDENT_PASSWORD", "demo123")
     },
     "Registrar": {
         # Fallback to admin if specific registrar not available, or assume admin works if multi-role
-        "username": os.environ.get("FMU_REGISTRAR_USERNAME", "admin"),
-        "password": os.environ.get("FMU_REGISTRAR_PASSWORD", "admin123")
+        "username": os.environ.get("DEMO_REGISTRAR_USERNAME", "admin"),
+        "password": os.environ.get("DEMO_REGISTRAR_PASSWORD", "admin123")
     },
     "ExamCell": {
          # Fallback to admin if specific exam cell user not available
-        "username": os.environ.get("FMU_EXAMCELL_USERNAME", "admin"),
-        "password": os.environ.get("FMU_EXAMCELL_PASSWORD", "admin123")
+        "username": os.environ.get("DEMO_EXAMCELL_USERNAME", "admin"),
+        "password": os.environ.get("DEMO_EXAMCELL_PASSWORD", "admin123")
     },
     "Finance": {
         # Fallback to admin
         "username": os.environ.get("FMU_FINANCE_USERNAME", "admin"),
-        "password": os.environ.get("FMU_FINANCE_PASSWORD", "admin123")
+        "password": os.environ.get("DEMO_FINANCE_PASSWORD", "admin123")
     }
 }
 
@@ -307,7 +307,7 @@ async def capture_screenshot(
 
 
 async def main():
-    parser = argparse.ArgumentParser(description="Capture screenshots of FMU Platform frontend pages")
+    parser = argparse.ArgumentParser(description="Capture screenshots of Vexel MedSIMS frontend pages")
     parser.add_argument("--url", type=str, default=DEFAULT_BASE_URL, help=f"Base URL (default: {DEFAULT_BASE_URL})")
     parser.add_argument("--output", type=str, default="screenshots", help="Output directory")
     parser.add_argument("--wait", type=int, default=2000, help="Wait time (ms)")

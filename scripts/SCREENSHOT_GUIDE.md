@@ -1,6 +1,6 @@
 # Screenshot Capture Guide
 
-This guide explains how to capture screenshots of all dashboard and module pages in the FMU Platform frontend.
+This guide explains how to capture screenshots of all dashboard and module pages in the Vexel MedSIMS frontend.
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ This guide explains how to capture screenshots of all dashboard and module pages
 
 ### Basic Usage
 
-Capture all pages from production (default URL is now https://sims.alshifalab.pk):
+Capture all pages from the configured deployment URL (set `PUBLIC_APP_URL`):
 
 ```bash
 # From the project root directory
@@ -33,7 +33,7 @@ python3 scripts/capture_screenshots.py \
 
 ### Options
 
-- `--url`: Base URL of the frontend (default: https://sims.alshifalab.pk)
+- `--url`: Base URL of the frontend (default: http://localhost:8080)
 - `--output`: Output directory for screenshots (default: screenshots/)
 - `--username`: Username for authentication (optional, defaults to `admin` or env var `FMU_ADMIN_USERNAME`)
 - `--password`: Password for authentication (optional, defaults to `admin123` or env var `FMU_ADMIN_PASSWORD`)

@@ -9,6 +9,7 @@ from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils import timezone
 
+from core.branding import INSTITUTION_EMAIL_DOMAIN
 from core.models import FacultyProfile
 from sims_backend.academics.models import Department
 from sims_backend.faculty.imports.models import FacultyImportJob
@@ -123,8 +124,7 @@ class FacultyImportService:
     @staticmethod
     def _generate_email(name: str, provided_email: str | None = None) -> str:
         """
-        Generate email in format: firstname.lastname@pmc.edu.pk
-        Example: 'john.smith@pmc.edu.pk' for John Smith
+        Generate email using the configured institution email domain.
         """
         if provided_email:
             return provided_email.strip()
@@ -133,7 +133,7 @@ class FacultyImportService:
         # Remove special characters and spaces, keep only alphanumeric
         first_name_clean = re.sub(r"[^a-zA-Z0-9]", "", first_name)
         last_name_clean = re.sub(r"[^a-zA-Z0-9]", "", last_name.replace(" ", ""))
-        return f"{first_name_clean}.{last_name_clean}@pmc.edu.pk"
+        return f"{first_name_clean}.{last_name_clean}@{INSTITUTION_EMAIL_DOMAIN}"
 
     @staticmethod
     def _generate_password() -> str:

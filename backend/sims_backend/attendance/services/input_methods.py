@@ -105,7 +105,7 @@ def bulk_upsert_attendance_for_session(
         # Fallback: try to convert to list, but limit iteration to prevent infinite loops
         try:
             records_list = (
-                list(records) if hasattr(records, "__iter__") and not isinstance(records, (str, bytes)) else []
+                list(records) if hasattr(records, "__iter__") and not isinstance(records, str | bytes) else []
             )
         except (TypeError, ValueError):
             records_list = []

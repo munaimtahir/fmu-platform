@@ -29,9 +29,14 @@ CSRF_COOKIE_SECURE = False
 # Disable migrations for tests
 class DisableMigrations:
     def __contains__(self, item):
-        return True
+        # Keep the newly registered faculty app's migration available so its
+        # model table is created in the SQLite test database. The remaining
+        # apps retain the historical no-migrations test behaviour.
+        return item != "faculty"
 
     def __getitem__(self, item):
+        if item == "faculty":
+            return "sims_backend.faculty.migrations"
         return None
 
 

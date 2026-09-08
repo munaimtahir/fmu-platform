@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/features/auth/useAuth'
 import { navigationConfig, isNavGroup, type NavigationItem, type NavGroup, type NavItem } from '@/config/navConfig'
 import { notificationsService } from '@/services/notifications'
+import { branding } from '@/config/branding'
 
 interface SidebarProps {
   isOpen: boolean
@@ -246,15 +247,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
         {/* Logo/Brand */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-700">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <img 
-              src="/fmu_logo.png" 
-              alt="FMU Logo" 
-              className={`${isOpen ? 'h-10 w-10' : 'h-8 w-8'} flex-shrink-0 object-contain`}
-            />
+            {branding.institutionLogo ? (
+              <img
+                src={branding.institutionLogo}
+                alt={`${branding.institutionName} logo`}
+                className={`${isOpen ? 'h-10 w-10' : 'h-8 w-8'} flex-shrink-0 object-contain`}
+              />
+            ) : (
+              <div className={`${isOpen ? 'h-10 w-10' : 'h-8 w-8'} flex-shrink-0 rounded-xl bg-blue-500 flex items-center justify-center text-sm font-bold`} aria-hidden="true">
+                {branding.institutionShortName.charAt(0)}
+              </div>
+            )}
             {isOpen && (
               <div className="flex flex-col min-w-0">
-                <h1 className="text-lg font-bold text-white truncate">FMU</h1>
-                <p className="text-xs text-gray-400 truncate">Student management system</p>
+                <h1 className="text-lg font-bold text-white truncate">{branding.institutionShortName}</h1>
+                <p className="text-xs text-gray-400 truncate">Powered by {branding.platformName}</p>
               </div>
             )}
           </div>

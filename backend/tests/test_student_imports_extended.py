@@ -1,5 +1,7 @@
 import pytest
+
 from sims_backend.students.imports.services import StudentImportService
+
 
 def test_extract_name_parts():
     # Regular name
@@ -21,7 +23,7 @@ def test_generate_username():
     assert StudentImportService._generate_username("O'Connor", 2024) == "oconnor.b24"
 
 def test_generate_email():
-    assert StudentImportService._generate_email("John Doe", 2031) == "john.doe.b31@pmc.edu.pk"
+    assert StudentImportService._generate_email("John Doe", 2031) == "john.doe.b31@examplemedical.edu"
     # Provided email should override
     assert StudentImportService._generate_email("John Doe", 2031, "custom@test.com") == "custom@test.com"
 
@@ -31,17 +33,18 @@ def test_generate_password():
 
 @pytest.mark.django_db
 def test_create_student_user(db):
+    from sims_backend.academics.models import Batch, Program
+    from sims_backend.academics.models import Group as AcadGroup
     from sims_backend.students.models import Student
-    from sims_backend.academics.models import Program, Batch, Group as AcadGroup
     program = Program.objects.create(name="MBBS")
     batch = Batch.objects.create(program=program, name="2031", start_year=2031) # start_year is grad year here
     group = AcadGroup.objects.create(batch=batch, name="A")
-    
+
     student = Student.objects.create(reg_no="REG-123", name="John Doe", program=program, batch=batch, group=group)
-    
+
     user, created = StudentImportService._create_student_user(student, graduation_year=2031)
     assert created is True
     assert user.username == "john.b31"
-    assert user.email == "john.doe.b31@pmc.edu.pk"
+    assert user.email == "john.doe.b31@examplemedical.edu"
     assert user.groups.filter(name="STUDENT").exists()
     assert student.user == user

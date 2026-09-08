@@ -11,6 +11,7 @@ from django.db import transaction
 from django.utils import timezone
 from faker import Faker
 
+from core.branding import INSTITUTION_EMAIL_DOMAIN
 from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group, Program
 from sims_backend.finance.models import FeePlan, FeeType, FinancePolicy, Payment, Voucher
 from sims_backend.finance.services import create_voucher_from_feeplan, post_payment, verify_payment
@@ -159,7 +160,7 @@ class Command(BaseCommand):
         if not User.objects.filter(username="admin").exists():
             users["admin"] = User.objects.create_superuser(
                 username="admin",
-                email="admin@sims.edu",
+                email=f"admin@{INSTITUTION_EMAIL_DOMAIN}",
                 password="admin123",
                 first_name="Admin",
                 last_name="User",
@@ -175,7 +176,7 @@ class Command(BaseCommand):
         if not User.objects.filter(username="registrar").exists():
             users["registrar"] = User.objects.create_user(
                 username="registrar",
-                email="registrar@sims.edu",
+                email=f"registrar@{INSTITUTION_EMAIL_DOMAIN}",
                 password="registrar123",
                 first_name="Mary",
                 last_name="Registrar",
@@ -190,7 +191,7 @@ class Command(BaseCommand):
         if not User.objects.filter(username="faculty").exists():
             users["faculty"] = User.objects.create_user(
                 username="faculty",
-                email="faculty@sims.edu",
+                email=f"faculty@{INSTITUTION_EMAIL_DOMAIN}",
                 password="faculty123",
                 first_name="John",
                 last_name="Professor",
@@ -207,7 +208,7 @@ class Command(BaseCommand):
             if not User.objects.filter(username=username).exists():
                 user = User.objects.create_user(
                     username=username,
-                    email=f"faculty{i}@sims.edu",
+                    email=f"faculty{i}@{INSTITUTION_EMAIL_DOMAIN}",
                     password="faculty123",
                     first_name=fake.first_name(),
                     last_name=fake.last_name(),
@@ -223,7 +224,7 @@ class Command(BaseCommand):
         if not User.objects.filter(username="student").exists():
             users["student"] = User.objects.create_user(
                 username="student",
-                email="student@sims.edu",
+                email=f"student@{INSTITUTION_EMAIL_DOMAIN}",
                 password="student123",
                 first_name="Jane",
                 last_name="Scholar",
@@ -238,7 +239,7 @@ class Command(BaseCommand):
         if not User.objects.filter(username="student_defaulter").exists():
             users["student_defaulter"] = User.objects.create_user(
                 username="student_defaulter",
-                email="student_defaulter@sims.edu",
+                email=f"student_defaulter@{INSTITUTION_EMAIL_DOMAIN}",
                 password="student123",
                 first_name="Dana",
                 last_name="Dues",
@@ -253,7 +254,7 @@ class Command(BaseCommand):
         if not User.objects.filter(username="student_partial").exists():
             users["student_partial"] = User.objects.create_user(
                 username="student_partial",
-                email="student_partial@sims.edu",
+                email=f"student_partial@{INSTITUTION_EMAIL_DOMAIN}",
                 password="student123",
                 first_name="Alex",
                 last_name="Partial",
@@ -268,7 +269,7 @@ class Command(BaseCommand):
         if not User.objects.filter(username="student_waiver").exists():
             users["student_waiver"] = User.objects.create_user(
                 username="student_waiver",
-                email="student_waiver@sims.edu",
+                email=f"student_waiver@{INSTITUTION_EMAIL_DOMAIN}",
                 password="student123",
                 first_name="Sam",
                 last_name="Waiver",
@@ -283,7 +284,7 @@ class Command(BaseCommand):
         if not User.objects.filter(username="student_reversal").exists():
             users["student_reversal"] = User.objects.create_user(
                 username="student_reversal",
-                email="student_reversal@sims.edu",
+                email=f"student_reversal@{INSTITUTION_EMAIL_DOMAIN}",
                 password="student123",
                 first_name="Pat",
                 last_name="Reversal",
@@ -298,7 +299,7 @@ class Command(BaseCommand):
         if not User.objects.filter(username="finance").exists():
             users["finance"] = User.objects.create_user(
                 username="finance",
-                email="finance@sims.edu",
+                email=f"finance@{INSTITUTION_EMAIL_DOMAIN}",
                 password="finance123",
                 first_name="Finance",
                 last_name="Manager",
@@ -518,7 +519,7 @@ class Command(BaseCommand):
             last_name = fake.last_name()
             name = f"{first_name} {last_name}"
             username = f"student{reg_no.replace('-', '').lower()}"
-            email = f"{username}@sims.edu"
+            email = f"{username}@{INSTITUTION_EMAIL_DOMAIN}"
             password = f"student{reg_no.split('-')[0]}"
 
             # Create user account
@@ -578,19 +579,19 @@ class Command(BaseCommand):
         self.stdout.write("\n📋 ADMINISTRATIVE USERS:")
         self.stdout.write("  Admin:")
         self.stdout.write("    Username: admin")
-        self.stdout.write("    Email: admin@sims.edu")
+        self.stdout.write(f"    Email: admin@{INSTITUTION_EMAIL_DOMAIN}")
         self.stdout.write("    Password: admin123")
         self.stdout.write("\n  Registrar:")
         self.stdout.write("    Username: registrar")
-        self.stdout.write("    Email: registrar@sims.edu")
+        self.stdout.write(f"    Email: registrar@{INSTITUTION_EMAIL_DOMAIN}")
         self.stdout.write("    Password: registrar123")
         self.stdout.write("\n  Finance:")
         self.stdout.write("    Username: finance")
-        self.stdout.write("    Email: finance@sims.edu")
+        self.stdout.write(f"    Email: finance@{INSTITUTION_EMAIL_DOMAIN}")
         self.stdout.write("    Password: finance123")
         self.stdout.write("\n  Faculty:")
         self.stdout.write("    Username: faculty / faculty1 / faculty2 / faculty3")
-        self.stdout.write("    Email: faculty@sims.edu / faculty1@sims.edu / etc.")
+        self.stdout.write(f"    Email: faculty@{INSTITUTION_EMAIL_DOMAIN} / faculty1@{INSTITUTION_EMAIL_DOMAIN} / etc.")
         self.stdout.write("    Password: faculty123")
         self.stdout.write("\n" + "-" * 80)
         self.stdout.write("\n👥 STUDENT USERS:")

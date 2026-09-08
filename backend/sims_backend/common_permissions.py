@@ -138,7 +138,7 @@ def can_edit_draft_only(user, instance) -> bool:
     if in_group(user, "OFFICE_ASSISTANT"):
         # Office Assistant can only work with DRAFT
         if hasattr(instance, "status"):
-            return instance.status == "DRAFT"
+            return bool(instance.status == "DRAFT")
         return True  # If no status field, allow (shouldn't happen)
     return False
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-FMU SIMS supports email delivery for various features including:
+Vexel MedSIMS supports configurable email delivery for academic and administrative features including:
 - Password reset requests
 - Account notifications
 - Document request notifications
@@ -105,7 +105,7 @@ from django.core.mail import send_mail
 
 send_mail(
     'Test Email',
-    'This is a test email from FMU SIMS.',
+    'This is a test email from Vexel MedSIMS.',
     'noreply@sims.edu',
     ['recipient@example.com'],
     fail_silently=False,

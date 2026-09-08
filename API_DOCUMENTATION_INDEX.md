@@ -1,8 +1,8 @@
-# FMU SIMS Backend API - Documentation Index
+# Vexel MedSIMS Backend API - Documentation Index
 
 ## 📚 Documentation Files
 
-This exploration has generated comprehensive API documentation for the FMU Platform Student Information Management System (SIMS) backend.
+This exploration has generated comprehensive API documentation for the Vexel MedSIMS Student Information and Academic Management System backend.
 
 ### 1. **BACKEND_API_STRUCTURE.md** (18 KB)
 **Comprehensive reference guide with complete details**
@@ -296,4 +296,3 @@ Refer to the appropriate documentation file:
 **Status:** Complete API reference for test fixture building  
 **Format:** Markdown + Text  
 **Total Size:** 44 KB of documentation
-

@@ -190,6 +190,8 @@ class LearningBlockService:
 
         if overlapping.exists():
             overlap_block = overlapping.first()
+            if overlap_block is None:
+                return
             raise ValidationError(
                 f"Block overlaps with existing block '{overlap_block.name}' "
                 f"({overlap_block.start_date} to {overlap_block.end_date}) in the same track"
@@ -220,7 +222,7 @@ class DepartmentService:
         # Check for circular reference
         if department.pk:
             # Check if parent is a descendant of this department
-            current = parent
+            current: Department | None = parent
             while current:
                 if current.pk == department.pk:
                     raise ValidationError("Cannot set parent: would create circular reference")

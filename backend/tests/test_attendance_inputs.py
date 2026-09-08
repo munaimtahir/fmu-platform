@@ -98,7 +98,7 @@ def test_csv_dry_run_flags_unknown_student(api_client, admin_user, session_with_
 def test_csv_commit_marks_attendance(api_client, admin_user, session_with_students):
     session, students = session_with_students
     api_client.force_authenticate(user=admin_user)
-    
+
     # Create a job manually for commit
     from sims_backend.attendance.models import AttendanceInputJob
     job = AttendanceInputJob.objects.create(
@@ -109,7 +109,7 @@ def test_csv_commit_marks_attendance(api_client, admin_user, session_with_studen
         status=AttendanceInputJob.STATUS_DRAFT,
         summary={"records": [{"student_id": students[0].id, "status": "P"}]}
     )
-    
+
     response = api_client.post("/api/attendance-input/csv/commit/", {"job_id": job.id}, format="json")
     assert response.status_code == 200
     assert response.data["committed"] is True
@@ -118,7 +118,7 @@ def test_csv_commit_marks_attendance(api_client, admin_user, session_with_studen
 def test_biometric_punch_flow(api_client, admin_user, session_with_students):
     session, students = session_with_students
     api_client.force_authenticate(user=admin_user)
-    
+
     payload = {
         "punches": [
             {"reg_no": "REG-001", "raw_identifier": "CARD_123"},
@@ -134,7 +134,7 @@ def test_biometric_punch_flow(api_client, admin_user, session_with_students):
 def test_tick_sheet_commit(api_client, admin_user, session_with_students):
     session, students = session_with_students
     api_client.force_authenticate(user=admin_user)
-    
+
     from sims_backend.attendance.models import AttendanceInputJob
     job = AttendanceInputJob.objects.create(
         session=session,
@@ -144,7 +144,7 @@ def test_tick_sheet_commit(api_client, admin_user, session_with_students):
         status=AttendanceInputJob.STATUS_DRAFT,
         summary={"results": [{"student_id": students[0].id, "detected_status": "PRESENT"}]}
     )
-    
+
     response = api_client.post("/api/attendance-input/sheet/commit/", {"job_id": job.id}, format="json")
     assert response.status_code == 200
     assert Attendance.objects.filter(session=session, student=students[0]).exists()

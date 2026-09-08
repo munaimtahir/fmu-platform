@@ -22,8 +22,8 @@ This document shows how to run the SIMS project in three modes:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/munaimtahir/Fmu.git
-cd Fmu
+git clone https://github.com/munaimtahir/fmu-platform.git
+cd fmu-platform
 
 # 2. Set up environment
 cp .env.example .env

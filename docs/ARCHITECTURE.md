@@ -1,8 +1,8 @@
-# FMU SIMS - System Architecture
+# Vexel MedSIMS - System Architecture
 
 ## Overview
 
-FMU SIMS is a full-stack Student Information Management System built with modern web technologies, designed for scalability, security, and maintainability.
+Vexel MedSIMS is a full-stack Student Information and Academic Management System built for medical colleges and health-professions institutions, with configurable institution identity and role-based academic workflows.
 
 ## Technology Stack
 

@@ -166,7 +166,7 @@ class StudentIntakeSubmissionTest(TestCase):
 
         # Create admin user
         User.objects.create_user(
-            email="admin@pmc.edu.pk",
+            email="admin@examplemedical.edu",
             password="testpass123",
             role="ADMIN",
             is_staff=True,

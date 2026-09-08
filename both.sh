@@ -1,5 +1,5 @@
 #!/bin/bash
-# FMU Platform - Full Stack Deployment Script
+# Vexel MedSIMS - Full Stack Deployment Script
 # This script deploys both frontend and backend changes:
 # 1. Stops both frontend and backend services
 # 2. Rebuilds both containers without cache
@@ -12,7 +12,7 @@ set -e  # Exit on error
 cd "$(dirname "$0")"
 
 echo "=========================================="
-echo "FMU Platform - Full Stack Deployment"
+echo "Vexel MedSIMS - Full Stack Deployment"
 echo "=========================================="
 echo ""
 
@@ -53,7 +53,7 @@ echo "-----------------------------------"
 sleep 10
 
 # Check if database is ready
-if ! docker compose -f docker-compose.prod.yml ps | grep -q "fmu_db_prod.*Up"; then
+if ! docker compose -f docker-compose.prod.yml ps | grep -q "vexel_medsims_db_prod.*Up"; then
     echo -e "${RED}✗ Database container is not running${NC}"
     echo "Check logs with: docker compose -f docker-compose.prod.yml logs db"
     exit 1
@@ -76,7 +76,7 @@ echo -e "${BLUE}Step 7: Verifying deployment...${NC}"
 echo "-----------------------------------"
 
 # Check if backend container is running
-if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_backend_prod.*Up"; then
+if docker compose -f docker-compose.prod.yml ps | grep -q "vexel_medsims_backend_prod.*Up"; then
     echo -e "${GREEN}✓ Backend container is running${NC}"
 else
     echo -e "${RED}✗ Backend container is not running${NC}"
@@ -85,7 +85,7 @@ else
 fi
 
 # Check if frontend container is running
-if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_frontend_prod.*Up"; then
+if docker compose -f docker-compose.prod.yml ps | grep -q "vexel_medsims_frontend_prod.*Up"; then
     echo -e "${GREEN}✓ Frontend container is running${NC}"
 else
     echo -e "${RED}✗ Frontend container is not running${NC}"
@@ -123,10 +123,9 @@ echo "  - Frontend: http://127.0.0.1:8080"
 echo "  - Backend API: http://127.0.0.1:8010"
 echo ""
 echo "Public URLs:"
-echo "  - Frontend: https://sims.alshifalab.pk/"
-echo "  - Backend API: https://sims.alshifalab.pk/api/"
-echo "  - Admin Panel: https://sims.alshifalab.pk/admin/"
-echo "  - Server IP: http://34.16.82.13/"
+echo "  - Frontend: https://${PUBLIC_APP_DOMAIN:-sims.vexel.pk}/"
+echo "  - Backend API: https://${PUBLIC_APP_DOMAIN:-sims.vexel.pk}/api/"
+echo "  - Admin Panel: https://${PUBLIC_APP_DOMAIN:-sims.vexel.pk}/admin/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"

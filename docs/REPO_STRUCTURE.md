@@ -1,6 +1,6 @@
 # Repository Structure
 
-This document describes the organization and structure of the FMU SIMS repository after the cleanup and standardization effort.
+This document describes the organization and structure of the Vexel MedSIMS repository after the cleanup and standardization effort.
 
 ## Directory Layout
 

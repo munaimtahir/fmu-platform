@@ -4,20 +4,20 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: fmu_db
+    container_name: vexel_medsims_db
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-fmu_platform}
-      POSTGRES_USER: ${POSTGRES_USER:-fmu_platform}
+      POSTGRES_DB: ${POSTGRES_DB:-vexel_medsims}
+      POSTGRES_USER: ${POSTGRES_USER:-vexel_medsims_app}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - fmu_db_data:/var/lib/postgresql/data
+      - vexel_medsims_postgres_data:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${DB_HOST_PORT:-15432}:5432"
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    container_name: fmu_redis
+    container_name: vexel_medsims_redis
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -31,7 +31,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: fmu_backend
+    container_name: vexel_medsims_backend
     env_file:
       - .env
     environment:
@@ -42,7 +42,7 @@ services:
       - ./backend/staticfiles:/app/staticfiles
       - ./backend/media:/app/media
     ports:
-      - "127.0.0.1:8010:8000"
+      - "127.0.0.1:${BACKEND_HOST_PORT:-8010}:8000"
     restart: unless-stopped
 
   frontend:
@@ -51,10 +51,22 @@ services:
       dockerfile: Dockerfile.prod
       args:
         VITE_API_URL: ${VITE_API_URL:-/}
-    container_name: fmu_frontend
+        VITE_PLATFORM_NAME: ${PLATFORM_NAME:-Vexel MedSIMS}
+        VITE_PLATFORM_PROVIDER: ${PLATFORM_PROVIDER:-Vexel}
+        VITE_INSTITUTION_NAME: ${INSTITUTION_NAME:-Example Medical College}
+        VITE_INSTITUTION_SHORT_NAME: ${INSTITUTION_SHORT_NAME:-Example Medical College}
+        VITE_INSTITUTION_LOGO: ${INSTITUTION_LOGO:-}
+        VITE_INSTITUTION_EMAIL: ${INSTITUTION_EMAIL:-registrar@examplemedical.edu}
+        VITE_INSTITUTION_EMAIL_DOMAIN: ${INSTITUTION_EMAIL_DOMAIN:-examplemedical.edu}
+        VITE_INSTITUTION_PRIMARY_COLOR: ${INSTITUTION_PRIMARY_COLOR:-#2563EB}
+        VITE_INSTITUTION_SECONDARY_COLOR: ${INSTITUTION_SECONDARY_COLOR:-#0F172A}
+        VITE_INSTITUTION_TYPE: ${INSTITUTION_TYPE:-Medical College}
+        VITE_PUBLIC_APP_DOMAIN: ${PUBLIC_APP_DOMAIN:-localhost}
+    container_name: vexel_medsims_frontend
     ports:
-      - "127.0.0.1:8080:80"
+      - "127.0.0.1:${FRONTEND_HOST_PORT:-8080}:80"
     restart: unless-stopped
 
 volumes:
-  fmu_db_data:
+  vexel_medsims_postgres_data:
+    name: vexel_medsims_postgres_data

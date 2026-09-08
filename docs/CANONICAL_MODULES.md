@@ -1,6 +1,6 @@
 # Canonical Modules Decision
 
-This document defines which modules are **canonical** (official, production-ready) versus **legacy** (deprecated, to be phased out) in the FMU SIMS platform.
+This document defines which modules are **canonical** (official, production-ready) versus **legacy** (deprecated, to be phased out) in the Vexel MedSIMS platform.
 
 ## Canonical Modules (Official)
 

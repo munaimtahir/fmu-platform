@@ -1,6 +1,6 @@
 # CI/CD Documentation
 
-This document describes the Continuous Integration and Deployment setup for the FMU Student Information Management System.
+This document describes the Continuous Integration and Deployment setup for Vexel MedSIMS.
 
 ## Overview
 

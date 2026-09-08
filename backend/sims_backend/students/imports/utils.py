@@ -39,7 +39,7 @@ def normalize_value(value: str | None) -> str | None:
     return value if value else None
 
 
-def normalize_row(row: dict[str, str]) -> dict[str, str]:
+def normalize_row(row: dict[str, str]) -> dict[str, str | None]:
     """Normalize all values in a row"""
     return {k: normalize_value(v) for k, v in row.items()}
 

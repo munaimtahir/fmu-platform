@@ -1,5 +1,5 @@
 #!/bin/bash
-# FMU Platform - Frontend Deployment Script
+# Vexel MedSIMS - Frontend Deployment Script
 # This script deploys frontend-only changes:
 # 1. Stops frontend service
 # 2. Rebuilds frontend container without cache
@@ -11,7 +11,7 @@ set -e  # Exit on error
 cd "$(dirname "$0")"
 
 echo "=========================================="
-echo "FMU Platform - Frontend Deployment"
+echo "Vexel MedSIMS - Frontend Deployment"
 echo "=========================================="
 echo ""
 
@@ -56,7 +56,7 @@ echo -e "${BLUE}Step 5: Verifying deployment...${NC}"
 echo "-----------------------------------"
 
 # Check if frontend container is running
-if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_frontend_prod.*Up"; then
+if docker compose -f docker-compose.prod.yml ps | grep -q "vexel_medsims_frontend_prod.*Up"; then
     echo -e "${GREEN}✓ Frontend container is running${NC}"
 else
     echo -e "${RED}✗ Frontend container is not running${NC}"
@@ -83,8 +83,7 @@ docker compose -f docker-compose.prod.yml ps frontend
 echo ""
 echo "Frontend URL: http://127.0.0.1:8080"
 echo "Public URLs:"
-echo "  - https://sims.alshifalab.pk/"
-echo "  - http://34.16.82.13/"
+echo "  - https://${PUBLIC_APP_DOMAIN:-sims.vexel.pk}/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"

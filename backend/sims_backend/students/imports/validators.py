@@ -17,7 +17,7 @@ def validate_required_fields(row: dict[str, str], row_num: int) -> list[dict[str
     Validate that all required fields are present and non-empty.
     Returns list of errors: [{"column": "...", "message": "..."}]
     """
-    errors = []
+    errors: list[dict[str, str]] = []
     required_fields = ["reg_no", "name", "program_name", "batch_name", "group_name", "status"]
 
     for field in required_fields:
@@ -30,7 +30,7 @@ def validate_required_fields(row: dict[str, str], row_num: int) -> list[dict[str
 
 def validate_status_choice(status: str | None, row_num: int) -> list[dict[str, str]]:
     """Validate status field against allowed choices (case-insensitive)"""
-    errors = []
+    errors: list[dict[str, str]] = []
     if status:
         status_lower = status.lower()
         valid_statuses = [choice[0] for choice in Student.STATUS_CHOICES]
@@ -71,7 +71,7 @@ def resolve_program(
     If auto_create=True and program doesn't exist, creates it automatically.
     Returns (Program instance or None, list of errors/warnings)
     """
-    errors = []
+    errors: list[dict[str, str]] = []
     if not program_name:
         return None, errors
 
@@ -185,7 +185,7 @@ def resolve_batch(
     If auto_create=True and batch doesn't exist, creates it automatically.
     Returns (Batch instance or None, list of errors/warnings)
     """
-    errors = []
+    errors: list[dict[str, str]] = []
     if not batch_name:
         return None, errors
 
@@ -262,7 +262,7 @@ def resolve_group(
     If auto_create=True and group doesn't exist, creates it automatically using get_or_create for idempotency.
     Returns (Group instance or None, list of errors/warnings)
     """
-    errors = []
+    errors: list[dict[str, str]] = []
     if not group_name:
         return None, errors
 

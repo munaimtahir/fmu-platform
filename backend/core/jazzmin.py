@@ -1,24 +1,25 @@
-"""
-Django Jazzmin configuration for the FMU Student Information Management System.
+"""Django Jazzmin configuration for the configured medical-college SIMS.
 
 This module contains the settings and UI tweaks for the `django-jazzmin`
 admin theme, which provides a modern and responsive interface for the Django
 admin panel.
 """
 
+from .branding import BRANDING
+
 JAZZMIN_SETTINGS = {
     # The title displayed in the browser tab.
-    "site_title": "FMU SIMS Admin",
+    "site_title": f"{BRANDING['institution_short_name']} SIMS Admin",
     # The header text displayed at the top of the admin panel.
-    "site_header": "FMU Student Information System",
+    "site_header": f"{BRANDING['institution_name']} Student Information System",
     # The brand text displayed in the header.
-    "site_brand": "FMU SIMS",
+    "site_brand": BRANDING["institution_short_name"],
     # The welcome text on the login screen.
     "welcome_sign": "Manage students, courses, attendance, and results",
     # The path to the site logo, used in the header.
-    "site_logo": "img/fmu_logo.png",
+    "site_logo": BRANDING["institution_logo"] or None,
     # The path to the login logo, used on the login page.
-    "login_logo": "img/fmu_logo.png",
+    "login_logo": BRANDING["institution_logo"] or None,
     # CSS classes to apply to the site logo.
     "site_logo_classes": "img-circle",
     # Whether to show the UI builder.

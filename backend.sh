@@ -1,5 +1,5 @@
 #!/bin/bash
-# FMU Platform - Backend Deployment Script
+# Vexel MedSIMS - Backend Deployment Script
 # This script deploys backend-only changes:
 # 1. Stops backend service
 # 2. Rebuilds backend container without cache
@@ -12,7 +12,7 @@ set -e  # Exit on error
 cd "$(dirname "$0")"
 
 echo "=========================================="
-echo "FMU Platform - Backend Deployment"
+echo "Vexel MedSIMS - Backend Deployment"
 echo "=========================================="
 echo ""
 
@@ -53,7 +53,7 @@ echo "-----------------------------------"
 sleep 10
 
 # Check if database is ready
-if ! docker compose -f docker-compose.prod.yml ps | grep -q "fmu_db_prod.*Up"; then
+if ! docker compose -f docker-compose.prod.yml ps | grep -q "vexel_medsims_db_prod.*Up"; then
     echo -e "${RED}✗ Database container is not running${NC}"
     echo "Check logs with: docker compose -f docker-compose.prod.yml logs db"
     exit 1
@@ -76,7 +76,7 @@ echo -e "${BLUE}Step 7: Verifying deployment...${NC}"
 echo "-----------------------------------"
 
 # Check if backend container is running
-if docker compose -f docker-compose.prod.yml ps | grep -q "fmu_backend_prod.*Up"; then
+if docker compose -f docker-compose.prod.yml ps | grep -q "vexel_medsims_backend_prod.*Up"; then
     echo -e "${GREEN}✓ Backend container is running${NC}"
 else
     echo -e "${RED}✗ Backend container is not running${NC}"
@@ -103,9 +103,9 @@ docker compose -f docker-compose.prod.yml ps backend
 echo ""
 echo "Backend API URL: http://127.0.0.1:8010"
 echo "Public API URLs:"
-echo "  - https://sims.alshifalab.pk/api/"
+echo "  - https://${PUBLIC_APP_DOMAIN:-sims.vexel.pk}/api/"
 echo "Admin Panel URLs:"
-echo "  - https://sims.alshifalab.pk/admin/"
+echo "  - https://${PUBLIC_APP_DOMAIN:-sims.vexel.pk}/admin/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"

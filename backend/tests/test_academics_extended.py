@@ -1,8 +1,11 @@
+from datetime import date
+
 import pytest
 from django.core.exceptions import ValidationError
-from datetime import date
-from sims_backend.academics.models import Program, Period, Track, LearningBlock, Department, Module
-from sims_backend.academics.services import ProgramService, LearningBlockService, DepartmentService
+
+from sims_backend.academics.models import Department, LearningBlock, Period, Program, Track
+from sims_backend.academics.services import DepartmentService, LearningBlockService, ProgramService
+
 
 @pytest.mark.django_db
 class TestAcademicsServices:
@@ -11,7 +14,7 @@ class TestAcademicsServices:
         # Missing fields should raise ValidationError
         with pytest.raises(ValidationError):
             ProgramService.validate_structure_fields(program, {"structure_type": Program.STRUCTURE_TYPE_CUSTOM})
-        
+
         # Correct fields should pass
         ProgramService.validate_structure_fields(program, {
             "structure_type": Program.STRUCTURE_TYPE_CUSTOM,
@@ -31,10 +34,10 @@ class TestAcademicsServices:
         program = Program.objects.create(name="Locked Program", structure_type=Program.STRUCTURE_TYPE_YEARLY)
         ProgramService.finalize_program(program)
         assert program.is_finalized
-        
+
         with pytest.raises(ValidationError):
             ProgramService.check_finalize_lock(program, {"structure_type": Program.STRUCTURE_TYPE_SEMESTER})
-        
+
         with pytest.raises(ValidationError):
             ProgramService.finalize_program(program)
 
@@ -53,7 +56,7 @@ class TestAcademicsServices:
 
     def test_generate_periods_custom(self):
         program = Program.objects.create(
-            name="Custom", 
+            name="Custom",
             structure_type=Program.STRUCTURE_TYPE_CUSTOM,
             period_length_months=4,
             total_periods=8
@@ -64,15 +67,15 @@ class TestAcademicsServices:
 
     def test_learning_block_rotation_rules(self):
         dept1 = Department.objects.create(name="Surgery")
-        dept2 = Department.objects.create(name="General Surgery", parent=dept1)
+        Department.objects.create(name="General Surgery", parent=dept1)
         dept3 = Department.objects.create(name="Cardiology")
-        
+
         block = LearningBlock(name="Rotation", block_type=LearningBlock.BLOCK_TYPE_ROTATION)
-        
+
         # Missing primary dept
         with pytest.raises(ValidationError, match="primary_department is required"):
             LearningBlockService.validate_block_type_rules(block, {"block_type": LearningBlock.BLOCK_TYPE_ROTATION})
-            
+
         # Wrong sub dept parent
         with pytest.raises(ValidationError, match="sub_department must be a child"):
             LearningBlockService.validate_block_type_rules(block, {
@@ -84,7 +87,7 @@ class TestAcademicsServices:
     def test_learning_block_integrated_rules(self):
         dept1 = Department.objects.create(name="Surgery")
         block = LearningBlock(name="Integrated", block_type=LearningBlock.BLOCK_TYPE_INTEGRATED)
-        
+
         with pytest.raises(ValidationError, match="primary_department must be null"):
             LearningBlockService.validate_block_type_rules(block, {
                 "block_type": LearningBlock.BLOCK_TYPE_INTEGRATED,
@@ -95,15 +98,15 @@ class TestAcademicsServices:
         program = Program.objects.create(name="P")
         period = Period.objects.create(program=program, name="P1", order=1)
         track = Track.objects.create(program=program, name="T1")
-        
+
         LearningBlock.objects.create(
-            track=track, period=period, name="B1", 
-            start_date=date(2024, 1, 1), 
+            track=track, period=period, name="B1",
+            start_date=date(2024, 1, 1),
             end_date=date(2024, 1, 31)
         )
-        
+
         new_block = LearningBlock(track=track, name="B2")
-        
+
         # Exact overlap
         with pytest.raises(ValidationError, match="overlaps"):
             LearningBlockService.validate_overlap(new_block, track, date(2024, 1, 15), date(2024, 2, 1))
@@ -111,6 +114,6 @@ class TestAcademicsServices:
     def test_department_circular_reference(self):
         d1 = Department.objects.create(name="D1")
         d2 = Department.objects.create(name="D2", parent=d1)
-        
+
         with pytest.raises(ValidationError, match="circular reference"):
             DepartmentService.validate_parent_relationship(d1, d2)

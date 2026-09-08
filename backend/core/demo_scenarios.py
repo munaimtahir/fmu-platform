@@ -12,6 +12,7 @@ from django.contrib.auth.models import Group as AuthGroup
 from django.utils import timezone
 from faker import Faker
 
+from core.branding import INSTITUTION_EMAIL_DOMAIN
 from sims_backend.academics.models import (
     AcademicPeriod,
     Course,
@@ -179,7 +180,7 @@ class DemoScenarioGenerator:
 
         for i in range(1, num_faculty + 1):
             username = f"{self.demo_prefix.lower()}faculty{i}"
-            email = f"{username}@sims.edu"
+            email = f"{username}@{INSTITUTION_EMAIL_DOMAIN}"
 
             if User.objects.filter(username=username).exists():
                 user = User.objects.get(username=username)
@@ -213,7 +214,7 @@ class DemoScenarioGenerator:
             last_name = fake.last_name()
             name = f"{first_name} {last_name}"
             username = f"{self.demo_prefix.lower()}student{i + 1:03d}"
-            email = f"{username}@sims.edu"
+            email = f"{username}@{INSTITUTION_EMAIL_DOMAIN}"
             password = self.DEMO_PASSWORD_SUFFIX
 
             # Assign to group (round-robin)

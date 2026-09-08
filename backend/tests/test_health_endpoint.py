@@ -33,7 +33,7 @@ class TestHealthEndpoint:
         db_check = data["checks"]["db"]
         assert "status" in db_check
         assert "latency_ms" in db_check
-        assert isinstance(db_check["latency_ms"], (int, float))
+        assert isinstance(db_check["latency_ms"], int | float)
         assert db_check["latency_ms"] >= 0
 
         # Check migrations check structure

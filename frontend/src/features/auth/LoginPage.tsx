@@ -9,6 +9,7 @@ import { FormField } from '@/components/ui/FormField'
 import { Button } from '@/components/ui/Button'
 import { Alert } from '@/components/ui/Alert'
 import { useAuth } from './useAuth'
+import { branding } from '@/config/branding'
 
 // Validation schema
 const loginSchema = z.object({
@@ -74,7 +75,7 @@ export const LoginPage: React.FC = () => {
   return (
     <AuthLayout
       title="Welcome Back"
-      subtitle="Sign in to your SIMS account"
+      subtitle={`Sign in to ${branding.institutionShortName}`}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {error && (

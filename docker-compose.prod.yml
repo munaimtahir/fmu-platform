@@ -4,18 +4,18 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: fmu_db_prod
+    container_name: vexel_medsims_db_prod
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-fmu_platform}
-      POSTGRES_USER: ${POSTGRES_USER:-fmu_platform}
+      POSTGRES_DB: ${POSTGRES_DB:-vexel_medsims}
+      POSTGRES_USER: ${POSTGRES_USER:-vexel_medsims_app}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - PROD_fmu_pgdata:/var/lib/postgresql/data
+      - vexel_medsims_postgres_data_prod:/var/lib/postgresql/data
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    container_name: fmu_redis_prod
+    container_name: vexel_medsims_redis_prod
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
@@ -29,9 +29,11 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: fmu_backend_prod
+    container_name: vexel_medsims_backend_prod
     env_file:
       - .env
+    environment:
+      DJANGO_SECURE_SSL_REDIRECT: "True"
     depends_on:
       - db
     volumes:
@@ -46,12 +48,22 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.prod
       args:
-        VITE_API_URL: ${VITE_API_URL:-https://api.sims.alshifalab.pk}
-    container_name: fmu_frontend_prod
+        VITE_API_URL: ${VITE_API_URL:-/}
+        VITE_PLATFORM_NAME: ${PLATFORM_NAME:-Vexel MedSIMS}
+        VITE_PLATFORM_PROVIDER: ${PLATFORM_PROVIDER:-Vexel}
+        VITE_INSTITUTION_NAME: ${INSTITUTION_NAME:-Example Medical College}
+        VITE_INSTITUTION_SHORT_NAME: ${INSTITUTION_SHORT_NAME:-Example Medical College}
+        VITE_INSTITUTION_LOGO: ${INSTITUTION_LOGO:-}
+        VITE_INSTITUTION_EMAIL: ${INSTITUTION_EMAIL:-registrar@examplemedical.edu}
+        VITE_INSTITUTION_EMAIL_DOMAIN: ${INSTITUTION_EMAIL_DOMAIN:-examplemedical.edu}
+        VITE_INSTITUTION_PRIMARY_COLOR: ${INSTITUTION_PRIMARY_COLOR:-#2563EB}
+        VITE_INSTITUTION_SECONDARY_COLOR: ${INSTITUTION_SECONDARY_COLOR:-#0F172A}
+        VITE_PUBLIC_APP_DOMAIN: ${PUBLIC_APP_DOMAIN:-sims.vexel.pk}
+    container_name: vexel_medsims_frontend_prod
     ports:
       - "127.0.0.1:8080:80"
     restart: unless-stopped
 
 volumes:
-  PROD_fmu_pgdata:
-    name: PROD_fmu_pgdata
+  vexel_medsims_postgres_data_prod:
+    name: vexel_medsims_postgres_data_prod

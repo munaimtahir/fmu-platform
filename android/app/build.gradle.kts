@@ -24,8 +24,8 @@ android {
         applicationId = "pk.vexel.medsims"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "1.0.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
@@ -41,7 +41,9 @@ android {
     buildTypes {
         debug { buildConfigField("String", "API_BASE_URL", "\"https://sims.vexel.pk/\"") }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            ndk { debugSymbolLevel = "SYMBOL_TABLE" }
             buildConfigField("String", "API_BASE_URL", "\"https://sims.vexel.pk/\"")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (hasCanonicalSigning) signingConfig = signingConfigs.getByName("playRelease")
@@ -69,6 +71,7 @@ dependencies {
     implementation(libs.hilt.android); ksp(libs.hilt.compiler); implementation(libs.hilt.navigation)
     implementation(libs.retrofit); implementation(libs.retrofit.serialization); implementation(libs.okhttp); implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.serialization); implementation(libs.security.crypto)
+    implementation(libs.errorprone.annotations)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit); androidTestImplementation(libs.espresso); androidTestImplementation(platform(libs.compose.bom)); androidTestImplementation(libs.compose.ui.test)
 }

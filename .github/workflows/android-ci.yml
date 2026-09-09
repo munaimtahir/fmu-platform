@@ -1,9 +1,5 @@
 name: Android CI
 on:
-  pull_request:
-    paths: ["android/**", ".github/workflows/android-ci.yml"]
-  push:
-    paths: ["android/**", ".github/workflows/android-ci.yml"]
   workflow_dispatch:
 permissions: { contents: read }
 jobs:

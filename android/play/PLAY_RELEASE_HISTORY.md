@@ -56,3 +56,10 @@ And separately verify, once installed from Play:
 ```
 
 If Google rejects this submission: do not modify the `android-v0.1.0-play-submitted` tag or this entry's historical values. Instead record the rejection here, fix the issue on a new branch, reuse the same canonical `medsims-upload` signing key, increment `versionCode` (>= 2), and submit a new AAB as a new entry below.
+
+## 1.0.2 (versionCode 2) — release candidate, not uploaded
+
+Version `1.0.2` / `versionCode 2` is the next candidate after the historical
+0.1.0 / 1 internal-testing submission. Its release notes and gates are in
+`RELEASE_NOTES_1.0.2.md`. No Play upload, review, or publication is recorded
+by this entry.

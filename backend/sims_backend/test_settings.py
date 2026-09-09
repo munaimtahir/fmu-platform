@@ -25,6 +25,13 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
+# Importing the base settings can cause DRF to initialize before this module
+# has copied its REST_FRAMEWORK configuration. Reload the cached API settings
+# so tests exercise the same JWT authentication policy as the application.
+from rest_framework.settings import api_settings  # noqa: E402
+
+api_settings.reload()
+
 
 # Disable migrations for tests
 class DisableMigrations:

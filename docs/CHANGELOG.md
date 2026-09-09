@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-09 - Vexel MedSIMS Android: first Google Play submission (0.1.0 / versionCode 1)
+
+### Summary
+Native Vexel MedSIMS Android foundation completed and submitted to Google Play. Canonical Play upload signing established (`medsims-upload` key); package `pk.vexel.medsims` finalized for first Play submission. Version 0.1.0, versionCode 1, submitted to Google Play Internal Testing.
+
+See `android/play/PLAY_RELEASE_HISTORY.md` for the exact submitted Git SHA, AAB checksum, and signing fingerprints. Status remains "submitted for review" until Google Play confirms approval/publication.
+
 ## 2026-01-02 - Finance Module FIN-1: Demo + Reports + Hardening (v1.5.0)
 
 ### Summary

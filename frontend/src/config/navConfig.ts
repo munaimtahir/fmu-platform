@@ -100,7 +100,6 @@ export const navigationConfig: NavigationItem[] = [
     roles: ['Admin', 'Faculty', 'Student', 'ExamCell'],
     items: [
       { label: 'Exams', path: '/exams', roles: ['Admin', 'Faculty', 'ExamCell'] },
-      { label: 'Gradebook', path: '/gradebook', roles: ['Admin', 'Faculty', 'Student'] },
       { label: 'Results', path: '/results', roles: ['Admin', 'Faculty', 'Student', 'ExamCell'] },
       { label: 'Publish Results', path: '/examcell/publish', roles: ['Admin', 'ExamCell'] },
       { label: 'Transcripts', path: '/transcripts', roles: ['Admin', 'Registrar', 'Student', 'ExamCell'] },
@@ -160,7 +159,6 @@ export const routePolicy: Record<string, string[]> = {
   '/attendance/bulk': ['Admin', 'Faculty'],
   '/attendance/eligibility': ['Admin', 'Registrar'],
   '/exams': ['Admin', 'Faculty', 'ExamCell'],
-  '/gradebook': ['Admin', 'Faculty', 'Student'],
   '/results': ['Admin', 'Faculty', 'Student', 'ExamCell'],
   '/examcell/publish': ['Admin', 'ExamCell'],
   '/transcripts': ['Admin', 'Registrar', 'Student', 'ExamCell'],

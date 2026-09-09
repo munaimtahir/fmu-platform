@@ -209,14 +209,14 @@ export const FacultyDashboard = () => {
             </div>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/gradebook'}>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/exams'}>
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">
                 📖
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Gradebook</h3>
-                <p className="text-sm text-gray-600">Manage grades and assessments</p>
+                <h3 className="font-semibold text-gray-900">Exams</h3>
+                <p className="text-sm text-gray-600">Manage canonical exams and results</p>
               </div>
             </div>
           </Card>

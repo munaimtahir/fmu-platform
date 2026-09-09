@@ -4980,7 +4980,7 @@ paths:
           description: No response body
   /api/core/users/me/:
     get:
-      operationId: core_users_me_retrieve
+      operationId: core_users_me_list
       description: GET /api/core/users/me/
       tags:
       - core
@@ -4989,7 +4989,13 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserMe'
+          description: ''
   /api/dashboard/stats/:
     get:
       operationId: dashboard_stats_retrieve
@@ -10213,7 +10219,26 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/transcripts/enqueue/:
     post:
       operationId: transcripts_enqueue_create
@@ -10227,12 +10252,49 @@ paths:
             }
       tags:
       - transcripts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranscriptEnqueueRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TranscriptEnqueueRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TranscriptEnqueueRequest'
+        required: true
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
-        '200':
-          description: No response body
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptEnqueueResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/transcripts/verify/{token}/:
     get:
       operationId: transcripts_verify_retrieve
@@ -10251,7 +10313,11 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptVerifyResponse'
+          description: ''
 components:
   schemas:
     AcademicPeriod:
@@ -16736,6 +16802,41 @@ components:
       - program
       - program_name
       - updated_at
+    TranscriptEnqueueRequest:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        email:
+          type: string
+          format: email
+      required:
+      - student_id
+    TranscriptEnqueueResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        job_id:
+          type: string
+        student_id:
+          type: integer
+      required:
+      - job_id
+      - message
+      - student_id
+    TranscriptVerifyResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        student_id:
+          type: integer
+        reason:
+          type: string
+      required:
+      - reason
+      - valid
     UnifiedLogin:
       type: object
       description: |-
@@ -16793,6 +16894,54 @@ components:
       - is_active
       - role
       - student_id
+      - username
+    UserMe:
+      type: object
+      description: Serializer for /api/core/users/me/ endpoint.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Email address
+        first_name:
+          type: string
+          readOnly: true
+        last_name:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        roles:
+          type: string
+          readOnly: true
+        tasks:
+          type: string
+          readOnly: true
+        profile:
+          type: string
+          readOnly: true
+      required:
+      - email
+      - first_name
+      - id
+      - is_active
+      - last_name
+      - profile
+      - roles
+      - tasks
       - username
     UserTaskAssignment:
       type: object

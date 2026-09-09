@@ -568,7 +568,9 @@ class UserMeViewSet(viewsets.ViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = UserMeSerializer
 
+    @extend_schema(responses={200: UserMeSerializer})
     def list(self, request):
         """GET /api/core/users/me/"""
         serializer = UserMeSerializer(request.user)

@@ -95,6 +95,7 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
             "results.result_headers.publish",
             "results.result_headers.freeze",
             "results.result_components.view",
+            "results.result_corrections.review",
         ],
         "FINANCE": [
             "finance.",

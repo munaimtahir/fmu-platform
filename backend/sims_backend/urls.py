@@ -29,7 +29,7 @@ from core.views import (
 def _get_version():
     """Get application version from git or environment variable."""
     # Try to get from environment variable first
-    version = os.getenv("APP_VERSION", os.getenv("VERSION", "unknown"))
+    version = os.getenv("APP_VERSION", getattr(settings, "APP_VERSION", os.getenv("VERSION", "unknown")))
 
     if version == "unknown":
         # Try to get git SHA

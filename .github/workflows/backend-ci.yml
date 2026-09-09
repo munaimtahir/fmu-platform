@@ -24,6 +24,17 @@ jobs:
       - name: Run Ruff
         run: ruff check .
 
+      - name: Verify generated OpenAPI artifacts
+        env:
+          DJANGO_SECRET_KEY: test-secret-key
+          APP_VERSION: test
+          DJANGO_DEBUG: 'False'
+          DB_ENGINE: django.db.backends.sqlite3
+          DB_NAME: /tmp/schema_db.sqlite3
+          DB_HOST: ''
+          DB_PORT: '0'
+        run: bash scripts/check_openapi_schema.sh
+
   mypy:
     name: Static Type Check
     runs-on: ubuntu-latest
@@ -69,6 +80,7 @@ jobs:
         env:
           DJANGO_SECRET_KEY: test-secret-key
           DJANGO_DEBUG: 'False'
+          APP_VERSION: test
           DB_ENGINE: django.db.backends.sqlite3
           DB_NAME: /tmp/test_db.sqlite3
           DB_HOST: ''
@@ -116,6 +128,7 @@ jobs:
         env:
           DJANGO_SECRET_KEY: test-secret-key
           DJANGO_DEBUG: 'False'
+          APP_VERSION: test
           DB_ENGINE: django.db.backends.sqlite3
           DB_NAME: /tmp/test_db.sqlite3
           DB_HOST: ''

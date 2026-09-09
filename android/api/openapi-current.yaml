@@ -3423,7 +3423,7 @@ paths:
   /api/auth/login/:
     post:
       operationId: auth_login_create
-      description: Handle login request.
+      description: Handle one JSON request body and return a stable error envelope.
       tags:
       - auth
       security:
@@ -10244,8 +10244,9 @@ components:
           maxLength: 128
         start_year:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: 'Graduation year for this batch (not intake year). Example:
             Students enrolling in 2026 for a 5-year program would have start_year=2031.'
         year:
@@ -10386,8 +10387,9 @@ components:
           readOnly: true
         credits:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Credit hours for this course
         created_at:
           type: string
@@ -10597,8 +10599,9 @@ components:
           maxLength: 255
         sequence:
           type: integer
-          maximum: 2147483647
-          minimum: -2147483648
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
           default: 1
           description: Order/sequence of this component
         department:
@@ -11348,8 +11351,9 @@ components:
           description: Module description
         order:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Order/sequence of this module within the block
         created_at:
           type: string
@@ -12975,8 +12979,9 @@ components:
           maxLength: 128
         start_year:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: 'Graduation year for this batch (not intake year). Example:
             Students enrolling in 2026 for a 5-year program would have start_year=2031.'
         year:
@@ -13068,8 +13073,9 @@ components:
           readOnly: true
         credits:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Credit hours for this course
         created_at:
           type: string
@@ -13211,8 +13217,9 @@ components:
           maxLength: 255
         sequence:
           type: integer
-          maximum: 2147483647
-          minimum: -2147483648
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
           default: 1
           description: Order/sequence of this component
         department:
@@ -13676,8 +13683,9 @@ components:
           description: Module description
         order:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Order/sequence of this module within the block
         created_at:
           type: string
@@ -13764,8 +13772,9 @@ components:
           maxLength: 128
         order:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Order/sequence of this period within the program
         start_date:
           type: string
@@ -13899,14 +13908,16 @@ components:
           description: Whether program structure is finalized (locks structure fields)
         period_length_months:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Period length in months (for CUSTOM structure_type)
         total_periods:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Total number of periods (for CUSTOM structure_type)
         created_at:
@@ -14209,8 +14220,9 @@ components:
           readOnly: true
         capacity:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Maximum number of students
         enrolled_count:
           type: string
@@ -14329,20 +14341,23 @@ components:
             * `on_leave` - On Leave
         enrollment_year:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Year of enrollment
         expected_graduation_year:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Expected year of graduation
         actual_graduation_year:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Actual year of graduation (if graduated)
         email:
@@ -14420,8 +14435,9 @@ components:
           description: Learning objectives for this item
         order_no:
           type: integer
-          maximum: 2147483647
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Order/sequence number (>= 1)
         is_active:
           type: boolean
@@ -14457,8 +14473,8 @@ components:
             * `3` - Thursday
             * `4` - Friday
             * `5` - Saturday
-          minimum: -2147483648
-          maximum: 2147483647
+          minimum: -9223372036854775808
+          maximum: 9223372036854775807
         day_of_week_display:
           type: string
           readOnly: true
@@ -14772,8 +14788,9 @@ components:
           maxLength: 128
         order:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Order/sequence of this period within the program
         start_date:
           type: string
@@ -15036,14 +15053,16 @@ components:
           description: Whether program structure is finalized (locks structure fields)
         period_length_months:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Period length in months (for CUSTOM structure_type)
         total_periods:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Total number of periods (for CUSTOM structure_type)
         created_at:
@@ -15482,8 +15501,9 @@ components:
           readOnly: true
         capacity:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Maximum number of students
         enrolled_count:
           type: string
@@ -15659,20 +15679,23 @@ components:
             * `on_leave` - On Leave
         enrollment_year:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Year of enrollment
         expected_graduation_year:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Expected year of graduation
         actual_graduation_year:
           type: integer
-          maximum: 32767
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           nullable: true
           description: Actual year of graduation (if graduated)
         email:
@@ -15777,8 +15800,9 @@ components:
           description: Learning objectives for this item
         order_no:
           type: integer
-          maximum: 2147483647
+          maximum: 9223372036854775807
           minimum: 0
+          format: int64
           description: Order/sequence number (>= 1)
         is_active:
           type: boolean
@@ -15823,8 +15847,8 @@ components:
             * `3` - Thursday
             * `4` - Friday
             * `5` - Saturday
-          minimum: -2147483648
-          maximum: 2147483647
+          minimum: -9223372036854775808
+          maximum: 9223372036854775807
         day_of_week_display:
           type: string
           readOnly: true

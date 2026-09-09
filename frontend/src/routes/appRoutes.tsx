@@ -12,7 +12,6 @@ import { DataTableDemo } from '@/pages/demo/DataTableDemo'
 import { AttendanceDashboard } from '@/pages/attendance/AttendanceDashboard'
 import { EligibilityReport } from '@/pages/attendance/EligibilityReport'
 import { AttendanceInputPage } from '@/pages/attendance/AttendanceInputPage'
-import { Gradebook } from '@/pages/gradebook/Gradebook'
 import { PublishResults } from '@/pages/examcell/PublishResults'
 import { TranscriptVerify } from '@/pages/verify/TranscriptVerify'
 import { AuditLog } from '@/pages/admin/AuditLog'
@@ -158,11 +157,9 @@ export const router = createBrowserRouter([
   },
   {
     path: '/gradebook',
-    element: (
-      <ProtectedRoute allowedRoles={['Faculty', 'Student', 'Admin']}>
-        <Gradebook />
-      </ProtectedRoute>
-    ),
+    // Legacy assessments were removed. Preserve deep links while directing users
+    // to the canonical exams/results workflow.
+    element: <Navigate to="/results" replace />,
   },
   {
     path: '/examcell/publish',

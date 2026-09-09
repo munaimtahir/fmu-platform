@@ -236,6 +236,10 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
+# Register schema extensions explicitly so management-command generation and
+# deployed schema views use the same authentication contract.
+import core.openapi  # noqa: E402, F401
+
 # Redis/RQ Settings
 RQ_QUEUES = {
     "default": {

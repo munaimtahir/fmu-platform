@@ -63,6 +63,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -88,6 +89,7 @@ paths:
               $ref: '#/components/schemas/AcademicPeriod'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -109,6 +111,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -141,6 +144,7 @@ paths:
               $ref: '#/components/schemas/AcademicPeriod'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -172,6 +176,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedAcademicPeriod'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -192,6 +197,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -222,6 +228,7 @@ paths:
               $ref: '#/components/schemas/AcademicPeriod'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -256,6 +263,7 @@ paths:
               $ref: '#/components/schemas/AcademicPeriod'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -297,6 +305,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -322,6 +331,7 @@ paths:
               $ref: '#/components/schemas/Batch'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -343,6 +353,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -375,6 +386,7 @@ paths:
               $ref: '#/components/schemas/Batch'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -406,6 +418,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedBatch'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -426,6 +439,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -479,6 +493,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -504,6 +519,7 @@ paths:
               $ref: '#/components/schemas/LearningBlock'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -525,6 +541,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -557,6 +574,7 @@ paths:
               $ref: '#/components/schemas/LearningBlock'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -588,6 +606,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedLearningBlock'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -608,6 +627,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -645,6 +665,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -670,6 +691,7 @@ paths:
               $ref: '#/components/schemas/Course'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -691,6 +713,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -723,6 +746,7 @@ paths:
               $ref: '#/components/schemas/Course'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -754,6 +778,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedCourse'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -774,6 +799,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -807,6 +833,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -832,6 +859,7 @@ paths:
               $ref: '#/components/schemas/Department'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -853,6 +881,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -885,6 +914,7 @@ paths:
               $ref: '#/components/schemas/Department'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -916,6 +946,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedDepartment'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -936,6 +967,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -969,6 +1001,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -994,6 +1027,7 @@ paths:
               $ref: '#/components/schemas/Group'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -1015,6 +1049,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1047,6 +1082,7 @@ paths:
               $ref: '#/components/schemas/Group'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1078,6 +1114,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedGroup'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1098,6 +1135,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -1131,6 +1169,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1156,6 +1195,7 @@ paths:
               $ref: '#/components/schemas/Module'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -1177,6 +1217,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1209,6 +1250,7 @@ paths:
               $ref: '#/components/schemas/Module'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1240,6 +1282,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedModule'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1260,6 +1303,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -1293,6 +1337,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1318,6 +1363,7 @@ paths:
               $ref: '#/components/schemas/Period'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -1339,6 +1385,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1371,6 +1418,7 @@ paths:
               $ref: '#/components/schemas/Period'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1402,6 +1450,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedPeriod'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1422,6 +1471,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -1440,6 +1490,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1495,6 +1546,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1520,6 +1572,7 @@ paths:
               $ref: '#/components/schemas/Program'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -1541,6 +1594,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1573,6 +1627,7 @@ paths:
               $ref: '#/components/schemas/Program'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1604,6 +1659,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedProgram'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1626,6 +1682,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -1656,6 +1713,7 @@ paths:
               $ref: '#/components/schemas/Program'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1690,6 +1748,7 @@ paths:
               $ref: '#/components/schemas/Program'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1739,6 +1798,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1764,6 +1824,7 @@ paths:
               $ref: '#/components/schemas/Section'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -1785,6 +1846,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1817,6 +1879,7 @@ paths:
               $ref: '#/components/schemas/Section'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1848,6 +1911,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedSection'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1868,6 +1932,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -1901,6 +1966,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1926,6 +1992,7 @@ paths:
               $ref: '#/components/schemas/Track'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -1947,6 +2014,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -1979,6 +2047,7 @@ paths:
               $ref: '#/components/schemas/Track'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2010,6 +2079,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedTrack'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2030,6 +2100,7 @@ paths:
       tags:
       - academics
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -2048,6 +2119,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2065,6 +2137,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2082,6 +2155,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2095,6 +2169,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2106,6 +2181,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2119,6 +2195,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2130,6 +2207,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2150,6 +2228,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2166,6 +2245,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2198,6 +2278,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2224,6 +2305,7 @@ paths:
               $ref: '#/components/schemas/AppSetting'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -2248,6 +2330,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2281,6 +2364,7 @@ paths:
               $ref: '#/components/schemas/AppSetting'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2315,6 +2399,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedAppSetting'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2338,6 +2423,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -2349,6 +2435,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2370,6 +2457,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2387,6 +2475,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2400,6 +2489,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2411,6 +2501,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2424,6 +2515,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2435,6 +2527,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2491,6 +2584,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2519,6 +2613,7 @@ paths:
               $ref: '#/components/schemas/SyllabusItem'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -2543,6 +2638,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2578,6 +2674,7 @@ paths:
               $ref: '#/components/schemas/SyllabusItem'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2612,6 +2709,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedSyllabusItem'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2635,6 +2733,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -2661,6 +2760,7 @@ paths:
               $ref: '#/components/schemas/SyllabusItem'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2701,6 +2801,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2727,6 +2828,7 @@ paths:
               $ref: '#/components/schemas/AdminUserCreate'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -2751,6 +2853,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2784,6 +2887,7 @@ paths:
               $ref: '#/components/schemas/AdminUserUpdate'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2818,6 +2922,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedAdminUserUpdate'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2839,6 +2944,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -2869,6 +2975,7 @@ paths:
               $ref: '#/components/schemas/AdminUser'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2903,6 +3010,7 @@ paths:
               $ref: '#/components/schemas/AdminUser'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2937,6 +3045,7 @@ paths:
               $ref: '#/components/schemas/AdminUser'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -2956,6 +3065,7 @@ paths:
       tags:
       - admin
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3013,6 +3123,7 @@ paths:
       tags:
       - attendance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3038,6 +3149,7 @@ paths:
               $ref: '#/components/schemas/Attendance'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -3052,6 +3164,7 @@ paths:
       tags:
       - attendance-input
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3062,6 +3175,7 @@ paths:
       tags:
       - attendance-input
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3072,6 +3186,7 @@ paths:
       tags:
       - attendance-input
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3082,6 +3197,7 @@ paths:
       tags:
       - attendance-input
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3092,6 +3208,7 @@ paths:
       tags:
       - attendance-input
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3102,6 +3219,7 @@ paths:
       tags:
       - attendance-input
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3112,6 +3230,7 @@ paths:
       tags:
       - attendance-input
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3122,6 +3241,7 @@ paths:
       tags:
       - attendance-input
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3139,6 +3259,7 @@ paths:
       tags:
       - attendance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3171,6 +3292,7 @@ paths:
               $ref: '#/components/schemas/Attendance'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3202,6 +3324,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedAttendance'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3222,6 +3345,7 @@ paths:
       tags:
       - attendance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -3233,6 +3357,7 @@ paths:
       tags:
       - attendance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3248,6 +3373,7 @@ paths:
       tags:
       - attendance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3282,6 +3408,7 @@ paths:
               $ref: '#/components/schemas/Attendance'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3297,6 +3424,7 @@ paths:
       tags:
       - attendance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3359,6 +3487,7 @@ paths:
       tags:
       - audit
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3384,6 +3513,7 @@ paths:
       tags:
       - audit
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3401,6 +3531,7 @@ paths:
       tags:
       - audit
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3415,33 +3546,95 @@ paths:
       description: Change user password.
       tags:
       - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+        required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/auth/login/:
     post:
       operationId: auth_login_create
       description: Handle one JSON request body and return a stable error envelope.
       tags:
       - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnifiedLogin'
+        required: true
       security:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+          description: ''
   /api/auth/logout/:
     post:
       operationId: auth_logout_create
       description: Handle logout request.
       tags:
       - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: ''
   /api/auth/me/:
     get:
       operationId: auth_me_retrieve
@@ -3449,31 +3642,81 @@ paths:
       tags:
       - auth
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
     patch:
       operationId: auth_me_partial_update
       description: Update current user profile information.
       tags:
       - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProfileUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProfileUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProfileUpdate'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/auth/refresh/:
     post:
       operationId: auth_refresh_create
       description: Handle token refresh request.
       tags:
       - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
       security:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+          description: ''
   /api/auth/token/:
     post:
       operationId: auth_token_create
@@ -3509,11 +3752,33 @@ paths:
       description: Handle token refresh request.
       tags:
       - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
       security:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthErrorResponse'
+          description: ''
   /api/compliance/admin-compliance/:
     get:
       operationId: compliance_admin_compliance_list
@@ -3542,6 +3807,7 @@ paths:
       tags:
       - compliance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3569,6 +3835,7 @@ paths:
             schema:
               $ref: '#/components/schemas/RequirementInstance'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -3593,6 +3860,7 @@ paths:
       tags:
       - compliance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3627,6 +3895,7 @@ paths:
             schema:
               $ref: '#/components/schemas/RequirementInstance'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3661,6 +3930,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedRequirementInstance'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3684,6 +3954,7 @@ paths:
       tags:
       - compliance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -3715,6 +3986,7 @@ paths:
             schema:
               $ref: '#/components/schemas/RequirementInstance'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3750,6 +4022,7 @@ paths:
             schema:
               $ref: '#/components/schemas/RequirementInstance'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3778,6 +4051,7 @@ paths:
             schema:
               $ref: '#/components/schemas/RequirementInstance'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3795,6 +4069,7 @@ paths:
       tags:
       - compliance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3828,6 +4103,7 @@ paths:
       tags:
       - compliance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3853,6 +4129,7 @@ paths:
               $ref: '#/components/schemas/RequirementDefinition'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -3874,6 +4151,7 @@ paths:
       tags:
       - compliance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3906,6 +4184,7 @@ paths:
               $ref: '#/components/schemas/RequirementDefinition'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3937,6 +4216,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedRequirementDefinition'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -3957,6 +4237,7 @@ paths:
       tags:
       - compliance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -3989,6 +4270,7 @@ paths:
       tags:
       - compliance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4013,6 +4295,7 @@ paths:
       tags:
       - compliance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4048,6 +4331,7 @@ paths:
             schema:
               $ref: '#/components/schemas/RequirementInstance'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4084,6 +4368,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4110,6 +4395,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4144,6 +4430,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4174,6 +4461,7 @@ paths:
               $ref: '#/components/schemas/RoleTaskAssignment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -4200,6 +4488,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4237,6 +4526,7 @@ paths:
               $ref: '#/components/schemas/RoleTaskAssignment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4273,6 +4563,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedRoleTaskAssignment'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4298,6 +4589,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -4330,6 +4622,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4360,6 +4653,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -4386,6 +4680,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4423,6 +4718,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4459,6 +4755,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedRole'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4480,6 +4777,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -4511,6 +4809,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4542,6 +4841,7 @@ paths:
               $ref: '#/components/schemas/UserTaskAssignment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -4569,6 +4869,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4607,6 +4908,7 @@ paths:
               $ref: '#/components/schemas/UserTaskAssignment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4644,6 +4946,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedUserTaskAssignment'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4670,6 +4973,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -4681,6 +4985,7 @@ paths:
       tags:
       - core
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4704,10 +5009,16 @@ paths:
       tags:
       - dashboard
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/exam-components/:
     get:
       operationId: exam_components_list
@@ -4737,6 +5048,7 @@ paths:
       tags:
       - exam-components
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4762,6 +5074,7 @@ paths:
               $ref: '#/components/schemas/ExamComponent'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -4783,6 +5096,7 @@ paths:
       tags:
       - exam-components
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4815,6 +5129,7 @@ paths:
               $ref: '#/components/schemas/ExamComponent'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4846,6 +5161,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedExamComponent'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4866,6 +5182,7 @@ paths:
       tags:
       - exam-components
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -4907,6 +5224,7 @@ paths:
       tags:
       - exams
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4932,6 +5250,7 @@ paths:
               $ref: '#/components/schemas/Exam'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -4953,6 +5272,7 @@ paths:
       tags:
       - exams
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -4985,6 +5305,7 @@ paths:
               $ref: '#/components/schemas/Exam'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5016,6 +5337,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedExam'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5036,6 +5358,7 @@ paths:
       tags:
       - exams
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -5066,6 +5389,7 @@ paths:
               $ref: '#/components/schemas/Exam'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5133,6 +5457,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5158,6 +5483,7 @@ paths:
               $ref: '#/components/schemas/Adjustment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -5179,6 +5505,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5211,6 +5538,7 @@ paths:
               $ref: '#/components/schemas/Adjustment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5242,6 +5570,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedAdjustment'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5262,6 +5591,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -5291,6 +5621,7 @@ paths:
               $ref: '#/components/schemas/Adjustment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5340,6 +5671,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5365,6 +5697,7 @@ paths:
               $ref: '#/components/schemas/FeePlan'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -5386,6 +5719,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5418,6 +5752,7 @@ paths:
               $ref: '#/components/schemas/FeePlan'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5449,6 +5784,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedFeePlan'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5469,6 +5805,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -5498,6 +5835,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5523,6 +5861,7 @@ paths:
               $ref: '#/components/schemas/FeeType'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -5544,6 +5883,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5576,6 +5916,7 @@ paths:
               $ref: '#/components/schemas/FeeType'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5607,6 +5948,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedFeeType'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5627,6 +5969,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -5692,6 +6035,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5713,6 +6057,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5782,6 +6127,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5807,6 +6153,7 @@ paths:
               $ref: '#/components/schemas/Payment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -5828,6 +6175,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5860,6 +6208,7 @@ paths:
               $ref: '#/components/schemas/Payment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5891,6 +6240,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedPayment'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5911,6 +6261,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -5928,6 +6279,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5961,6 +6313,7 @@ paths:
               $ref: '#/components/schemas/Payment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -5994,6 +6347,7 @@ paths:
               $ref: '#/components/schemas/Payment'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6035,6 +6389,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6060,6 +6415,7 @@ paths:
               $ref: '#/components/schemas/FinancePolicy'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -6081,6 +6437,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6113,6 +6470,7 @@ paths:
               $ref: '#/components/schemas/FinancePolicy'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6144,6 +6502,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedFinancePolicy'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6164,6 +6523,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -6174,6 +6534,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6184,6 +6545,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6194,6 +6556,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6210,6 +6573,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6226,6 +6590,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6242,6 +6607,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6295,6 +6661,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6320,6 +6687,7 @@ paths:
               $ref: '#/components/schemas/Voucher'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -6341,6 +6709,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6373,6 +6742,7 @@ paths:
               $ref: '#/components/schemas/Voucher'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6404,6 +6774,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedVoucher'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6424,6 +6795,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -6441,6 +6813,7 @@ paths:
       tags:
       - finance
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6474,6 +6847,7 @@ paths:
               $ref: '#/components/schemas/Voucher'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6500,6 +6874,7 @@ paths:
               $ref: '#/components/schemas/Voucher'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6535,6 +6910,7 @@ paths:
       tags:
       - learning
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6562,6 +6938,7 @@ paths:
               $ref: '#/components/schemas/LearningMaterialAudience'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -6585,6 +6962,7 @@ paths:
       tags:
       - learning
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6606,6 +6984,7 @@ paths:
       tags:
       - learning
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -6663,6 +7042,7 @@ paths:
       tags:
       - learning
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6690,6 +7070,7 @@ paths:
               $ref: '#/components/schemas/LearningMaterial'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -6713,6 +7094,7 @@ paths:
       tags:
       - learning
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6747,6 +7129,7 @@ paths:
               $ref: '#/components/schemas/LearningMaterial'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6780,6 +7163,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedLearningMaterial'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6802,6 +7186,7 @@ paths:
       tags:
       - learning
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -6833,6 +7218,7 @@ paths:
               $ref: '#/components/schemas/LearningMaterial'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6856,6 +7242,7 @@ paths:
       tags:
       - learning
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6890,6 +7277,7 @@ paths:
               $ref: '#/components/schemas/LearningMaterial'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6925,6 +7313,7 @@ paths:
               $ref: '#/components/schemas/LearningMaterial'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -6939,6 +7328,7 @@ paths:
       tags:
       - learning
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7014,6 +7404,7 @@ paths:
       tags:
       - leave-periods
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7039,6 +7430,7 @@ paths:
               $ref: '#/components/schemas/LeavePeriod'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -7060,6 +7452,7 @@ paths:
       tags:
       - leave-periods
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7092,6 +7485,7 @@ paths:
               $ref: '#/components/schemas/LeavePeriod'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7123,6 +7517,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedLeavePeriod'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7143,6 +7538,7 @@ paths:
       tags:
       - leave-periods
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -7172,6 +7568,7 @@ paths:
       tags:
       - my
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7203,6 +7600,7 @@ paths:
             schema:
               $ref: '#/components/schemas/NotificationInbox'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7228,6 +7626,7 @@ paths:
             schema:
               $ref: '#/components/schemas/NotificationInbox'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7242,6 +7641,7 @@ paths:
       tags:
       - my
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7301,6 +7701,7 @@ paths:
       tags:
       - notifications
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7326,6 +7727,7 @@ paths:
               $ref: '#/components/schemas/NotificationCreate'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -7347,6 +7749,7 @@ paths:
       tags:
       - notifications
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7380,6 +7783,7 @@ paths:
               $ref: '#/components/schemas/Notification'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7446,6 +7850,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7472,6 +7877,7 @@ paths:
               $ref: '#/components/schemas/Address'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -7494,6 +7900,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7527,6 +7934,7 @@ paths:
               $ref: '#/components/schemas/Address'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7559,6 +7967,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedAddress'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7580,6 +7989,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -7638,6 +8048,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7664,6 +8075,7 @@ paths:
               $ref: '#/components/schemas/ContactInfo'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -7686,6 +8098,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7719,6 +8132,7 @@ paths:
               $ref: '#/components/schemas/ContactInfo'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7751,6 +8165,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedContactInfo'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7772,6 +8187,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -7826,6 +8242,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7852,6 +8269,7 @@ paths:
               $ref: '#/components/schemas/IdentityDocument'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -7874,6 +8292,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7907,6 +8326,7 @@ paths:
               $ref: '#/components/schemas/IdentityDocument'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7939,6 +8359,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedIdentityDocument'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -7960,6 +8381,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -8020,6 +8442,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8054,6 +8477,7 @@ paths:
               $ref: '#/components/schemas/Person'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -8084,6 +8508,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8125,6 +8550,7 @@ paths:
               $ref: '#/components/schemas/Person'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8165,6 +8591,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedPerson'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8194,6 +8621,7 @@ paths:
       tags:
       - people
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -8231,6 +8659,7 @@ paths:
       tags:
       - result-components
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8256,6 +8685,7 @@ paths:
               $ref: '#/components/schemas/ResultComponentEntry'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -8277,6 +8707,7 @@ paths:
       tags:
       - result-components
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8309,6 +8740,7 @@ paths:
               $ref: '#/components/schemas/ResultComponentEntry'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8340,6 +8772,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedResultComponentEntry'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8360,10 +8793,166 @@ paths:
       tags:
       - result-components
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
           description: No response body
+  /api/result-corrections/:
+    get:
+      operationId: result_corrections_list
+      description: Narrow, auditable exception path for immutable result corrections.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - result-corrections
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResultCorrectionRequestList'
+          description: ''
+    post:
+      operationId: result_corrections_create
+      description: Narrow, auditable exception path for immutable result corrections.
+      tags:
+      - result-corrections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResultCorrectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResultCorrectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResultCorrectionRequest'
+        required: true
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultCorrectionRequest'
+          description: ''
+  /api/result-corrections/{id}/:
+    get:
+      operationId: result_corrections_retrieve
+      description: Narrow, auditable exception path for immutable result corrections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this result correction request.
+        required: true
+      tags:
+      - result-corrections
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultCorrectionRequest'
+          description: ''
+  /api/result-corrections/{id}/apply/:
+    post:
+      operationId: result_corrections_apply_create
+      description: Narrow, auditable exception path for immutable result corrections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this result correction request.
+        required: true
+      tags:
+      - result-corrections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResultCorrectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResultCorrectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResultCorrectionRequest'
+        required: true
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultCorrectionRequest'
+          description: ''
+  /api/result-corrections/{id}/review/:
+    post:
+      operationId: result_corrections_review_create
+      description: Narrow, auditable exception path for immutable result corrections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this result correction request.
+        required: true
+      tags:
+      - result-corrections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResultCorrectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResultCorrectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResultCorrectionRequest'
+        required: true
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultCorrectionRequest'
+          description: ''
   /api/results/:
     get:
       operationId: results_list
@@ -8427,6 +9016,7 @@ paths:
       tags:
       - results
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8452,6 +9042,7 @@ paths:
               $ref: '#/components/schemas/ResultHeader'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -8473,6 +9064,7 @@ paths:
       tags:
       - results
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8505,6 +9097,7 @@ paths:
               $ref: '#/components/schemas/ResultHeader'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8536,6 +9129,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedResultHeader'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8556,6 +9150,7 @@ paths:
       tags:
       - results
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -8586,6 +9181,7 @@ paths:
               $ref: '#/components/schemas/ResultHeader'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8620,6 +9216,7 @@ paths:
               $ref: '#/components/schemas/ResultHeader'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8654,6 +9251,7 @@ paths:
               $ref: '#/components/schemas/ResultHeader'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8676,6 +9274,7 @@ paths:
       tags:
       - results
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8691,6 +9290,7 @@ paths:
       tags:
       - results
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8758,6 +9358,7 @@ paths:
       tags:
       - students
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8783,6 +9384,7 @@ paths:
               $ref: '#/components/schemas/Student'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -8804,6 +9406,7 @@ paths:
       tags:
       - students
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8836,6 +9439,7 @@ paths:
               $ref: '#/components/schemas/Student'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8867,6 +9471,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedStudent'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8887,6 +9492,7 @@ paths:
       tags:
       - students
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -8917,6 +9523,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedStudent'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8932,6 +9539,7 @@ paths:
       tags:
       - students
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -8981,6 +9589,7 @@ paths:
       tags:
       - timetable
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9006,6 +9615,7 @@ paths:
               $ref: '#/components/schemas/Session'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -9027,6 +9637,7 @@ paths:
       tags:
       - timetable
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9059,6 +9670,7 @@ paths:
               $ref: '#/components/schemas/Session'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9090,6 +9702,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedSession'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9110,6 +9723,7 @@ paths:
       tags:
       - timetable
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -9161,6 +9775,7 @@ paths:
       tags:
       - timetable
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9186,6 +9801,7 @@ paths:
               $ref: '#/components/schemas/TimetableCell'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -9207,6 +9823,7 @@ paths:
       tags:
       - timetable
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9239,6 +9856,7 @@ paths:
               $ref: '#/components/schemas/TimetableCell'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9270,6 +9888,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedTimetableCell'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9290,6 +9909,7 @@ paths:
       tags:
       - timetable
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -9338,6 +9958,7 @@ paths:
       tags:
       - timetable
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9363,6 +9984,7 @@ paths:
               $ref: '#/components/schemas/WeeklyTimetable'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '201':
@@ -9384,6 +10006,7 @@ paths:
       tags:
       - timetable
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9416,6 +10039,7 @@ paths:
               $ref: '#/components/schemas/WeeklyTimetable'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9447,6 +10071,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedWeeklyTimetable'
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9467,6 +10092,7 @@ paths:
       tags:
       - timetable
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '204':
@@ -9497,6 +10123,7 @@ paths:
               $ref: '#/components/schemas/WeeklyTimetable'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9531,6 +10158,7 @@ paths:
               $ref: '#/components/schemas/WeeklyTimetable'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9559,6 +10187,7 @@ paths:
               $ref: '#/components/schemas/WeeklyTimetable'
         required: true
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9580,6 +10209,7 @@ paths:
       tags:
       - transcripts
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9598,6 +10228,7 @@ paths:
       tags:
       - transcripts
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
@@ -9615,6 +10246,7 @@ paths:
       tags:
       - transcripts
       security:
+      - ImpersonationJWTAuth: []
       - jwtAuth: []
       - {}
       responses:
@@ -10226,6 +10858,25 @@ components:
       - summary
       - timestamp
       - user_agent
+    AuthErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          additionalProperties: {}
+      required:
+      - error
+    AuthLoginResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        tokens:
+          type: object
+          additionalProperties: {}
+      required:
+      - tokens
+      - user
     Batch:
       type: object
       properties:
@@ -10244,9 +10895,8 @@ components:
           maxLength: 128
         start_year:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: 'Graduation year for this batch (not intake year). Example:
             Students enrolling in 2026 for a 5-year program would have start_year=2031.'
         year:
@@ -10387,9 +11037,8 @@ components:
           readOnly: true
         credits:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: Credit hours for this course
         created_at:
           type: string
@@ -10599,9 +11248,8 @@ components:
           maxLength: 255
         sequence:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
-          format: int64
+          maximum: 2147483647
+          minimum: -2147483648
           default: 1
           description: Order/sequence of this component
         department:
@@ -11316,6 +11964,18 @@ components:
       - term_name
       - void_reason
       - voided_at
+    LogoutRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
     MethodEnum:
       enum:
       - cash
@@ -11351,9 +12011,8 @@ components:
           description: Module description
         order:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: Order/sequence of this module within the block
         created_at:
           type: string
@@ -12396,6 +13055,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResultComponentEntry'
+    PaginatedResultCorrectionRequestList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultCorrectionRequest'
     PaginatedResultHeaderList:
       type: object
       required:
@@ -12682,6 +13364,27 @@ components:
         * `TOTAL_ONLY` - Total Only
         * `COMPONENT_WISE` - Component Wise
         * `HYBRID` - Hybrid
+    PasswordChange:
+      type: object
+      description: Serializer for changing user password.
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+          description: Current password
+        new_password:
+          type: string
+          writeOnly: true
+          description: New password (minimum 8 characters)
+          minLength: 8
+        new_password_confirm:
+          type: string
+          writeOnly: true
+          description: Confirm new password
+      required:
+      - new_password
+      - new_password_confirm
+      - old_password
     PatchedAcademicPeriod:
       type: object
       properties:
@@ -12979,9 +13682,8 @@ components:
           maxLength: 128
         start_year:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: 'Graduation year for this batch (not intake year). Example:
             Students enrolling in 2026 for a 5-year program would have start_year=2031.'
         year:
@@ -13073,9 +13775,8 @@ components:
           readOnly: true
         credits:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: Credit hours for this course
         created_at:
           type: string
@@ -13217,9 +13918,8 @@ components:
           maxLength: 255
         sequence:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
-          format: int64
+          maximum: 2147483647
+          minimum: -2147483648
           default: 1
           description: Order/sequence of this component
         department:
@@ -13683,9 +14383,8 @@ components:
           description: Module description
         order:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: Order/sequence of this module within the block
         created_at:
           type: string
@@ -13772,9 +14471,8 @@ components:
           maxLength: 128
         order:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: Order/sequence of this period within the program
         start_date:
           type: string
@@ -13877,6 +14575,21 @@ components:
           format: date-time
           readOnly: true
           description: The timestamp when the record was last updated.
+    PatchedProfileUpdate:
+      type: object
+      description: Serializer for updating user profile information.
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
     PatchedProgram:
       type: object
       properties:
@@ -13908,16 +14621,14 @@ components:
           description: Whether program structure is finalized (locks structure fields)
         period_length_months:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Period length in months (for CUSTOM structure_type)
         total_periods:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Total number of periods (for CUSTOM structure_type)
         created_at:
@@ -14220,9 +14931,8 @@ components:
           readOnly: true
         capacity:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: Maximum number of students
         enrolled_count:
           type: string
@@ -14341,23 +15051,20 @@ components:
             * `on_leave` - On Leave
         enrollment_year:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Year of enrollment
         expected_graduation_year:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Expected year of graduation
         actual_graduation_year:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Actual year of graduation (if graduated)
         email:
@@ -14435,9 +15142,8 @@ components:
           description: Learning objectives for this item
         order_no:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 0
-          format: int64
           description: Order/sequence number (>= 1)
         is_active:
           type: boolean
@@ -14473,8 +15179,8 @@ components:
             * `3` - Thursday
             * `4` - Friday
             * `5` - Saturday
-          minimum: -9223372036854775808
-          maximum: 9223372036854775807
+          minimum: -2147483648
+          maximum: 2147483647
         day_of_week_display:
           type: string
           readOnly: true
@@ -14788,9 +15494,8 @@ components:
           maxLength: 128
         order:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: Order/sequence of this period within the program
         start_date:
           type: string
@@ -15053,16 +15758,14 @@ components:
           description: Whether program structure is finalized (locks structure fields)
         period_length_months:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Period length in months (for CUSTOM structure_type)
         total_periods:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Total number of periods (for CUSTOM structure_type)
         created_at:
@@ -15294,6 +15997,95 @@ components:
       - id
       - result_header
       - updated_at
+    ResultCorrectionRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        result_header:
+          type: integer
+        result_status:
+          type: string
+          readOnly: true
+        requested_by:
+          type: integer
+          readOnly: true
+        requested_by_username:
+          type: string
+          readOnly: true
+        reason:
+          type: string
+        proposed_changes: {}
+        original_values:
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ResultCorrectionRequestStatusEnum'
+          readOnly: true
+        reviewed_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        reviewed_by_username:
+          type: string
+          readOnly: true
+        reviewed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        review_note:
+          type: string
+          readOnly: true
+        applied_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        applied_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The timestamp when the record was created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The timestamp when the record was last updated.
+      required:
+      - applied_at
+      - applied_by
+      - created_at
+      - id
+      - original_values
+      - reason
+      - requested_by
+      - requested_by_username
+      - result_header
+      - result_status
+      - review_note
+      - reviewed_at
+      - reviewed_by
+      - reviewed_by_username
+      - status
+      - updated_at
+    ResultCorrectionRequestStatusEnum:
+      enum:
+      - PENDING
+      - APPROVED
+      - REJECTED
+      - APPLIED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `APPROVED` - Approved
+        * `REJECTED` - Rejected
+        * `APPLIED` - Applied
     ResultHeader:
       type: object
       properties:
@@ -15501,9 +16293,8 @@ components:
           readOnly: true
         capacity:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           description: Maximum number of students
         enrolled_count:
           type: string
@@ -15679,23 +16470,20 @@ components:
             * `on_leave` - On Leave
         enrollment_year:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Year of enrollment
         expected_graduation_year:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Expected year of graduation
         actual_graduation_year:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 32767
           minimum: 0
-          format: int64
           nullable: true
           description: Actual year of graduation (if graduated)
         email:
@@ -15749,6 +16537,13 @@ components:
         * `graduated` - Graduated
         * `suspended` - Suspended
         * `on_leave` - On Leave
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+      - success
     SyllabusItem:
       type: object
       description: Serializer for SyllabusItem.
@@ -15800,9 +16595,8 @@ components:
           description: Learning objectives for this item
         order_no:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 0
-          format: int64
           description: Order/sequence number (>= 1)
         is_active:
           type: boolean
@@ -15847,8 +16641,8 @@ components:
             * `3` - Thursday
             * `4` - Friday
             * `5` - Saturday
-          minimum: -9223372036854775808
-          maximum: 9223372036854775807
+          minimum: -2147483648
+          maximum: 2147483647
         day_of_week_display:
           type: string
           readOnly: true
@@ -15889,6 +16683,23 @@ components:
       - time_slot
       - updated_at
       - weekly_timetable
+    TokenRefresh:
+      type: object
+      description: Serializer for token refresh endpoint.
+      properties:
+        refresh:
+          type: string
+      required:
+      - refresh
+    TokenRefreshResponse:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+      required:
+      - access
     Track:
       type: object
       properties:
@@ -15925,6 +16736,24 @@ components:
       - program
       - program_name
       - updated_at
+    UnifiedLogin:
+      type: object
+      description: |-
+        Unified login serializer that accepts identifier (email OR username) and password.
+
+        This serializer implements the canonical auth contract:
+        - Request: { "identifier": "user@example.com or username", "password": "..." }
+        - Response: { "user": {...}, "tokens": {"access": "...", "refresh": "..."} }
+      properties:
+        identifier:
+          type: string
+          description: Username or email address
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - identifier
+      - password
     User:
       type: object
       description: Serializer for user information in auth responses.
@@ -16279,6 +17108,12 @@ components:
       - week_end_date
       - week_start_date
   securitySchemes:
+    ImpersonationJWTAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT bearer token. Impersonation claims, when present, are audited
+        server-side.
     jwtAuth:
       type: http
       scheme: bearer

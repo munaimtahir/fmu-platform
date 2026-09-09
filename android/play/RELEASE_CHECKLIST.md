@@ -8,4 +8,4 @@
 - [x] bundletool 1.18.3 validation
 - [x] AAB-derived installation and cold-launch smoke test on `sims`
 - [ ] External upload-key backup
-- [ ] Play Console Internal Testing upload
+- [x] Play Console Internal Testing upload

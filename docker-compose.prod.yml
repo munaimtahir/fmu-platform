@@ -34,6 +34,7 @@ services:
       - .env
     environment:
       DJANGO_SECURE_SSL_REDIRECT: "True"
+      APP_VERSION: ${APP_VERSION:?APP_VERSION must be set to the deployed revision}
     depends_on:
       - db
     volumes:

@@ -14,6 +14,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 from core.branding import BRANDING, PUBLIC_APP_DOMAIN
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,11 +24,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-&7mgx!y1_ln3-&li1$p*&l2tbsw7cp(-s+3&l^dmi(@8i!1!5i",
-)
+# A secret key must be supplied by the environment. A checked-in fallback would
+# make session and JWT signatures predictable when deployment configuration is
+# incomplete.
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set.")
+
+# CI/CD supplies the immutable revision deployed to an environment. It is safe
+# to expose through the health endpoint and enables deployment reconciliation.
+APP_VERSION = os.getenv("APP_VERSION", "unknown")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"

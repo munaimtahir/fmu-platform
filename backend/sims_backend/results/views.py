@@ -1,3 +1,7 @@
+from decimal import Decimal
+
+from django.db import transaction
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -10,8 +14,12 @@ from core.permissions import PermissionTaskRequired, has_permission_task
 from sims_backend.common_permissions import in_group
 from sims_backend.exams.services import compute_result_passing_status
 from sims_backend.finance.services import finance_gate_checks
-from sims_backend.results.models import ResultComponentEntry, ResultError, ResultHeader
-from sims_backend.results.serializers import ResultComponentEntrySerializer, ResultHeaderSerializer
+from sims_backend.results.models import ResultComponentEntry, ResultCorrectionRequest, ResultError, ResultHeader
+from sims_backend.results.serializers import (
+    ResultComponentEntrySerializer,
+    ResultCorrectionRequestSerializer,
+    ResultHeaderSerializer,
+)
 
 
 class ResultHeaderPermission(PermissionTaskRequired):
@@ -106,6 +114,13 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
         # Compute passing status after update
         compute_result_passing_status(instance)
 
+    def perform_destroy(self, instance):
+        if not instance.is_editable:
+            raise PermissionDenied(
+                detail={"code": "IMMUTABLE_RESULT", "message": f"Cannot delete result with status {instance.status}. Submit a correction request instead."}
+            )
+        instance.delete()
+
     @action(detail=False, methods=["get"], url_path="exams/(?P<exam_id>[^/.]+)")
     def list_by_exam(self, request, exam_id=None):
         """List results for a specific exam"""
@@ -117,7 +132,7 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
     def verify(self, request, pk=None):
         """Verify result (DRAFT → VERIFIED)"""
         result = self.get_object()
-        if not result.is_publishable:
+        if result.status != ResultHeader.STATUS_DRAFT:
             return Response(
                 {"error": {"code": "NOT_VERIFIABLE", "message": f"Cannot verify result with status {result.status}"}},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -189,3 +204,108 @@ class ResultComponentEntryViewSet(viewsets.ModelViewSet):
         instance = serializer.save()
         # Recompute passing status for the result header
         compute_result_passing_status(instance.result_header)
+
+    def perform_create(self, serializer):
+        result_header = serializer.validated_data["result_header"]
+        if not result_header.is_editable:
+            raise PermissionDenied(
+                detail={"code": "IMMUTABLE_RESULT", "message": f"Cannot add a component to result with status {result_header.status}. Submit a correction request instead."}
+            )
+        instance = serializer.save()
+        compute_result_passing_status(instance.result_header)
+
+    def perform_destroy(self, instance):
+        if not instance.result_header.is_editable:
+            raise PermissionDenied(
+                detail={"code": "IMMUTABLE_RESULT", "message": f"Cannot delete a component from result with status {instance.result_header.status}. Submit a correction request instead."}
+            )
+        result_header = instance.result_header
+        instance.delete()
+        compute_result_passing_status(result_header)
+
+
+class ResultCorrectionRequestViewSet(viewsets.ModelViewSet):
+    """Narrow, auditable exception path for immutable result corrections."""
+
+    queryset = ResultCorrectionRequest.objects.select_related("result_header", "requested_by", "reviewed_by", "applied_by")
+    serializer_class = ResultCorrectionRequestSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["get", "post", "head", "options"]
+
+    def _can_review(self, user):
+        return has_permission_task(user, "results.result_corrections.review")
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self._can_review(self.request.user):
+            return queryset
+        return queryset.filter(requested_by=self.request.user)
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        result = serializer.validated_data["result_header"]
+        student = getattr(user, "student", None)
+        if in_group(user, "STUDENT"):
+            if not student or result.student_id != student.id:
+                raise PermissionDenied(detail={"code": "RESULT_SCOPE_DENIED", "message": "Students may request corrections only for their own results."})
+        elif not has_permission_task(user, "results.result_corrections.create"):
+            raise PermissionDenied(detail={"code": "CORRECTION_REQUEST_DENIED", "message": "You are not allowed to request a result correction."})
+
+        original_values = {
+            "total_obtained": str(result.total_obtained),
+            "total_max": str(result.total_max),
+            "status": result.status,
+            "component_marks": {str(entry.id): str(entry.marks_obtained) for entry in result.component_entries.all()},
+        }
+        serializer.save(requested_by=user, original_values=original_values)
+
+    @action(detail=True, methods=["post"])
+    def review(self, request, pk=None):
+        if not self._can_review(request.user):
+            raise PermissionDenied(detail={"code": "CORRECTION_REVIEW_DENIED", "message": "You are not allowed to review result corrections."})
+        correction = self.get_object()
+        decision = request.data.get("decision")
+        if correction.status != ResultCorrectionRequest.STATUS_PENDING:
+            return Response({"error": {"code": "INVALID_CORRECTION_STATE", "message": "Only pending correction requests can be reviewed."}}, status=status.HTTP_400_BAD_REQUEST)
+        if decision not in [ResultCorrectionRequest.STATUS_APPROVED, ResultCorrectionRequest.STATUS_REJECTED]:
+            return Response({"error": {"code": "INVALID_DECISION", "message": "Decision must be APPROVED or REJECTED."}}, status=status.HTTP_400_BAD_REQUEST)
+        correction.status = decision
+        correction.reviewed_by = request.user
+        correction.reviewed_at = timezone.now()
+        correction.review_note = str(request.data.get("review_note", ""))
+        correction.save(update_fields=["status", "reviewed_by", "reviewed_at", "review_note", "updated_at"])
+        return Response(self.get_serializer(correction).data)
+
+    @action(detail=True, methods=["post"])
+    def apply(self, request, pk=None):
+        if not self._can_review(request.user):
+            raise PermissionDenied(detail={"code": "CORRECTION_APPLY_DENIED", "message": "You are not allowed to apply result corrections."})
+        correction = self.get_object()
+        if correction.status != ResultCorrectionRequest.STATUS_APPROVED:
+            return Response({"error": {"code": "INVALID_CORRECTION_STATE", "message": "Only approved correction requests can be applied."}}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            result = ResultHeader.objects.select_for_update().get(pk=correction.result_header_id)
+            changes = correction.proposed_changes
+            component_marks = changes.get("component_marks", {})
+            entries = {str(entry.id): entry for entry in result.component_entries.select_for_update()}
+            unknown = set(component_marks) - set(entries)
+            if unknown:
+                return Response({"error": {"code": "UNKNOWN_COMPONENT_ENTRY", "message": "Correction references a component entry outside this result."}}, status=status.HTTP_400_BAD_REQUEST)
+            if "total_obtained" in changes:
+                result.total_obtained = Decimal(str(changes["total_obtained"]))
+            if "total_max" in changes:
+                result.total_max = Decimal(str(changes["total_max"]))
+            result.save(update_fields=["total_obtained", "total_max", "updated_at"])
+
+            for entry_id, marks in component_marks.items():
+                entry = entries[entry_id]
+                entry.marks_obtained = Decimal(str(marks))
+                entry.save(update_fields=["marks_obtained", "updated_at"])
+
+            compute_result_passing_status(result)
+            correction.status = ResultCorrectionRequest.STATUS_APPLIED
+            correction.applied_by = request.user
+            correction.applied_at = timezone.now()
+            correction.save(update_fields=["status", "applied_by", "applied_at", "updated_at"])
+        return Response(self.get_serializer(correction).data)

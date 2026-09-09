@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 from core.models import TimeStampedModel
@@ -149,6 +150,70 @@ class ResultError(Exception):
         self.code = code
         self.message = message
         super().__init__(message)
+
+
+class ResultCorrectionRequest(TimeStampedModel):
+    """An auditable, review-first request to correct a published or frozen result.
+
+    This is deliberately limited to result totals and component marks.  It is
+    not a replacement for a general institutional requests module.
+    """
+
+    STATUS_PENDING = "PENDING"
+    STATUS_APPROVED = "APPROVED"
+    STATUS_REJECTED = "REJECTED"
+    STATUS_APPLIED = "APPLIED"
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_APPROVED, "Approved"),
+        (STATUS_REJECTED, "Rejected"),
+        (STATUS_APPLIED, "Applied"),
+    ]
+
+    result_header = models.ForeignKey(
+        ResultHeader,
+        on_delete=models.PROTECT,
+        related_name="correction_requests",
+    )
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="requested_result_corrections",
+    )
+    reason = models.TextField()
+    proposed_changes = models.JSONField(default=dict)
+    original_values = models.JSONField(default=dict, editable=False)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviewed_result_corrections",
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    review_note = models.TextField(blank=True)
+    applied_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="applied_result_corrections",
+    )
+    applied_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["result_header"],
+                condition=Q(status__in=["PENDING", "APPROVED"]),
+                name="results_one_open_correction_per_result",
+            )
+        ]
+
+    def __str__(self):
+        return f"Correction {self.pk} for result {self.result_header_id} ({self.status})"
 
 
 class ResultComponentEntry(TimeStampedModel):

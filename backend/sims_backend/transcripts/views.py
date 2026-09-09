@@ -4,11 +4,14 @@ import django_rq
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.http import FileResponse
 from django.utils import timezone
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, inline_serializer
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from rest_framework import serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -21,6 +24,19 @@ from sims_backend.students.models import Student
 # Token expires after 48 hours
 TOKEN_MAX_AGE = 48 * 60 * 60
 signer = TimestampSigner()
+
+TRANSCRIPT_VERIFY_RESPONSE = inline_serializer(
+    name="TranscriptVerifyResponse",
+    fields={"valid": serializers.BooleanField(), "student_id": serializers.IntegerField(required=False), "reason": serializers.CharField()},
+)
+TRANSCRIPT_ENQUEUE_REQUEST = inline_serializer(
+    name="TranscriptEnqueueRequest",
+    fields={"student_id": serializers.IntegerField(), "email": serializers.EmailField(required=False)},
+)
+TRANSCRIPT_ENQUEUE_RESPONSE = inline_serializer(
+    name="TranscriptEnqueueResponse",
+    fields={"message": serializers.CharField(), "job_id": serializers.CharField(), "student_id": serializers.IntegerField()},
+)
 
 
 def generate_qr_token(student_id: int) -> str:
@@ -144,6 +160,7 @@ def generate_transcript_pdf(student: Student) -> io.BytesIO:
     return buffer
 
 
+@extend_schema(responses={200: OpenApiTypes.BINARY, 403: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_transcript(request, student_id: int):
@@ -205,6 +222,7 @@ def get_transcript(request, student_id: int):
     )
 
 
+@extend_schema(responses={200: TRANSCRIPT_VERIFY_RESPONSE})
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def verify_transcript(request, token: str):
@@ -213,6 +231,7 @@ def verify_transcript(request, token: str):
     return Response(result)
 
 
+@extend_schema(request=TRANSCRIPT_ENQUEUE_REQUEST, responses={202: TRANSCRIPT_ENQUEUE_RESPONSE, 400: OpenApiTypes.OBJECT, 403: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT})
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def enqueue_transcript_generation(request):

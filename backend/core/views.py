@@ -6,7 +6,9 @@ from django.db.models import Sum
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers, status, viewsets
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ParseError
@@ -45,6 +47,21 @@ from .serializers import (
 
 logger = logging.getLogger(__name__)
 
+AUTH_ERROR_RESPONSE = inline_serializer(
+    name="AuthErrorResponse",
+    fields={"error": serializers.DictField()},
+)
+AUTH_LOGIN_RESPONSE = inline_serializer(
+    name="AuthLoginResponse",
+    fields={"user": UserSerializer(), "tokens": serializers.DictField()},
+)
+TOKEN_REFRESH_RESPONSE = inline_serializer(
+    name="TokenRefreshResponse",
+    fields={"access": serializers.CharField(), "refresh": serializers.CharField(required=False)},
+)
+SUCCESS_RESPONSE = inline_serializer(name="SuccessResponse", fields={"success": serializers.BooleanField()})
+MESSAGE_RESPONSE = inline_serializer(name="MessageResponse", fields={"message": serializers.CharField()})
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class UnifiedLoginView(APIView):
@@ -63,6 +80,7 @@ class UnifiedLoginView(APIView):
     authentication_classes: list[BaseAuthentication] = []
     parser_classes = [JSONParser]
 
+    @extend_schema(request=UnifiedLoginSerializer, responses={200: AUTH_LOGIN_RESPONSE, 400: AUTH_ERROR_RESPONSE, 401: AUTH_ERROR_RESPONSE})
     def post(self, request):
         """Handle one JSON request body and return a stable error envelope."""
         try:
@@ -124,6 +142,7 @@ class LogoutView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(request=inline_serializer(name="LogoutRequest", fields={"refresh": serializers.CharField(required=False)}), responses={200: SUCCESS_RESPONSE})
     def post(self, request):
         """Handle logout request."""
         refresh_token = request.data.get("refresh")
@@ -151,6 +170,7 @@ class TokenRefreshView(APIView):
     permission_classes = [AllowAny]
     authentication_classes: list[BaseAuthentication] = []
 
+    @extend_schema(request=TokenRefreshSerializer, responses={200: TOKEN_REFRESH_RESPONSE, 401: AUTH_ERROR_RESPONSE})
     def post(self, request):
         """Handle token refresh request."""
         serializer = TokenRefreshSerializer(data=request.data)
@@ -194,10 +214,12 @@ class MeView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(responses={200: UserSerializer})
     def get(self, request):
         """Return current user information."""
         return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
 
+    @extend_schema(request=ProfileUpdateSerializer, responses={200: UserSerializer, 400: OpenApiTypes.OBJECT})
     def patch(self, request):
         """Update current user profile information."""
         serializer = ProfileUpdateSerializer(
@@ -222,6 +244,7 @@ class ChangePasswordView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(request=PasswordChangeSerializer, responses={200: MESSAGE_RESPONSE, 400: OpenApiTypes.OBJECT})
     def post(self, request):
         """Change user password."""
         serializer = PasswordChangeSerializer(data=request.data, context={"request": request})
@@ -245,6 +268,7 @@ class EmailTokenObtainPairView(TokenObtainPairView):
     serializer_class = EmailTokenObtainPairSerializer  # type: ignore[assignment]
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def dashboard_stats(request):

@@ -4,6 +4,8 @@ Status as of commit `60bc7e3` (2026-09-10 follow-up session: ops hardening, demo
 
 **2026-09-10, second follow-up session:** worked this document's priority list directly against production (`ssh test`, `/home/munaim/srv/apps/fmu-platform`). Resolved the deploy-path conflict (§7) with live evidence, found and fixed a real `ops/deploy.sh` bug (self-modifying-script corruption) discovered while deploying, found production was 5 commits behind and deployed it, ran the security audit (§5) and confirmed all flagged accounts are demo-only, and merged the duplicate admin dashboards (§2). See each section for detail.
 
+**2026-09-11 session:** three workstreams executed in parallel (separate git worktrees, merged after independent review): testing gaps (§6, fully resolved, 1 new unrelated finding), legacy `TimetableCell` retirement (§4, backfill/publish/frontend done, model removal deliberately deferred), and ops deploy dry-run hardening (§7, scripts/docs done, the live supervised run itself still pending). All changes reviewed, verified against real test runs (including a live `docker compose` stack + Playwright for the timetable work), and committed to `main` as three separate commits.
+
 This document tracks what was **explicitly deferred** from the "mega sprint" spec (Timetable Foundation + Android Student Experience + Web UI Redesign) and what surfaced as **pending follow-up** during that sprint and this one. Use it as the starting brief for the next planning session — each item below has enough context to scope a plan without re-discovering the codebase from scratch.
 
 ---
@@ -57,16 +59,23 @@ Not done:
 
 ---
 
-## 4. Backend timetable domain — core done, follow-ups remain
+## 4. Backend timetable domain — core done; legacy `TimetableCell` retirement mostly done
 
-Done and deployed: `TimetableEntry` model (normalized, `Section`-linked), RBAC migrated from the broken no-op `in_group()` checks to `PermissionTaskRequired` across the whole `timetable` app, `GET /api/mobile/student/timetable/` (Mobile API Freeze 02), `BLOCKED_BY_DATA_MODEL` resolved in student-home's `today_schedule`. This follow-up session additionally fixed a real gap found while writing e2e tests: the FACULTY/COORDINATOR `PermissionTaskRequired` fallback maps in `backend/core/permissions.py` were missing `academics.batches.view`/`academics.terms.view`/`academics.groups.view`, which silently left the `/timetable` page's batch/period/group dropdowns empty for those roles.
+Done and deployed: `TimetableEntry` model (normalized, `Section`-linked), RBAC migrated from the broken no-op `in_group()` checks to `PermissionTaskRequired` across the whole `timetable` app, `GET /api/mobile/student/timetable/` (Mobile API Freeze 02), `BLOCKED_BY_DATA_MODEL` resolved in student-home's `today_schedule`. A prior follow-up session additionally fixed a real gap found while writing e2e tests: the FACULTY/COORDINATOR `PermissionTaskRequired` fallback maps in `backend/core/permissions.py` were missing `academics.batches.view`/`academics.terms.view`/`academics.groups.view`, which silently left the `/timetable` page's batch/period/group dropdowns empty for those roles.
 
-Not done:
-- **Legacy `TimetableCell` data migration/removal.** `TimetableEntry` is purely additive — `Session`/`WeeklyTimetable`/`TimetableCell` (free-text line1/2/3 grid) still exist and still serve the current staff editor UI (`frontend/src/features/timetable/TimetableEditor.tsx`, `TimetableTableView.tsx`). No backfill of historical free-text cells into normalized entries has happened. Plan for this once `TimetableEntry` has been live long enough to trust: write a data migration that parses existing `TimetableCell.line1` (course/group text) against `academics.Course`/`Section` where possible, flag ambiguous ones for manual review, then retire the legacy model.
-- **No recurrence engine.** Only simple per-week dated occurrences exist (matching the pre-existing `WeeklyTimetable` per-week shape). If genuine recurring-schedule needs emerge (e.g. "every Monday 9am for the whole semester"), that's new scope, not follow-up.
-- **No `Room`/venue resource.** `TimetableEntry.room` is a plain `CharField`. If room-booking/conflict-detection across the whole institution (not just per-entry collision checks) becomes a real need, model it properly then.
-- **The "exactly 3 periods per day" publish-validation rule** in `WeeklyTimetableViewSet.publish()` (`backend/sims_backend/timetable/views.py`) is a hardcoded business rule baked into the legacy flow — preserved as-is, not revisited. Worth asking whoever owns curriculum scheduling whether it's still correct before the legacy model is retired.
-- **Two parallel academic-period hierarchies exist** (`academics.AcademicPeriod` vs. the newer `Program.periods`/`Track`/`LearningBlock`/`Module`) — flagged during discovery as worth reconciling, not touched this sprint. Understand which one is canonical before building more on either.
+**Done this session (2026-09-11) — legacy `TimetableCell` retirement, steps B1–B4/B6:**
+- **B1**: new data migration `backend/sims_backend/timetable/migrations/0006_backfill_cells_to_entries.py` backfills existing `TimetableCell` rows into `TimetableEntry` by matching `line1` free text against `academics.Course`/`Section`, parsing `time_slot` into `start_time`/`end_time`, and carrying `line2` into `room`. Ambiguous/unmatched cells are logged to migration stdout for manual review, never guessed — verified against 5 hand-built scenarios (confident match, ambiguous, no-match, bad time format, empty cell).
+- **B2**: `WeeklyTimetableViewSet.publish()`'s "exactly 3 periods per day" validation now reads from `TimetableEntry` (excluding `CANCELLED`) instead of `TimetableCell`. Same business rule, same response shape, new data source.
+- **B4**: the legacy free-text grid editor (`TimetableEditor.tsx`/`TimetableTableView.tsx`) is unwired from `TimetablePage.tsx` — staff now manage a week's schedule entirely through `EntriesPanel`/`EntryForm`. The component files themselves are left in the repo, unwired, in case removal reveals a workflow gap later. No such gap was found during this session's verification.
+- **B6**: `seed_timetable_demo.py` now seeds `TimetableEntry` rows (not `TimetableCell`) for the publish-flow demo data; e2e tests updated to match.
+- Verified: full backend `pytest tests -q` green, `pytest sims_backend/timetable`/`sims_backend/mobile` green, migration applies cleanly against a fresh DB, frontend `tsc --noEmit`/`npm run build` clean, and — against a live `docker compose` stack this session — 10/11 Playwright timetable e2e specs passed (the 1 failure was a stale test-string assertion, fixed).
+
+**Not done — deliberately deferred, needs explicit go-ahead:**
+- **B3 (partial)**: `backend/sims_backend/mobile/timetable_resolution.py`'s fallback to the legacy `TimetableCell` grid (`_cell_to_dict`) is **kept in place**, not removed — this session had no way to verify against real production data that every published `WeeklyTimetable` has full `TimetableEntry` coverage after B1's backfill. It's now clearly marked in the module docstring as a legacy-safety-net-only path, not the primary one.
+- **B5 — `TimetableCell` model/table removal.** The model, `TimetableCellViewSet`, `TimetableCellSerializer`, and the `/api/timetable/cells/` route are all still fully intact and functioning — intentionally not touched (destructive, hard-to-reverse schema change). **To do this safely:** (1) run migration `0006` against production data and review its logged ambiguous/unmatched cases, (2) confirm `WeeklyTimetable.objects.filter(status="published", entries__isnull=True, cells__isnull=False)` returns empty in production, (3) only then remove the mobile fallback (B3) and drop the model/viewset/route.
+- **No recurrence engine.** Only simple per-week dated occurrences exist. New scope if genuine recurring-schedule needs emerge, not follow-up.
+- **No `Room`/venue resource.** `TimetableEntry.room` is a plain `CharField`. Model properly if room-booking/conflict-detection across the whole institution becomes a real need.
+- **Two parallel academic-period hierarchies exist** (`academics.AcademicPeriod` vs. the newer `Program.periods`/`Track`/`LearningBlock`/`Module`) — still not reconciled. Understand which one is canonical before building more on either.
 
 ---
 
@@ -82,16 +91,20 @@ Not done:
 
 ---
 
-## 6. Testing gaps
+## 6. Testing gaps — RESOLVED (2026-09-11 session), one new item found
 
-**Done this follow-up session:** Playwright e2e coverage added for the timetable feature — `frontend/e2e/tests/faculty/timetable.spec.ts` (staff add/cancel-entry + publish flow, RBAC route check) and `frontend/e2e/tests/student/timetable.spec.ts` (Today/Week toggle, empty states, API-failure alert, RBAC route check), backed by a new `backend/core/management/commands/seed_timetable_demo.py` (also fixed: no seed command previously created the `pilot_faculty`/`pilot_student` e2e accounts themselves — they existed only via manual setup against a persistent baseline DB). Verified against a real `docker compose` stack: 5/5 faculty + 6/6 student timetable specs passed, full faculty+student suite (32/33, 1 self-skip) showed no regressions.
+**Done previously:** Playwright e2e coverage added for the timetable feature — `frontend/e2e/tests/faculty/timetable.spec.ts` (staff add/cancel-entry + publish flow, RBAC route check) and `frontend/e2e/tests/student/timetable.spec.ts` (Today/Week toggle, empty states, API-failure alert, RBAC route check), backed by a new `backend/core/management/commands/seed_timetable_demo.py`. Verified against a real `docker compose` stack: 5/5 faculty + 6/6 student timetable specs passed, full faculty+student suite (32/33, 1 self-skip) showed no regressions.
 
-Still open:
-- **Pre-existing, unrelated test failures** (confirmed via `git stash` comparison against pre-sprint baseline in the original mega-sprint session, not caused by this work — do not "fix" them as part of unrelated future work without separately verifying scope):
-  - `sims_backend/academics/tests/test_academics_module.py::TestLearningBlockTypeRules::test_rotation_block_cannot_have_modules`
-  - `sims_backend/academics/tests/test_departments_api.py::TestDepartmentCreate::test_create_department_success` and `test_create_department_without_code`
-  - `sims_backend/finance/tests/test_challan_permissions.py` and `test_views.py` fail to even collect — `ImportError: cannot import name 'Challan' from sims_backend.finance.models` (model referenced by tests doesn't exist in current `finance/models.py`)
-  - Running `pytest sims_backend` broadly (rather than the documented `pytest tests`) also hits pytest module-basename collisions between the flat `backend/tests/` dir and app-local `sims_backend/*/tests/` packages (e.g. two `test_permissions.py`) — a `pytest.ini`/`__init__.py` hygiene issue, not a code bug.
+**Done this session (2026-09-11) — all four previously-open items resolved:**
+- `test_rotation_block_cannot_have_modules` — fixed: the test instantiated a `Module` but never persisted it before asserting the validator raised. Now creates a real `Module.objects.create(...)` first.
+- `test_departments_api.py::TestDepartmentCreate` — root-caused with a live traceback: `DepartmentSerializer`'s `unique_together` on `(name, parent)` forced the nullable `parent` field to be `required=True` by DRF default, and separately, DRF's auto `UniqueTogetherValidator` silently skips its check whenever a constrained field is `None` — meaning duplicate root-level department names weren't actually being rejected. Both fixed in `backend/sims_backend/academics/serializers.py` (explicit `extra_kwargs` for `parent`, and an explicit `(name, parent)` uniqueness check in `validate()`).
+- `test_challan_permissions.py`/`test_views.py` (finance) — rewritten against the current `Voucher`/`Payment`/`LedgerEntry`/`FeePlan` models and `/api/finance/vouchers/|payments/|ledger/` endpoints, using the task-based `PermissionTaskRequired` RBAC pattern already used elsewhere in the app. Confirmed real current behavior along the way: only `LedgerEntryViewSet` has a student self-service carve-out (own records, or empty list if unlinked); `VoucherViewSet`/`PaymentViewSet` are task-gated with no such carve-out — a plain student gets 403, not a filtered 200.
+- Pytest collection collision — fixed: added missing `__init__.py` to every `sims_backend/*/tests/` directory that lacked one (`academics`, `finance`, `results`, `students/imports`, plus `backend/tests/learning/`), and added `--import-mode=importlib` to `pytest.ini`'s `addopts` as a second layer of defense. `pytest sims_backend -q` now collects and runs cleanly.
+
+Verified: `pytest tests -q` — 212/212 green, no regressions. `pytest sims_backend -q` — 128 passed, 6 failed (see below, unrelated).
+
+**New item found this session:**
+- **`sims_backend/attendance/tests/` has 6 failing tests**, confirmed pre-existing and unrelated to this session's finance/academics/pytest-config work (isolated by running `pytest sims_backend/attendance` alone — same 6 failures). Not investigated further; root cause unknown. Next session should get a live traceback the same way `test_departments_api.py` was diagnosed here.
 
 ---
 
@@ -110,7 +123,14 @@ Still open:
 
 **Conclusion: `docker-compose.yml` (with the VM's `.env` overrides) is canonical.** `ops/deploy.sh` already used it correctly. `backend.sh`, `frontend.sh`, and `both.sh` were updated this session to target `docker-compose.yml`, non-`_prod` container names, and ports `18010`/`18080` instead of `docker-compose.prod.yml`/`8010`/`8080`. `docker-compose.prod.yml`'s header comment was updated to flag it as not currently live; it was not deleted in case a genuinely separate `_prod` stack is wanted later — a call for whoever owns ops to make.
 
-**Not yet done:** a supervised end-to-end deploy dry run of the corrected `backend.sh`/`frontend.sh`/`both.sh` against production (config was validated with `bash -n` and reasoned through against live `docker ps`/Caddy output, but the scripts themselves were not executed this session to avoid disrupting a live, apparently-healthy stack outside a maintenance window). Recommend a supervised run of `both.sh` during a maintenance window as a final confirmation.
+**Done this session (2026-09-11) — health checks and rollback hardened, per the earlier "not yet done" gap analysis:**
+- Backend health check in `backend.sh`/`both.sh` now hard-fails (`exit 1`) when `/api/health/` reports anything other than `"status": "ok"` — previously it only grepped for the `"status"` key's presence, so a `"degraded"` response (DB/migration/Redis trouble) passed silently.
+- All three scripts now capture and print each service's pre-rebuild image ID (`docker inspect --format='{{.Image}}' vexel_medsims_<service>'`) before `build --no-cache`, giving a human a concrete reference to revert to.
+- `docs/PRODUCTION_RUNBOOK.md`'s rollback section was stale (still referenced `docker-compose.prod.yml`) — corrected to match the confirmed-canonical `docker-compose.yml` + container names/ports, and expanded with concrete revert commands (git checkout + rebuild, or manual image retag).
+- Added a new "Deploy Dry-Run / Maintenance Window Procedure" section to `docs/PRODUCTION_RUNBOOK.md`: who to notify, pre-checks, exact command sequence, what "success" looks like beyond the curl checks (public health URL through Caddy + 2-3 real page visits), and rollback trigger criteria.
+- Verified: `bash -n` on all three scripts, and the new health-check grep pattern tested locally against both `"ok"` and `"degraded"` sample JSON (correctly distinguishes them).
+
+**Still not done:** the actual supervised end-to-end dry run itself — running `both.sh` against production during a real maintenance window, with a human present watching output live. This is a live production action, not a code task; it needs to be scheduled and run with the user present, not automated.
 
 ---
 
@@ -119,7 +139,9 @@ Still open:
 1. ~~Reconcile the two deploy code paths (§7)~~ — **RESOLVED 2026-09-10.**
 2. ~~Run the security audit command against production and act on results (§5)~~ — **DONE 2026-09-10** (all flagged accounts confirmed demo-only; passwords left as-is per user decision, revisit before real users are onboarded).
 3. ~~`DashboardHome.tsx` vs `AdminDashboardPage.tsx` reconciliation (§2)~~ — **RESOLVED 2026-09-10** (merged into `AdminDashboard.tsx`).
-4. **Testing gaps (§6)** — rewrite finance permission tests against current Voucher/Payment models, fix the `test_rotation_block_cannot_have_modules` fixture bug, investigate `test_departments_api.py` failures with a live traceback, and fix the pytest collection collision.
-5. **Android workstream (§1)** — large, separate effort; start once the backend contract has had some real production usage.
-6. **Full design-system rollout + shell layout-route refactor (§2)** — the biggest remaining item; plan it as its own dedicated sprint with a real design pass, not squeezed alongside other work.
-7. **Legacy `TimetableCell` retirement (§4)** — only once `TimetableEntry` has proven itself live for a while.
+4. ~~Testing gaps (§6)~~ — **RESOLVED 2026-09-11** (finance tests rewritten, rotation-block fixture fixed, department serializer bug found and fixed, pytest collision fixed). New unrelated item found: 6 failing tests in `sims_backend/attendance/tests/`, not yet investigated.
+5. ~~Legacy `TimetableCell` retirement — steps B1/B2/B4/B6 (§4)~~ — **DONE 2026-09-11**, verified against a live stack. **Remaining before this item is fully closed:** run migration `0006_backfill_cells_to_entries` against production data, confirm full `TimetableEntry` coverage for published weeks, then remove the mobile fallback (B3) and drop the legacy model/viewset/route (B5) — a deliberately deferred, destructive schema change.
+6. ~~Ops deploy dry-run script/doc hardening (§7)~~ — **DONE 2026-09-11** (health checks now hard-fail on degraded status, rollback image-ID capture added, stale runbook corrected, maintenance-window procedure documented). **Remaining:** the actual supervised live dry run against production, scheduled with the user present.
+7. **Investigate the 6 failing `sims_backend/attendance/tests/`** (found 2026-09-11, not yet diagnosed) — get a live traceback the same way `test_departments_api.py` was resolved this session.
+8. **Android workstream (§1)** — large, separate effort; start once the backend contract has had some real production usage.
+9. **Full design-system rollout + shell layout-route refactor (§2)** — the biggest remaining item; plan it as its own dedicated sprint with a real design pass, not squeezed alongside other work.

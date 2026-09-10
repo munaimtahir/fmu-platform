@@ -2,6 +2,8 @@
 
 Status as of commit `60bc7e3` (2026-09-10 follow-up session: ops hardening, demo-account audit command, dashboard/table unification subset, and timetable e2e coverage landed on top of `ddfcf9f`, the "mega sprint" deploy to production `sims.vexel.pk`).
 
+**2026-09-10, second follow-up session:** worked this document's priority list directly against production (`ssh test`, `/home/munaim/srv/apps/fmu-platform`). Resolved the deploy-path conflict (§7) with live evidence, found and fixed a real `ops/deploy.sh` bug (self-modifying-script corruption) discovered while deploying, found production was 5 commits behind and deployed it, ran the security audit (§5) and confirmed all flagged accounts are demo-only, and merged the duplicate admin dashboards (§2). See each section for detail.
+
 This document tracks what was **explicitly deferred** from the "mega sprint" spec (Timetable Foundation + Android Student Experience + Web UI Redesign) and what surfaced as **pending follow-up** during that sprint and this one. Use it as the starting brief for the next planning session — each item below has enough context to scope a plan without re-discovering the codebase from scratch.
 
 ---
@@ -32,7 +34,9 @@ Scope when picked up (from the original spec):
 - `components/admin/import/ImportPreviewTable.tsx` — dynamic runtime-generated columns + already-custom pagination/filter UI.
 - `frontend/src/features/timetable/TimetableTableView.tsx` — a day×time-slot pivot grid, not tabular row data.
 
-**Still open — `DashboardHome.tsx` vs `AdminDashboardPage.tsx` duplication.** Confirmed (not a false alarm) these are two independently-built "admin dashboard" experiences: `pages/dashboards/AdminDashboard.tsx` (routed at `/dashboard/admin`, reached via `DashboardHome.tsx`'s role-dispatch redirect, shows list-endpoint-derived counts) vs. `pages/admin/AdminDashboardPage.tsx` (routed separately at `/system/dashboard`, calls `GET /api/admin/dashboard/`, shows recent-activity + system info). Reconciling which one wins (merge, or clearly differentiate/rename) is a product decision, not touched this session.
+**RESOLVED (2026-09-10 follow-up session) — `DashboardHome.tsx` vs `AdminDashboardPage.tsx` duplication.** Investigation found `AdminDashboard.tsx` (`/dashboard/admin`) is the page every Admin actually lands on (role-dispatch default from `DashboardHome.tsx`), while `AdminDashboardPage.tsx` (`/system/dashboard`) was orphaned — registered in the router but linked from no nav item or button anywhere. Merged `AdminDashboardPage.tsx`'s unique content (Faculty count, 7-day attendance summary, Recent Activity table, System Information panel) into `AdminDashboard.tsx` via a new `useQuery(['admin-dashboard'], dashboardApi.getAdminDashboard)` call, kept `AdminDashboard.tsx`'s existing unique widgets (Sections/Sessions/Published/Draft Results counts, Module Entry Points grid), removed the `/system/dashboard` route and lazy import from `appRoutes.tsx`, and deleted `pages/admin/AdminDashboardPage.tsx`. Added `AdminDashboard.test.tsx` (previously no test coverage existed for this page). Verified: `npm run build`, `tsc --noEmit`, and the full `vitest` suite (50/50) all pass.
+
+Separately flagged, not touched: `components/admin/AdminSidebar.jsx` / `AdminLayout.jsx` reference non-existent `/adminpanel/*` routes and aren't imported anywhere — dead code, a small standalone cleanup.
 
 **Not done — full design-system rollout** (spec Phases 10–20), unchanged from before:
 - **No design tokens defined.** Typography/spacing/radius/elevation/breakpoints are still ad hoc Tailwind classes per component, no shared scale.
@@ -112,9 +116,10 @@ Still open:
 
 ## Suggested next-session priority order
 
-1. **Reconcile the two deploy code paths (§7)** — now better understood but not resolved; higher priority than before since it's a two-script disagreement about what's actually running, not just missing automation.
-2. **Run the security audit command against production and act on results (§5)** — the audit tooling exists now; running it and following through is the highest-risk open item.
-3. **`DashboardHome.tsx` vs `AdminDashboardPage.tsx` reconciliation (§2)** — a product decision, moderate effort once decided.
-4. **Android workstream (§1)** — large, separate effort; start once the backend contract has had some real production usage.
-5. **Full design-system rollout + shell layout-route refactor (§2)** — the biggest remaining item; plan it as its own dedicated sprint with a real design pass, not squeezed alongside other work.
-6. **Legacy `TimetableCell` retirement (§4)** — only once `TimetableEntry` has proven itself live for a while.
+1. ~~Reconcile the two deploy code paths (§7)~~ — **RESOLVED 2026-09-10.**
+2. ~~Run the security audit command against production and act on results (§5)~~ — **DONE 2026-09-10** (all flagged accounts confirmed demo-only; passwords left as-is per user decision, revisit before real users are onboarded).
+3. ~~`DashboardHome.tsx` vs `AdminDashboardPage.tsx` reconciliation (§2)~~ — **RESOLVED 2026-09-10** (merged into `AdminDashboard.tsx`).
+4. **Testing gaps (§6)** — rewrite finance permission tests against current Voucher/Payment models, fix the `test_rotation_block_cannot_have_modules` fixture bug, investigate `test_departments_api.py` failures with a live traceback, and fix the pytest collection collision.
+5. **Android workstream (§1)** — large, separate effort; start once the backend contract has had some real production usage.
+6. **Full design-system rollout + shell layout-route refactor (§2)** — the biggest remaining item; plan it as its own dedicated sprint with a real design pass, not squeezed alongside other work.
+7. **Legacy `TimetableCell` retirement (§4)** — only once `TimetableEntry` has proven itself live for a while.

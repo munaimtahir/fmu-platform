@@ -47,7 +47,6 @@ const TimetablePage = lazy(() => import('@/features/timetable/TimetablePage').th
 const ProfilePage = lazy(() => import('@/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })))
 const UsersPage = lazy(() => import('@/pages/admin/UsersPage').then((m) => ({ default: m.UsersPage })))
 const RolesPage = lazy(() => import('@/pages/admin/RolesPage').then((m) => ({ default: m.RolesPage })))
-const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })))
 const SyllabusManagerPage = lazy(() => import('@/pages/admin/SyllabusManagerPage').then((m) => ({ default: m.SyllabusManagerPage })))
 const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })))
 // ProgramsPage removed - using ProgramsListPage instead
@@ -357,14 +356,6 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <NotificationsPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/system/dashboard',
-    element: (
-      <ProtectedRoute allowedRoles={['Admin']} path="/system/dashboard">
-        <AdminDashboardPage />
       </ProtectedRoute>
     ),
   },

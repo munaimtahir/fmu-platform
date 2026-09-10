@@ -15,13 +15,11 @@ import { weeklyTimetableService, academicsService, batchesService } from '@/serv
 import { StudentTimetableView } from './StudentTimetableView'
 import { EntriesPanel } from './EntriesPanel'
 
-// NOTE (Workstream B / legacy TimetableCell retirement): TimetableEditor and
-// TimetableTableView (the free-text line1/2/3 grid UI) are intentionally no
-// longer imported/wired here. Publishing now validates against
-// TimetableEntry (see backend WeeklyTimetableViewSet.publish), and staff
-// manage entries entirely through EntriesPanel/EntryForm below. The
-// component files themselves are left in place, unwired, in case removal
-// reveals a workflow gap; see PENDING_WORK.md / Workstream B for context.
+// NOTE (Workstream B / legacy TimetableCell retirement): the legacy free-text
+// line1/2/3 grid editor (TimetableEditor/TimetableTableView) has been
+// removed. Publishing now validates against TimetableEntry (see backend
+// WeeklyTimetableViewSet.publish), and staff manage entries entirely through
+// EntriesPanel/EntryForm below.
 
 type ViewMode = 'list' | 'view'
 

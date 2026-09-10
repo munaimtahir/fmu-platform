@@ -60,7 +60,7 @@ ATTENDANCE (api/):
 TIMETABLE (api/timetable/):
   GET|POST      /sessions/             - Sessions (faculty, group, time slot)
   GET|POST      /weekly-timetables/    - Weekly timetable per batch
-  GET|POST      /timetable-cells/      - Grid cells (day, time, line1/2/3 content)
+  GET|POST      /entries/              - Normalized timetable entries (section/group/day/time)
 
 EXAMS (api/):
   GET|POST      /exams/                - Exam records

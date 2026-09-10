@@ -2,7 +2,7 @@
 
 Covers: model validation (end_time > start_time, collisions), the RBAC
 migration off `in_group` onto `PermissionTaskRequired` for the whole
-timetable app (Session/WeeklyTimetable/TimetableCell/TimetableEntry), and
+timetable app (Session/WeeklyTimetable/TimetableEntry), and
 the `cancel` action.
 """
 
@@ -235,7 +235,7 @@ class TestTimetableEntryRBAC:
 
 @pytest.mark.django_db
 class TestLegacyTimetableViewsetsNowEnforceRBAC:
-    """Regression guard: SessionViewSet/WeeklyTimetableViewSet/TimetableCellViewSet
+    """Regression guard: SessionViewSet/WeeklyTimetableViewSet
     previously had a no-op get_permissions() (both branches returned
     IsAuthenticated()), so ANY authenticated user - including students -
     could create/update/destroy. This confirms that gap is closed."""

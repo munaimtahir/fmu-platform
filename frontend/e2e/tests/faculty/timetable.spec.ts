@@ -12,9 +12,9 @@
  *   - Academic Period: "Timetable E2E Period"
  *   - A DRAFT week one week from today, with 2 pre-seeded entries
  *     (Room 101 on Monday, Room 102 on Wednesday) — used for add/cancel.
- *   - A DRAFT week two weeks from today, with a legacy TimetableCell grid
- *     already satisfying "exactly 3 filled periods per day" — used to
- *     exercise Publish without having to fill the grid through the UI.
+ *   - A DRAFT week two weeks from today, with pre-seeded TimetableEntry
+ *     rows already satisfying "exactly 3 filled periods per day" — used to
+ *     exercise Publish without having to add entries through the UI.
  *   - A PUBLISHED week for the current week (see student/timetable.spec.ts).
  *
  * Tags: @faculty

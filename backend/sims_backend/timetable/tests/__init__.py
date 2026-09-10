@@ -2,15 +2,15 @@
 Tests for Timetable API (publish with exactly 3 periods validation)
 """
 
-from datetime import date, timedelta
+from datetime import date, time, timedelta
 
 import pytest
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from sims_backend.academics.models import AcademicPeriod, Batch, Program
-from sims_backend.timetable.models import TimetableCell, WeeklyTimetable
+from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Program, Section
+from sims_backend.timetable.models import TimetableEntry, WeeklyTimetable
 
 
 @pytest.fixture
@@ -39,6 +39,9 @@ def academic_structure(db, admin_user):
     period = AcademicPeriod.objects.create(
         name="Fall 2024", start_date=date.today(), end_date=date.today() + timedelta(days=90)
     )
+    department = Department.objects.create(name="MBBS Department")
+    course = Course.objects.create(code="MBBS-101", name="MBBS Course", department=department, academic_period=period)
+    section = Section.objects.create(course=course, academic_period=period, name="Section A", faculty=admin_user)
 
     # Create a weekly timetable
     monday = date.today() - timedelta(days=date.today().weekday())  # Get this week's Monday
@@ -46,7 +49,7 @@ def academic_structure(db, admin_user):
         academic_period=period, batch=batch, week_start_date=monday, status="draft", created_by=admin_user
     )
 
-    return {"program": program, "batch": batch, "period": period, "timetable": timetable}
+    return {"program": program, "batch": batch, "period": period, "timetable": timetable, "section": section}
 
 
 @pytest.mark.django_db
@@ -56,17 +59,19 @@ class TestTimetablePublish:
     def test_publish_with_exactly_3_periods_per_day(self, api_client, academic_structure):
         """Timetable with exactly 3 periods per day can be published"""
         timetable = academic_structure["timetable"]
+        section = academic_structure["section"]
 
         # Create exactly 3 periods for each day (Monday-Saturday)
         for day in range(6):
             for i in range(3):
-                TimetableCell.objects.create(
+                TimetableEntry.objects.create(
                     weekly_timetable=timetable,
+                    section=section,
                     day_of_week=day,
-                    time_slot=f"0{8 + i}:00-0{9 + i}:00",
-                    line1=f"Period {i + 1}",
-                    line2=f"Room {100 + i}",
-                    line3=f"Faculty {i + 1}",
+                    start_time=time(8 + i, 0),
+                    end_time=time(9 + i, 0),
+                    room=f"Room {100 + i}",
+                    created_by=academic_structure["timetable"].created_by,
                 )
 
         response = api_client.post(f"/api/timetable/weekly-timetables/{timetable.id}/publish/")
@@ -78,18 +83,20 @@ class TestTimetablePublish:
     def test_publish_fails_with_less_than_3_periods(self, api_client, academic_structure):
         """Timetable with less than 3 periods per day cannot be published"""
         timetable = academic_structure["timetable"]
+        section = academic_structure["section"]
 
         # Create only 2 periods for Monday, 3 for others
         for day in range(6):
             periods_count = 2 if day == 0 else 3
             for i in range(periods_count):
-                TimetableCell.objects.create(
+                TimetableEntry.objects.create(
                     weekly_timetable=timetable,
+                    section=section,
                     day_of_week=day,
-                    time_slot=f"0{8 + i}:00-0{9 + i}:00",
-                    line1=f"Period {i + 1}",
-                    line2=f"Room {100 + i}",
-                    line3=f"Faculty {i + 1}",
+                    start_time=time(8 + i, 0),
+                    end_time=time(9 + i, 0),
+                    room=f"Room {100 + i}",
+                    created_by=academic_structure["timetable"].created_by,
                 )
 
         response = api_client.post(f"/api/timetable/weekly-timetables/{timetable.id}/publish/")
@@ -100,18 +107,20 @@ class TestTimetablePublish:
     def test_publish_fails_with_more_than_3_periods(self, api_client, academic_structure):
         """Timetable with more than 3 periods per day cannot be published"""
         timetable = academic_structure["timetable"]
+        section = academic_structure["section"]
 
         # Create 4 periods for Monday, 3 for others
         for day in range(6):
             periods_count = 4 if day == 0 else 3
             for i in range(periods_count):
-                TimetableCell.objects.create(
+                TimetableEntry.objects.create(
                     weekly_timetable=timetable,
+                    section=section,
                     day_of_week=day,
-                    time_slot=f"0{8 + i}:00-0{9 + i}:00",
-                    line1=f"Period {i + 1}",
-                    line2=f"Room {100 + i}",
-                    line3=f"Faculty {i + 1}",
+                    start_time=time(8 + i, 0),
+                    end_time=time(9 + i, 0),
+                    room=f"Room {100 + i}",
+                    created_by=academic_structure["timetable"].created_by,
                 )
 
         response = api_client.post(f"/api/timetable/weekly-timetables/{timetable.id}/publish/")
@@ -129,21 +138,26 @@ class TestTimetablePublish:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "already published" in response.data["detail"].lower()
 
-    def test_empty_line1_not_counted_as_period(self, api_client, academic_structure):
-        """Cells with empty line1 are not counted as periods"""
+    def test_cancelled_entry_not_counted_as_period(self, api_client, academic_structure):
+        """Entries with CANCELLED status are not counted as periods"""
         timetable = academic_structure["timetable"]
+        section = academic_structure["section"]
 
-        # Create 3 filled periods + 1 empty cell (line1 empty) per day
+        # Create 3 scheduled periods + 1 cancelled entry per day
         for day in range(6):
             for i in range(4):
-                TimetableCell.objects.create(
+                entry = TimetableEntry.objects.create(
                     weekly_timetable=timetable,
+                    section=section,
                     day_of_week=day,
-                    time_slot=f"0{8 + i}:00-0{9 + i}:00",
-                    line1=f"Period {i + 1}" if i < 3 else "",  # 4th cell has empty line1
-                    line2=f"Room {100 + i}",
-                    line3=f"Faculty {i + 1}",
+                    start_time=time(8 + i, 0),
+                    end_time=time(9 + i, 0),
+                    room=f"Room {100 + i}",
+                    created_by=academic_structure["timetable"].created_by,
                 )
+                if i == 3:  # 4th entry per day is cancelled, shouldn't count
+                    entry.status = TimetableEntry.STATUS_CANCELLED
+                    entry.save()
 
         response = api_client.post(f"/api/timetable/weekly-timetables/{timetable.id}/publish/")
         assert response.status_code == status.HTTP_200_OK

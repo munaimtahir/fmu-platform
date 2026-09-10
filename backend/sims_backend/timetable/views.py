@@ -11,10 +11,9 @@ from rest_framework.response import Response
 
 from core.permissions import PermissionTaskRequired
 from sims_backend.common_permissions import in_group
-from sims_backend.timetable.models import Session, TimetableCell, TimetableEntry, WeeklyTimetable
+from sims_backend.timetable.models import Session, TimetableEntry, WeeklyTimetable
 from sims_backend.timetable.serializers import (
     SessionSerializer,
-    TimetableCellSerializer,
     TimetableEntrySerializer,
     WeeklyTimetableListSerializer,
     WeeklyTimetableSerializer,
@@ -57,7 +56,7 @@ class SessionViewSet(viewsets.ModelViewSet):
 class WeeklyTimetableViewSet(viewsets.ModelViewSet):
     queryset = (
         WeeklyTimetable.objects.select_related("academic_period", "batch", "batch__program", "created_by")
-        .prefetch_related("cells", "entries__section__course", "entries__section__faculty", "entries__group")
+        .prefetch_related("entries__section__course", "entries__section__faculty", "entries__group")
         .all()
     )
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
@@ -117,9 +116,8 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
                     {"detail": "You can only publish your own timetables"}, status=status.HTTP_403_FORBIDDEN
                 )
 
-        # VALIDATION: Check that we have exactly 3 scheduled periods per day.
-        # Sourced from TimetableEntry (the normalized model) rather than the
-        # legacy TimetableCell grid; CANCELLED entries don't count toward
+        # VALIDATION: Check that we have exactly 3 scheduled periods per day,
+        # sourced from TimetableEntry; CANCELLED entries don't count toward
         # the period total.
         entries = list(timetable.entries.exclude(status="CANCELLED"))
 
@@ -251,96 +249,6 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_201_CREATED,
         )
-
-
-class TimetableCellViewSet(viewsets.ModelViewSet):
-    queryset = TimetableCell.objects.select_related("weekly_timetable").all()
-    serializer_class = TimetableCellSerializer
-    permission_classes = [IsAuthenticated, PermissionTaskRequired]
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ["weekly_timetable", "day_of_week", "time_slot"]
-    ordering_fields = ["day_of_week", "time_slot"]
-    ordering = ["day_of_week", "time_slot"]
-    required_tasks = ["timetable.cells.view"]
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        user = self.request.user
-
-        # Students can only see cells from published timetables
-        if in_group(user, "STUDENT") and not (in_group(user, "ADMIN") or in_group(user, "FACULTY")):
-            queryset = queryset.filter(weekly_timetable__status="published")
-
-        # Faculty can see cells from their own timetables or published ones
-        elif in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "COORDINATOR")):
-            queryset = queryset.filter(Q(weekly_timetable__created_by=user) | Q(weekly_timetable__status="published"))
-
-        return queryset
-
-    def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
-            self.required_tasks = ["timetable.cells.view"]
-        elif self.action == "create":
-            self.required_tasks = ["timetable.cells.create"]
-        elif self.action in ["update", "partial_update"]:
-            self.required_tasks = ["timetable.cells.update"]
-        elif self.action == "destroy":
-            self.required_tasks = ["timetable.cells.delete"]
-        return super().get_permissions()
-
-    def perform_create(self, serializer):
-        """Ensure timetable is draft before adding cells"""
-        weekly_timetable = serializer.validated_data["weekly_timetable"]
-        if weekly_timetable.status == "published":
-            from rest_framework.exceptions import ValidationError
-
-            raise ValidationError("Cannot add cells to a published timetable")
-
-        # Verify user has permission
-        user = self.request.user
-        if in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "COORDINATOR")):
-            if weekly_timetable.created_by != user:
-                from rest_framework.exceptions import PermissionDenied
-
-                raise PermissionDenied("You can only modify your own timetables")
-
-        serializer.save()
-
-    def perform_update(self, serializer):
-        """Ensure timetable is draft before updating cells"""
-        weekly_timetable = serializer.instance.weekly_timetable
-        if weekly_timetable.status == "published":
-            from rest_framework.exceptions import ValidationError
-
-            raise ValidationError("Cannot modify cells in a published timetable")
-
-        # Verify user has permission
-        user = self.request.user
-        if in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "COORDINATOR")):
-            if weekly_timetable.created_by != user:
-                from rest_framework.exceptions import PermissionDenied
-
-                raise PermissionDenied("You can only modify your own timetables")
-
-        serializer.save()
-
-    def perform_destroy(self, instance):
-        """Ensure timetable is draft before deleting cells"""
-        weekly_timetable = instance.weekly_timetable
-        if weekly_timetable.status == "published":
-            from rest_framework.exceptions import ValidationError
-
-            raise ValidationError("Cannot delete cells from a published timetable")
-
-        # Verify user has permission
-        user = self.request.user
-        if in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "COORDINATOR")):
-            if weekly_timetable.created_by != user:
-                from rest_framework.exceptions import PermissionDenied
-
-                raise PermissionDenied("You can only modify your own timetables")
-
-        instance.delete()
 
 
 class TimetableEntryViewSet(viewsets.ModelViewSet):

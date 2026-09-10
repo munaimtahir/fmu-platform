@@ -107,10 +107,6 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
             "timetable.weekly.create",
             "timetable.weekly.update",
             "timetable.weekly.manage",
-            "timetable.cells.view",
-            "timetable.cells.create",
-            "timetable.cells.update",
-            "timetable.cells.delete",
             "timetable.entries.view",
             "timetable.entries.create",
             "timetable.entries.update",
@@ -144,7 +140,6 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
             # them to published data regardless of this task grant.
             "timetable.sessions.view",
             "timetable.weekly.view",
-            "timetable.cells.view",
             "timetable.entries.view",
         ],
     }

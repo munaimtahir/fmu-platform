@@ -196,7 +196,7 @@ class Command(BaseCommand):
         self.stdout.write(f"  - Academic Period: {academic_period} ({period_start} - {period_end})")
         self.stdout.write(f"  - Section: {section}")
         self.stdout.write(f"  - Draft week (entries CRUD): {entries_week.week_start_date}")
-        self.stdout.write(f"  - Draft week (publish-ready cells): {publish_week.week_start_date}")
+        self.stdout.write(f"  - Draft week (publish-ready entries): {publish_week.week_start_date}")
         self.stdout.write(f"  - Published week (current): {published_week.week_start_date}")
 
     def _get_or_create_user(self, *, username, email, first_name, last_name, group):

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from sims_backend.timetable.models import Session, TimetableCell, WeeklyTimetable
+from sims_backend.timetable.models import Session, WeeklyTimetable
 
 
 @admin.register(Session)
@@ -18,11 +18,3 @@ class WeeklyTimetableAdmin(admin.ModelAdmin):
     search_fields = ["batch__name", "academic_period__name", "created_by__username"]
     ordering = ["-week_start_date", "batch"]
     readonly_fields = ["created_at", "updated_at"]
-
-
-@admin.register(TimetableCell)
-class TimetableCellAdmin(admin.ModelAdmin):
-    list_display = ["weekly_timetable", "day_of_week", "time_slot", "line1", "line2", "line3"]
-    list_filter = ["day_of_week", "time_slot", "weekly_timetable"]
-    search_fields = ["line1", "line2", "line3", "weekly_timetable__batch__name"]
-    ordering = ["weekly_timetable", "day_of_week", "time_slot"]

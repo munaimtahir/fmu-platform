@@ -189,26 +189,13 @@ class StudentTimetableViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["entries"], [])
 
-    def test_falls_back_to_legacy_cells_when_no_entries_exist(self):
-        from sims_backend.timetable.models import TimetableCell
-
-        TimetableCell.objects.create(
-            weekly_timetable=self.weekly_timetable,
-            day_of_week=2,
-            time_slot="09:00-10:00",
-            line1="Physiology Lecture",
-            line2="Room 204",
-            line3="Dr. Faculty",
-        )
-
+    def test_returns_empty_entries_when_no_entries_exist(self):
         self.client.force_authenticate(user=self.student_user)
         response = self.client.get(URL)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["source"], "legacy_cell")
-        entries = response.data["entries"]
-        self.assertEqual(len(entries), 1)
-        self.assertEqual(entries[0]["course_name"], "Physiology Lecture")
+        self.assertEqual(response.data["source"], "none")
+        self.assertEqual(response.data["entries"], [])
 
     def test_schema_generation_includes_endpoint(self):
         from drf_spectacular.generators import SchemaGenerator

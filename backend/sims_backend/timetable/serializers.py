@@ -2,7 +2,7 @@ from datetime import date
 
 from rest_framework import serializers
 
-from sims_backend.timetable.models import Session, TimetableCell, TimetableEntry, WeeklyTimetable
+from sims_backend.timetable.models import Session, TimetableEntry, WeeklyTimetable
 
 
 class SessionSerializer(serializers.ModelSerializer):
@@ -25,26 +25,6 @@ class SessionSerializer(serializers.ModelSerializer):
             "department_name",
             "starts_at",
             "ends_at",
-            "created_at",
-            "updated_at",
-        ]
-        read_only_fields = ["created_at", "updated_at"]
-
-
-class TimetableCellSerializer(serializers.ModelSerializer):
-    day_of_week_display = serializers.CharField(source="get_day_of_week_display", read_only=True)
-
-    class Meta:
-        model = TimetableCell
-        fields = [
-            "id",
-            "weekly_timetable",
-            "day_of_week",
-            "day_of_week_display",
-            "time_slot",
-            "line1",
-            "line2",
-            "line3",
             "created_at",
             "updated_at",
         ]
@@ -102,7 +82,6 @@ class WeeklyTimetableSerializer(serializers.ModelSerializer):
     batch_name = serializers.CharField(source="batch.name", read_only=True)
     batch_program_name = serializers.CharField(source="batch.program.name", read_only=True)
     created_by_name = serializers.CharField(source="created_by.get_full_name", read_only=True)
-    cells = TimetableCellSerializer(many=True, read_only=True)
     entries = TimetableEntrySerializer(many=True, read_only=True)
     week_end_date = serializers.SerializerMethodField()
 
@@ -120,7 +99,6 @@ class WeeklyTimetableSerializer(serializers.ModelSerializer):
             "status",
             "created_by",
             "created_by_name",
-            "cells",
             "entries",
             "created_at",
             "updated_at",
@@ -147,7 +125,6 @@ class WeeklyTimetableListSerializer(serializers.ModelSerializer):
     batch_program_name = serializers.CharField(source="batch.program.name", read_only=True)
     created_by_name = serializers.CharField(source="created_by.get_full_name", read_only=True)
     week_end_date = serializers.SerializerMethodField()
-    cell_count = serializers.SerializerMethodField()
 
     class Meta:
         model = WeeklyTimetable
@@ -163,7 +140,6 @@ class WeeklyTimetableListSerializer(serializers.ModelSerializer):
             "status",
             "created_by",
             "created_by_name",
-            "cell_count",
             "created_at",
             "updated_at",
         ]
@@ -174,7 +150,3 @@ class WeeklyTimetableListSerializer(serializers.ModelSerializer):
         from datetime import timedelta
 
         return obj.week_start_date + timedelta(days=5)
-
-    def get_cell_count(self, obj) -> int:
-        """Get count of cells in this timetable"""
-        return obj.cells.count()

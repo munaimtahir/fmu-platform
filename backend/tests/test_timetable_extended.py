@@ -4,7 +4,7 @@ import pytest
 from django.contrib.auth.models import Group, User
 
 from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Program, Section
-from sims_backend.timetable.models import TimetableCell, TimetableEntry, WeeklyTimetable
+from sims_backend.timetable.models import TimetableEntry, WeeklyTimetable
 
 
 @pytest.fixture
@@ -142,30 +142,3 @@ class TestWeeklyTimetableActions:
         assert response.status_code == 201
         # Period is Jan to March (~13 weeks)
         assert response.data["total_weeks"] >= 12
-
-@pytest.mark.django_db
-class TestTimetableCellPermissions:
-    def test_cannot_add_cell_to_published(self, api_client, timetable_setup):
-        tt = timetable_setup["timetable"]
-        tt.status = "published"
-        tt.save()
-
-        api_client.force_authenticate(user=timetable_setup["admin"])
-        url = "/api/timetable/timetable-cells/"
-        data = {"weekly_timetable": tt.id, "day_of_week": 0, "time_slot": 1, "line1": "Err"}
-        response = api_client.post(url, data, format="json")
-        assert response.status_code == 400
-        assert "published" in str(response.data)
-
-    def test_faculty_can_only_modify_own_draft(self, api_client, timetable_setup):
-        other_fac = User.objects.create_user(username="other_fac", password="pass")
-        fac_group = Group.objects.get(name="FACULTY")
-        other_fac.groups.add(fac_group)
-
-        tt = timetable_setup["timetable"] # created by fac_tt
-
-        api_client.force_authenticate(user=other_fac)
-        url = "/api/timetable/timetable-cells/"
-        data = {"weekly_timetable": tt.id, "day_of_week": 0, "time_slot": 1, "line1": "Err"}
-        response = api_client.post(url, data, format="json")
-        assert response.status_code == 403

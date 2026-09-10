@@ -109,7 +109,7 @@ Prefix: api/timetable/
 Endpoints:
 - sessions/: Academic sessions (faculty, group, department, time slot)
 - weekly-timetables/: Weekly timetable per batch
-- timetable-cells/: Individual timetable grid cells
+- entries/: Normalized timetable entries (section/group/day/time)
 ```
 
 ### EXAMS (`/sims_backend/exams/urls.py`)
@@ -523,7 +523,7 @@ All apps include serializers at `{app}/serializers.py`:
 - **finance**: FeeType, FeePlan, Voucher, Payment serializers
 - **people**: Person, ContactInfo, Address, IdentityDocument serializers
 - **exams**: Exam, ExamComponent serializers
-- **timetable**: Session, WeeklyTimetable, TimetableCell serializers
+- **timetable**: Session, WeeklyTimetable, TimetableEntry serializers
 
 ---
 

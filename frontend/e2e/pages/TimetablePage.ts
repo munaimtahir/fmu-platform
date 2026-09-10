@@ -3,8 +3,7 @@
  * Covers /timetable — staff weekly-timetable view (batch/period select,
  * week list, EntriesPanel/EntryForm) and the student read-only view
  * (StudentTimetableView), rendered from the same route. The legacy
- * TimetableEditor grid is no longer wired into the staff flow (see
- * Workstream B / legacy TimetableCell retirement).
+ * free-text TimetableCell grid editor was removed in Workstream B.
  */
 
 import { Page, expect } from '@playwright/test';
@@ -69,12 +68,6 @@ export class TimetablePage {
 
   get cancelEditButton() {
     return this.page.getByTestId('timetable-cancel-button');
-  }
-
-  // ---- Editor grid --------------------------------------------------
-
-  cellInput(day: number, slot: string, line: 1 | 2 | 3) {
-    return this.page.getByTestId(`cell-${day}-${slot}-line${line}`);
   }
 
   // ---- EntriesPanel / EntryForm ---------------------------------------

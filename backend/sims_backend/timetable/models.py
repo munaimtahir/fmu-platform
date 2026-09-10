@@ -118,62 +118,11 @@ class WeeklyTimetable(TimeStampedModel):
         return f"{self.batch.name} - Week of {self.week_start_date} ({self.status})"
 
 
-class TimetableCell(TimeStampedModel):
-    """Individual cell in a weekly timetable grid"""
-
-    DAY_CHOICES = [
-        (0, "Monday"),
-        (1, "Tuesday"),
-        (2, "Wednesday"),
-        (3, "Thursday"),
-        (4, "Friday"),
-        (5, "Saturday"),
-    ]
-
-    weekly_timetable = models.ForeignKey(
-        WeeklyTimetable,
-        on_delete=models.CASCADE,
-        related_name="cells",
-        help_text="Weekly timetable this cell belongs to",
-    )
-    day_of_week = models.IntegerField(choices=DAY_CHOICES, help_text="Day of the week (0=Monday, 5=Saturday)")
-    time_slot = models.CharField(max_length=50, help_text="Time slot identifier (e.g., '09:00-10:00')")
-    line1 = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="First line of cell content (e.g., course name, or groups like 'Group A, Group B')",
-    )
-    line2 = models.CharField(
-        max_length=200, blank=True, help_text="Second line of cell content (e.g., room number, or additional groups)"
-    )
-    line3 = models.CharField(
-        max_length=200, blank=True, help_text="Third line of cell content (e.g., faculty name, or additional info)"
-    )
-
-    class Meta:
-        ordering = ["day_of_week", "time_slot"]
-        indexes = [
-            models.Index(fields=["weekly_timetable", "day_of_week", "time_slot"]),
-        ]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["weekly_timetable", "day_of_week", "time_slot"], name="unique_cell_per_timetable_day_time"
-            )
-        ]
-
-    def __str__(self):
-        return f"{self.get_day_of_week_display()} {self.time_slot} - {self.line1 or 'Empty'}"
-
-
 class TimetableEntry(TimeStampedModel):
     """Normalized timetable entry, linked to a Section (course/faculty/group context).
 
-    This supersedes TimetableCell's free-text line1/2/3 content for new
-    writes, resolving the BLOCKED_BY_DATA_MODEL gap: a student's schedule
-    can now be derived from their group via `group` (or, when `group` is
-    left blank, the entry applies to the whole batch). TimetableCell/Session
-    are left untouched for backward compatibility with existing draft/
-    published weekly timetables; this model is additive, not a replacement.
+    A student's schedule can be derived from their group via `group` (or,
+    when `group` is left blank, the entry applies to the whole batch).
     """
 
     STATUS_SCHEDULED = "SCHEDULED"

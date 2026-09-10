@@ -1,5 +1,11 @@
-# Development Docker Compose Configuration
-# Redis is optional - system will work without it but background jobs will be disabled
+# Production Docker Compose Configuration ("_prod"-suffixed container names/volumes)
+# Used by backend.sh / frontend.sh / both.sh at the repo root.
+#
+# WARNING: the automated deploy path (ops/deploy.sh) uses docker-compose.yml
+# instead, whose containers are NOT _prod-suffixed. As of 2026-09, production
+# is running containers created via ops/deploy.sh (docker-compose.yml). Verify
+# with `docker ps` which compose file actually matches the running stack before
+# using this file - see PENDING_WORK.md for the open reconciliation item.
 
 services:
   db:

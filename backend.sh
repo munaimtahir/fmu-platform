@@ -6,6 +6,14 @@
 # 3. Restarts backend service
 # 4. Runs migrations and collects static files
 # 5. Verifies deployment
+#
+# WARNING: this script targets docker-compose.prod.yml and its "_prod"-suffixed
+# container names (vexel_medsims_backend_prod, etc). The automated deploy path
+# (ops/deploy.sh) uses docker-compose.yml instead, whose containers are NOT
+# _prod-suffixed. As of 2026-09, production is running containers created via
+# ops/deploy.sh (docker-compose.yml, non-_prod names) - running this script as-is
+# will not touch those containers. Run `docker ps` first and reconcile which
+# compose file matches the currently running stack before using this script.
 
 set -e  # Exit on error
 

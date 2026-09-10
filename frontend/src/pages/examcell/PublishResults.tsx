@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { SimpleTable } from '@/components/ui/SimpleTable'
-import { Spinner } from '@/components/ui/Spinner'
+import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Alert } from '@/components/ui/Alert'
 import { Select } from '@/components/ui/Select'
 import { Input } from '@/components/ui/Input'
@@ -87,42 +87,49 @@ export function PublishResults() {
     }
   }
 
-  const columns = [
-    { key: 'student_reg_no', label: 'Reg No' },
-    { key: 'student_name', label: 'Student Name' },
-    { key: 'exam_title', label: 'Exam' },
-    {
-      key: 'total',
-      label: 'Total',
-      render: (result: ResultHeader) => `${result.total_obtained} / ${result.total_max}`,
-    },
-    { key: 'final_outcome', label: 'Outcome' },
-    { key: 'status', label: 'Status' },
-    {
-      key: 'actions',
-      label: 'Actions',
-      render: (result: ResultHeader) => (
-        <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={workflowMutation.isPending || !['DRAFT', 'VERIFIED'].includes(result.status)}
-            onClick={() => runAction(result.id, 'publish')}
-          >
-            Publish
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={workflowMutation.isPending || result.status !== 'PUBLISHED'}
-            onClick={() => runAction(result.id, 'freeze')}
-          >
-            Freeze
-          </Button>
-        </div>
-      ),
-    },
-  ]
+  const columns = useMemo<ColumnDef<ResultHeader>[]>(
+    () => [
+      { accessorKey: 'student_reg_no', header: 'Reg No' },
+      { accessorKey: 'student_name', header: 'Student Name' },
+      { accessorKey: 'exam_title', header: 'Exam' },
+      {
+        id: 'total',
+        header: 'Total',
+        accessorFn: (result) => result.total_obtained,
+        cell: ({ row }) => `${row.original.total_obtained} / ${row.original.total_max}`,
+      },
+      { accessorKey: 'final_outcome', header: 'Outcome' },
+      { accessorKey: 'status', header: 'Status' },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const result = row.original
+          return (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={workflowMutation.isPending || !['DRAFT', 'VERIFIED'].includes(result.status)}
+                onClick={() => runAction(result.id, 'publish')}
+              >
+                Publish
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={workflowMutation.isPending || result.status !== 'PUBLISHED'}
+                onClick={() => runAction(result.id, 'freeze')}
+              >
+                Freeze
+              </Button>
+            </div>
+          )
+        },
+      },
+    ],
+    [workflowMutation.isPending]
+  )
 
   return (
     <div className="p-6 space-y-6">
@@ -165,22 +172,12 @@ export function PublishResults() {
         <Card><div className="p-4"><div className="text-sm text-gray-600">Frozen</div><div className="text-3xl font-bold text-blue-600">{counts.frozen}</div></div></Card>
       </div>
 
-      {query.isLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner size="lg" />
+      <Card>
+        <div className="p-4">
+          <h2 className="text-xl font-semibold mb-4">Result Headers</h2>
+          <DataTable data={results} columns={columns} isLoading={query.isLoading} />
         </div>
-      ) : results.length === 0 ? (
-        <Card>
-          <div className="p-4 text-center text-gray-600">No results match the current filters.</div>
-        </Card>
-      ) : (
-        <Card>
-          <div className="p-4">
-            <h2 className="text-xl font-semibold mb-4">Result Headers</h2>
-            <SimpleTable data={results} columns={columns} keyField="id" />
-          </div>
-        </Card>
-      )}
+      </Card>
     </div>
   )
 }

@@ -2,11 +2,12 @@
  * Attendance Dashboard - Session-Based View
  * View attendance records and statistics by timetable session
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { ColumnDef } from '@tanstack/react-table'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { SimpleTable } from '@/components/ui/SimpleTable'
+import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
@@ -52,53 +53,61 @@ export function AttendanceDashboard() {
     setView(newView)
   }
 
-  const attendanceColumns = [
-    {
-      key: 'student_reg_no',
-      label: 'Reg No',
-      render: (record: Attendance) => record.student_reg_no || '-',
-    },
-    {
-      key: 'student_name',
-      label: 'Student Name',
-      render: (record: Attendance) => record.student_name || '-',
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (record: Attendance) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            record.status === 'PRESENT'
-              ? 'bg-green-100 text-green-800'
-              : record.status === 'ABSENT'
-              ? 'bg-red-100 text-red-800'
-              : record.status === 'LATE'
-              ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-blue-100 text-blue-800'
-          }`}
-        >
-          {record.status}
-        </span>
-      ),
-    },
-    {
-      key: 'marked_at',
-      label: 'Marked At',
-      render: (record: Attendance) => 
-        new Date(record.marked_at).toLocaleString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-    },
-    {
-      key: 'marked_by_username',
-      label: 'Marked By',
-      render: (record: Attendance) => record.marked_by_username || '-',
-    },
-  ]
+  const attendanceColumns = useMemo<ColumnDef<Attendance>[]>(
+    () => [
+      {
+        id: 'student_reg_no',
+        header: 'Reg No',
+        accessorFn: (record) => record.student_reg_no || '-',
+      },
+      {
+        id: 'student_name',
+        header: 'Student Name',
+        accessorFn: (record) => record.student_name || '-',
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        accessorFn: (record) => record.status,
+        cell: ({ row }) => {
+          const record = row.original
+          return (
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                record.status === 'PRESENT'
+                  ? 'bg-green-100 text-green-800'
+                  : record.status === 'ABSENT'
+                  ? 'bg-red-100 text-red-800'
+                  : record.status === 'LATE'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-blue-100 text-blue-800'
+              }`}
+            >
+              {record.status}
+            </span>
+          )
+        },
+      },
+      {
+        id: 'marked_at',
+        header: 'Marked At',
+        accessorFn: (record) => record.marked_at,
+        cell: ({ row }) =>
+          new Date(row.original.marked_at).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+      },
+      {
+        id: 'marked_by_username',
+        header: 'Marked By',
+        accessorFn: (record) => record.marked_by_username || '-',
+      },
+    ],
+    []
+  )
 
   const loading = view === 'records' ? attendanceLoading : summaryLoading
 
@@ -180,11 +189,7 @@ export function AttendanceDashboard() {
             <div className="p-4">
               <h2 className="text-xl font-semibold mb-4">Attendance Records</h2>
               {attendanceData?.results && attendanceData.results.length > 0 ? (
-                <SimpleTable
-                  data={attendanceData.results}
-                  columns={attendanceColumns}
-                  keyField="id"
-                />
+                <DataTable data={attendanceData.results} columns={attendanceColumns} />
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   No attendance records found for this session

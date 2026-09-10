@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
-import { SimpleTable } from '@/components/ui/SimpleTable'
+import { useState, useEffect, useMemo } from 'react'
+import { ColumnDef } from '@tanstack/react-table'
+import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
@@ -61,79 +62,101 @@ export function ImportHistoryTable({
     return new Date(dateString).toLocaleString()
   }
 
-  const columns = [
-    {
-      header: 'Date',
-      accessor: (job: StudentImportJob | FacultyImportJob) => formatDate(job.created_at),
-    },
-    {
-      header: 'Filename',
-      accessor: (job: StudentImportJob | FacultyImportJob) => job.original_filename,
-    },
-    {
-      header: 'Mode',
-      accessor: (job: StudentImportJob | FacultyImportJob) => job.mode,
-    },
-    {
-      header: 'Status',
-      accessor: (job: StudentImportJob | FacultyImportJob) => (
-        <Badge variant={getStatusBadgeVariant(job.status)}>
-          {job.status}
-        </Badge>
-      ),
-    },
-    {
-      header: 'Total',
-      accessor: (job: StudentImportJob | FacultyImportJob) => job.total_rows,
-    },
-    {
-      header: 'Valid',
-      accessor: (job: StudentImportJob | FacultyImportJob) => (
-        <span className="text-green-600">{job.valid_rows}</span>
-      ),
-    },
-    {
-      header: 'Invalid',
-      accessor: (job: StudentImportJob | FacultyImportJob) => (
-        <span className="text-red-600">{job.invalid_rows}</span>
-      ),
-    },
-    {
-      header: 'Created',
-      accessor: (job: StudentImportJob | FacultyImportJob) => (
-        <span className="text-blue-600">{job.created_count}</span>
-      ),
-    },
-    {
-      header: 'Updated',
-      accessor: (job: StudentImportJob | FacultyImportJob) => (
-        <span className="text-purple-600">{job.updated_count}</span>
-      ),
-    },
-    {
-      header: 'Actions',
-      accessor: (job: StudentImportJob | FacultyImportJob) => (
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => onViewDetails(job.id)}
-          >
-            Details
-          </Button>
-          {job.error_report_file && (
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => onDownloadErrors(job.id)}
-            >
-              Errors
-            </Button>
-          )}
-        </div>
-      ),
-    },
-  ]
+  const columns = useMemo<ColumnDef<StudentImportJob | FacultyImportJob>[]>(
+    () => [
+      {
+        id: 'date',
+        header: 'Date',
+        accessorFn: (job) => job.created_at,
+        cell: ({ row }) => formatDate(row.original.created_at),
+      },
+      {
+        id: 'filename',
+        header: 'Filename',
+        accessorFn: (job) => job.original_filename,
+      },
+      {
+        id: 'mode',
+        header: 'Mode',
+        accessorFn: (job) => job.mode,
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        accessorFn: (job) => job.status,
+        cell: ({ row }) => (
+          <Badge variant={getStatusBadgeVariant(row.original.status)}>
+            {row.original.status}
+          </Badge>
+        ),
+      },
+      {
+        id: 'total_rows',
+        header: 'Total',
+        accessorFn: (job) => job.total_rows,
+      },
+      {
+        id: 'valid_rows',
+        header: 'Valid',
+        accessorFn: (job) => job.valid_rows,
+        cell: ({ row }) => (
+          <span className="text-green-600">{row.original.valid_rows}</span>
+        ),
+      },
+      {
+        id: 'invalid_rows',
+        header: 'Invalid',
+        accessorFn: (job) => job.invalid_rows,
+        cell: ({ row }) => (
+          <span className="text-red-600">{row.original.invalid_rows}</span>
+        ),
+      },
+      {
+        id: 'created_count',
+        header: 'Created',
+        accessorFn: (job) => job.created_count,
+        cell: ({ row }) => (
+          <span className="text-blue-600">{row.original.created_count}</span>
+        ),
+      },
+      {
+        id: 'updated_count',
+        header: 'Updated',
+        accessorFn: (job) => job.updated_count,
+        cell: ({ row }) => (
+          <span className="text-purple-600">{row.original.updated_count}</span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const job = row.original
+          return (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => onViewDetails(job.id)}
+              >
+                Details
+              </Button>
+              {job.error_report_file && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => onDownloadErrors(job.id)}
+                >
+                  Errors
+                </Button>
+              )}
+            </div>
+          )
+        },
+      },
+    ],
+    [onDownloadErrors, onViewDetails]
+  )
 
   if (loading) {
     return <Spinner />
@@ -151,7 +174,7 @@ export function ImportHistoryTable({
           Refresh
         </Button>
       </div>
-      <SimpleTable data={jobs} columns={columns as any} keyField="id" />
+      <DataTable data={jobs} columns={columns} />
     </div>
   )
 }

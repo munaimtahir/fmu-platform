@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
@@ -12,32 +12,35 @@ import { Section } from '@/types'
 
 export const FacultyDashboard = () => {
   const { user } = useAuth()
-  const [stats, setStats] = useState<DashboardStats>({})
-  const [sections, setSections] = useState<Section[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const [statsData, sectionsData] = await Promise.all([
-          dashboardApi.getStats(),
-          sectionsService.getAll().catch(() => ({ results: [], count: 0 })),
-        ])
-        setStats(statsData)
-        setSections(Array.isArray(sectionsData.results) ? sectionsData.results : [])
-      } catch (err: any) {
-        setError(err.response?.data?.error || err.message || 'Failed to load dashboard data')
-        console.error('Error fetching faculty dashboard data:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const {
+    data: stats = {} as DashboardStats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useQuery({
+    queryKey: ['dashboard', 'stats'],
+    queryFn: () => dashboardApi.getStats(),
+  })
 
-    fetchData()
-  }, [])
+  const {
+    data: sectionsData,
+    isLoading: sectionsLoading,
+    isError: sectionsIsError,
+  } = useQuery({
+    queryKey: ['sections', 'mine'],
+    queryFn: () => sectionsService.getAll(),
+  })
+
+  const sections: Section[] = sectionsIsError
+    ? []
+    : Array.isArray(sectionsData?.results)
+      ? sectionsData.results
+      : []
+
+  const loading = statsLoading || sectionsLoading
+  const error = statsError
+    ? (statsError as any)?.response?.data?.error || (statsError as any)?.message || 'Failed to load dashboard data'
+    : null
 
   if (loading) {
     return (

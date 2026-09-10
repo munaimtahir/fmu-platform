@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import { ColumnDef } from '@tanstack/react-table'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { dashboardApi, AdminDashboardData } from '@/api/dashboard'
-import { SimpleTable } from '@/components/ui/SimpleTable'
+import { DataTable } from '@/components/ui/DataTable/DataTable'
+
+type RecentActivityItem = AdminDashboardData['recent_activity'][number]
 
 /**
  * Admin Dashboard Page - Overview of system statistics and recent activity
@@ -68,6 +71,36 @@ export const AdminDashboardPage: React.FC = () => {
       return timestamp
     }
   }
+
+  const recentActivityColumns: ColumnDef<RecentActivityItem>[] = [
+    {
+      id: 'timestamp',
+      header: 'Time',
+      accessorFn: (item) => item.timestamp,
+      cell: ({ row }) => formatTimestamp(row.original.timestamp),
+    },
+    {
+      accessorKey: 'actor',
+      header: 'Actor',
+    },
+    {
+      accessorKey: 'action',
+      header: 'Action',
+    },
+    {
+      accessorKey: 'entity',
+      header: 'Entity',
+    },
+    {
+      accessorKey: 'summary',
+      header: 'Summary',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-600 truncate max-w-xs">
+          {row.original.summary}
+        </span>
+      ),
+    },
+  ]
 
   return (
     <DashboardLayout>
@@ -182,38 +215,7 @@ export const AdminDashboardPage: React.FC = () => {
                 Recent Activity
               </h2>
               {data.recent_activity.length > 0 ? (
-                <SimpleTable
-                  data={data.recent_activity}
-                  keyField="id"
-                  columns={[
-                    {
-                      key: 'timestamp',
-                      label: 'Time',
-                      render: (item) => formatTimestamp(item.timestamp),
-                    },
-                    {
-                      key: 'actor',
-                      label: 'Actor',
-                    },
-                    {
-                      key: 'action',
-                      label: 'Action',
-                    },
-                    {
-                      key: 'entity',
-                      label: 'Entity',
-                    },
-                    {
-                      key: 'summary',
-                      label: 'Summary',
-                      render: (item) => (
-                        <span className="text-sm text-gray-600 truncate max-w-xs">
-                          {item.summary}
-                        </span>
-                      ),
-                    },
-                  ]}
-                />
+                <DataTable data={data.recent_activity} columns={recentActivityColumns} />
               ) : (
                 <p className="text-gray-500 text-sm">No recent activity</p>
               )}

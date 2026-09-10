@@ -337,16 +337,17 @@ class TestLearningBlockTypeRules:
 
     def test_rotation_block_cannot_have_modules(self, rotation_block):
         """ROTATION_BLOCK cannot have modules"""
-        # Try to add a module to rotation block
+        # Persist a real module linked to the rotation block first, so the
+        # validator sees pre-existing state (matching the other tests in
+        # this class that call the validator against real data).
+        Module.objects.create(block=rotation_block, name="Test Module", order=1)
+
+        # Now validating the block type rules should raise, since a
+        # ROTATION_BLOCK is not allowed to have modules.
         with pytest.raises(ValidationError):
             LearningBlockService.validate_block_type_rules(
                 rotation_block, {"block_type": LearningBlock.BLOCK_TYPE_ROTATION}
             )
-
-        # This should be caught when trying to create module, but let's check the block itself
-        # Actually, the validation should prevent modules from being added
-        Module(block=rotation_block, name="Test Module", order=1)
-        # The validation happens in ModuleViewSet.perform_create
 
     def test_integrated_block_departments_must_be_null(self, period, track, department):
         """INTEGRATED_BLOCK must have null department fields"""

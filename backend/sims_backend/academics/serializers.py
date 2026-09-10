@@ -113,15 +113,38 @@ class DepartmentSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["created_at", "updated_at"]
+        # `parent` is part of the model's unique_together constraint, which
+        # makes DRF force it "required" by default (see
+        # ModelSerializer.get_uniqueness_extra_kwargs). The model field is
+        # nullable/optional (blank=True, null=True), so explicitly mark it
+        # not required with a default of None to allow omitting it on create.
+        extra_kwargs = {"parent": {"required": False, "default": None}}
+        # DRF's auto-generated UniqueTogetherValidator silently skips its
+        # check whenever any constrained field is None (see
+        # UniqueTogetherValidator.__call__: "Ignore validation if any field
+        # is None"), which would let duplicate root-level (parent=None)
+        # department names through. Disable it and enforce (name, parent)
+        # uniqueness explicitly in validate() instead, so that case is
+        # covered too.
+        validators: list = []
 
     def get_children_count(self, obj) -> int:
         """Get count of child departments"""
         return obj.children.count() if hasattr(obj, "children") else 0
 
     def validate(self, data):
-        """Validate parent relationship using service layer"""
+        """Validate parent relationship and (name, parent) uniqueness."""
         department = self.instance if self.instance else Department()
-        DepartmentService.validate_parent_relationship(department, data.get("parent"))
+        parent = data.get("parent", department.parent if self.instance else None)
+        DepartmentService.validate_parent_relationship(department, parent)
+
+        name = data.get("name", department.name if self.instance else None)
+        queryset = Department.objects.filter(name=name, parent=parent)
+        if self.instance is not None:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise serializers.ValidationError({"name": "The fields name, parent must make a unique set."})
+
         return data
 
 

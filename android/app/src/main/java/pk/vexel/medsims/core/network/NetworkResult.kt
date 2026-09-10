@@ -4,7 +4,16 @@ import kotlinx.serialization.json.Json
 import retrofit2.Response
 import java.io.IOException
 
-sealed interface NetworkResult<out T> { data class Success<T>(val value: T): NetworkResult<T>; data class Failure(val kind: ErrorKind, val message: String, val code: String? = null): NetworkResult<Nothing> }
+sealed interface NetworkResult<out T> {
+    data class Success<T>(val value: T): NetworkResult<T>
+    data class Failure(
+        val kind: ErrorKind,
+        val message: String,
+        val code: String? = null,
+        val reasons: List<String> = emptyList(),
+        val outstanding: String? = null,
+    ): NetworkResult<Nothing>
+}
 enum class ErrorKind { OFFLINE, TIMEOUT, VALIDATION, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, CONFLICT, SERVER, UNKNOWN }
 fun errorKind(code: Int) = when (code) { 400 -> ErrorKind.VALIDATION; 401 -> ErrorKind.UNAUTHORIZED; 403 -> ErrorKind.FORBIDDEN; 404 -> ErrorKind.NOT_FOUND; 409 -> ErrorKind.CONFLICT; in 500..599 -> ErrorKind.SERVER; else -> ErrorKind.UNKNOWN }
 
@@ -19,6 +28,7 @@ suspend fun <T> safeCall(request: suspend () -> Response<T>): NetworkResult<T> =
 
 fun <T> failure(response: Response<T>): NetworkResult.Failure {
     val envelope = try { response.errorBody()?.string()?.let { errorJson.decodeFromString<ApiErrorEnvelope>(it) } } catch (e: Exception) { null }
-    val message = envelope?.error?.message ?: envelope?.detail ?: when (response.code()) { 401 -> "Your credentials or session are invalid."; 403 -> "You do not have permission for this action."; else -> "The service could not complete your request. Please try again." }
-    return NetworkResult.Failure(errorKind(response.code()), message, envelope?.error?.code)
+    val message = envelope?.error?.message ?: envelope?.message ?: envelope?.detail ?: when (response.code()) { 401 -> "Your credentials or session are invalid."; 403 -> "You do not have permission for this action."; else -> "The service could not complete your request. Please try again." }
+    val code = envelope?.error?.code ?: envelope?.code
+    return NetworkResult.Failure(errorKind(response.code()), message, code, envelope?.reasons.orEmpty(), envelope?.outstanding)
 }

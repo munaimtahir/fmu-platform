@@ -17,3 +17,17 @@ interface MobileApi {
     @GET("api/mobile/student/home/") suspend fun studentHome(): Response<StudentHomeResponse>
     @GET("api/mobile/student/timetable/") suspend fun studentTimetable(@Query("week_start_date") weekStartDate: String? = null): Response<StudentTimetableResponse>
 }
+interface AttendanceApi {
+    @GET("api/attendance/") suspend fun list(
+        @Query("student") studentId: Long,
+        @Query("ordering") ordering: String = "-marked_at",
+        @Query("page") page: Int? = null,
+    ): Response<PaginatedResponse<AttendanceRecordDto>>
+}
+interface ResultsApi {
+    @GET("api/results/") suspend fun list(
+        @Query("student") studentId: Long,
+        @Query("ordering") ordering: String = "-created_at",
+        @Query("page") page: Int? = null,
+    ): Response<PaginatedResponse<ResultRecordDto>>
+}

@@ -38,4 +38,6 @@ object NetworkModule {
     @Provides fun authApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
     @Provides fun healthApi(retrofit: Retrofit): HealthApi = retrofit.create(HealthApi::class.java)
     @Provides fun mobileApi(retrofit: Retrofit): MobileApi = retrofit.create(MobileApi::class.java)
+    @Provides fun attendanceApi(retrofit: Retrofit): AttendanceApi = retrofit.create(AttendanceApi::class.java)
+    @Provides fun resultsApi(retrofit: Retrofit): ResultsApi = retrofit.create(ResultsApi::class.java)
 }

@@ -19,8 +19,10 @@ import org.junit.Test
 import pk.vexel.medsims.core.academic.AcademicRepository
 import pk.vexel.medsims.core.auth.SessionExpiryNotifier
 import pk.vexel.medsims.core.auth.TokenRefresher
+import pk.vexel.medsims.core.network.AttendanceApi
 import pk.vexel.medsims.core.network.MobileApi
 import pk.vexel.medsims.core.network.NetworkResult
+import pk.vexel.medsims.core.network.ResultsApi
 import pk.vexel.medsims.core.network.ScreenState
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -36,8 +38,10 @@ class TimetableViewModelTest {
         val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
         val retrofit = Retrofit.Builder().baseUrl(server.url("/")).addConverterFactory(json.asConverterFactory("application/json".toMediaType())).build()
         val api = retrofit.create(MobileApi::class.java)
+        val attendanceApi = retrofit.create(AttendanceApi::class.java)
+        val resultsApi = retrofit.create(ResultsApi::class.java)
         val refresher = object : TokenRefresher { override suspend fun refresh() = NetworkResult.Success(Unit) }
-        repository = AcademicRepository(api, refresher, SessionExpiryNotifier())
+        repository = AcademicRepository(api, attendanceApi, resultsApi, refresher, SessionExpiryNotifier())
     }
 
     @After fun tearDown() { server.shutdown(); Dispatchers.resetMain() }

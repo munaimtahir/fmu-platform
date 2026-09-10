@@ -42,7 +42,7 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["exam", "student", "status", "final_outcome"]
     search_fields = ["student__reg_no", "student__name", "exam__title"]
-    ordering_fields = ["exam", "student", "total_obtained"]
+    ordering_fields = ["exam", "student", "total_obtained", "created_at"]
     ordering = ["exam", "student"]
     required_tasks = ["results.result_headers.view"]
 

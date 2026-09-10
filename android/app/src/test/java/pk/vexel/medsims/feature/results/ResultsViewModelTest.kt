@@ -1,4 +1,4 @@
-package pk.vexel.medsims.feature.home
+package pk.vexel.medsims.feature.results
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +29,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class HomeViewModelTest {
+class ResultsViewModelTest {
     private lateinit var server: MockWebServer
     private lateinit var repository: AcademicRepository
 
@@ -47,25 +47,33 @@ class HomeViewModelTest {
 
     @After fun tearDown() { server.shutdown(); Dispatchers.resetMain() }
 
-    @Test fun loads_home_and_exposes_content() = runTest {
+    @Test fun loads_latest_results_then_history_page() = runTest {
         server.enqueue(MockResponse().setResponseCode(200).setBody(HOME_JSON))
-        val viewModel = HomeViewModel(repository)
+        server.enqueue(MockResponse().setResponseCode(200).setBody(PAGE_1_JSON))
+        val viewModel = ResultsViewModel(repository)
         val state = viewModel.state.first { it !is ScreenState.Loading }
         assertTrue(state is ScreenState.Content)
-        assertEquals("Jane Doe", (state as ScreenState.Content).value.student.display_name)
+        val history = viewModel.history.first { it.items.isNotEmpty() || it.error != null }
+        assertEquals(1, history.items.size)
+        assertEquals("PUBLISHED", history.items[0].status)
     }
 
-    @Test fun not_a_student_exposes_error_with_code() = runTest {
-        server.enqueue(MockResponse().setResponseCode(404).setBody("""{"error":{"code":"NOT_A_STUDENT","message":"No student record linked to your account"}}"""))
-        val viewModel = HomeViewModel(repository)
-        val state = viewModel.state.first { it !is ScreenState.Loading }
-        assertTrue(state is ScreenState.Error)
-        val error = state as ScreenState.Error
-        assertEquals(ErrorKind.NOT_FOUND, error.kind)
-        assertEquals("NOT_A_STUDENT", error.code)
+    @Test fun history_finance_blocked_exposes_code_reasons_and_outstanding() = runTest {
+        server.enqueue(MockResponse().setResponseCode(200).setBody(HOME_JSON))
+        server.enqueue(MockResponse().setResponseCode(403).setBody(FINANCE_BLOCKED_JSON))
+        val viewModel = ResultsViewModel(repository)
+        viewModel.state.first { it !is ScreenState.Loading }
+        val history = viewModel.history.first { it.error != null }
+        val failure = history.error as NetworkResult.Failure
+        assertEquals(ErrorKind.FORBIDDEN, failure.kind)
+        assertEquals(FINANCE_BLOCKED_CODE, failure.code)
+        assertEquals(listOf("Results blocked: outstanding dues exceed threshold."), failure.reasons)
+        assertEquals("1500.00", failure.outstanding)
     }
 
     private companion object {
         const val HOME_JSON = """{"student":{"id":1,"reg_no":"S-1001","display_name":"Jane Doe"},"academic_placement":{"programme":"MBBS","batch":"2024","group":"A","status":"active"},"attendance_summary":{"total":10,"present":8,"absent":1,"late":1,"leave":0,"percentage":80.0},"latest_results":[],"today_schedule":[]}"""
+        const val PAGE_1_JSON = """{"count":1,"next":null,"previous":null,"results":[{"id":5,"exam":2,"exam_title":"Anatomy Final","student":1,"total_obtained":"85.00","total_max":"100.00","final_outcome":"PASS","status":"PUBLISHED","created_at":"2026-08-01T09:00:00Z"}]}"""
+        const val FINANCE_BLOCKED_JSON = """{"code":"FINANCE_BLOCKED","message":"Results are blocked until outstanding dues are cleared.","reasons":["Results blocked: outstanding dues exceed threshold."],"outstanding":"1500.00"}"""
     }
 }

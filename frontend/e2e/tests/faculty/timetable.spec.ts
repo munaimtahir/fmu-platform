@@ -70,7 +70,7 @@ test.describe('Faculty Timetable Tests @faculty', () => {
     const entriesWeekCard = page.locator('[data-testid^="week-card-draft-"]').filter({ hasText: entriesWeekRange });
     await entriesWeekCard.getByRole('button', { name: 'View', exact: true }).click();
 
-    await expect(page.getByText('Course Entries (normalized)')).toBeVisible({ timeout: 8000 });
+    await expect(page.getByText('Course Entries')).toBeVisible({ timeout: 8000 });
 
     await tt.selectEntryFormSection('TTD-101 Section A');
     await tt.entryFormDaySelect.click();

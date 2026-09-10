@@ -1,8 +1,10 @@
 /**
  * Timetable Page Object
- * Covers /timetable — staff weekly-timetable editor (batch/period select,
- * week list, TimetableEditor grid, EntriesPanel/EntryForm) and the student
- * read-only view (StudentTimetableView), rendered from the same route.
+ * Covers /timetable — staff weekly-timetable view (batch/period select,
+ * week list, EntriesPanel/EntryForm) and the student read-only view
+ * (StudentTimetableView), rendered from the same route. The legacy
+ * TimetableEditor grid is no longer wired into the staff flow (see
+ * Workstream B / legacy TimetableCell retirement).
  */
 
 import { Page, expect } from '@playwright/test';

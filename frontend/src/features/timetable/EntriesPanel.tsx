@@ -50,10 +50,10 @@ export function EntriesPanel({ weeklyTimetableId, batchId, academicPeriodId, can
 
   return (
     <div className="mt-6 border-t pt-4">
-      <h3 className="text-lg font-semibold mb-2">Course Entries (normalized)</h3>
+      <h3 className="text-lg font-semibold mb-2">Course Entries</h3>
       <p className="text-sm text-gray-500 mb-3">
-        These entries power the student mobile timetable and web timetable view. The grid above is the legacy
-        free-text editor and remains available during the transition.
+        These entries power the student mobile timetable and web timetable view, and are what publishing
+        validates against (exactly 3 scheduled entries per day).
       </p>
 
       {entries.length === 0 ? (

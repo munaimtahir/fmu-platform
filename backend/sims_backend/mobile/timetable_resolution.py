@@ -8,6 +8,23 @@ Prefers the normalized `TimetableEntry` model; when a published weekly
 timetable for the student's batch/week has no `TimetableEntry` rows yet
 (because it predates the new model), falls back to reading the legacy
 `TimetableCell` free-text grid so the endpoint isn't empty mid-migration.
+
+NOTE (Workstream B / legacy TimetableCell retirement): as of the
+`0006_backfill_cells_to_entries` data migration, every `TimetableCell` that
+could be confidently matched to a `Section` has an equivalent
+`TimetableEntry` row, and new writes go through `TimetableEntry` exclusively
+(the staff UI no longer edits the legacy grid; see `TimetablePage.tsx`).
+The fallback below is kept in place ONLY as a safety net for weeks whose
+cells could not be auto-matched (ambiguous/no-match cases logged by that
+migration) or for any environment where the backfill migration has not yet
+been run against real data — this repo/session has no access to run the
+backfill against production and verify `WeeklyTimetable.objects.filter(
+status="published", entries__isnull=True, cells__isnull=False)` returns
+empty there, so the fallback is intentionally NOT removed. It should no
+longer be treated as a primary code path; once production has been
+confirmed to have full TimetableEntry coverage for all published weeks,
+this fallback (and the `_cell_to_dict` helper) can be deleted as part of
+B5's cleanup.
 """
 
 from __future__ import annotations
@@ -95,7 +112,10 @@ def get_student_week_schedule(student, week_start_date: date | None = None) -> d
             "source": "entry",
         }
 
-    # Fall back to the legacy free-text cell grid for this batch/week.
+    # Legacy-safety-net-only fallback (see module docstring): only reached
+    # for weeks whose TimetableCell rows could not be backfilled into
+    # TimetableEntry, or in an environment where the backfill migration
+    # hasn't run yet. Not the primary path post-B1.
     cells = list(weekly_timetable.cells.all())
     return {
         "week_start_date": week_start.isoformat(),

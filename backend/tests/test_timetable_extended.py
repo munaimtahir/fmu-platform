@@ -1,10 +1,10 @@
-from datetime import date
+from datetime import date, time
 
 import pytest
 from django.contrib.auth.models import Group, User
 
-from sims_backend.academics.models import AcademicPeriod, Batch, Program
-from sims_backend.timetable.models import TimetableCell, WeeklyTimetable
+from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Program, Section
+from sims_backend.timetable.models import TimetableCell, TimetableEntry, WeeklyTimetable
 
 
 @pytest.fixture
@@ -33,6 +33,10 @@ def timetable_setup(db):
         created_by=faculty_user, status="draft"
     )
 
+    department = Department.objects.create(name="TT Department")
+    course = Course.objects.create(code="TT-101", name="TT Course", department=department, academic_period=period)
+    section = Section.objects.create(course=course, academic_period=period, name="Section A", faculty=faculty_user)
+
     return {
         "admin": admin_user,
         "faculty": faculty_user,
@@ -40,17 +44,23 @@ def timetable_setup(db):
         "program": program,
         "batch": batch,
         "period": period,
-        "timetable": timetable
+        "timetable": timetable,
+        "section": section,
     }
 
 @pytest.mark.django_db
 class TestWeeklyTimetableActions:
     def test_publish_validation_fails_without_3_periods(self, api_client, timetable_setup):
         tt = timetable_setup["timetable"]
+        section = timetable_setup["section"]
         api_client.force_authenticate(user=timetable_setup["faculty"])
 
-        # Create only 1 cell for Monday
-        TimetableCell.objects.create(weekly_timetable=tt, day_of_week=0, time_slot=1, line1="Class 1")
+        # Create only 1 entry for Monday
+        TimetableEntry.objects.create(
+            weekly_timetable=tt, section=section, day_of_week=0,
+            start_time=time(8, 0), end_time=time(9, 0),
+            created_by=timetable_setup["faculty"],
+        )
 
         url = f"/api/timetable/weekly-timetables/{tt.id}/publish/"
         response = api_client.post(url)
@@ -59,13 +69,17 @@ class TestWeeklyTimetableActions:
 
     def test_publish_success_with_3_periods(self, api_client, timetable_setup):
         tt = timetable_setup["timetable"]
+        section = timetable_setup["section"]
         api_client.force_authenticate(user=timetable_setup["faculty"])
 
-        # Create 3 cells for EVERY day (0-5)
+        # Create 3 TimetableEntry rows for EVERY day (0-5)
+        slot_times = [(time(8, 0), time(9, 0)), (time(9, 0), time(10, 0)), (time(10, 0), time(11, 0))]
         for day in range(6):
-            for slot in range(1, 4):
-                TimetableCell.objects.create(
-                    weekly_timetable=tt, day_of_week=day, time_slot=slot, line1=f"Class {day}-{slot}"
+            for start_time, end_time in slot_times:
+                TimetableEntry.objects.create(
+                    weekly_timetable=tt, section=section, day_of_week=day,
+                    start_time=start_time, end_time=end_time,
+                    created_by=timetable_setup["faculty"],
                 )
 
         url = f"/api/timetable/weekly-timetables/{tt.id}/publish/"
@@ -73,6 +87,31 @@ class TestWeeklyTimetableActions:
         assert response.status_code == 200
         tt.refresh_from_db()
         assert tt.status == "published"
+
+    def test_publish_ignores_cancelled_entries(self, api_client, timetable_setup):
+        """A CANCELLED entry shouldn't count toward the 'exactly 3' total."""
+        tt = timetable_setup["timetable"]
+        section = timetable_setup["section"]
+        api_client.force_authenticate(user=timetable_setup["faculty"])
+
+        slot_times = [(time(8, 0), time(9, 0)), (time(9, 0), time(10, 0)), (time(10, 0), time(11, 0))]
+        for day in range(6):
+            for start_time, end_time in slot_times:
+                TimetableEntry.objects.create(
+                    weekly_timetable=tt, section=section, day_of_week=day,
+                    start_time=start_time, end_time=end_time,
+                    created_by=timetable_setup["faculty"],
+                )
+        # Cancel one of Monday's entries - Monday should now be short one period.
+        cancelled = TimetableEntry.objects.filter(weekly_timetable=tt, day_of_week=0).first()
+        cancelled.status = TimetableEntry.STATUS_CANCELLED
+        cancelled.save()
+
+        url = f"/api/timetable/weekly-timetables/{tt.id}/publish/"
+        response = api_client.post(url)
+        assert response.status_code == 400
+        assert response.data["error"]["code"] == "INVALID_PERIOD_COUNT"
+        assert "Monday" in str(response.data["error"]["days_with_wrong_count"])
 
     def test_unpublish_admin_only(self, api_client, timetable_setup):
         tt = timetable_setup["timetable"]

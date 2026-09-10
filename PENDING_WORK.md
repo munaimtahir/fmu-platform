@@ -66,16 +66,15 @@ Not done:
 
 ---
 
-## 5. Security / credentials — audit tooling added, execution against production still pending
+## 5. Security / credentials — audit run against production (2026-09-10 follow-up session)
 
-`backend/SEED_DATA_README.md` and `backend/DEMO_SEED_USAGE.md` document **predictable default passwords** (pattern: `{role}123`) for demo/seed accounts. This follow-up session added `backend/core/management/commands/audit_demo_accounts.py` — a **read-only** command that cross-references documented demo/seed username patterns (fixed accounts like `admin`/`registrar`/`faculty{n}`/`finance`/`examcell`, and dynamic patterns like `student{year}mbbs{n}`/`demo_studentNNN`) against real users and reports, per account, whether it still has the known default password. It never prints password values and makes no writes.
+`backend/SEED_DATA_README.md` and `backend/DEMO_SEED_USAGE.md` document **predictable default passwords** (pattern: `{role}123`) for demo/seed accounts. `backend/core/management/commands/audit_demo_accounts.py` is a **read-only** command that cross-references documented demo/seed username patterns against real users and reports, per account, whether it still has the known default password. It never prints password values and makes no writes.
 
-**Could not be run against production from this session** — no live `vexel_medsims_*` containers were reachable from this working directory (the repo checkout here isn't the production host's `git` clone; production runs elsewhere). Compiles cleanly (`py_compile`) but was not exercised against a real database with production-shaped data.
+**Run against production this session** (after deploying the commit that introduced it — see §7, production was 5 commits behind before this session's deploy): `docker exec vexel_medsims_backend python manage.py audit_demo_accounts` on `ssh test` / `/home/munaim/srv/apps/fmu-platform`.
 
-**Next session should:**
-1. Run `docker exec <backend_container> python manage.py audit_demo_accounts` on the actual production host and review the output.
-2. Determine which flagged accounts correspond to demo/QA-only users (vs. real staff/students) — do **not** assume based on username pattern alone; cross-check against real enrollment/employment records.
-3. For any confirmed demo/QA-only accounts still active in production: rotate to strong unique passwords, or disable if unused. Never print or log actual credential values anywhere in that process.
+**Result:** 54 accounts matched known demo/seed patterns, and **all 54** still have the documented default password. Every flagged account uses the `@examplemedical.edu` placeholder email domain, was created the same day (2026-09-08), and has never logged in (`last_login: never`) — consistent with this entire instance currently holding pilot/demo data rather than a mix with real staff/students.
+
+**User decision (2026-09-10): confirmed demo-only, leave passwords as-is for now** — no rotation/disabling performed. Revisit before this instance is handed to real users: at that point, re-run the audit and rotate/disable any accounts confirmed as demo-only once real accounts exist to distinguish them from.
 
 ---
 

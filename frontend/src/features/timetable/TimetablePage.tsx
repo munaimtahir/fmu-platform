@@ -1,8 +1,8 @@
 /**
  * Weekly Timetable Page
- * Workflow: Select Batch → Select Academic Period → Auto-generate weekly templates → Edit → Publish
+ * Workflow: Select Batch → Select Academic Period → Auto-generate weekly templates → View → Publish
  */
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
 import toast from 'react-hot-toast'
@@ -11,13 +11,19 @@ import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { Badge } from '@/components/ui/Badge'
 import { useAuth } from '@/features/auth/useAuth'
-import { weeklyTimetableService, timetableCellService, academicsService, batchesService } from '@/services'
-import { TimetableTableView } from './TimetableTableView'
-import { TimetableEditor } from './TimetableEditor'
+import { weeklyTimetableService, academicsService, batchesService } from '@/services'
 import { StudentTimetableView } from './StudentTimetableView'
 import { EntriesPanel } from './EntriesPanel'
 
-type ViewMode = 'list' | 'view' | 'edit'
+// NOTE (Workstream B / legacy TimetableCell retirement): TimetableEditor and
+// TimetableTableView (the free-text line1/2/3 grid UI) are intentionally no
+// longer imported/wired here. Publishing now validates against
+// TimetableEntry (see backend WeeklyTimetableViewSet.publish), and staff
+// manage entries entirely through EntriesPanel/EntryForm below. The
+// component files themselves are left in place, unwired, in case removal
+// reveals a workflow gap; see PENDING_WORK.md / Workstream B for context.
+
+type ViewMode = 'list' | 'view'
 
 export function TimetablePage() {
   const queryClient = useQueryClient()
@@ -31,7 +37,6 @@ export function TimetablePage() {
   const [filterBatch, setFilterBatch] = useState<string>('')
   const [filterAcademicPeriod, setFilterAcademicPeriod] = useState<string>('')
   const [selectedTimetableId, setSelectedTimetableId] = useState<number | null>(null)
-  const [pendingCells, setPendingCells] = useState<Map<string, { line1: string; line2: string; line3: string }>>(new Map())
 
   // Fetch dropdown data
   const { data: batchesData } = useQuery({
@@ -68,11 +73,11 @@ export function TimetablePage() {
 
   const allWeeks = timetablesData?.results || []
 
-  // Fetch full timetable details when viewing/editing
-  const { data: fullTimetable, refetch: refetchTimetable } = useQuery({
+  // Fetch full timetable details when viewing
+  const { data: fullTimetable } = useQuery({
     queryKey: ['weekly-timetable', selectedTimetableId],
     queryFn: () => weeklyTimetableService.getById(selectedTimetableId!),
-    enabled: !!selectedTimetableId && (viewMode === 'view' || viewMode === 'edit'),
+    enabled: !!selectedTimetableId && viewMode === 'view',
   })
 
   // Generate templates mutation
@@ -108,23 +113,6 @@ export function TimetablePage() {
         const message = error?.response?.data?.detail || error?.message || 'Failed to publish timetable'
         toast.error(message)
       }
-    },
-  })
-
-  // Save cells mutation
-  const saveCellsMutation = useMutation({
-    mutationFn: async (cells: Array<{ day_of_week: number; time_slot: string; line1: string; line2: string; line3: string }>) => {
-      if (!selectedTimetableId) throw new Error('No timetable selected')
-      return timetableCellService.bulkUpdate(selectedTimetableId, cells)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['weekly-timetable'] })
-      queryClient.invalidateQueries({ queryKey: ['weekly-timetables'] })
-      toast.success('Timetable saved successfully')
-    },
-    onError: (error: any) => {
-      const message = error?.response?.data?.detail || error?.message || 'Failed to save timetable'
-      toast.error(message)
     },
   })
 
@@ -168,113 +156,28 @@ export function TimetablePage() {
     setViewMode('view')
   }
 
-  // Handle edit
-  const handleEdit = (timetableId: number) => {
-    const timetable = allWeeks.find(t => t.id === timetableId)
-    if (!timetable) return
-    
-    if (timetable.status === 'published') {
-      toast.error('Published timetables cannot be edited')
-      return
-    }
-    
-    setSelectedTimetableId(timetableId)
-    setViewMode('edit')
-  }
-
-  // Handle cell changes in editor
-  const handleCellChange = useCallback((
-    day: number,
-    timeSlot: string,
-    line1: string,
-    line2: string,
-    line3: string
-  ) => {
-    const key = `${day}-${timeSlot}`
-    setPendingCells(prev => {
-      const next = new Map(prev)
-      next.set(key, { line1, line2, line3 })
-      return next
-    })
-  }, [])
-
-  // Handle save
-  const handleSave = async () => {
-    if (!fullTimetable) {
-      toast.error('No timetable to save')
-      return
-    }
-
-    const DEFAULT_TIME_SLOTS = [
-      '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
-      '12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00',
-      '16:00-17:00', '17:00-18:00',
-    ]
-
-    const cells: Array<{ day_of_week: number; time_slot: string; line1: string; line2: string; line3: string }> = []
-    
-    // Get all existing cells from full timetable
-    const existingCellsMap = new Map<string, { line1: string; line2: string; line3: string }>()
-    if (fullTimetable.cells) {
-      fullTimetable.cells.forEach(cell => {
-        const key = `${cell.day_of_week}-${cell.time_slot}`
-        existingCellsMap.set(key, {
-          line1: cell.line1 || '',
-          line2: cell.line2 || '',
-          line3: cell.line3 || '',
-        })
-      })
-    }
-
-    for (let day = 0; day <= 5; day++) {
-      for (const slot of DEFAULT_TIME_SLOTS) {
-        const key = `${day}-${slot}`
-        const pendingData = pendingCells.get(key)
-        const existingData = existingCellsMap.get(key) || { line1: '', line2: '', line3: '' }
-        const cellData = pendingData || existingData
-        
-        // Always include cell (even if empty, to allow clearing)
-        cells.push({
-          day_of_week: day,
-          time_slot: slot,
-          ...cellData,
-        })
-      }
-    }
-
-    saveCellsMutation.mutate(cells, {
-      onSuccess: () => {
-        refetchTimetable()
-        setPendingCells(new Map())
-      }
-    })
-  }
-
-  // Handle publish with validation (exactly 3 periods per day)
+  // Handle publish with validation (exactly 3 scheduled periods per day,
+  // sourced from TimetableEntry — mirrors WeeklyTimetableViewSet.publish)
   const handlePublish = () => {
     if (!fullTimetable) {
       toast.error('No timetable to publish')
       return
     }
 
-    // Client-side validation: Check that each day has exactly 3 filled periods
-    const cells = fullTimetable.cells || []
-    
-    // Count filled periods per day (a period is filled if line1 has content)
+    const entries = (fullTimetable.entries || []).filter(entry => entry.status !== 'CANCELLED')
+
     const dayPeriodCounts: Record<number, number> = {
       0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0
     }
-    
-    cells.forEach(cell => {
-      if (cell.line1 && cell.line1.trim()) {
-        dayPeriodCounts[cell.day_of_week] = (dayPeriodCounts[cell.day_of_week] || 0) + 1
-      }
+
+    entries.forEach(entry => {
+      dayPeriodCounts[entry.day_of_week] = (dayPeriodCounts[entry.day_of_week] || 0) + 1
     })
-    
+
     // Check if each day has exactly 3 periods
     const daysWithWrongCount: string[] = []
     const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-    
+
     for (let day = 0; day <= 5; day++) {
       const count = dayPeriodCounts[day] || 0
       if (count !== 3) {
@@ -298,15 +201,7 @@ export function TimetablePage() {
   const handleCancel = () => {
     setViewMode('list')
     setSelectedTimetableId(null)
-    setPendingCells(new Map())
   }
-
-  // Update editing timetable when full timetable is fetched
-  useEffect(() => {
-    if (fullTimetable && viewMode === 'edit') {
-      setPendingCells(new Map()) // Reset pending cells when entering edit mode
-    }
-  }, [fullTimetable, viewMode])
 
   // Options for filters
   const batchOptions = [
@@ -361,7 +256,6 @@ export function TimetablePage() {
               value={filterBatch}
               onChange={handleBatchChange}
               placeholder="1. Select Batch..."
-              disabled={viewMode === 'edit'}
             />
             <Select
               data-testid="timetable-academic-period-select"
@@ -369,7 +263,7 @@ export function TimetablePage() {
               value={filterAcademicPeriod}
               onChange={handleAcademicPeriodChange}
               placeholder="2. Select Academic Period..."
-              disabled={!filterBatch || viewMode === 'edit' || generateTemplatesMutation.isPending}
+              disabled={!filterBatch || generateTemplatesMutation.isPending}
             />
           </div>
 
@@ -422,7 +316,7 @@ export function TimetablePage() {
                         const weekStart = parseISO(week.week_start_date)
                         const weekEnd = week.week_end_date ? parseISO(week.week_end_date) : new Date(weekStart.getTime() + 5 * 24 * 60 * 60 * 1000)
                         const weekRange = `${format(weekStart, 'MMM dd')} - ${format(weekEnd, 'MMM dd, yyyy')}`
-                        
+
                         return (
                           <div
                             key={week.id}
@@ -437,18 +331,7 @@ export function TimetablePage() {
                               </div>
                               <Badge variant="warning">Draft</Badge>
                             </div>
-                            <div className="mt-3 flex gap-2">
-                              <Button
-                                data-testid={`week-card-edit-${week.id}`}
-                                size="sm"
-                                variant="ghost"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleEdit(week.id)
-                                }}
-                              >
-                                Edit
-                              </Button>
+                            <div className="mt-3">
                               <Button
                                 data-testid={`week-card-view-${week.id}`}
                                 size="sm"
@@ -480,7 +363,7 @@ export function TimetablePage() {
                         const weekStart = parseISO(week.week_start_date)
                         const weekEnd = week.week_end_date ? parseISO(week.week_end_date) : new Date(weekStart.getTime() + 5 * 24 * 60 * 60 * 1000)
                         const weekRange = `${format(weekStart, 'MMM dd')} - ${format(weekEnd, 'MMM dd, yyyy')}`
-                        
+
                         return (
                           <div
                             key={week.id}
@@ -537,7 +420,6 @@ export function TimetablePage() {
               </div>
               {canEdit && fullTimetable.status === 'draft' && (
                 <div className="flex gap-2">
-                  <Button data-testid="timetable-view-edit-button" onClick={() => handleEdit(fullTimetable.id)}>Edit</Button>
                   <Button
                     data-testid="timetable-publish-button"
                     onClick={handlePublish}
@@ -548,52 +430,6 @@ export function TimetablePage() {
                   </Button>
                 </div>
               )}
-            </div>
-            <TimetableTableView timetable={fullTimetable} />
-            <EntriesPanel
-              weeklyTimetableId={fullTimetable.id}
-              batchId={fullTimetable.batch}
-              academicPeriodId={fullTimetable.academic_period}
-              canEdit={canEdit}
-              isDraft={fullTimetable.status === 'draft'}
-            />
-          </>
-        ) : viewMode === 'edit' && fullTimetable ? (
-          <>
-            {/* Edit Mode */}
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" onClick={handleCancel}>
-                  ← Back to List
-                </Button>
-                <Badge variant="warning">Draft - Editing</Badge>
-                <span className="text-sm text-gray-600">
-                  Week of {format(parseISO(fullTimetable.week_start_date), 'MMM dd')} - {format(parseISO(fullTimetable.week_end_date || fullTimetable.week_start_date), 'MMM dd, yyyy')}
-                </span>
-              </div>
-            </div>
-            <TimetableEditor
-              timetable={fullTimetable}
-              onCellChange={handleCellChange}
-            />
-            <div className="mt-4 flex gap-2">
-              <Button data-testid="timetable-save-button" onClick={handleSave} disabled={saveCellsMutation.isPending}>
-                {saveCellsMutation.isPending ? 'Saving...' : 'Save Changes'}
-              </Button>
-              <Button
-                data-testid="timetable-publish-button"
-                onClick={handlePublish}
-                variant="primary"
-                disabled={publishMutation.isPending || saveCellsMutation.isPending}
-              >
-                {publishMutation.isPending ? 'Publishing...' : 'Publish'}
-              </Button>
-              <Button data-testid="timetable-cancel-button" onClick={handleCancel} variant="ghost">
-                Cancel
-              </Button>
-            </div>
-            <div className="mt-2 text-sm text-gray-600">
-              <strong>Note:</strong> All 3 lines in every cell must be filled before publishing.
             </div>
             <EntriesPanel
               weeklyTimetableId={fullTimetable.id}

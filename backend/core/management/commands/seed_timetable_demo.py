@@ -15,10 +15,10 @@ to them, plus three WeeklyTimetable weeks:
   1. A DRAFT week (next week) with two TimetableEntry rows — used by the
      faculty spec to exercise "cancel entry" via EntriesPanel, and as a
      target for "add entry" via EntryForm.
-  2. A second DRAFT week (two weeks out) whose legacy TimetableCell grid
-     already satisfies the "exactly 3 filled periods per day" publish rule
-     — used by the faculty spec to exercise Publish without having to drive
-     54 grid text inputs through the UI first.
+  2. A second DRAFT week (two weeks out) with exactly 3 TimetableEntry rows
+     per day (18 total) already satisfying the "exactly 3 scheduled periods
+     per day" publish rule — used by the faculty spec to exercise Publish
+     without having to add 18 entries through the UI first.
   3. A PUBLISHED week (the current week) with TimetableEntry rows on two
      days that exclude today's weekday — used by the student spec so the
      "Today" tab reliably shows the empty state ("No classes scheduled for
@@ -39,7 +39,7 @@ from django.db import transaction
 
 from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Group, Program, Section
 from sims_backend.students.models import Student
-from sims_backend.timetable.models import TimetableCell, TimetableEntry, WeeklyTimetable
+from sims_backend.timetable.models import TimetableEntry, WeeklyTimetable
 
 User = get_user_model()
 
@@ -170,7 +170,7 @@ class Command(BaseCommand):
         publish_week = self._get_or_create_weekly_timetable(
             academic_period, batch, publish_week_start, "draft", pilot_faculty
         )
-        self._ensure_publishable_cells(publish_week)
+        self._ensure_publishable_entries(publish_week, section, group, pilot_faculty)
 
         today_weekday = today.weekday()  # 0=Mon..6=Sun
         candidate_days = [d for d in range(6) if d != today_weekday]
@@ -256,20 +256,15 @@ class Command(BaseCommand):
             entry.save()
             self.stdout.write(f"  ✓ Created timetable entry: day={day_of_week} {start}-{end} room={room}")
 
-    def _ensure_publishable_cells(self, weekly_timetable):
-        """Fill exactly 3 periods (time slots) per day with non-empty line1,
-        satisfying WeeklyTimetableViewSet.publish's 'exactly 3 periods per
-        day' validation — without needing to drive the grid UI."""
+    def _ensure_publishable_entries(self, weekly_timetable, section, group, created_by):
+        """Create exactly 3 TimetableEntry rows per day (18 total),
+        satisfying WeeklyTimetableViewSet.publish's 'exactly 3 scheduled
+        periods per day' validation — without needing to add 18 entries
+        through the UI."""
         publish_slots = DEFAULT_TIME_SLOTS[:3]
-        for day in range(6):
-            for slot in publish_slots:
-                TimetableCell.objects.get_or_create(
-                    weekly_timetable=weekly_timetable,
-                    day_of_week=day,
-                    time_slot=slot,
-                    defaults={
-                        "line1": "Timetable E2E Course",
-                        "line2": "Room 101",
-                        "line3": "Pilot Faculty",
-                    },
-                )
+        specs = [
+            (day, slot.split("-")[0], slot.split("-")[1], "Room 101")
+            for day in range(6)
+            for slot in publish_slots
+        ]
+        self._ensure_entries(weekly_timetable, section, group, created_by, specs)

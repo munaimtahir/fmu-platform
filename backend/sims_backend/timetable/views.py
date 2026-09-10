@@ -117,19 +117,16 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
                     {"detail": "You can only publish your own timetables"}, status=status.HTTP_403_FORBIDDEN
                 )
 
-        # NEW VALIDATION: Check that we have exactly 3 filled periods per day
-        cells = list(timetable.cells.all())
+        # VALIDATION: Check that we have exactly 3 scheduled periods per day.
+        # Sourced from TimetableEntry (the normalized model) rather than the
+        # legacy TimetableCell grid; CANCELLED entries don't count toward
+        # the period total.
+        entries = list(timetable.entries.exclude(status="CANCELLED"))
 
-        # Group cells by day and count periods with content
+        # Group entries by day and count periods
         day_period_counts = {}
         for day in range(6):  # Monday to Saturday (0-5)
-            filled_periods = 0
-            for cell in cells:
-                if cell.day_of_week == day:
-                    # A period is "filled" if line1 has content
-                    if cell.line1 and cell.line1.strip():
-                        filled_periods += 1
-            day_period_counts[day] = filled_periods
+            day_period_counts[day] = sum(1 for entry in entries if entry.day_of_week == day)
 
         # Check that each day has exactly 3 periods
         days_with_wrong_count = []

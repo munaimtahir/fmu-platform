@@ -1,15 +1,14 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { ColumnDef } from '@tanstack/react-table'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
-import { SimpleTable } from '@/components/ui/SimpleTable'
+import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Badge } from '@/components/ui/Badge'
-import { LoadingState } from '@/components/shared/LoadingState'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { usersApi, type AdminUser, type CreateUserData, type UpdateUserData } from '@/api/users'
 
 const ROLES = ['ADMIN', 'REGISTRAR', 'EXAMCELL', 'COORDINATOR', 'FACULTY', 'FINANCE', 'STUDENT', 'OFFICE_ASSISTANT']
@@ -139,6 +138,92 @@ export const UsersPage: React.FC = () => {
     }
   }
 
+  const columns = useMemo<ColumnDef<AdminUser>[]>(
+    () => [
+      {
+        accessorKey: 'username',
+        header: 'Username',
+      },
+      {
+        accessorKey: 'full_name',
+        header: 'Name',
+      },
+      {
+        accessorKey: 'email',
+        header: 'Email',
+      },
+      {
+        accessorKey: 'role',
+        header: 'Role',
+        cell: ({ row }) => <Badge variant="default">{row.original.role}</Badge>,
+      },
+      {
+        accessorKey: 'is_active',
+        header: 'Status',
+        cell: ({ row }) => (
+          <Badge variant={row.original.is_active ? 'success' : 'secondary'}>
+            {row.original.is_active ? 'Active' : 'Inactive'}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'last_login',
+        header: 'Last Login',
+        cell: ({ row }) => formatDate(row.original.last_login),
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const user = row.original
+          return (
+            <div className="flex gap-2">
+              <Button size="sm" variant="secondary" onClick={() => handleEdit(user)}>
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => handleResetPassword(user.id)}
+                disabled={resetPasswordMutation.isPending}
+              >
+                Reset Password
+              </Button>
+              {user.is_active ? (
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={() => deactivateMutation.mutate(user.id)}
+                  disabled={deactivateMutation.isPending}
+                >
+                  Deactivate
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => activateMutation.mutate(user.id)}
+                  disabled={activateMutation.isPending}
+                >
+                  Activate
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="danger"
+                onClick={() => handleDelete(user.id)}
+                disabled={deleteMutation.isPending}
+              >
+                Delete
+              </Button>
+            </div>
+          )
+        },
+      },
+    ],
+    [resetPasswordMutation.isPending, deactivateMutation.isPending, activateMutation.isPending, deleteMutation.isPending]
+  )
+
   return (
     <DashboardLayout>
       <PageShell title="User Management" description="Manage system users and their roles">
@@ -219,101 +304,7 @@ export const UsersPage: React.FC = () => {
                 </Button>
               </div>
 
-              {isLoading ? (
-                <LoadingState />
-              ) : users.length === 0 ? (
-                <EmptyState
-                  icon="👥"
-                  title="No users found"
-                  description="Create a new user to get started"
-                />
-              ) : (
-                <SimpleTable
-                  data={users}
-                  columns={[
-                    {
-                      key: 'username',
-                      label: 'Username',
-                    },
-                    {
-                      key: 'full_name',
-                      label: 'Name',
-                    },
-                    {
-                      key: 'email',
-                      label: 'Email',
-                    },
-                    {
-                      key: 'role',
-                      label: 'Role',
-                      render: (user: AdminUser) => (
-                        <Badge variant="default">{user.role}</Badge>
-                      ),
-                    },
-                    {
-                      key: 'is_active',
-                      label: 'Status',
-                      render: (user: AdminUser) => (
-                        <Badge variant={user.is_active ? 'success' : 'secondary'}>
-                          {user.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                      ),
-                    },
-                    {
-                      key: 'last_login',
-                      label: 'Last Login',
-                      render: (user: AdminUser) => formatDate(user.last_login),
-                    },
-                    {
-                      key: 'actions',
-                      label: 'Actions',
-                      render: (user: AdminUser) => (
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="secondary" onClick={() => handleEdit(user)}>
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => handleResetPassword(user.id)}
-                            disabled={resetPasswordMutation.isPending}
-                          >
-                            Reset Password
-                          </Button>
-                          {user.is_active ? (
-                            <Button
-                              size="sm"
-                              variant="danger"
-                              onClick={() => deactivateMutation.mutate(user.id)}
-                              disabled={deactivateMutation.isPending}
-                            >
-                              Deactivate
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="primary"
-                              onClick={() => activateMutation.mutate(user.id)}
-                              disabled={activateMutation.isPending}
-                            >
-                              Activate
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => handleDelete(user.id)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      ),
-                    },
-                  ]}
-                  keyField="id"
-                />
-              )}
+              <DataTable data={users} columns={columns} isLoading={isLoading} />
             </div>
           </Card>
 

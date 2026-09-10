@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { ColumnDef } from '@tanstack/react-table'
 import api from '@/api/axios'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { SimpleTable } from '@/components/ui/SimpleTable'
-import { Spinner } from '@/components/ui/Spinner'
+import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Alert } from '@/components/ui/Alert'
 import { Input } from '@/components/ui/Input'
 
@@ -116,60 +116,72 @@ export function AuditLog() {
     window.URL.revokeObjectURL(url)
   }
 
-  const columns = [
-    {
-      key: 'timestamp',
-      label: 'Timestamp',
-      render: (log: AuditLog) =>
-        new Date(log.timestamp).toLocaleString(),
-    },
-    { key: 'actor_username', label: 'Actor' },
-    {
-      key: 'method',
-      label: 'Method',
-      render: (log: AuditLog) => (
-        <span
-          className={`px-2 py-1 rounded text-xs font-medium ${
-            log.method === 'POST'
-              ? 'bg-green-100 text-green-800'
-              : log.method === 'PUT' || log.method === 'PATCH'
-                ? 'bg-blue-100 text-blue-800'
-                : log.method === 'DELETE'
-                  ? 'bg-red-100 text-red-800'
-                  : 'bg-gray-100 text-gray-800'
-          }`}
-        >
-          {log.method}
-        </span>
-      ),
-    },
-    {
-      key: 'path',
-      label: 'Path',
-      render: (log: AuditLog) => (
-        <span className="text-xs font-mono">{log.path}</span>
-      ),
-    },
-    {
-      key: 'status_code',
-      label: 'Status',
-      render: (log: AuditLog) => (
-        <span
-          className={`px-2 py-1 rounded text-xs font-medium ${
-            log.status_code >= 200 && log.status_code < 300
-              ? 'bg-green-100 text-green-800'
-              : log.status_code >= 400
-                ? 'bg-red-100 text-red-800'
-                : 'bg-yellow-100 text-yellow-800'
-          }`}
-        >
-          {log.status_code}
-        </span>
-      ),
-    },
-    { key: 'model', label: 'Model' },
-    { key: 'summary', label: 'Summary' },
-  ]
+  const columns = useMemo<ColumnDef<AuditLog>[]>(
+    () => [
+      {
+        id: 'timestamp',
+        header: 'Timestamp',
+        accessorFn: (log) => log.timestamp,
+        cell: ({ row }) => new Date(row.original.timestamp).toLocaleString(),
+      },
+      { accessorKey: 'actor_username', header: 'Actor' },
+      {
+        id: 'method',
+        header: 'Method',
+        accessorFn: (log) => log.method,
+        cell: ({ row }) => {
+          const log = row.original
+          return (
+            <span
+              className={`px-2 py-1 rounded text-xs font-medium ${
+                log.method === 'POST'
+                  ? 'bg-green-100 text-green-800'
+                  : log.method === 'PUT' || log.method === 'PATCH'
+                    ? 'bg-blue-100 text-blue-800'
+                    : log.method === 'DELETE'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
+              }`}
+            >
+              {log.method}
+            </span>
+          )
+        },
+      },
+      {
+        id: 'path',
+        header: 'Path',
+        accessorFn: (log) => log.path,
+        cell: ({ row }) => (
+          <span className="text-xs font-mono">{row.original.path}</span>
+        ),
+      },
+      {
+        id: 'status_code',
+        header: 'Status',
+        accessorFn: (log) => log.status_code,
+        cell: ({ row }) => {
+          const log = row.original
+          return (
+            <span
+              className={`px-2 py-1 rounded text-xs font-medium ${
+                log.status_code >= 200 && log.status_code < 300
+                  ? 'bg-green-100 text-green-800'
+                  : log.status_code >= 400
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-yellow-100 text-yellow-800'
+              }`}
+            >
+              {log.status_code}
+            </span>
+          )
+        },
+      },
+      { accessorKey: 'model', header: 'Model' },
+      { accessorKey: 'summary', header: 'Summary' },
+    ],
+    []
+  )
 
   return (
     <div className="p-6 space-y-6">
@@ -253,30 +265,14 @@ export function AuditLog() {
         </div>
       </Card>
 
-      {loading && (
-        <div className="flex justify-center py-8">
-          <Spinner size="lg" />
+      <Card>
+        <div className="p-4">
+          <h2 className="text-xl font-semibold mb-4">
+            Audit Log Entries ({logs.length})
+          </h2>
+          <DataTable data={logs} columns={columns} isLoading={loading} />
         </div>
-      )}
-
-      {!loading && logs.length > 0 && (
-        <Card>
-          <div className="p-4">
-            <h2 className="text-xl font-semibold mb-4">
-              Audit Log Entries ({logs.length})
-            </h2>
-            <SimpleTable data={logs} columns={columns} keyField="id" />
-          </div>
-        </Card>
-      )}
-
-      {!loading && logs.length === 0 && (
-        <Card>
-          <div className="p-4 text-center text-gray-600">
-            No audit logs found matching the filters
-          </div>
-        </Card>
-      )}
+      </Card>
     </div>
   )
 }

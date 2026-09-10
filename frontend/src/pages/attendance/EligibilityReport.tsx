@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { ColumnDef } from '@tanstack/react-table'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import api from '@/api/axios'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { SimpleTable } from '@/components/ui/SimpleTable'
+import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
 import { Input } from '@/components/ui/Input'
@@ -142,32 +143,40 @@ export function EligibilityReport() {
     )
   }
 
-  const columns = [
-    { key: 'reg_no', label: 'Reg No' },
-    { key: 'student_name', label: 'Student Name' },
-    { key: 'section_id', label: 'Section' },
-    { key: 'present_count', label: 'Present' },
-    { key: 'total_sessions', label: 'Total' },
-    {
-      key: 'percentage',
-      label: 'Attendance %',
-      render: (record: EligibilityRecord) => `${record.percentage.toFixed(1)}%`,
-    },
-    {
-      key: 'eligible',
-      label: 'Eligible',
-      render: (record: EligibilityRecord) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${record.eligible
-            ? 'bg-green-100 text-green-800'
-            : 'bg-red-100 text-red-800'
-            }`}
-        >
-          {record.eligible ? 'Eligible' : 'Not Eligible'}
-        </span>
-      ),
-    },
-  ]
+  const columns = useMemo<ColumnDef<EligibilityRecord>[]>(
+    () => [
+      { accessorKey: 'reg_no', header: 'Reg No' },
+      { accessorKey: 'student_name', header: 'Student Name' },
+      { accessorKey: 'section_id', header: 'Section' },
+      { accessorKey: 'present_count', header: 'Present' },
+      { accessorKey: 'total_sessions', header: 'Total' },
+      {
+        id: 'percentage',
+        header: 'Attendance %',
+        accessorFn: (record) => record.percentage,
+        cell: ({ row }) => `${row.original.percentage.toFixed(1)}%`,
+      },
+      {
+        id: 'eligible',
+        header: 'Eligible',
+        accessorFn: (record) => record.eligible,
+        cell: ({ row }) => {
+          const record = row.original
+          return (
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${record.eligible
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
+                }`}
+            >
+              {record.eligible ? 'Eligible' : 'Not Eligible'}
+            </span>
+          )
+        },
+      },
+    ],
+    []
+  )
 
   const eligibleCount = eligibilityData.filter((r) => r.eligible).length
   const ineligibleCount = eligibilityData.length - eligibleCount
@@ -276,11 +285,7 @@ export function EligibilityReport() {
                 <h2 className="text-xl font-semibold mb-4">
                   Eligibility Details
                 </h2>
-                <SimpleTable
-                  data={eligibilityData}
-                  columns={columns}
-                  keyField="student_id"
-                />
+                <DataTable data={eligibilityData} columns={columns} />
               </div>
             </Card>
           </>

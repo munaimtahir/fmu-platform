@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { ColumnDef } from '@tanstack/react-table'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
@@ -8,10 +9,8 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { TextArea } from '@/components/ui/TextArea'
 import { Switch } from '@/components/ui/Switch'
-import { SimpleTable } from '@/components/ui/SimpleTable'
+import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Badge } from '@/components/ui/Badge'
-import { LoadingState } from '@/components/shared/LoadingState'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { syllabusApi, type SyllabusItem, type CreateSyllabusItemData } from '@/api/syllabus'
 import { academicsNewService } from '@/services/academicsNew'
 
@@ -84,6 +83,10 @@ export const SyllabusManagerPage: React.FC = () => {
   })
 
   const syllabusItems = syllabusData?.results || []
+  const sortedSyllabusItems = useMemo(
+    () => [...syllabusItems].sort((a, b) => a.order_no - b.order_no),
+    [syllabusItems]
+  )
 
   // Create/Update mutation
   const saveMutation = useMutation({
@@ -195,6 +198,77 @@ export const SyllabusManagerPage: React.FC = () => {
     if (item.program_name) return `Program: ${item.program_name}`
     return 'N/A'
   }
+
+  const columns = useMemo<ColumnDef<SyllabusItem>[]>(
+    () => [
+      {
+        accessorKey: 'order_no',
+        header: 'Order',
+      },
+      {
+        accessorKey: 'title',
+        header: 'Title',
+      },
+      {
+        id: 'code',
+        header: 'Code',
+        accessorFn: (item) => item.code || '-',
+      },
+      {
+        id: 'anchor',
+        header: 'Anchor',
+        accessorFn: (item) => getAnchorDisplay(item),
+      },
+      {
+        accessorKey: 'is_active',
+        header: 'Status',
+        cell: ({ row }) => (
+          <Badge variant={row.original.is_active ? 'success' : 'secondary'}>
+            {row.original.is_active ? 'Active' : 'Inactive'}
+          </Badge>
+        ),
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const item = row.original
+          return (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => handleMoveUp(item)}
+                disabled={reorderMutation.isPending}
+              >
+                ↑
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => handleMoveDown(item)}
+                disabled={reorderMutation.isPending}
+              >
+                ↓
+              </Button>
+              <Button size="sm" variant="secondary" onClick={() => handleEdit(item)}>
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="danger"
+                onClick={() => handleDelete(item.id)}
+                disabled={deleteMutation.isPending}
+              >
+                Delete
+              </Button>
+            </div>
+          )
+        },
+      },
+    ],
+    [reorderMutation.isPending, deleteMutation.isPending]
+  )
 
   return (
     <DashboardLayout>
@@ -309,84 +383,11 @@ export const SyllabusManagerPage: React.FC = () => {
                 </Button>
               </div>
 
-              {isLoading ? (
-                <LoadingState />
-              ) : syllabusItems.length === 0 ? (
-                <EmptyState
-                  icon="📚"
-                  title="No syllabus items found"
-                  description="Create a new syllabus item to get started"
-                />
-              ) : (
-                <SimpleTable
-                  data={syllabusItems.sort((a, b) => a.order_no - b.order_no)}
-                  columns={[
-                    {
-                      key: 'order_no',
-                      label: 'Order',
-                    },
-                    {
-                      key: 'title',
-                      label: 'Title',
-                    },
-                    {
-                      key: 'code',
-                      label: 'Code',
-                      render: (item: SyllabusItem) => item.code || '-',
-                    },
-                    {
-                      key: 'anchor',
-                      label: 'Anchor',
-                      render: (item: SyllabusItem) => getAnchorDisplay(item),
-                    },
-                    {
-                      key: 'is_active',
-                      label: 'Status',
-                      render: (item: SyllabusItem) => (
-                        <Badge variant={item.is_active ? 'success' : 'secondary'}>
-                          {item.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                      ),
-                    },
-                    {
-                      key: 'actions',
-                      label: 'Actions',
-                      render: (item: SyllabusItem) => (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => handleMoveUp(item)}
-                            disabled={reorderMutation.isPending}
-                          >
-                            ↑
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => handleMoveDown(item)}
-                            disabled={reorderMutation.isPending}
-                          >
-                            ↓
-                          </Button>
-                          <Button size="sm" variant="secondary" onClick={() => handleEdit(item)}>
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => handleDelete(item.id)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      ),
-                    },
-                  ]}
-                  keyField="id"
-                />
-              )}
+              <DataTable
+                data={sortedSyllabusItems}
+                columns={columns}
+                isLoading={isLoading}
+              />
             </div>
           </Card>
 

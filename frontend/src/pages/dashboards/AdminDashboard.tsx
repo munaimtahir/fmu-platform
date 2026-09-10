@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useQueries } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
@@ -6,144 +6,90 @@ import { Badge } from '@/components/ui/Badge'
 import { useAuth } from '@/features/auth/useAuth'
 import { studentsService, programsService, coursesService, sectionsService, sessionsService, resultsService } from '@/services'
 
-/**
- * Admin dashboard statistics derived from list endpoints
- */
-interface AdminDashboardStats {
-  total_students: number
-  total_programs: number
-  total_courses: number
-  total_sections: number
-  total_sessions: number
-  published_results: number
-  draft_results: number
-  unavailable_stats: string[]
-}
+const getCount = (res: { count?: number; results?: unknown[] } | undefined): number =>
+  res?.count ?? res?.results?.length ?? 0
 
 export const AdminDashboard = () => {
   const { user } = useAuth()
-  const [stats, setStats] = useState<AdminDashboardStats>({
-    total_students: 0,
-    total_programs: 0,
-    total_courses: 0,
-    total_sections: 0,
-    total_sessions: 0,
-    published_results: 0,
-    draft_results: 0,
-    unavailable_stats: [],
+
+  // Fetch all counts in parallel using list endpoints with page_size=1 to minimize data transfer
+  // We only need the count field from paginated responses
+  const [
+    studentsQuery,
+    programsQuery,
+    coursesQuery,
+    sectionsQuery,
+    sessionsQuery,
+    publishedResultsQuery,
+    draftResultsQuery,
+  ] = useQueries({
+    queries: [
+      {
+        queryKey: ['students', 'count'],
+        queryFn: () => studentsService.getAll({ page: 1 }),
+      },
+      {
+        queryKey: ['programs', 'count'],
+        queryFn: () => programsService.getAll({ page: 1 }),
+      },
+      {
+        queryKey: ['courses', 'count'],
+        queryFn: () => coursesService.getAll({ page: 1 }),
+      },
+      {
+        queryKey: ['sections', 'count'],
+        queryFn: () => sectionsService.getAll({ page: 1 }),
+      },
+      {
+        queryKey: ['sessions', 'count'],
+        queryFn: () => sessionsService.getAll({ page: 1 }),
+      },
+      {
+        queryKey: ['results', 'count', 'PUBLISHED'],
+        queryFn: () => resultsService.getAll({ page: 1, status: 'PUBLISHED' }),
+      },
+      {
+        queryKey: ['results', 'count', 'DRAFT'],
+        queryFn: () => resultsService.getAll({ page: 1, status: 'DRAFT' }),
+      },
+    ],
   })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true)
-        setError(null)
+  const loading = [
+    studentsQuery,
+    programsQuery,
+    coursesQuery,
+    sectionsQuery,
+    sessionsQuery,
+    publishedResultsQuery,
+    draftResultsQuery,
+  ].some((q) => q.isLoading)
 
-        // Fetch all counts in parallel using list endpoints with page_size=1 to minimize data transfer
-        // We only need the count field from paginated responses
-        const [
-          studentsRes,
-          programsRes,
-          coursesRes,
-          sectionsRes,
-          sessionsRes,
-          publishedResultsRes,
-          draftResultsRes,
-        ] = await Promise.allSettled([
-          studentsService.getAll({ page: 1 }),
-          programsService.getAll({ page: 1 }),
-          coursesService.getAll({ page: 1 }),
-          sectionsService.getAll({ page: 1 }),
-          sessionsService.getAll({ page: 1 }),
-          resultsService.getAll({ page: 1, status: 'PUBLISHED' }),
-          resultsService.getAll({ page: 1, status: 'DRAFT' }),
-        ])
+  const stats = {
+    total_students: studentsQuery.isError ? 0 : getCount(studentsQuery.data),
+    total_programs: programsQuery.isError ? 0 : getCount(programsQuery.data),
+    total_courses: coursesQuery.isError ? 0 : getCount(coursesQuery.data),
+    total_sections: sectionsQuery.isError ? 0 : getCount(sectionsQuery.data),
+    total_sessions: sessionsQuery.isError ? 0 : getCount(sessionsQuery.data),
+    published_results: publishedResultsQuery.isError ? 0 : getCount(publishedResultsQuery.data),
+    draft_results: draftResultsQuery.isError ? 0 : getCount(draftResultsQuery.data),
+  }
 
-        const unavailable: string[] = []
-        const newStats: AdminDashboardStats = {
-          total_students: 0,
-          total_programs: 0,
-          total_courses: 0,
-          total_sections: 0,
-          total_sessions: 0,
-          published_results: 0,
-          draft_results: 0,
-          unavailable_stats: [],
-        }
-
-        // Extract counts from successful responses
-        if (studentsRes.status === 'fulfilled') {
-          newStats.total_students = studentsRes.value.count ?? studentsRes.value.results?.length ?? 0
-        } else {
-          unavailable.push('Total Students')
-        }
-
-        if (programsRes.status === 'fulfilled') {
-          newStats.total_programs = programsRes.value.count ?? programsRes.value.results?.length ?? 0
-        } else {
-          unavailable.push('Total Programs')
-        }
-
-        if (coursesRes.status === 'fulfilled') {
-          newStats.total_courses = coursesRes.value.count ?? coursesRes.value.results?.length ?? 0
-        } else {
-          unavailable.push('Total Courses')
-        }
-
-        if (sectionsRes.status === 'fulfilled') {
-          newStats.total_sections = sectionsRes.value.count ?? sectionsRes.value.results?.length ?? 0
-        } else {
-          unavailable.push('Total Sections')
-        }
-
-        if (sessionsRes.status === 'fulfilled') {
-          newStats.total_sessions = sessionsRes.value.count ?? sessionsRes.value.results?.length ?? 0
-        } else {
-          unavailable.push('Total Sessions')
-        }
-
-        if (publishedResultsRes.status === 'fulfilled') {
-          newStats.published_results = publishedResultsRes.value.count ?? publishedResultsRes.value.results?.length ?? 0
-        } else {
-          unavailable.push('Published Results')
-        }
-
-        if (draftResultsRes.status === 'fulfilled') {
-          newStats.draft_results = draftResultsRes.value.count ?? draftResultsRes.value.results?.length ?? 0
-        } else {
-          unavailable.push('Draft Results')
-        }
-
-        newStats.unavailable_stats = unavailable
-        setStats(newStats)
-      } catch (err) {
-        console.error('Failed to fetch dashboard stats:', err)
-        setError('Failed to load dashboard statistics')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchStats()
-  }, [])
+  const unavailable_stats: string[] = [
+    studentsQuery.isError && 'Total Students',
+    programsQuery.isError && 'Total Programs',
+    coursesQuery.isError && 'Total Courses',
+    sectionsQuery.isError && 'Total Sections',
+    sessionsQuery.isError && 'Total Sessions',
+    publishedResultsQuery.isError && 'Published Results',
+    draftResultsQuery.isError && 'Draft Results',
+  ].filter((v): v is string => Boolean(v))
 
   if (loading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <p className="text-gray-600">Loading dashboard...</p>
-        </div>
-      </DashboardLayout>
-    )
-  }
-
-  if (error) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <p className="text-red-600">{error}</p>
         </div>
       </DashboardLayout>
     )
@@ -265,11 +211,11 @@ export const AdminDashboard = () => {
         </div>
 
         {/* Show note if some stats are unavailable */}
-        {stats.unavailable_stats.length > 0 && (
+        {unavailable_stats.length > 0 && (
           <Card>
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800">
-                <strong>Note:</strong> Some statistics could not be loaded: {stats.unavailable_stats.join(', ')}.
+                <strong>Note:</strong> Some statistics could not be loaded: {unavailable_stats.join(', ')}.
                 Showing 0 for unavailable metrics.
               </p>
             </div>

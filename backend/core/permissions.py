@@ -86,6 +86,14 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
         "FACULTY": [
             "academics.courses.view",
             "academics.sections.view",
+            # Faculty need to browse batches/periods/groups read-only to
+            # drive the /timetable page (batch + academic period selectors,
+            # and the EntryForm's group dropdown) — without these, the
+            # shipped timetable editor is unusable for Faculty even though
+            # they are its primary intended user alongside Admin/Coordinator.
+            "academics.batches.view",
+            "academics.terms.view",
+            "academics.groups.view",
             "results.result_headers.view",
             "results.result_components.view",
             # Faculty can manage their own sessions/draft timetables/entries
@@ -122,8 +130,13 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
             "finance.",
         ],
         "COORDINATOR": [
-            # Coordinator is a designated timetable manager per RBAC matrix.
+            # Coordinator is a designated timetable manager per RBAC matrix,
+            # and (like Faculty) needs read-only batch/period/group access
+            # to drive the /timetable page's selectors.
             "timetable.",
+            "academics.batches.view",
+            "academics.terms.view",
+            "academics.groups.view",
         ],
         "STUDENT": [
             # Students may only ever read published schedules; queryset-level

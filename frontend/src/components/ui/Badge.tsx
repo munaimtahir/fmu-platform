@@ -9,6 +9,7 @@ export interface BadgeProps {
   variant?: BadgeVariant
   /** Additional CSS classes to apply to the badge. */
   className?: string
+  'data-testid'?: string
 }
 
 /**
@@ -24,10 +25,11 @@ export interface BadgeProps {
  * @example
  * <Badge variant="success">Active</Badge>
  */
-export const Badge: React.FC<BadgeProps> = ({ 
-  children, 
-  variant = 'default', 
-  className = '' 
+export const Badge: React.FC<BadgeProps> = ({
+  children,
+  variant = 'default',
+  className = '',
+  'data-testid': dataTestId,
 }) => {
   const variants = {
     default: 'bg-gray-100 text-gray-800',
@@ -41,6 +43,7 @@ export const Badge: React.FC<BadgeProps> = ({
 
   return (
     <span
+      data-testid={dataTestId}
       className={`
         inline-flex items-center px-2.5 py-0.5 rounded-full
         text-xs font-medium

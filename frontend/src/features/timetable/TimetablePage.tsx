@@ -356,6 +356,7 @@ export function TimetablePage() {
         <div className="mb-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select
+              data-testid="timetable-batch-select"
               options={batchOptions}
               value={filterBatch}
               onChange={handleBatchChange}
@@ -363,6 +364,7 @@ export function TimetablePage() {
               disabled={viewMode === 'edit'}
             />
             <Select
+              data-testid="timetable-academic-period-select"
               options={academicPeriodOptions}
               value={filterAcademicPeriod}
               onChange={handleAcademicPeriodChange}
@@ -424,6 +426,7 @@ export function TimetablePage() {
                         return (
                           <div
                             key={week.id}
+                            data-testid={`week-card-draft-${week.id}`}
                             className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
                             onClick={() => handleWeekSelect(week.id)}
                           >
@@ -436,6 +439,7 @@ export function TimetablePage() {
                             </div>
                             <div className="mt-3 flex gap-2">
                               <Button
+                                data-testid={`week-card-edit-${week.id}`}
                                 size="sm"
                                 variant="ghost"
                                 onClick={(e) => {
@@ -446,6 +450,7 @@ export function TimetablePage() {
                                 Edit
                               </Button>
                               <Button
+                                data-testid={`week-card-view-${week.id}`}
                                 size="sm"
                                 variant="primary"
                                 onClick={(e) => {
@@ -479,6 +484,7 @@ export function TimetablePage() {
                         return (
                           <div
                             key={week.id}
+                            data-testid={`week-card-published-${week.id}`}
                             className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer bg-green-50"
                             onClick={() => handleWeekSelect(week.id)}
                           >
@@ -491,6 +497,7 @@ export function TimetablePage() {
                             </div>
                             <div className="mt-3">
                               <Button
+                                data-testid={`week-card-view-${week.id}`}
                                 size="sm"
                                 variant="ghost"
                                 onClick={(e) => {
@@ -518,7 +525,10 @@ export function TimetablePage() {
                 <Button variant="ghost" onClick={handleCancel}>
                   ← Back to List
                 </Button>
-                <Badge variant={fullTimetable.status === 'published' ? 'success' : 'warning'}>
+                <Badge
+                  data-testid="timetable-status-badge"
+                  variant={fullTimetable.status === 'published' ? 'success' : 'warning'}
+                >
                   {fullTimetable.status === 'published' ? 'Published' : 'Draft'}
                 </Badge>
                 <span className="text-sm text-gray-600">
@@ -527,8 +537,13 @@ export function TimetablePage() {
               </div>
               {canEdit && fullTimetable.status === 'draft' && (
                 <div className="flex gap-2">
-                  <Button onClick={() => handleEdit(fullTimetable.id)}>Edit</Button>
-                  <Button onClick={handlePublish} variant="primary" disabled={publishMutation.isPending}>
+                  <Button data-testid="timetable-view-edit-button" onClick={() => handleEdit(fullTimetable.id)}>Edit</Button>
+                  <Button
+                    data-testid="timetable-publish-button"
+                    onClick={handlePublish}
+                    variant="primary"
+                    disabled={publishMutation.isPending}
+                  >
                     {publishMutation.isPending ? 'Publishing...' : 'Publish'}
                   </Button>
                 </div>
@@ -562,13 +577,18 @@ export function TimetablePage() {
               onCellChange={handleCellChange}
             />
             <div className="mt-4 flex gap-2">
-              <Button onClick={handleSave} disabled={saveCellsMutation.isPending}>
+              <Button data-testid="timetable-save-button" onClick={handleSave} disabled={saveCellsMutation.isPending}>
                 {saveCellsMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
-              <Button onClick={handlePublish} variant="primary" disabled={publishMutation.isPending || saveCellsMutation.isPending}>
+              <Button
+                data-testid="timetable-publish-button"
+                onClick={handlePublish}
+                variant="primary"
+                disabled={publishMutation.isPending || saveCellsMutation.isPending}
+              >
                 {publishMutation.isPending ? 'Publishing...' : 'Publish'}
               </Button>
-              <Button onClick={handleCancel} variant="ghost">
+              <Button data-testid="timetable-cancel-button" onClick={handleCancel} variant="ghost">
                 Cancel
               </Button>
             </div>

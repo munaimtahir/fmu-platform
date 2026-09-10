@@ -149,6 +149,7 @@ export const ROLE_ALLOWED_ROUTES: Record<RoleName, string[]> = {
     ROUTES.transcripts,
     ROUTES.results,
     ROUTES.analytics,
+    ROUTES.timetable,
   ],
   registrar: [
     ROUTES.protected.dashboard,
@@ -158,6 +159,7 @@ export const ROLE_ALLOWED_ROUTES: Record<RoleName, string[]> = {
     ROUTES.academics.batches,
     ROUTES.attendance.eligibility,
     ROUTES.transcripts,
+    ROUTES.timetable,
   ],
   faculty: [
     ROUTES.protected.dashboard,
@@ -168,6 +170,7 @@ export const ROLE_ALLOWED_ROUTES: Record<RoleName, string[]> = {
     ROUTES.courses,
     ROUTES.sections,
     ROUTES.results,
+    ROUTES.timetable,
   ],
   student: [
     ROUTES.protected.dashboard,
@@ -176,6 +179,7 @@ export const ROLE_ALLOWED_ROUTES: Record<RoleName, string[]> = {
     ROUTES.results,
     ROUTES.transcripts,
     ROUTES.finance.me,
+    ROUTES.timetable,
   ],
   examcell: [
     ROUTES.protected.dashboard,
@@ -240,6 +244,7 @@ export const ROLE_FORBIDDEN_ROUTES: Record<RoleName, string[]> = {
     ROUTES.protected.adminDashboard,
     ROUTES.protected.registrarDashboard,
     ROUTES.protected.facultyDashboard,
+    ROUTES.timetable,
   ],
   coordinator: [
     ROUTES.admin.users,
@@ -250,6 +255,7 @@ export const ROLE_FORBIDDEN_ROUTES: Record<RoleName, string[]> = {
     ROUTES.admin.users,
     ROUTES.admin.audit,
     ROUTES.admin.settings,
+    ROUTES.timetable,
   ],
 };
 

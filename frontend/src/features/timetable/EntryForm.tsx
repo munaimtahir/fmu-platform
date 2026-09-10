@@ -110,19 +110,20 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
     >
       <div className="md:col-span-2">
         <label className="text-xs text-gray-600">Section</label>
-        <Select options={sectionOptions} value={sectionId} onChange={setSectionId} />
+        <Select data-testid="entry-form-section-select" options={sectionOptions} value={sectionId} onChange={setSectionId} />
       </div>
       <div className="md:col-span-2">
         <label className="text-xs text-gray-600">Group</label>
-        <Select options={groupOptions} value={groupId} onChange={setGroupId} />
+        <Select data-testid="entry-form-group-select" options={groupOptions} value={groupId} onChange={setGroupId} />
       </div>
       <div>
         <label className="text-xs text-gray-600">Day</label>
-        <Select options={DAY_OPTIONS} value={dayOfWeek} onChange={setDayOfWeek} />
+        <Select data-testid="entry-form-day-select" options={DAY_OPTIONS} value={dayOfWeek} onChange={setDayOfWeek} />
       </div>
       <div>
         <label className="text-xs text-gray-600">Start</label>
         <input
+          data-testid="entry-form-start-time"
           type="time"
           className="w-full border rounded px-2 py-1.5 text-sm"
           value={startTime}
@@ -132,6 +133,7 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
       <div>
         <label className="text-xs text-gray-600">End</label>
         <input
+          data-testid="entry-form-end-time"
           type="time"
           className="w-full border rounded px-2 py-1.5 text-sm"
           value={endTime}
@@ -141,6 +143,7 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
       <div>
         <label className="text-xs text-gray-600">Room</label>
         <input
+          data-testid="entry-form-room"
           type="text"
           className="w-full border rounded px-2 py-1.5 text-sm"
           value={room}
@@ -149,7 +152,7 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
         />
       </div>
       <div className="md:col-span-6">
-        <Button type="submit" size="sm" disabled={createMutation.isPending}>
+        <Button data-testid="entry-form-submit-button" type="submit" size="sm" disabled={createMutation.isPending}>
           {createMutation.isPending ? 'Adding...' : 'Add Entry'}
         </Button>
       </div>

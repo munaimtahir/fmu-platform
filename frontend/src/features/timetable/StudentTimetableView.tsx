@@ -82,27 +82,52 @@ export function StudentTimetableView() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Button size="sm" variant={tab === 'today' ? 'primary' : 'ghost'} onClick={() => setTab('today')}>
+        <Button
+          data-testid="student-timetable-tab-today"
+          size="sm"
+          variant={tab === 'today' ? 'primary' : 'ghost'}
+          onClick={() => setTab('today')}
+        >
           Today
         </Button>
-        <Button size="sm" variant={tab === 'week' ? 'primary' : 'ghost'} onClick={() => setTab('week')}>
+        <Button
+          data-testid="student-timetable-tab-week"
+          size="sm"
+          variant={tab === 'week' ? 'primary' : 'ghost'}
+          onClick={() => setTab('week')}
+        >
           This Week
         </Button>
       </div>
 
       {tab === 'week' && (
         <div className="flex items-center gap-2 text-sm">
-          <Button size="sm" variant="ghost" onClick={() => setWeekOffset((w) => w - 1)}>
+          <Button
+            data-testid="student-timetable-prev-week"
+            size="sm"
+            variant="ghost"
+            onClick={() => setWeekOffset((w) => w - 1)}
+          >
             ← Previous Week
           </Button>
           <span className="text-gray-600">
             {data ? `Week of ${format(parseISO(data.week_start_date), 'MMM dd, yyyy')}` : ''}
           </span>
-          <Button size="sm" variant="ghost" onClick={() => setWeekOffset((w) => w + 1)}>
+          <Button
+            data-testid="student-timetable-next-week"
+            size="sm"
+            variant="ghost"
+            onClick={() => setWeekOffset((w) => w + 1)}
+          >
             Next Week →
           </Button>
           {weekOffset !== 0 && (
-            <Button size="sm" variant="ghost" onClick={() => setWeekOffset(0)}>
+            <Button
+              data-testid="student-timetable-back-to-current-week"
+              size="sm"
+              variant="ghost"
+              onClick={() => setWeekOffset(0)}
+            >
               Back to current week
             </Button>
           )}

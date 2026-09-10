@@ -18,4 +18,6 @@ data class LoginUiState(val identifier: String = "", val password: String = "", 
     fun updatePassword(value: String) { _state.value = _state.value.copy(password = value, error = null) }
     fun togglePassword() { _state.value = _state.value.copy(passwordVisible = !_state.value.passwordVisible) }
     fun login() { val current = _state.value; if (current.identifier.isBlank() || current.password.isBlank()) { _state.value = current.copy(error = "Enter your identifier and password."); return }; viewModelScope.launch { _state.value = current.copy(loading = true, error = null); when (val result = repository.login(current.identifier.trim(), current.password)) { is NetworkResult.Success -> _state.value = _state.value.copy(loading = false, user = result.value); is NetworkResult.Failure -> _state.value = _state.value.copy(loading = false, error = result.message) } } }
+    /** LoginViewModel is Activity-scoped and survives logout, so the consumed user must be cleared or the next session-expired transition would immediately re-authenticate from this stale value. */
+    fun consumeAuthenticated() { _state.value = LoginUiState() }
 }

@@ -10,10 +10,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SessionViewModel @Inject constructor(private val repository: AuthRepository): ViewModel() {
+class SessionViewModel @Inject constructor(private val repository: AuthRepository, private val expiryNotifier: SessionExpiryNotifier): ViewModel() {
     private val _state = MutableStateFlow<SessionState>(SessionState.Initializing)
     val state: StateFlow<SessionState> = _state.asStateFlow()
-    init { viewModelScope.launch { _state.value = repository.restore() } }
+    init {
+        viewModelScope.launch { _state.value = repository.restore() }
+        viewModelScope.launch { expiryNotifier.expired.collect { repository.logout(); _state.value = SessionState.Expired } }
+    }
     fun authenticated(user: pk.vexel.medsims.core.network.UserDto) { _state.value = SessionState.Authenticated(user) }
     fun logout() = viewModelScope.launch { repository.logout(); _state.value = SessionState.Unauthenticated }
 }

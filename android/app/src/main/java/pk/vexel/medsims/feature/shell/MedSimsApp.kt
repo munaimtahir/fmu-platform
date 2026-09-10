@@ -7,11 +7,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import pk.vexel.medsims.BuildConfig
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import pk.vexel.medsims.core.auth.SessionState
 import pk.vexel.medsims.core.auth.SessionViewModel
 import pk.vexel.medsims.core.network.UserDto
+import pk.vexel.medsims.feature.attendance.AttendanceScreen
 import pk.vexel.medsims.feature.auth.LoginScreen
+import pk.vexel.medsims.feature.home.HomeScreen
+import pk.vexel.medsims.feature.profile.ProfileScreen
+import pk.vexel.medsims.feature.results.ResultsScreen
+import pk.vexel.medsims.feature.timetable.TimetableScreen
 
 @Composable fun MedSimsApp(viewModel: SessionViewModel = hiltViewModel()) {
     val session by viewModel.state.collectAsState()
@@ -19,5 +28,37 @@ import pk.vexel.medsims.feature.auth.LoginScreen
         SessionState.Unauthenticated, SessionState.Expired -> LoginScreen(viewModel::authenticated)
         is SessionState.Authenticated -> Shell(state.user, viewModel::logout) }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable private fun Shell(user: UserDto, logout: () -> Unit) { var screen by remember { mutableStateOf("Home") }; Scaffold(topBar = { TopAppBar(title = { Text("Vexel MedSIMS") }) }, bottomBar = { NavigationBar { listOf("Home", "Profile", "Settings").forEach { destination -> NavigationBarItem(selected = screen == destination, onClick = { screen = destination }, icon = { Text(destination.take(1)) }, label = { Text(destination) }) } } }) { padding -> Column(Modifier.padding(padding).padding(24.dp)) { when (screen) { "Home" -> { Text("Welcome, ${user.full_name}", style = MaterialTheme.typography.headlineSmall); Text(user.role); Spacer(Modifier.height(20.dp)); Card { Text("Your role-aware MedSIMS workspace is ready for feature development.", Modifier.padding(16.dp)) } }; "Profile" -> { Text("Profile", style = MaterialTheme.typography.headlineSmall); Spacer(Modifier.height(12.dp)); Text("${user.full_name}\n${user.email}\n${user.username}\nRole: ${user.role}") }; else -> { Text("Settings", style = MaterialTheme.typography.headlineSmall); Spacer(Modifier.height(12.dp)); Text("Version ${BuildConfig.VERSION_NAME}"); Spacer(Modifier.height(20.dp)); Button(onClick = logout) { Text("Sign out") } } } } } }
+@Composable private fun Shell(user: UserDto, logout: () -> Unit) {
+    val navController = rememberNavController()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("Vexel MedSIMS") }) },
+        bottomBar = {
+            NavigationBar {
+                Destination.bottomNavItems.forEach { destination ->
+                    NavigationBarItem(
+                        selected = currentRoute == destination.route,
+                        onClick = { navController.navigate(destination.route) { launchSingleTop = true; restoreState = true; popUpTo(navController.graph.findStartDestination().id) { saveState = true } } },
+                        icon = { Text(destination.label.take(1)) },
+                        label = { Text(destination.label) },
+                    )
+                }
+            }
+        },
+    ) { padding ->
+        NavHost(navController, startDestination = Destination.Home.route, modifier = Modifier.padding(padding)) {
+            composable(Destination.Home.route) { HomeScreen(
+                onOpenTimetable = { navController.navigate(Destination.Timetable.route) { launchSingleTop = true } },
+                onOpenAttendance = { navController.navigate(Destination.Attendance.route) { launchSingleTop = true } },
+                onOpenResults = { navController.navigate(Destination.Results.route) { launchSingleTop = true } },
+            ) }
+            composable(Destination.Timetable.route) { TimetableScreen() }
+            composable(Destination.Attendance.route) { AttendanceScreen() }
+            composable(Destination.Results.route) { ResultsScreen() }
+            composable(Destination.Profile.route) { ProfileScreen(user, logout) }
+        }
+    }
+}

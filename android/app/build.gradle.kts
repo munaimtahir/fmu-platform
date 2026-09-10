@@ -72,6 +72,6 @@ dependencies {
     implementation(libs.retrofit); implementation(libs.retrofit.serialization); implementation(libs.okhttp); implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.serialization); implementation(libs.security.crypto)
     implementation(libs.errorprone.annotations)
-    testImplementation(libs.junit)
+    testImplementation(libs.junit); testImplementation(libs.mockwebserver); testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit); androidTestImplementation(libs.espresso); androidTestImplementation(platform(libs.compose.bom)); androidTestImplementation(libs.compose.ui.test)
 }

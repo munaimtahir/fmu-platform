@@ -13,7 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable fun LoginScreen(onAuthenticated: (pk.vexel.medsims.core.network.UserDto) -> Unit, viewModel: LoginViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
-    LaunchedEffect(state.user) { state.user?.let(onAuthenticated) }
+    LaunchedEffect(state.user) { state.user?.let { onAuthenticated(it); viewModel.consumeAuthenticated() } }
     Scaffold { padding -> Column(Modifier.fillMaxSize().padding(padding).padding(24.dp), verticalArrangement = Arrangement.Center) {
         Text("Vexel MedSIMS", style = MaterialTheme.typography.headlineMedium); Spacer(Modifier.height(8.dp)); Text("Secure academic management")
         Spacer(Modifier.height(32.dp)); OutlinedTextField(value = state.identifier, onValueChange = viewModel::updateIdentifier, label = { Text("Email or username") }, singleLine = true, modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Identifier" })

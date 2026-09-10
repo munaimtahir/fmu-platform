@@ -7,13 +7,11 @@
 # 4. Runs migrations and collects static files
 # 5. Verifies deployment
 #
-# WARNING: this script targets docker-compose.prod.yml and its "_prod"-suffixed
-# container names (vexel_medsims_backend_prod, etc). The automated deploy path
-# (ops/deploy.sh) uses docker-compose.yml instead, whose containers are NOT
-# _prod-suffixed. As of 2026-09, production is running containers created via
-# ops/deploy.sh (docker-compose.yml, non-_prod names) - running this script as-is
-# will not touch those containers. Run `docker ps` first and reconcile which
-# compose file matches the currently running stack before using this script.
+# Confirmed 2026-09-10 via direct production SSH: live Caddy
+# (sims.vexel.pk /api/* -> 127.0.0.1:18010) and `docker ps` both match
+# docker-compose.yml + .env (BACKEND_HOST_PORT=18010), running as
+# vexel_medsims_backend (non-_prod name), same as ops/deploy.sh.
+# docker-compose.prod.yml is NOT what's live and should not be used.
 
 set -e  # Exit on error
 
@@ -40,19 +38,19 @@ fi
 
 echo -e "${BLUE}Step 1: Stopping backend service...${NC}"
 echo "-----------------------------------"
-docker compose -f docker-compose.prod.yml stop backend
+docker compose -f docker-compose.yml stop backend
 echo -e "${GREEN}✓ Backend service stopped${NC}"
 
 echo ""
 echo -e "${BLUE}Step 2: Rebuilding backend container (no cache)...${NC}"
 echo "-----------------------------------"
-docker compose -f docker-compose.prod.yml build --no-cache backend
+docker compose -f docker-compose.yml build --no-cache backend
 echo -e "${GREEN}✓ Backend image built successfully${NC}"
 
 echo ""
 echo -e "${BLUE}Step 3: Starting backend service...${NC}"
 echo "-----------------------------------"
-docker compose -f docker-compose.prod.yml up -d backend
+docker compose -f docker-compose.yml up -d backend
 echo -e "${GREEN}✓ Backend service restarted${NC}"
 
 echo ""
@@ -61,22 +59,22 @@ echo "-----------------------------------"
 sleep 10
 
 # Check if database is ready
-if ! docker compose -f docker-compose.prod.yml ps | grep -q "vexel_medsims_db_prod.*Up"; then
+if ! docker compose -f docker-compose.yml ps | grep -q "vexel_medsims_db.*Up"; then
     echo -e "${RED}✗ Database container is not running${NC}"
-    echo "Check logs with: docker compose -f docker-compose.prod.yml logs db"
+    echo "Check logs with: docker compose -f docker-compose.yml logs db"
     exit 1
 fi
 
 echo ""
 echo -e "${BLUE}Step 5: Running database migrations...${NC}"
 echo "-----------------------------------"
-docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
+docker compose -f docker-compose.yml exec -T backend python manage.py migrate --noinput
 echo -e "${GREEN}✓ Migrations complete${NC}"
 
 echo ""
 echo -e "${BLUE}Step 6: Collecting static files...${NC}"
 echo "-----------------------------------"
-docker compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
+docker compose -f docker-compose.yml exec -T backend python manage.py collectstatic --noinput
 echo -e "${GREEN}✓ Static files collected${NC}"
 
 echo ""
@@ -84,16 +82,16 @@ echo -e "${BLUE}Step 7: Verifying deployment...${NC}"
 echo "-----------------------------------"
 
 # Check if backend container is running
-if docker compose -f docker-compose.prod.yml ps | grep -q "vexel_medsims_backend_prod.*Up"; then
+if docker compose -f docker-compose.yml ps | grep -q "vexel_medsims_backend.*Up"; then
     echo -e "${GREEN}✓ Backend container is running${NC}"
 else
     echo -e "${RED}✗ Backend container is not running${NC}"
-    echo "Check logs with: docker compose -f docker-compose.prod.yml logs backend"
+    echo "Check logs with: docker compose -f docker-compose.yml logs backend"
     exit 1
 fi
 
 # Test backend health endpoint
-HEALTH_RESPONSE=$(curl -s http://127.0.0.1:8010/api/health/ || echo "error")
+HEALTH_RESPONSE=$(curl -s http://127.0.0.1:18010/api/health/ || echo "error")
 if echo "$HEALTH_RESPONSE" | grep -q '"status"'; then
     echo -e "${GREEN}✓ Backend API is responding${NC}"
 else
@@ -107,9 +105,9 @@ echo "=========================================="
 echo ""
 echo "Service Status:"
 echo "---------------"
-docker compose -f docker-compose.prod.yml ps backend
+docker compose -f docker-compose.yml ps backend
 echo ""
-echo "Backend API URL: http://127.0.0.1:8010"
+echo "Backend API URL: http://127.0.0.1:18010"
 echo "Public API URLs:"
 echo "  - https://${PUBLIC_APP_DOMAIN:-sims.vexel.pk}/api/"
 echo "Admin Panel URLs:"
@@ -117,7 +115,7 @@ echo "  - https://${PUBLIC_APP_DOMAIN:-sims.vexel.pk}/admin/"
 echo ""
 echo "Useful Commands:"
 echo "----------------"
-echo "  View logs: docker compose -f docker-compose.prod.yml logs -f backend"
-echo "  Check status: docker compose -f docker-compose.prod.yml ps backend"
-echo "  Test health: curl http://127.0.0.1:8010/api/health/"
+echo "  View logs: docker compose -f docker-compose.yml logs -f backend"
+echo "  Check status: docker compose -f docker-compose.yml ps backend"
+echo "  Test health: curl http://127.0.0.1:18010/api/health/"
 echo ""

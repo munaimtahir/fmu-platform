@@ -92,16 +92,22 @@ Still open:
 
 ---
 
-## 7. Ops / deployment tooling — hardened, one item still open
+## 7. Ops / deployment tooling — RESOLVED (2026-09-10 follow-up session)
 
 **Done this follow-up session:**
 1. `ops/deploy.sh` now refuses to run as root (root has no deploy key for this repo; `munaim` has both the SSH key and docker-group membership).
 2. `ops/deploy.sh` now writes `APP_VERSION=$(git rev-parse HEAD)` into the deploy host's `.env` automatically before building, and force-recreates `backend`/`worker` after `up -d` so a new image actually takes effect.
 3. `ops/deploy.sh` now explicitly targets `-f docker-compose.yml` (confirmed the actually-live file).
 
-**Still open — `docker-compose.yml` vs `docker-compose.prod.yml`, more tangled than originally assumed.** The original note in this document claimed `docker-compose.prod.yml` was simply unused and recommended deleting it; investigation this session found that's **wrong** — root-level `backend.sh`, `frontend.sh`, and `both.sh` all actively target `docker-compose.prod.yml` and its `_prod`-suffixed container names (`vexel_medsims_backend_prod`, etc.). Meanwhile `ops/deploy.sh` (the automated path) uses `docker-compose.yml`, and production is currently running the **non**-`_prod` containers that path creates. So there are two live-looking deploy code paths that disagree about which containers are authoritative, and only one matches current production reality. This session added warning banners to `docker-compose.prod.yml`, `backend.sh`, `frontend.sh`, and `both.sh` flagging the mismatch rather than deleting anything, since the actual intended relationship between `ops/deploy.sh` (automated) and `backend.sh`/`frontend.sh`/`both.sh` (manual partial-deploy scripts) wasn't clear enough to safely collapse to one path without more context from whoever set them up. **Next session should:** confirm with whoever runs manual deploys whether `backend.sh`/`frontend.sh`/`both.sh` are still actually used, and either (a) update them to target `docker-compose.yml` to match reality, or (b) if `docker-compose.prod.yml`'s `_prod` naming is actually the intended target and `ops/deploy.sh`'s current container names are the drift, switch `ops/deploy.sh` to `-f docker-compose.prod.yml` instead — but that requires re-verifying the live Caddyfile/port mapping against `docker-compose.prod.yml` first, since the prior investigation only confirmed `docker-compose.yml` matches the *currently running* containers.
+**`docker-compose.yml` vs `docker-compose.prod.yml` conflict — resolved via direct production SSH access this session.** Connected to the production VM (`ssh test`, repo at `/home/munaim/srv/apps/fmu-platform`) and read ground truth directly:
+- `cat /etc/caddy/Caddyfile`'s `sims.vexel.pk` block proxies `/api/*` to `127.0.0.1:18010` and everything else to `127.0.0.1:18080`.
+- `docker ps` shows the running containers are `vexel_medsims_backend`/`vexel_medsims_frontend`/`vexel_medsims_db`/`vexel_medsims_redis`/`vexel_medsims_rq_worker` — **non**-`_prod` names — with backend published on `18010` and frontend on `18080`.
+- The VM's `.env` sets `BACKEND_HOST_PORT=18010` and `FRONTEND_HOST_PORT=18080`, which `docker-compose.yml` reads via `${BACKEND_HOST_PORT:-8010}` / `${FRONTEND_HOST_PORT:-8080}` — so `docker-compose.yml` + this `.env` override is exactly what's live and exactly matches Caddy on both ports.
+- `docker-compose.prod.yml` hardcodes backend `18010` (correct, by coincidence) but frontend `8080` (hardcoded, **not** `18080`) — it does not match live Caddy for the frontend path and is stale.
 
-None of the ops changes above were verified against a live deploy this session — no production host was reachable from this working directory. Only `bash -n` syntax-checks and `docker compose config` validation were run locally.
+**Conclusion: `docker-compose.yml` (with the VM's `.env` overrides) is canonical.** `ops/deploy.sh` already used it correctly. `backend.sh`, `frontend.sh`, and `both.sh` were updated this session to target `docker-compose.yml`, non-`_prod` container names, and ports `18010`/`18080` instead of `docker-compose.prod.yml`/`8010`/`8080`. `docker-compose.prod.yml`'s header comment was updated to flag it as not currently live; it was not deleted in case a genuinely separate `_prod` stack is wanted later — a call for whoever owns ops to make.
+
+**Not yet done:** a supervised end-to-end deploy dry run of the corrected `backend.sh`/`frontend.sh`/`both.sh` against production (config was validated with `bash -n` and reasoned through against live `docker ps`/Caddy output, but the scripts themselves were not executed this session to avoid disrupting a live, apparently-healthy stack outside a maintenance window). Recommend a supervised run of `both.sh` during a maintenance window as a final confirmation.
 
 ---
 

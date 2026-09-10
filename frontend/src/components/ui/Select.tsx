@@ -18,6 +18,7 @@ interface SelectProps {
   searchable?: boolean
   required?: boolean
   className?: string
+  'data-testid'?: string
 }
 
 export const Select = forwardRef<HTMLDivElement, SelectProps>(
@@ -35,6 +36,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       searchable = true,
       required = false,
       className = '',
+      'data-testid': dataTestId,
     },
     ref
   ) => {
@@ -95,6 +97,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         <div ref={containerRef} className="relative">
           <button
             id={id}
+            data-testid={dataTestId}
             type="button"
             onClick={handleToggle}
             disabled={disabled}

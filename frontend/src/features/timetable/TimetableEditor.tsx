@@ -131,6 +131,7 @@ export function TimetableEditor({ timetable, timeSlots = DEFAULT_TIME_SLOTS, onC
                     >
                       <div className="space-y-1">
                         <Input
+                          data-testid={`cell-${day.value}-${slot}-line1`}
                           type="text"
                           value={cell.line1}
                           onChange={(e) => handleInputChange(day.value, slot, 'line1', e.target.value)}
@@ -139,6 +140,7 @@ export function TimetableEditor({ timetable, timeSlots = DEFAULT_TIME_SLOTS, onC
                           maxLength={200}
                         />
                         <Input
+                          data-testid={`cell-${day.value}-${slot}-line2`}
                           type="text"
                           value={cell.line2}
                           onChange={(e) => handleInputChange(day.value, slot, 'line2', e.target.value)}
@@ -147,6 +149,7 @@ export function TimetableEditor({ timetable, timeSlots = DEFAULT_TIME_SLOTS, onC
                           maxLength={200}
                         />
                         <Input
+                          data-testid={`cell-${day.value}-${slot}-line3`}
                           type="text"
                           value={cell.line3}
                           onChange={(e) => handleInputChange(day.value, slot, 'line3', e.target.value)}

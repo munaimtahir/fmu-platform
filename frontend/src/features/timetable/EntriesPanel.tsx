@@ -61,22 +61,38 @@ export function EntriesPanel({ weeklyTimetableId, batchId, academicPeriodId, can
       ) : (
         <div className="space-y-2 mb-4">
           {entries.map((entry: TimetableEntry) => (
-            <div key={entry.id} className="flex items-center justify-between border rounded-lg px-3 py-2">
+            <div
+              key={entry.id}
+              data-testid={`entry-row-${entry.id}`}
+              className="flex items-center justify-between border rounded-lg px-3 py-2"
+            >
               <div>
-                <span className="font-medium">{DAY_NAMES[entry.day_of_week]}</span>{' '}
-                <span className="text-sm text-gray-600">
+                <span className="font-medium" data-testid={`entry-row-${entry.id}-day`}>
+                  {DAY_NAMES[entry.day_of_week]}
+                </span>{' '}
+                <span className="text-sm text-gray-600" data-testid={`entry-row-${entry.id}-time`}>
                   {entry.start_time}–{entry.end_time}
                 </span>{' '}
-                <span className="text-sm">
+                <span className="text-sm" data-testid={`entry-row-${entry.id}-course`}>
                   {entry.course_code} {entry.course_name}
                 </span>
                 {entry.group_name && <span className="text-xs text-gray-500 ml-2">({entry.group_name})</span>}
-                {entry.room && <span className="text-xs text-gray-500 ml-2">· {entry.room}</span>}
+                {entry.room && (
+                  <span className="text-xs text-gray-500 ml-2" data-testid={`entry-row-${entry.id}-room`}>
+                    · {entry.room}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={STATUS_VARIANT[entry.status] || 'default'}>{entry.status}</Badge>
+                <Badge
+                  data-testid={`entry-row-${entry.id}-status`}
+                  variant={STATUS_VARIANT[entry.status] || 'default'}
+                >
+                  {entry.status}
+                </Badge>
                 {canEdit && isDraft && entry.status !== 'CANCELLED' && (
                   <Button
+                    data-testid={`entry-row-${entry.id}-cancel-button`}
                     size="sm"
                     variant="ghost"
                     onClick={() => cancelMutation.mutate(entry.id)}

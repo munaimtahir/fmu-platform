@@ -99,6 +99,13 @@ jobs:
               echo "Seeding failed (continuing anyway)..."
             }
           }
+          # Seeds pilot_faculty/pilot_student (idempotent; creates them if
+          # missing) plus WeeklyTimetable/TimetableEntry fixture data for
+          # frontend/e2e/tests/faculty/timetable.spec.ts and
+          # frontend/e2e/tests/student/timetable.spec.ts.
+          docker compose exec -T backend python manage.py seed_timetable_demo || {
+            echo "Timetable demo seeding failed (continuing anyway)..."
+          }
 
       - name: Create ExamCell test user
         run: |

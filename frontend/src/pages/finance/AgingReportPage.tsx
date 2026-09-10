@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { financeService } from '@/services'
 import type { AgingReport } from '@/types'
@@ -65,7 +64,7 @@ export const AgingReportPage: React.FC = () => {
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Aging Report</h1>
@@ -159,6 +158,6 @@ export const AgingReportPage: React.FC = () => {
           </Card>
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

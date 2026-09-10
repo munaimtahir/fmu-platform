@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Input } from '@/components/ui/Input'
@@ -94,29 +93,29 @@ export const BatchesPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Batches">
           <LoadingState />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Batches">
           <ErrorState message="Failed to load batches" onRetry={() => refetch()} />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   const batches = data?.results || []
 
   return (
-    <DashboardLayout>
-      <PageShell 
+    <>
+      <PageShell
         title="Batches"
         description="Manage student batches"
         actions={
@@ -165,6 +164,6 @@ export const BatchesPage: React.FC = () => {
           }}
         />
       )}
-    </DashboardLayout>
+    </>
   )
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
-import { Badge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { listImportJobs as listStudentImportJobs } from '@/api/studentImport'
@@ -43,21 +43,6 @@ export function ImportHistoryTable({
     }
   }
 
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'COMMITTED':
-        return 'success'
-      case 'PREVIEWED':
-        return 'primary'
-      case 'FAILED':
-        return 'danger'
-      case 'PENDING':
-        return 'warning'
-      default:
-        return 'default'
-    }
-  }
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString()
   }
@@ -84,11 +69,7 @@ export function ImportHistoryTable({
         id: 'status',
         header: 'Status',
         accessorFn: (job) => job.status,
-        cell: ({ row }) => (
-          <Badge variant={getStatusBadgeVariant(row.original.status)}>
-            {row.original.status}
-          </Badge>
-        ),
+        cell: ({ row }) => <StatusBadge domain="import" status={row.original.status} />,
       },
       {
         id: 'total_rows',

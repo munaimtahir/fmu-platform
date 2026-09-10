@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute'
+import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Spinner } from '@/components/ui/Spinner'
 // LegacyRouteGuard removed - all legacy routes have been deleted
 
@@ -95,6 +96,12 @@ export const router = createBrowserRouter([
       </Suspense>
     ),
   },
+  {
+    // Layout route: renders the shared sidebar/topbar/breadcrumbs chrome once
+    // and mounts the active dashboard page into its <Outlet/>, instead of
+    // every page below wrapping itself in <DashboardLayout>.
+    element: <DashboardLayout />,
+    children: [
   {
     path: '/dashboard',
     element: (
@@ -472,6 +479,8 @@ export const router = createBrowserRouter([
         <TranscriptsPage />
       </ProtectedRoute>
     ),
+  },
+    ],
   },
   {
     path: '*',

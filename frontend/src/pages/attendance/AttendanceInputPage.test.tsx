@@ -3,10 +3,6 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AttendanceInputPage } from './AttendanceInputPage'
 
-vi.mock('@/components/layouts/DashboardLayout', () => ({
-  DashboardLayout: ({ children }: any) => <div>{children}</div>,
-}))
-
 vi.mock('@/services', () => ({
   attendanceInputService: {
     getRoster: vi.fn().mockResolvedValue({

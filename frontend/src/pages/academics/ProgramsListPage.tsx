@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Button } from '@/components/ui/Button'
@@ -109,28 +108,28 @@ export const ProgramsListPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Programs">
           <LoadingState />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Programs">
           <ErrorState message="Failed to load programs" onRetry={() => refetch()} />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   const programs = data || []
 
   return (
-    <DashboardLayout>
+    
       <PageShell
         title="Programs"
         description="Manage academic programs and their structure"
@@ -162,7 +161,7 @@ export const ProgramsListPage: React.FC = () => {
           <DataTable data={programs} columns={columns} />
         )}
       </PageShell>
-    </DashboardLayout>
+    
   )
 }
 

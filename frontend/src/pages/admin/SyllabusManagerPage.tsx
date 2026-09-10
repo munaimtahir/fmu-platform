@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -271,7 +270,7 @@ export const SyllabusManagerPage: React.FC = () => {
   )
 
   return (
-    <DashboardLayout>
+    
       <PageShell title="Syllabus Manager" description="Manage syllabus items for academic programs">
         <div className="space-y-6">
           {/* Filters */}
@@ -556,6 +555,6 @@ export const SyllabusManagerPage: React.FC = () => {
           )}
         </div>
       </PageShell>
-    </DashboardLayout>
+    
   )
 }

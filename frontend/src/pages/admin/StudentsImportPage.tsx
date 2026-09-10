@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Alert } from '@/components/ui/Alert'
@@ -133,7 +132,7 @@ export function StudentsImportPage() {
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Bulk CSV Import</h1>
@@ -295,6 +294,6 @@ export function StudentsImportPage() {
           </Card>
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

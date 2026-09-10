@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Input } from '@/components/ui/Input'
@@ -44,28 +43,28 @@ export const ExamsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Exams">
           <LoadingState />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Exams">
           <ErrorState message="Failed to load exams" onRetry={() => refetch()} />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   const exams = data?.results || []
 
   return (
-    <DashboardLayout>
+    
       <PageShell 
         title="Exams"
         description="Manage exams and exam components"
@@ -91,6 +90,6 @@ export const ExamsPage: React.FC = () => {
           />
         )}
       </PageShell>
-    </DashboardLayout>
+    
   )
 }

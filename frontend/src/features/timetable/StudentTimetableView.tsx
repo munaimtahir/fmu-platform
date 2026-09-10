@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { addDays, format, parseISO } from 'date-fns'
 import { Card } from '@/components/ui/Card'
-import { Badge, BadgeVariant } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
@@ -16,12 +16,6 @@ import { mobileTimetableService } from '@/services'
 import { MobileScheduleEntry } from '@/types'
 
 type Tab = 'today' | 'week'
-
-const STATUS_VARIANT: Record<string, BadgeVariant> = {
-  SCHEDULED: 'success',
-  CANCELLED: 'danger',
-  COMPLETED: 'default',
-}
 
 function EntryRow({ entry }: { entry: MobileScheduleEntry }) {
   const timeLabel = entry.start_time && entry.end_time
@@ -42,7 +36,7 @@ function EntryRow({ entry }: { entry: MobileScheduleEntry }) {
           {entry.room && <span>{entry.room}</span>}
         </div>
       </div>
-      <Badge variant={STATUS_VARIANT[entry.status] || 'default'}>{entry.status}</Badge>
+      <StatusBadge domain="timetable" status={entry.status} />
     </div>
   )
 }

@@ -3,9 +3,9 @@
  * Displays comprehensive statistics and analytics for the system
  */
 import { useQuery } from '@tanstack/react-query'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
-import { Badge, BadgeVariant } from '@/components/ui/Badge'
+import { Badge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Spinner } from '@/components/ui/Spinner'
 import { studentsService, coursesService, sectionsService, attendanceService } from '@/services'
 import { coursesKey } from '@/utils/queryKeys'
@@ -73,16 +73,16 @@ export function AnalyticsDashboard() {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      
         <div className="flex items-center justify-center min-h-[400px]">
           <Spinner size="lg" />
         </div>
-      </DashboardLayout>
+      
     )
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
@@ -159,17 +159,14 @@ export function AnalyticsDashboard() {
             <h3 className="text-lg font-semibold mb-4">Student Status Breakdown</h3>
             <div className="space-y-3">
               {Object.entries(studentsByStatus).map(([status, count]) => {
-                const percentage = stats.totalStudents > 0 
-                  ? ((count / stats.totalStudents) * 100).toFixed(1) 
+                const percentage = stats.totalStudents > 0
+                  ? ((count / stats.totalStudents) * 100).toFixed(1)
                   : 0
-                const variant: BadgeVariant = status === 'Active' ? 'success' :
-                              status === 'Graduated' ? 'primary' :
-                              status === 'Inactive' ? 'warning' : 'danger'
-                
+
                 return (
                   <div key={status} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Badge variant={variant}>{status}</Badge>
+                      <StatusBadge domain="student" status={status} />
                       <span className="text-gray-600">{count} students</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -277,6 +274,6 @@ export function AnalyticsDashboard() {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
+    
   )
 }

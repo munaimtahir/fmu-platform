@@ -10,7 +10,6 @@ import { Card } from '@/components/ui/Card'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { sessionsService, attendanceService } from '@/services'
 import type { Session, Attendance } from '@/types'
 
@@ -112,7 +111,7 @@ export function AttendanceDashboard() {
   const loading = view === 'records' ? attendanceLoading : summaryLoading
 
   return (
-    <DashboardLayout>
+    
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -248,6 +247,6 @@ export function AttendanceDashboard() {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

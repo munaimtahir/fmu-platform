@@ -1,13 +1,12 @@
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useAuth } from '@/features/auth/useAuth'
 
 export const RegistrarDashboard = () => {
   const { user } = useAuth()
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -86,14 +85,12 @@ export const RegistrarDashboard = () => {
                   <p className="text-sm font-medium text-gray-900">{student.name}</p>
                   <p className="text-xs text-gray-500">{student.id} • {student.program}</p>
                 </div>
-                <Badge variant={student.status === 'approved' ? 'success' : 'warning'}>
-                  {student.status}
-                </Badge>
+                <StatusBadge domain="student" status={student.status} />
               </div>
             ))}
           </div>
         </Card>
       </div>
-    </DashboardLayout>
+    
   )
 }

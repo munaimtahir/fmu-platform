@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { useAuth } from '@/features/auth/useAuth'
 import type { FinanceSummary, Voucher } from '@/types'
@@ -36,14 +35,14 @@ export const StudentFinancePage: React.FC = () => {
 
   if (!user?.student_id) {
     return (
-      <DashboardLayout>
+      
         <p className="text-gray-600">No student profile linked to this account.</p>
-      </DashboardLayout>
+      
     )
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Fees</h1>
@@ -116,6 +115,6 @@ export const StudentFinancePage: React.FC = () => {
           </>
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

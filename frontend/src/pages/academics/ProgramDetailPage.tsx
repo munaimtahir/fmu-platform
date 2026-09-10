@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -71,21 +70,21 @@ export const ProgramDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Program Details">
           <LoadingState />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   if (error || !program) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Program Details">
           <ErrorState message="Failed to load program" onRetry={() => refetch()} />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
@@ -93,7 +92,7 @@ export const ProgramDetailPage: React.FC = () => {
   const canGeneratePeriods = program.is_finalized && (!periods || periods.length === 0)
 
   return (
-    <DashboardLayout>
+    
       <PageShell
         title={program.name}
         description={program.description}
@@ -303,7 +302,7 @@ export const ProgramDetailPage: React.FC = () => {
           )}
         </div>
       </PageShell>
-    </DashboardLayout>
+    
   )
 }
 

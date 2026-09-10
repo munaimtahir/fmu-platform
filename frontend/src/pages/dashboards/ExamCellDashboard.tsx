@@ -1,13 +1,13 @@
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useAuth } from '@/features/auth/useAuth'
 
 export const ExamCellDashboard = () => {
   const { user } = useAuth()
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -108,14 +108,12 @@ export const ExamCellDashboard = () => {
                   <p className="text-sm font-medium text-gray-900">{result.course} - {result.type}</p>
                   <p className="text-xs text-gray-500">Grades submitted: {result.submitted}</p>
                 </div>
-                <Badge variant={result.status === 'ready' ? 'success' : 'warning'}>
-                  {result.status}
-                </Badge>
+                <StatusBadge domain="results" status={result.status} />
               </div>
             ))}
           </div>
         </Card>
       </div>
-    </DashboardLayout>
+    
   )
 }

@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { financeService } from '@/services'
 import type { CollectionReport } from '@/types'
@@ -54,7 +53,7 @@ export const CollectionReportPage: React.FC = () => {
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Daily Collection Report</h1>
@@ -163,6 +162,6 @@ export const CollectionReportPage: React.FC = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

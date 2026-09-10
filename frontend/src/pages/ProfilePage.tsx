@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/features/auth/useAuth'
 import { changePassword } from '@/api/auth'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -82,13 +81,13 @@ export const ProfilePage: React.FC = () => {
 
   if (!user) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Profile">
           <div className="text-center py-12">
             <p className="text-gray-500">User information not available</p>
           </div>
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
@@ -102,7 +101,7 @@ export const ProfilePage: React.FC = () => {
   ]
 
   return (
-    <DashboardLayout>
+    
       <PageShell 
         title="My Profile"
         description="View and manage your account information"
@@ -283,6 +282,6 @@ export const ProfilePage: React.FC = () => {
           </Card>
         )}
       </PageShell>
-    </DashboardLayout>
+    
   )
 }

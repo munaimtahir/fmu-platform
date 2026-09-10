@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Alert } from '@/components/ui/Alert'
 import { useAuth } from '@/features/auth/useAuth'
 import { env } from '@/lib/env'
@@ -53,7 +53,7 @@ export const DashboardHome: React.FC = () => {
   }, [])
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-8">
         {/* Welcome Section */}
         <div>
@@ -72,9 +72,11 @@ export const DashboardHome: React.FC = () => {
               System Status
             </h2>
             {health && (
-              <Badge variant={health.status === 'ok' ? 'success' : 'danger'}>
-                {health.status === 'ok' ? 'Operational' : 'Issues Detected'}
-              </Badge>
+              <StatusBadge
+                domain="health"
+                status={health.status}
+                label={health.status === 'ok' ? 'Operational' : 'Issues Detected'}
+              />
             )}
           </div>
           
@@ -186,6 +188,6 @@ export const DashboardHome: React.FC = () => {
           </Card>
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

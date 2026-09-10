@@ -1,32 +1,23 @@
 import React, { useState, useEffect } from 'react'
+import { Outlet } from 'react-router-dom'
 import { Sidebar } from '../layout/Sidebar'
 import { Topbar } from '../layout/Topbar'
 import { Breadcrumbs } from '../layout/Breadcrumbs'
 import { ImpersonationBanner } from '../admin/ImpersonationBanner'
 
-export interface DashboardLayoutProps {
-  /** The content to be rendered within the layout. */
-  children: React.ReactNode
-}
-
 /**
  * `DashboardLayout` provides the main structure for the application's dashboard.
  *
- * This component includes a responsive sidebar and a top bar, creating a
- * consistent and user-friendly layout for all dashboard pages. It manages
- * the state of the sidebar (open/closed) and adapts to different screen sizes.
+ * This is a router-level layout route: it renders the shared chrome
+ * (sidebar, topbar, breadcrumbs) once and lets React Router mount the
+ * active page into its `<Outlet/>`, instead of every page wrapping itself
+ * in this component individually. It manages the state of the sidebar
+ * (open/closed) and adapts to different screen sizes.
  *
  * @component
- * @param {DashboardLayoutProps} props The props for the component.
- * @param {React.ReactNode} props.children The content to be rendered inside the layout.
  * @returns {React.ReactElement} The rendered `DashboardLayout` component.
- *
- * @example
- * <DashboardLayout>
- *   <p>This is the dashboard content.</p>
- * </DashboardLayout>
  */
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+export const DashboardLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
     // Load sidebar state from localStorage
     const saved = localStorage.getItem('sidebarOpen')
@@ -68,7 +59,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto">
             <Breadcrumbs />
-            {children}
+            <Outlet />
           </div>
         </main>
       </div>

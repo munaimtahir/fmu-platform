@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Input } from '@/components/ui/Input'
@@ -91,29 +90,29 @@ export const AcademicPeriodsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Academic Periods">
           <LoadingState />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Academic Periods">
           <ErrorState message="Failed to load academic periods" onRetry={() => refetch()} />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   const periods = Array.isArray(data) ? data : []
 
   return (
-    <DashboardLayout>
-      <PageShell 
+    <>
+      <PageShell
         title="Academic Periods"
         description="Manage academic periods and terms"
         actions={
@@ -162,6 +161,6 @@ export const AcademicPeriodsPage: React.FC = () => {
           }}
         />
       )}
-    </DashboardLayout>
+    </>
   )
 }

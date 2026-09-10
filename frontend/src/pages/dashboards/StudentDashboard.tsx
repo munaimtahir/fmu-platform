@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
@@ -45,17 +44,17 @@ export const StudentDashboard = () => {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      
         <div className="flex items-center justify-center min-h-[400px]">
           <Spinner size="lg" />
         </div>
-      </DashboardLayout>
+      
     )
   }
 
   if (error || stats?.message) {
     return (
-      <DashboardLayout>
+      
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -69,12 +68,12 @@ export const StudentDashboard = () => {
             )}
           </Alert>
         </div>
-      </DashboardLayout>
+      
     )
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -201,6 +200,6 @@ export const StudentDashboard = () => {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
+    
   )
 }

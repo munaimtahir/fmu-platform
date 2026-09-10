@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { sessionsService, academicsService } from '@/services'
+import { academicPeriodsKey, groupsKey, departmentsKey } from '@/utils/queryKeys'
 import { Session } from '@/types'
 
 const sessionSchema = z.object({
@@ -41,17 +42,17 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
 
   // Fetch dropdown data
   const { data: academicPeriods } = useQuery({
-    queryKey: ['academicPeriods'],
+    queryKey: academicPeriodsKey(),
     queryFn: () => academicsService.getAcademicPeriods(),
   })
 
   const { data: groups } = useQuery({
-    queryKey: ['groups'],
+    queryKey: groupsKey(),
     queryFn: () => academicsService.getGroups(),
   })
 
   const { data: departments } = useQuery({
-    queryKey: ['departments'],
+    queryKey: departmentsKey(),
     queryFn: () => academicsService.getDepartments(),
   })
 

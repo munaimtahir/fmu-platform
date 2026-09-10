@@ -12,6 +12,7 @@ import { Select } from '@/components/ui/Select'
 import { Badge } from '@/components/ui/Badge'
 import { useAuth } from '@/features/auth/useAuth'
 import { weeklyTimetableService, academicsService, batchesService } from '@/services'
+import { academicPeriodsKey } from '@/utils/queryKeys'
 import { StudentTimetableView } from './StudentTimetableView'
 import { EntriesPanel } from './EntriesPanel'
 
@@ -43,7 +44,7 @@ export function TimetablePage() {
   })
 
   const { data: academicPeriods } = useQuery({
-    queryKey: ['academicPeriods'],
+    queryKey: academicPeriodsKey(),
     queryFn: () => academicsService.getAcademicPeriods(),
     enabled: !!filterBatch, // Only fetch when batch is selected
   })

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import api from '@/api/axios'
 import { academicsService, timetableEntryService } from '@/services'
+import { groupsKey } from '@/utils/queryKeys'
 
 // The shared `sectionsService`/`Section` type target a stale, mismatched
 // shape (course/term/teacher/capacity) that doesn't match the actual
@@ -58,7 +59,7 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
   })
 
   const { data: groups } = useQuery({
-    queryKey: ['academic-groups', batchId],
+    queryKey: groupsKey(batchId),
     queryFn: () => academicsService.getGroups({ batch: batchId }),
   })
 

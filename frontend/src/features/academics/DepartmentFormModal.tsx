@@ -6,6 +6,7 @@ import { TextArea } from '@/components/ui/TextArea'
 import { Select } from '@/components/ui/Select'
 import { Modal } from '@/components/ui/Modal'
 import { academicsNewService, type Department } from '@/services/academicsNew'
+import { departmentsKey } from '@/utils/queryKeys'
 
 interface DepartmentFormModalProps {
   department?: Department | null
@@ -20,7 +21,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({ depart
   const [parent, setParent] = useState<number | ''>('')
 
   const { data: departments } = useQuery({
-    queryKey: ['academics-departments'],
+    queryKey: departmentsKey(),
     queryFn: () => academicsNewService.getDepartments(),
   })
 
@@ -36,7 +37,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({ depart
   const createMutation = useMutation({
     mutationFn: (data: any) => academicsNewService.createDepartment(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['academics-departments'] })
+      queryClient.invalidateQueries({ queryKey: departmentsKey() })
       onClose()
     },
   })
@@ -44,7 +45,7 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({ depart
   const updateMutation = useMutation({
     mutationFn: (data: any) => academicsNewService.updateDepartment(department!.id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['academics-departments'] })
+      queryClient.invalidateQueries({ queryKey: departmentsKey() })
       onClose()
     },
   })

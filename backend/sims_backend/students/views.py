@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -46,6 +47,8 @@ class StudentViewSet(viewsets.ModelViewSet):
             self.required_tasks = ["students.students.delete"]
         elif self.action == "placement":
             self.required_tasks = ["students.students.manage_placement"]
+        elif self.action == "stats":
+            self.required_tasks = ["students.students.view"]
         return super().get_permissions()
 
     def get_queryset(self):
@@ -85,6 +88,28 @@ class StudentViewSet(viewsets.ModelViewSet):
         student.save()
 
         return Response(StudentSerializer(student).data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"], url_path="stats")
+    def stats(self, request):
+        """Aggregate student counts by status, computed in the database.
+
+        Avoids paging through the full student list client-side just to
+        derive a status breakdown (the default list endpoint returns a
+        single page of results).
+        """
+        queryset = self.get_queryset()
+        total = queryset.count()
+        by_status = {
+            row["status"]: row["count"] for row in queryset.values("status").annotate(count=Count("id"))
+        }
+
+        return Response(
+            {
+                "total": total,
+                "by_status": by_status,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class LeavePeriodViewSet(viewsets.ModelViewSet):

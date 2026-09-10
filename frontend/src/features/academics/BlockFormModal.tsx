@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Modal } from '@/components/ui/Modal'
 import { academicsNewService, type LearningBlock } from '@/services/academicsNew'
+import { departmentsKey } from '@/utils/queryKeys'
 
 interface BlockFormModalProps {
   block?: LearningBlock | null
@@ -28,7 +29,7 @@ export const BlockFormModal: React.FC<BlockFormModalProps> = ({
   const [subDepartment, setSubDepartment] = useState<number | ''>('')
 
   const { data: departments } = useQuery({
-    queryKey: ['academics-departments'],
+    queryKey: departmentsKey(),
     queryFn: () => academicsNewService.getDepartments(),
   })
 

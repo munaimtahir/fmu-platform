@@ -44,6 +44,9 @@ echo -e "${GREEN}✓ Frontend service stopped${NC}"
 echo ""
 echo -e "${BLUE}Step 2: Rebuilding frontend container (no cache)...${NC}"
 echo "-----------------------------------"
+PRE_DEPLOY_FRONTEND_IMAGE=$(docker inspect --format='{{.Image}}' vexel_medsims_frontend 2>/dev/null || echo "unavailable")
+echo -e "${YELLOW}Pre-rebuild image ID (frontend): ${PRE_DEPLOY_FRONTEND_IMAGE}${NC}"
+echo "  (keep this — needed to revert manually if this deploy goes wrong)"
 docker compose -f docker-compose.yml build --no-cache frontend
 echo -e "${GREEN}✓ Frontend image built successfully${NC}"
 

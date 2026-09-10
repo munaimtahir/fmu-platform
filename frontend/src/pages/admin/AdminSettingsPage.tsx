@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -121,16 +120,16 @@ export const AdminSettingsPage: React.FC = () => {
 
   if (keysLoading || settingsLoading) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="System Settings" description="Configure system behavior">
           <LoadingState />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   return (
-    <DashboardLayout>
+    
       <PageShell title="System Settings" description="Configure system behavior">
         <div className="space-y-6">
           {Object.entries(groupedKeys).map(([category, keys]) => (
@@ -235,6 +234,6 @@ export const AdminSettingsPage: React.FC = () => {
           ))}
         </div>
       </PageShell>
-    </DashboardLayout>
+    
   )
 }

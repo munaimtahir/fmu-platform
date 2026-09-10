@@ -1,11 +1,10 @@
 import React, { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Input } from '@/components/ui/Input'
-import { Badge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
@@ -46,9 +45,7 @@ export const ResultsPage: React.FC = () => {
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => (
-          <Badge variant={row.original.status === 'PUBLISHED' || row.original.status === 'FROZEN' ? 'success' : 'warning'}>
-            {row.original.status}
-          </Badge>
+          <StatusBadge domain="results" status={row.original.status} />
         ),
       },
     ],
@@ -57,28 +54,28 @@ export const ResultsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Results">
           <LoadingState />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Results">
           <ErrorState message="Failed to load results" onRetry={() => refetch()} />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   const results = data?.results || []
 
   return (
-    <DashboardLayout>
+    
       <PageShell 
         title="Results"
         description="View and manage student results"
@@ -104,6 +101,6 @@ export const ResultsPage: React.FC = () => {
           />
         )}
       </PageShell>
-    </DashboardLayout>
+    
   )
 }

@@ -6,11 +6,10 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import toast from 'react-hot-toast'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Badge, BadgeVariant } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { studentsService } from '@/services'
 import { Student } from '@/types'
 import { StudentForm } from './StudentForm'
@@ -80,10 +79,7 @@ export function StudentsPage() {
         header: 'Status',
         cell: ({ row }) => {
           const status = row.getValue('status') as string
-          const variant: BadgeVariant = status === 'Active' ? 'success' :
-                        status === 'Inactive' ? 'warning' : 
-                        status === 'Graduated' ? 'info' : 'danger'
-          return <Badge variant={variant}>{status}</Badge>
+          return <StatusBadge domain="student" status={status} />
         },
       },
       {
@@ -113,7 +109,7 @@ export function StudentsPage() {
   )
 
   return (
-    <DashboardLayout>
+    
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Students</h1>
@@ -154,6 +150,6 @@ export function StudentsPage() {
           />
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

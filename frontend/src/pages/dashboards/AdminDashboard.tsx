@@ -1,7 +1,6 @@
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
@@ -139,16 +138,16 @@ export const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      
         <div className="flex items-center justify-center h-64">
           <p className="text-gray-600">Loading dashboard...</p>
         </div>
-      </DashboardLayout>
+      
     )
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -414,6 +413,6 @@ export const AdminDashboard = () => {
           </div>
         </Card>
       </div>
-    </DashboardLayout>
+    
   )
 }

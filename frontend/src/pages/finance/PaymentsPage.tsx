@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { ColumnDef } from '@tanstack/react-table'
@@ -101,7 +100,7 @@ export const PaymentsPage: React.FC = () => {
   ]
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
@@ -166,6 +165,6 @@ export const PaymentsPage: React.FC = () => {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

@@ -5,7 +5,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { sessionsService, attendanceInputService, attendanceService } from '@/services'
@@ -165,7 +164,7 @@ export function BulkAttendancePage() {
   }, [roster, statusMap])
 
   return (
-    <DashboardLayout>
+    
       <div className="container mx-auto py-6 px-4">
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2">Bulk Attendance Marking</h1>
@@ -345,6 +344,6 @@ export function BulkAttendancePage() {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
+    
   )
 }

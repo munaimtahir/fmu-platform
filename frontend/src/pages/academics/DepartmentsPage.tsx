@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Input } from '@/components/ui/Input'
@@ -86,29 +85,29 @@ export const DepartmentsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Departments">
           <LoadingState />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Departments">
           <ErrorState message="Failed to load departments" onRetry={() => refetch()} />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   const departments = Array.isArray(data) ? data : []
 
   return (
-    <DashboardLayout>
-      <PageShell 
+    <>
+      <PageShell
         title="Departments"
         description="Manage academic departments with hierarchical structure"
         actions={
@@ -157,6 +156,6 @@ export const DepartmentsPage: React.FC = () => {
           }}
         />
       )}
-    </DashboardLayout>
+    </>
   )
 }

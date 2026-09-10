@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -48,7 +47,7 @@ export const ProgramFormPage: React.FC = () => {
   }
 
   return (
-    <DashboardLayout>
+    
       <PageShell
         title="Create Program"
         description="Create a new academic program"
@@ -126,7 +125,7 @@ export const ProgramFormPage: React.FC = () => {
           </form>
         </Card>
       </PageShell>
-    </DashboardLayout>
+    
   )
 }
 

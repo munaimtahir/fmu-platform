@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -225,7 +224,7 @@ export const UsersPage: React.FC = () => {
   )
 
   return (
-    <DashboardLayout>
+    
       <PageShell title="User Management" description="Manage system users and their roles">
         <div className="space-y-6">
           {/* Filters */}
@@ -450,6 +449,6 @@ export const UsersPage: React.FC = () => {
           )}
         </div>
       </PageShell>
-    </DashboardLayout>
+    
   )
 }

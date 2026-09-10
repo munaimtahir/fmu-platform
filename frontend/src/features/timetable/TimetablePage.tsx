@@ -6,10 +6,10 @@ import { useState, useMemo, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
 import toast from 'react-hot-toast'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { Badge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useAuth } from '@/features/auth/useAuth'
 import { weeklyTimetableService, academicsService, batchesService } from '@/services'
 import { academicPeriodsKey } from '@/utils/queryKeys'
@@ -228,19 +228,19 @@ export function TimetablePage() {
 
   if (isStudent) {
     return (
-      <DashboardLayout>
+      
         <div className="container mx-auto py-6 px-4">
           <div className="mb-6">
             <h1 className="text-3xl font-bold">My Timetable</h1>
           </div>
           <StudentTimetableView />
         </div>
-      </DashboardLayout>
+      
     )
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Weekly Timetable</h1>
@@ -407,12 +407,12 @@ export function TimetablePage() {
                 <Button variant="ghost" onClick={handleCancel}>
                   ← Back to List
                 </Button>
-                <Badge
+                <StatusBadge
                   data-testid="timetable-status-badge"
-                  variant={fullTimetable.status === 'published' ? 'success' : 'warning'}
-                >
-                  {fullTimetable.status === 'published' ? 'Published' : 'Draft'}
-                </Badge>
+                  domain="timetable"
+                  status={fullTimetable.status}
+                  label={fullTimetable.status === 'published' ? 'Published' : 'Draft'}
+                />
                 <span className="text-sm text-gray-600">
                   Week of {format(parseISO(fullTimetable.week_start_date), 'MMM dd')} - {format(parseISO(fullTimetable.week_end_date || fullTimetable.week_start_date), 'MMM dd, yyyy')}
                 </span>
@@ -440,6 +440,6 @@ export function TimetablePage() {
           </>
         ) : null}
       </div>
-    </DashboardLayout>
+    
   )
 }

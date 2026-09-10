@@ -1,4 +1,5 @@
 import React from 'react'
+import { Label } from './Label'
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -9,16 +10,13 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, helperText, className = '', id, ...props }, ref) => {
     const inputId = id || `input-${label?.toLowerCase().replace(/\s+/g, '-')}`
-    
+
     return (
       <div className="w-full">
         {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-gray-900 mb-1.5"
-          >
+          <Label htmlFor={inputId} required={props.required}>
             {label}
-          </label>
+          </Label>
         )}
         <input
           ref={ref}

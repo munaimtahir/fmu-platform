@@ -5,10 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AdminDashboard } from './AdminDashboard'
 import * as authModule from '@/features/auth/useAuth'
 
-vi.mock('@/components/layouts/DashboardLayout', () => ({
-  DashboardLayout: ({ children }: any) => <div>{children}</div>,
-}))
-
 vi.mock('@/features/auth/useAuth')
 
 const listResponse = (count: number) => ({ count, next: null, previous: null, results: [] })

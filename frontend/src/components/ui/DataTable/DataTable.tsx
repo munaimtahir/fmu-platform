@@ -15,6 +15,11 @@ export function DataTable<TData>({
   enableColumnVisibility = false,
   pageSize = 10,
   onRowClick,
+  manualPagination = false,
+  pageCount,
+  totalCount,
+  pagination,
+  onPaginationChange,
 }: DataTableProps<TData>) {
   const { table, globalFilter, setGlobalFilter, rowSelection } = useDataTable({
     data,
@@ -25,6 +30,10 @@ export function DataTable<TData>({
     enableRowSelection,
     enableColumnVisibility,
     pageSize,
+    manualPagination,
+    pageCount,
+    pagination,
+    onPaginationChange,
   })
 
   const exportToCSV = () => {
@@ -220,12 +229,16 @@ export function DataTable<TData>({
         <div className="p-4 border-t border-gray-200">
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
             <div className="text-sm text-gray-600">
-              Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
-              {Math.min(
-                (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-                table.getFilteredRowModel().rows.length
-              )}{' '}
-              of {table.getFilteredRowModel().rows.length} results
+              {(() => {
+                const total = manualPagination ? totalCount ?? 0 : table.getFilteredRowModel().rows.length
+                const { pageIndex, pageSize: currentPageSize } = table.getState().pagination
+                return (
+                  <>
+                    Showing {total === 0 ? 0 : pageIndex * currentPageSize + 1} to{' '}
+                    {Math.min((pageIndex + 1) * currentPageSize, total)} of {total} results
+                  </>
+                )
+              })()}
             </div>
 
             <div className="flex items-center gap-2">

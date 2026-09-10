@@ -5,7 +5,6 @@ import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
 import toast from 'react-hot-toast'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Button } from '@/components/ui/Button'
 import { sectionsService } from '@/services'
@@ -103,7 +102,7 @@ export function SectionsPage() {
   )
 
   return (
-    <DashboardLayout>
+    
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Sections</h1>
@@ -127,6 +126,6 @@ export function SectionsPage() {
           />
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

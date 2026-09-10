@@ -1,6 +1,5 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -12,7 +11,7 @@ export const UnauthorizedPage: React.FC = () => {
   const navigate = useNavigate()
 
   return (
-    <DashboardLayout>
+    
       <PageShell title="Access Denied">
         <Card>
           <div className="p-12 text-center">
@@ -33,6 +32,6 @@ export const UnauthorizedPage: React.FC = () => {
           </div>
         </Card>
       </PageShell>
-    </DashboardLayout>
+    
   )
 }

@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Input } from '@/components/ui/Input'
@@ -81,29 +80,29 @@ export const GroupsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Groups">
           <LoadingState />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      
         <PageShell title="Groups">
           <ErrorState message="Failed to load groups" onRetry={() => refetch()} />
         </PageShell>
-      </DashboardLayout>
+      
     )
   }
 
   const groups = Array.isArray(data) ? data : []
 
   return (
-    <DashboardLayout>
-      <PageShell 
+    <>
+      <PageShell
         title="Groups"
         description="Manage student groups within batches"
         actions={
@@ -152,6 +151,6 @@ export const GroupsPage: React.FC = () => {
           }}
         />
       )}
-    </DashboardLayout>
+    </>
   )
 }

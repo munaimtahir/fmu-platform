@@ -1,5 +1,4 @@
 import React from 'react'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Alert } from '@/components/ui/Alert'
@@ -10,7 +9,7 @@ import { Alert } from '@/components/ui/Alert'
  */
 export const TranscriptsPage: React.FC = () => {
   return (
-    <DashboardLayout>
+    
       <PageShell 
         title="Transcripts"
         description="Generate and manage student transcripts"
@@ -46,6 +45,6 @@ export const TranscriptsPage: React.FC = () => {
           </Card>
         </div>
       </PageShell>
-    </DashboardLayout>
+    
   )
 }

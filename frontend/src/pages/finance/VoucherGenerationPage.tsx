@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { VoucherGenerationForm } from '@/features/finance/VoucherGenerationForm'
 import { financeService } from '@/services'
@@ -24,7 +23,7 @@ export const VoucherGenerationPage: React.FC = () => {
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Voucher Generation</h1>
@@ -46,6 +45,6 @@ export const VoucherGenerationPage: React.FC = () => {
           )}
         </Card>
       </div>
-    </DashboardLayout>
+    
   )
 }

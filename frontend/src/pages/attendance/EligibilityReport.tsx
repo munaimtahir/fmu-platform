@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import api from '@/api/axios'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -182,7 +181,7 @@ export function EligibilityReport() {
   const ineligibleCount = eligibilityData.length - eligibleCount
 
   return (
-    <DashboardLayout>
+    
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Eligibility Report</h1>
@@ -291,6 +290,6 @@ export function EligibilityReport() {
           </>
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

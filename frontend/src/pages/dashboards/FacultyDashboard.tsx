@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Spinner } from '@/components/ui/Spinner'
@@ -44,17 +43,17 @@ export const FacultyDashboard = () => {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      
         <div className="flex items-center justify-center min-h-[400px]">
           <Spinner size="lg" />
         </div>
-      </DashboardLayout>
+      
     )
   }
 
   if (error || stats?.message) {
     return (
-      <DashboardLayout>
+      
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -68,12 +67,12 @@ export const FacultyDashboard = () => {
             )}
           </Alert>
         </div>
-      </DashboardLayout>
+      
     )
   }
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -237,6 +236,6 @@ export const FacultyDashboard = () => {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
+    
   )
 }

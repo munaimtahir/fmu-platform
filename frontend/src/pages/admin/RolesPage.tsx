@@ -1,5 +1,4 @@
 import React from 'react'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -99,7 +98,7 @@ export const RolesPage: React.FC = () => {
   }
 
   return (
-    <DashboardLayout>
+    
       <PageShell 
         title="Roles & Permissions"
         description="View role-based access control (RBAC) permissions"
@@ -228,6 +227,6 @@ export const RolesPage: React.FC = () => {
           </Card>
         </div>
       </PageShell>
-    </DashboardLayout>
+    
   )
 }

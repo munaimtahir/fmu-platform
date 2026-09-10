@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -90,7 +89,7 @@ export const DataTableDemo = () => {
   ]
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -203,6 +202,6 @@ const columns: ColumnDef<Student>[] = [
           </pre>
         </Card>
       </div>
-    </DashboardLayout>
+    
   )
 }

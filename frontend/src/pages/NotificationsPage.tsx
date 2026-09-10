@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -57,7 +56,7 @@ export const NotificationsPage: React.FC = () => {
   const hasUnread = items.some((item) => !item.read_at)
 
   return (
-    <DashboardLayout>
+    
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Announcements / Notifications</h1>
@@ -149,6 +148,6 @@ export const NotificationsPage: React.FC = () => {
           </Card>
         )}
       </div>
-    </DashboardLayout>
+    
   )
 }

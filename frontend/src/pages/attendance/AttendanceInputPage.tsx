@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { attendanceInputService, sessionsService } from '@/services'
@@ -273,7 +272,7 @@ export function AttendanceInputPage() {
   )
 
   return (
-    <DashboardLayout>
+    
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
@@ -448,6 +447,6 @@ export function AttendanceInputPage() {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
+    
   )
 }

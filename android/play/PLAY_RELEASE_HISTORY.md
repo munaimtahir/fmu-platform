@@ -63,3 +63,18 @@ Version `1.0.2` / `versionCode 2` is the next candidate after the historical
 0.1.0 / 1 internal-testing submission. Its release notes and gates are in
 `RELEASE_NOTES_1.0.2.md`. No Play upload, review, or publication is recorded
 by this entry.
+
+### CI coverage (informational, not a substitute for the manual release steps)
+
+`.github/workflows/android-ci.yml` (`workflow_dispatch`-only) now verifies
+build health and runs instrumented tests on every manual trigger: unit
+tests, lint, `assembleDebug`/`assembleRelease`, a check that the
+`bundleRelease` task is correctly wired (it cannot actually run unsigned —
+the canonical Play upload-key signing properties are intentionally kept
+outside Git per `android/docs/PLAY_SIGNING.md`), and `connectedDebugAndroidTest`
+across an emulator matrix (API 28, API 34, and a `pixel_tablet` profile on
+API 33). CI does not build the real signed release bundle and does not
+upload to Play Console — generating the signed AAB and performing the Play
+Console upload / internal-track promotion remain manual, credentialed steps
+the user performs on a release machine, as described in
+`android/play/RELEASE_CHECKLIST.md`.

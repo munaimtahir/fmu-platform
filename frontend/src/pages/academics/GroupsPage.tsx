@@ -10,6 +10,7 @@ import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { academicsService, type Group } from '@/services/academics'
+import { groupsKey } from '@/utils/queryKeys'
 import { GroupFormModal } from '@/features/academics/GroupFormModal'
 import toast from 'react-hot-toast'
 
@@ -20,14 +21,14 @@ export const GroupsPage: React.FC = () => {
   const [editingGroup, setEditingGroup] = useState<Group | null>(null)
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['groups', search],
+    queryKey: groupsKey(search),
     queryFn: () => academicsService.getGroups(),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => academicsService.deleteGroup(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groups'] })
+      queryClient.invalidateQueries({ queryKey: groupsKey() })
       toast.success('Group deleted successfully')
     },
     onError: (error: any) => {

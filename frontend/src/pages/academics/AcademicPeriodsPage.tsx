@@ -10,6 +10,7 @@ import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { academicsService, type AcademicPeriod } from '@/services/academics'
+import { academicPeriodsKey } from '@/utils/queryKeys'
 import { AcademicPeriodFormModal } from '@/features/academics/AcademicPeriodFormModal'
 import toast from 'react-hot-toast'
 
@@ -20,14 +21,14 @@ export const AcademicPeriodsPage: React.FC = () => {
   const [editingPeriod, setEditingPeriod] = useState<AcademicPeriod | null>(null)
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['academic-periods', search],
+    queryKey: academicPeriodsKey(search),
     queryFn: () => academicsService.getAcademicPeriods(),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => academicsService.deleteAcademicPeriod(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['academic-periods'] })
+      queryClient.invalidateQueries({ queryKey: academicPeriodsKey() })
       toast.success('Academic period deleted successfully')
     },
     onError: (error: any) => {

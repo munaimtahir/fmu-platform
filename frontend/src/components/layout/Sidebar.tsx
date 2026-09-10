@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/features/auth/useAuth'
 import { navigationConfig, isNavGroup, type NavigationItem, type NavGroup, type NavItem } from '@/config/navConfig'
-import { notificationsService } from '@/services/notifications'
+import { useUnreadNotificationsCount } from '@/hooks'
 import { branding } from '@/config/branding'
 
 interface SidebarProps {
@@ -48,12 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
   const location = useLocation()
   const { user } = useAuth()
   const userRole = user?.role
-  const { data: unreadData } = useQuery({
-    queryKey: ['notifications-unread-count'],
-    queryFn: () => notificationsService.getUnreadCount(),
-    refetchInterval: 30000,
-  })
-  const unreadCount = unreadData?.count || 0
+  const unreadCount = useUnreadNotificationsCount()
 
   // Load expanded groups from localStorage
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { studentsService, programsService, batchesService, academicsService } from '@/services'
+import { groupsKey } from '@/utils/queryKeys'
 import { Student, Program } from '@/types'
 import { Batch } from '@/services/batches'
 
@@ -75,7 +76,7 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
 
   // Fetch groups for selected batch
   const { data: groupsData } = useQuery({
-    queryKey: ['groups', { batch: selectedBatch ? parseInt(selectedBatch, 10) : undefined }],
+    queryKey: groupsKey({ batch: selectedBatch ? parseInt(selectedBatch, 10) : undefined }),
     queryFn: () => academicsService.getGroups({ batch: selectedBatch ? parseInt(selectedBatch, 10) : undefined }),
     enabled: !!selectedBatch,
   })

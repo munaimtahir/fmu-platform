@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Modal } from '@/components/ui/Modal'
 import { academicsService, type AcademicPeriod, type CreateAcademicPeriodData } from '@/services/academics'
+import { academicPeriodsKey } from '@/utils/queryKeys'
 import toast from 'react-hot-toast'
 
 interface AcademicPeriodFormModalProps {
@@ -28,7 +29,7 @@ export const AcademicPeriodFormModal: React.FC<AcademicPeriodFormModalProps> = (
   const [endDate, setEndDate] = useState('')
 
   const { data: periods } = useQuery({
-    queryKey: ['academic-periods'],
+    queryKey: academicPeriodsKey(),
     queryFn: () => academicsService.getAcademicPeriods(),
   })
 
@@ -45,7 +46,7 @@ export const AcademicPeriodFormModal: React.FC<AcademicPeriodFormModalProps> = (
   const createMutation = useMutation({
     mutationFn: (data: CreateAcademicPeriodData) => academicsService.createAcademicPeriod(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['academic-periods'] })
+      queryClient.invalidateQueries({ queryKey: academicPeriodsKey() })
       toast.success('Academic period created successfully')
       onClose()
     },
@@ -57,7 +58,7 @@ export const AcademicPeriodFormModal: React.FC<AcademicPeriodFormModalProps> = (
   const updateMutation = useMutation({
     mutationFn: (data: Partial<CreateAcademicPeriodData>) => academicsService.updateAcademicPeriod(period!.id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['academic-periods'] })
+      queryClient.invalidateQueries({ queryKey: academicPeriodsKey() })
       toast.success('Academic period updated successfully')
       onClose()
     },

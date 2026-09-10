@@ -10,6 +10,7 @@ import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { coursesService } from '@/services'
+import { coursesKey } from '@/utils/queryKeys'
 import { Course } from '@/types'
 import { CourseForm } from './CourseForm'
 
@@ -20,14 +21,14 @@ export function CoursesPage() {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['courses', search],
+    queryKey: coursesKey(search),
     queryFn: () => coursesService.getAll({ search }),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => coursesService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] })
+      queryClient.invalidateQueries({ queryKey: coursesKey() })
       toast.success('Course deleted successfully')
     },
     onError: () => {
@@ -129,7 +130,7 @@ export function CoursesPage() {
             onClose={handleFormClose}
             onSuccess={() => {
               handleFormClose()
-              queryClient.invalidateQueries({ queryKey: ['courses'] })
+              queryClient.invalidateQueries({ queryKey: coursesKey() })
             }}
           />
         )}

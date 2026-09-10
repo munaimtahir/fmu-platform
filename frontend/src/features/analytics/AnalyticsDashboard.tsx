@@ -8,16 +8,20 @@ import { Card } from '@/components/ui/Card'
 import { Badge, BadgeVariant } from '@/components/ui/Badge'
 import { Spinner } from '@/components/ui/Spinner'
 import { studentsService, coursesService, sectionsService, attendanceService } from '@/services'
+import { coursesKey } from '@/utils/queryKeys'
 
 export function AnalyticsDashboard() {
-  // Fetch all data
-  const { data: studentsData, isLoading: studentsLoading } = useQuery({
-    queryKey: ['students'],
-    queryFn: () => studentsService.getAll({}),
+  // Fetch all data. Totals/breakdowns come from server-side aggregates
+  // (student stats, attendance summary) rather than filtering a single
+  // page of `.results`, since those would be wrong once a resource has
+  // more rows than the default page size.
+  const { data: studentStats, isLoading: studentsLoading } = useQuery({
+    queryKey: ['students', 'stats'],
+    queryFn: () => studentsService.getStats(),
   })
 
   const { data: coursesData, isLoading: coursesLoading } = useQuery({
-    queryKey: ['courses'],
+    queryKey: coursesKey(),
     queryFn: () => coursesService.getAll({}),
   })
 
@@ -30,36 +34,36 @@ export function AnalyticsDashboard() {
   const enrollmentsData = { results: [], count: 0 }
   const enrollmentsLoading = false
 
-  const { data: attendanceData, isLoading: attendanceLoading } = useQuery({
-    queryKey: ['attendance'],
-    queryFn: () => attendanceService.getAll({}),
+  const { data: attendanceSummary, isLoading: attendanceLoading } = useQuery({
+    queryKey: ['attendance', 'summary'],
+    queryFn: () => attendanceService.getSummary(),
   })
 
   const isLoading = studentsLoading || coursesLoading || sectionsLoading || enrollmentsLoading || attendanceLoading
 
   // Calculate statistics
   const stats = {
-    totalStudents: studentsData?.count || 0,
-    activeStudents: studentsData?.results.filter(s => s.status === 'active').length || 0,
+    totalStudents: studentStats?.total || 0,
+    activeStudents: studentStats?.by_status['active'] || 0,
     totalCourses: coursesData?.count || 0,
     totalSections: sectionsData?.count || 0,
     totalEnrollments: enrollmentsData?.count || 0,
-    totalAttendance: attendanceData?.count || 0,
-    presentCount: attendanceData?.results.filter(a => a.status === 'PRESENT').length || 0,
-    absentCount: attendanceData?.results.filter(a => a.status === 'ABSENT').length || 0,
+    totalAttendance: attendanceSummary?.total || 0,
+    presentCount: attendanceSummary?.present || 0,
+    absentCount: attendanceSummary?.absent || 0,
   }
 
   // Calculate percentages
-  const attendanceRate = stats.totalAttendance > 0 
+  const attendanceRate = stats.totalAttendance > 0
     ? ((stats.presentCount / stats.totalAttendance) * 100).toFixed(1)
     : 0
 
   // Student status breakdown
   const studentsByStatus = {
-    Active: studentsData?.results.filter(s => s.status === 'active').length || 0,
-    Inactive: studentsData?.results.filter(s => s.status === 'inactive').length || 0,
-    Graduated: studentsData?.results.filter(s => s.status === 'graduated').length || 0,
-    Suspended: studentsData?.results.filter(s => s.status === 'suspended').length || 0,
+    Active: studentStats?.by_status['active'] || 0,
+    Inactive: studentStats?.by_status['inactive'] || 0,
+    Graduated: studentStats?.by_status['graduated'] || 0,
+    Suspended: studentStats?.by_status['suspended'] || 0,
   }
 
   // Enrollment trends (mock - could be enhanced with date-based queries)

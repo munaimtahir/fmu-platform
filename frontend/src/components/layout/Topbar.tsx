@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/features/auth/useAuth'
 import { searchService, SearchResult } from '@/services/search'
-import { notificationsService } from '@/services/notifications'
+import { useUnreadNotificationsCount } from '@/hooks'
 import { ImpersonationDialog } from '@/components/admin/ImpersonationDialog'
 
 interface TopbarProps {
@@ -27,13 +26,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Fetch unread notification count
-  const { data: unreadData } = useQuery({
-    queryKey: ['notifications-unread-count'],
-    queryFn: () => notificationsService.getUnreadCount(),
-    refetchInterval: 30000, // Poll every 30 seconds
-  })
-
-  const unreadCount = unreadData?.count || 0
+  const unreadCount = useUnreadNotificationsCount()
 
   const handleLogout = async () => {
     try {

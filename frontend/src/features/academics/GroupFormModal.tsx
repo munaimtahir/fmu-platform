@@ -6,6 +6,7 @@ import { Select } from '@/components/ui/Select'
 import { Modal } from '@/components/ui/Modal'
 import { academicsService, type Group, type CreateGroupData } from '@/services/academics'
 import { batchesService } from '@/services/batches'
+import { groupsKey } from '@/utils/queryKeys'
 import toast from 'react-hot-toast'
 
 interface GroupFormModalProps {
@@ -33,7 +34,7 @@ export const GroupFormModal: React.FC<GroupFormModalProps> = ({ group, onClose }
   const createMutation = useMutation({
     mutationFn: (data: CreateGroupData) => academicsService.createGroup(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groups'] })
+      queryClient.invalidateQueries({ queryKey: groupsKey() })
       toast.success('Group created successfully')
       onClose()
     },
@@ -45,7 +46,7 @@ export const GroupFormModal: React.FC<GroupFormModalProps> = ({ group, onClose }
   const updateMutation = useMutation({
     mutationFn: (data: Partial<CreateGroupData>) => academicsService.updateGroup(group!.id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['groups'] })
+      queryClient.invalidateQueries({ queryKey: groupsKey() })
       toast.success('Group updated successfully')
       onClose()
     },

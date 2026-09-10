@@ -59,4 +59,13 @@ export const studentsService = {
   async delete(id: number): Promise<void> {
     await api.delete(`/api/students/${id}/`)
   },
+
+  /**
+   * Get aggregate student counts by status (computed server-side, not
+   * limited to a single page of results).
+   */
+  async getStats(): Promise<{ total: number; by_status: Record<string, number> }> {
+    const response = await api.get<{ total: number; by_status: Record<string, number> }>('/api/students/stats/')
+    return response.data
+  },
 }

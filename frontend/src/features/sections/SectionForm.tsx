@@ -12,6 +12,7 @@ import { Select } from '@/components/ui/Select'
 import { sectionsService } from '@/services'
 import { coursesService } from '@/services'
 import { academicsService } from '@/services/academics'
+import { academicPeriodsKey, coursesKey } from '@/utils/queryKeys'
 import { Section } from '@/types'
 
 const sectionSchema = z.object({
@@ -33,12 +34,12 @@ interface SectionFormProps {
 
 export function SectionForm({ section, onClose, onSuccess }: SectionFormProps) {
   const { data: courses } = useQuery({
-    queryKey: ['courses'],
+    queryKey: coursesKey(),
     queryFn: () => coursesService.getAll(),
   })
 
   const { data: academicPeriods } = useQuery({
-    queryKey: ['academic-periods'],
+    queryKey: academicPeriodsKey(),
     queryFn: () => academicsService.getAcademicPeriods(),
   })
 

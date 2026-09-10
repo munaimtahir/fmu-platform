@@ -10,6 +10,7 @@ import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { academicsNewService, type Department } from '@/services/academicsNew'
+import { departmentsKey } from '@/utils/queryKeys'
 import { DepartmentFormModal } from '@/features/academics/DepartmentFormModal'
 
 export const DepartmentsPage: React.FC = () => {
@@ -19,14 +20,14 @@ export const DepartmentsPage: React.FC = () => {
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null)
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['academics-departments', search],
+    queryKey: departmentsKey(search),
     queryFn: () => academicsNewService.getDepartments(),
   })
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => academicsNewService.deleteDepartment(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['academics-departments'] })
+      queryClient.invalidateQueries({ queryKey: departmentsKey() })
     },
   })
 

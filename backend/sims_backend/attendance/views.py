@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthenticated
 from rest_framework.response import Response
 
 from core.permissions import has_permission_task
@@ -15,36 +15,60 @@ from sims_backend.attendance.utils import check_eligibility
 from sims_backend.timetable.models import Session
 
 
+class IsAttendanceEditor(BasePermission):
+    """
+    Restricts write operations (create/update/destroy) on attendance
+    records to faculty managing the record's session and users holding
+    the attendance edit permission task.
+
+    Read access (list/retrieve and the custom summary/eligibility/export
+    actions) is intentionally left unrestricted here -- it is already
+    scoped per-user by AttendanceViewSet.get_queryset().
+    """
+
+    def has_permission(self, request, view):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+
+        if request.method in SAFE_METHODS:
+            return True
+
+        # Only the standard write actions are gated here; custom actions
+        # (mark_session_attendance, summary, eligibility, export) enforce
+        # their own access checks.
+        if view.action == "create":
+            return has_permission_task(user, "attendance.attendances.edit") or not hasattr(user, "student")
+
+        # update/partial_update/destroy require an object to check
+        # ownership against, so defer the final decision to
+        # has_object_permission.
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+
+        if view.action not in ("update", "partial_update", "destroy"):
+            return True
+
+        user = request.user
+        if has_permission_task(user, "attendance.attendances.edit"):
+            return True
+
+        # Faculty may edit attendance for sessions they teach.
+        return obj.session.faculty_id == user.id
+
+
 class AttendanceViewSet(viewsets.ModelViewSet):
     queryset = Attendance.objects.select_related("session", "student", "marked_by", "session__department").all()
     serializer_class = AttendanceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAttendanceEditor]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["session", "student", "status"]
     search_fields = ["student__reg_no", "student__name"]
     ordering_fields = ["marked_at"]
     ordering = ["-marked_at"]
-
-    def has_permission(self, request, view):
-        """Custom permission logic for attendance views."""
-        user = request.user
-
-        if not user or not user.is_authenticated:
-            return False
-
-        # Allow all authenticated users - object-level permissions will filter appropriately
-        return True
-
-    def has_object_permission(self, request, view, obj):
-        """Object-level permissions for attendance records."""
-        user = request.user
-
-        # Students can only see their own attendance
-        if hasattr(user, "student"):
-            return obj.student == user.student
-
-        # Faculty can see attendance for their sessions
-        return obj.session.faculty == user
 
     def get_queryset(self):
         """Object-level permission: Students see own, Faculty see own sections."""

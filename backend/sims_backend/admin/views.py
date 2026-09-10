@@ -7,6 +7,7 @@ from datetime import timedelta
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils import timezone
+from drf_spectacular.utils import OpenApiTypes, extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -26,6 +27,7 @@ from sims_backend.students.models import Student
 User = get_user_model()
 
 
+@extend_schema(responses=OpenApiTypes.OBJECT)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated, IsAdmin])
 def admin_dashboard(request):

@@ -2123,7 +2123,12 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/admin/faculty/import/{id}/detail/:
     get:
       operationId: admin_faculty_import_detail_retrieve
@@ -2133,6 +2138,8 @@ paths:
         name: id
         schema:
           type: string
+          format: uuid
+        description: A UUID string identifying this faculty import job.
         required: true
       tags:
       - admin
@@ -2141,7 +2148,11 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultyImportJob'
+          description: ''
   /api/admin/faculty/import/{id}/errors.csv/:
     get:
       operationId: admin_faculty_import_errors.csv_retrieve
@@ -2151,6 +2162,8 @@ paths:
         name: id
         schema:
           type: string
+          format: uuid
+        description: A UUID string identifying this faculty import job.
         required: true
       tags:
       - admin
@@ -2159,7 +2172,12 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/admin/faculty/import/commit/:
     post:
       operationId: admin_faculty_import_commit_create
@@ -2168,15 +2186,31 @@ paths:
         Requires import_job_id and confirm=true.
       tags:
       - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacultyImportCommitRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FacultyImportCommitRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FacultyImportCommitRequest'
+        required: true
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultyImportCommitResponse'
+          description: ''
   /api/admin/faculty/import/jobs/:
     get:
-      operationId: admin_faculty_import_jobs_retrieve
+      operationId: admin_faculty_import_jobs_list
       description: List all import jobs (history).
       tags:
       - admin
@@ -2185,7 +2219,13 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FacultyImportJob'
+          description: ''
   /api/admin/faculty/import/preview/:
     post:
       operationId: admin_faculty_import_preview_create
@@ -2194,12 +2234,28 @@ paths:
         No database writes (except FacultyImportJob creation).
       tags:
       - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacultyImportPreviewRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FacultyImportPreviewRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FacultyImportPreviewRequest'
+        required: true
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacultyImportPreviewResponse'
+          description: ''
   /api/admin/faculty/import/template/:
     get:
       operationId: admin_faculty_import_template_retrieve
@@ -2211,7 +2267,12 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/admin/impersonation/start/:
     post:
       operationId: admin_impersonation_start_create
@@ -2227,12 +2288,31 @@ paths:
         }
       tags:
       - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/admin/impersonation/stop/:
     post:
       operationId: admin_impersonation_stop_create
@@ -2244,12 +2324,31 @@ paths:
         Returns: { "success": true }
       tags:
       - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/admin/settings/:
     get:
       operationId: admin_settings_list
@@ -2453,6 +2552,8 @@ paths:
         name: id
         schema:
           type: string
+          format: uuid
+        description: A UUID string identifying this import job.
         required: true
       tags:
       - admin
@@ -2461,7 +2562,11 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: ''
   /api/admin/students/import/{id}/errors.csv/:
     get:
       operationId: admin_students_import_errors.csv_retrieve
@@ -2471,6 +2576,8 @@ paths:
         name: id
         schema:
           type: string
+          format: uuid
+        description: A UUID string identifying this import job.
         required: true
       tags:
       - admin
@@ -2479,7 +2586,12 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/admin/students/import/commit/:
     post:
       operationId: admin_students_import_commit_create
@@ -2488,15 +2600,31 @@ paths:
         Requires import_job_id and confirm=true.
       tags:
       - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentImportCommitRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentImportCommitRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentImportCommitRequest'
+        required: true
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentImportCommitResponse'
+          description: ''
   /api/admin/students/import/jobs/:
     get:
-      operationId: admin_students_import_jobs_retrieve
+      operationId: admin_students_import_jobs_list
       description: List all import jobs (history).
       tags:
       - admin
@@ -2505,7 +2633,13 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImportJob'
+          description: ''
   /api/admin/students/import/preview/:
     post:
       operationId: admin_students_import_preview_create
@@ -2514,12 +2648,28 @@ paths:
         No database writes (except ImportJob creation).
       tags:
       - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentImportPreviewRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentImportPreviewRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentImportPreviewRequest'
+        required: true
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentImportPreviewResponse'
+          description: ''
   /api/admin/students/import/template/:
     get:
       operationId: admin_students_import_template_retrieve
@@ -2531,7 +2681,12 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/admin/syllabus/:
     get:
       operationId: admin_syllabus_list
@@ -3163,34 +3318,83 @@ paths:
       operationId: attendance_input_biometric_punches_create
       tags:
       - attendance-input
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/attendance-input/csv/commit/:
     post:
       operationId: attendance_input_csv_commit_create
       tags:
       - attendance-input
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/attendance-input/csv/dry-run/:
     post:
       operationId: attendance_input_csv_dry_run_create
       tags:
       - attendance-input
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/attendance-input/live/roster/:
     get:
       operationId: attendance_input_live_roster_retrieve
@@ -3201,40 +3405,94 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/attendance-input/live/submit/:
     post:
       operationId: attendance_input_live_submit_create
       tags:
       - attendance-input
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/attendance-input/sheet/commit/:
     post:
       operationId: attendance_input_sheet_commit_create
       tags:
       - attendance-input
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              additionalProperties: {}
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/attendance-input/sheet/dry-run/:
     post:
       operationId: attendance_input_sheet_dry_run_create
       tags:
       - attendance-input
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: {}
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/attendance-input/sheet/template/:
     get:
       operationId: attendance_input_sheet_template_retrieve
@@ -3245,7 +3503,12 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/attendance/{id}/:
     get:
       operationId: attendance_retrieve
@@ -6544,7 +6807,12 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/finance/reports/collection/:
     get:
       operationId: finance_reports_collection_retrieve
@@ -6555,18 +6823,40 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/finance/reports/defaulters/:
     post:
       operationId: finance_reports_defaulters_create
       tags:
       - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefaultersReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DefaultersReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DefaultersReport'
+        required: true
       security:
       - ImpersonationJWTAuth: []
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/finance/students/{id}/:
     get:
       operationId: finance_students_retrieve
@@ -6574,7 +6864,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this student.
         required: true
       tags:
       - finance
@@ -6583,7 +6874,11 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentFinanceSummary'
+          description: ''
   /api/finance/students/{id}/statement/:
     get:
       operationId: finance_students_statement_retrieve
@@ -6591,7 +6886,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this student.
         required: true
       tags:
       - finance
@@ -6600,7 +6896,12 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/finance/students/{id}/statement/pdf/:
     get:
       operationId: finance_students_statement_pdf_retrieve
@@ -6608,7 +6909,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this student.
         required: true
       tags:
       - finance
@@ -6617,7 +6919,12 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/finance/vouchers/:
     get:
       operationId: finance_vouchers_list
@@ -7330,7 +7637,7 @@ paths:
           description: ''
   /api/learning/student-feed/:
     get:
-      operationId: learning_student_feed_retrieve
+      operationId: learning_student_feed_list
       tags:
       - learning
       security:
@@ -7338,7 +7645,13 @@ paths:
       - jwtAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LearningMaterial'
+          description: ''
   /api/leave-periods/:
     get:
       operationId: leave_periods_list
@@ -11141,6 +11454,20 @@ components:
         * `3` - Thursday
         * `4` - Friday
         * `5` - Saturday
+    DefaultersReport:
+      type: object
+      properties:
+        program_id:
+          type: integer
+        term_id:
+          type: integer
+        min_outstanding:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          default: '0.00'
+      required:
+      - term_id
     Department:
       type: object
       properties:
@@ -11363,6 +11690,195 @@ components:
       - max_marks
       - name
       - updated_at
+    FacultyImportCommitRequest:
+      type: object
+      description: Serializer for commit request
+      properties:
+        import_job_id:
+          type: string
+          format: uuid
+          description: ID of the previewed import job
+        confirm:
+          type: boolean
+          description: Must be True to confirm commit
+      required:
+      - confirm
+      - import_job_id
+    FacultyImportCommitResponse:
+      type: object
+      description: Serializer for commit response
+      properties:
+        import_job_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        created_count:
+          type: integer
+        updated_count:
+          type: integer
+        failed_count:
+          type: integer
+        has_error_report:
+          type: boolean
+      required:
+      - created_count
+      - failed_count
+      - has_error_report
+      - import_job_id
+      - status
+      - updated_count
+    FacultyImportJob:
+      type: object
+      description: Serializer for FacultyImportJob model
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+          description: User who initiated the import
+        created_by_username:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The timestamp when the record was created.
+        finished_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Timestamp when import was completed or failed
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status9bdEnum'
+          description: |-
+            Current status of the import job
+
+            * `PENDING` - Pending
+            * `PREVIEWED` - Previewed
+            * `COMMITTED` - Committed
+            * `FAILED` - Failed
+        mode:
+          allOf:
+          - $ref: '#/components/schemas/ModeEnum'
+          description: |-
+            Import mode: create-only or upsert
+
+            * `CREATE_ONLY` - Create Only
+            * `UPSERT` - Upsert
+        original_filename:
+          type: string
+          description: Original filename of the uploaded CSV
+          maxLength: 255
+        file_hash:
+          type: string
+          readOnly: true
+          description: SHA256 hash of the file for duplicate detection
+        total_rows:
+          type: integer
+          readOnly: true
+          description: Total number of rows in the CSV (excluding header)
+        valid_rows:
+          type: integer
+          readOnly: true
+          description: Number of valid rows that passed validation
+        invalid_rows:
+          type: integer
+          readOnly: true
+          description: Number of invalid rows with errors
+        created_count:
+          type: integer
+          readOnly: true
+          description: Number of faculty created during commit
+        updated_count:
+          type: integer
+          readOnly: true
+          description: Number of faculty updated during commit (upsert mode)
+        failed_count:
+          type: integer
+          readOnly: true
+          description: Number of rows that failed during commit
+        error_report_file:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          description: CSV file containing invalid rows with error messages
+        summary:
+          readOnly: true
+          nullable: true
+          description: Structured summary of import results
+      required:
+      - created_at
+      - created_by
+      - created_by_username
+      - created_count
+      - error_report_file
+      - failed_count
+      - file_hash
+      - finished_at
+      - id
+      - invalid_rows
+      - original_filename
+      - summary
+      - total_rows
+      - updated_count
+      - valid_rows
+    FacultyImportPreviewRequest:
+      type: object
+      description: Serializer for preview request
+      properties:
+        file:
+          type: string
+          format: uri
+          description: CSV file to import
+        mode:
+          allOf:
+          - $ref: '#/components/schemas/ModeEnum'
+          default: CREATE_ONLY
+          description: |-
+            Import mode: CREATE_ONLY or UPSERT
+
+            * `CREATE_ONLY` - Create Only
+            * `UPSERT` - Upsert
+      required:
+      - file
+    FacultyImportPreviewResponse:
+      type: object
+      description: Serializer for preview response
+      properties:
+        import_job_id:
+          type: string
+          format: uuid
+        total_rows:
+          type: integer
+        valid_rows:
+          type: integer
+        invalid_rows:
+          type: integer
+        duplicate_file_warning:
+          type: boolean
+        preview_rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/PreviewRow'
+        summary:
+          type: object
+          additionalProperties: {}
+      required:
+      - duplicate_file_warning
+      - import_job_id
+      - invalid_rows
+      - preview_rows
+      - summary
+      - total_rows
+      - valid_rows
     FeePlan:
       type: object
       properties:
@@ -11642,6 +12158,111 @@ components:
         * `passport` - Passport
         * `driving_license` - Driving License
         * `other` - Other
+    ImportJob:
+      type: object
+      description: Serializer for ImportJob model
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+          description: User who initiated the import
+        created_by_username:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The timestamp when the record was created.
+        finished_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Timestamp when import was completed or failed
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status9bdEnum'
+          description: |-
+            Current status of the import job
+
+            * `PENDING` - Pending
+            * `PREVIEWED` - Previewed
+            * `COMMITTED` - Committed
+            * `FAILED` - Failed
+        mode:
+          allOf:
+          - $ref: '#/components/schemas/ModeEnum'
+          description: |-
+            Import mode: create-only or upsert
+
+            * `CREATE_ONLY` - Create Only
+            * `UPSERT` - Upsert
+        auto_create:
+          type: boolean
+          description: Automatically create missing Programs, Batches, and Groups
+        original_filename:
+          type: string
+          description: Original filename of the uploaded CSV
+          maxLength: 255
+        file_hash:
+          type: string
+          readOnly: true
+          description: SHA256 hash of the file for duplicate detection
+        total_rows:
+          type: integer
+          readOnly: true
+          description: Total number of rows in the CSV (excluding header)
+        valid_rows:
+          type: integer
+          readOnly: true
+          description: Number of valid rows that passed validation
+        invalid_rows:
+          type: integer
+          readOnly: true
+          description: Number of invalid rows with errors
+        created_count:
+          type: integer
+          readOnly: true
+          description: Number of students created during commit
+        updated_count:
+          type: integer
+          readOnly: true
+          description: Number of students updated during commit (upsert mode)
+        failed_count:
+          type: integer
+          readOnly: true
+          description: Number of rows that failed during commit
+        error_report_file:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          description: CSV file containing invalid rows with error messages
+        summary:
+          readOnly: true
+          nullable: true
+          description: Structured summary of import results
+      required:
+      - created_at
+      - created_by
+      - created_by_username
+      - created_count
+      - error_report_file
+      - failed_count
+      - file_hash
+      - finished_at
+      - id
+      - invalid_rows
+      - original_filename
+      - summary
+      - total_rows
+      - updated_count
+      - valid_rows
     LearningBlock:
       type: object
       properties:
@@ -12056,6 +12677,14 @@ components:
         * `online` - Online
         * `scholarship` - Scholarship
         * `waiver` - Waiver
+    ModeEnum:
+      enum:
+      - CREATE_ONLY
+      - UPSERT
+      type: string
+      description: |-
+        * `CREATE_ONLY` - Create Only
+        * `UPSERT` - Upsert
     Module:
       type: object
       properties:
@@ -15781,6 +16410,26 @@ components:
       - gender
       - id
       - last_name
+    PreviewRow:
+      type: object
+      description: Serializer for preview row result
+      properties:
+        row_number:
+          type: integer
+        action:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/RowError'
+        data:
+          type: object
+          additionalProperties: {}
+      required:
+      - action
+      - data
+      - errors
+      - row_number
     PriorityEnum:
       enum:
       - LOW
@@ -16318,6 +16967,17 @@ components:
       - task
       - task_id
       - updated_at
+    RowError:
+      type: object
+      description: Serializer for row validation errors
+      properties:
+        column:
+          type: string
+        message:
+          type: string
+      required:
+      - column
+      - message
     Section:
       type: object
       properties:
@@ -16458,6 +17118,18 @@ components:
       description: |-
         * `draft` - Draft
         * `published` - Published
+    Status9bdEnum:
+      enum:
+      - PENDING
+      - PREVIEWED
+      - COMMITTED
+      - FAILED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `PREVIEWED` - Previewed
+        * `COMMITTED` - Committed
+        * `FAILED` - Failed
     StatusC12Enum:
       enum:
       - DRAFT
@@ -16589,6 +17261,157 @@ components:
       - program_name
       - reg_no
       - updated_at
+    StudentFinanceSummary:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        term_id:
+          type: integer
+          nullable: true
+        outstanding:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        total_debits:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        total_credits:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        voucher_statuses:
+          type: object
+          additionalProperties:
+            type: string
+        gating:
+          type: object
+          additionalProperties: {}
+      required:
+      - gating
+      - outstanding
+      - student_id
+      - term_id
+      - total_credits
+      - total_debits
+      - voucher_statuses
+    StudentImportCommitRequest:
+      type: object
+      description: Serializer for commit request
+      properties:
+        import_job_id:
+          type: string
+          format: uuid
+          description: ID of the previewed import job
+        confirm:
+          type: boolean
+          description: Must be True to confirm commit
+        auto_create:
+          type: boolean
+          default: false
+          description: Automatically create missing Programs, Batches, and Groups
+            (must match preview setting)
+      required:
+      - confirm
+      - import_job_id
+    StudentImportCommitResponse:
+      type: object
+      description: Serializer for commit response
+      properties:
+        import_job_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        created_count:
+          type: integer
+        updated_count:
+          type: integer
+        failed_count:
+          type: integer
+        has_error_report:
+          type: boolean
+      required:
+      - created_count
+      - failed_count
+      - has_error_report
+      - import_job_id
+      - status
+      - updated_count
+    StudentImportPreviewRequest:
+      type: object
+      description: Serializer for preview request
+      properties:
+        file:
+          type: string
+          format: uri
+          description: CSV file to import
+        mode:
+          allOf:
+          - $ref: '#/components/schemas/ModeEnum'
+          default: CREATE_ONLY
+          description: |-
+            Import mode: CREATE_ONLY or UPSERT
+
+            * `CREATE_ONLY` - Create Only
+            * `UPSERT` - Upsert
+        auto_create:
+          type: boolean
+          default: false
+          description: Automatically create missing Programs, Batches, and Groups
+      required:
+      - file
+    StudentImportPreviewResponse:
+      type: object
+      description: Serializer for preview response
+      properties:
+        import_job_id:
+          type: string
+          format: uuid
+        total_rows:
+          type: integer
+        valid_rows:
+          type: integer
+        invalid_rows:
+          type: integer
+        duplicate_file_warning:
+          type: boolean
+        preview_rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentImportPreviewRow'
+        summary:
+          type: object
+          additionalProperties: {}
+      required:
+      - duplicate_file_warning
+      - import_job_id
+      - invalid_rows
+      - preview_rows
+      - summary
+      - total_rows
+      - valid_rows
+    StudentImportPreviewRow:
+      type: object
+      description: Serializer for preview row result
+      properties:
+        row_number:
+          type: integer
+        action:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/RowError'
+        data:
+          type: object
+          additionalProperties: {}
+      required:
+      - action
+      - data
+      - errors
+      - row_number
     StudentStatusEnum:
       enum:
       - active

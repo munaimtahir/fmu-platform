@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import OpenApiTypes, extend_schema, extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -431,7 +432,13 @@ class FinancePolicyViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
+@extend_schema_view(
+    retrieve=extend_schema(responses=StudentFinanceSummarySerializer),
+    statement=extend_schema(responses=OpenApiTypes.OBJECT),
+    statement_pdf=extend_schema(responses=OpenApiTypes.BINARY),
+)
 class StudentFinanceSummaryViewSet(viewsets.ViewSet):
+    queryset = Student.objects.none()
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
     required_tasks = ["finance.summary.view"]
 
@@ -543,6 +550,11 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
         return FileResponse(buffer, as_attachment=True, filename=filename)
 
 
+@extend_schema_view(
+    defaulters=extend_schema(request=DefaultersReportSerializer, responses=OpenApiTypes.OBJECT),
+    collection=extend_schema(responses=OpenApiTypes.OBJECT),
+    aging=extend_schema(responses=OpenApiTypes.OBJECT),
+)
 class FinanceReportViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
     required_tasks = ["finance.reports.view"]

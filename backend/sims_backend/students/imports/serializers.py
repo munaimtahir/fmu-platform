@@ -1,10 +1,12 @@
 """Serializers for Student CSV import API"""
 
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from sims_backend.students.imports.models import ImportJob
 
 
+@extend_schema_serializer(component_name="StudentImportPreviewRequest")
 class PreviewRequestSerializer(serializers.Serializer):
     """Serializer for preview request"""
 
@@ -26,6 +28,7 @@ class RowErrorSerializer(serializers.Serializer):
     message = serializers.CharField()
 
 
+@extend_schema_serializer(component_name="StudentImportPreviewRow")
 class PreviewRowSerializer(serializers.Serializer):
     """Serializer for preview row result"""
 
@@ -35,6 +38,7 @@ class PreviewRowSerializer(serializers.Serializer):
     data = serializers.DictField()
 
 
+@extend_schema_serializer(component_name="StudentImportPreviewResponse")
 class PreviewResponseSerializer(serializers.Serializer):
     """Serializer for preview response"""
 
@@ -47,6 +51,7 @@ class PreviewResponseSerializer(serializers.Serializer):
     summary = serializers.DictField()
 
 
+@extend_schema_serializer(component_name="StudentImportCommitRequest")
 class CommitRequestSerializer(serializers.Serializer):
     """Serializer for commit request"""
 
@@ -59,6 +64,7 @@ class CommitRequestSerializer(serializers.Serializer):
     )
 
 
+@extend_schema_serializer(component_name="StudentImportCommitResponse")
 class CommitResponseSerializer(serializers.Serializer):
     """Serializer for commit response"""
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -159,6 +160,7 @@ class LearningMaterialAudienceViewSet(AudiencePermissionMixin, viewsets.ModelVie
 class LearningStudentFeedAPIView(APIView):
     permission_classes = [IsAuthenticated, IsStudentOnly]
 
+    @extend_schema(responses=LearningMaterialSerializer(many=True))
     def get(self, request):
         student = Student.objects.select_related("program", "batch", "group").filter(user=request.user).first()
         if not student:

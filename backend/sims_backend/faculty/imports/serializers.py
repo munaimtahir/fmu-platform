@@ -1,10 +1,12 @@
 """Serializers for Faculty CSV import API"""
 
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from sims_backend.faculty.imports.models import FacultyImportJob
 
 
+@extend_schema_serializer(component_name="FacultyImportPreviewRequest")
 class PreviewRequestSerializer(serializers.Serializer):
     """Serializer for preview request"""
 
@@ -32,6 +34,7 @@ class PreviewRowSerializer(serializers.Serializer):
     data = serializers.DictField()
 
 
+@extend_schema_serializer(component_name="FacultyImportPreviewResponse")
 class PreviewResponseSerializer(serializers.Serializer):
     """Serializer for preview response"""
 
@@ -44,6 +47,7 @@ class PreviewResponseSerializer(serializers.Serializer):
     summary = serializers.DictField()
 
 
+@extend_schema_serializer(component_name="FacultyImportCommitRequest")
 class CommitRequestSerializer(serializers.Serializer):
     """Serializer for commit request"""
 
@@ -51,6 +55,7 @@ class CommitRequestSerializer(serializers.Serializer):
     confirm = serializers.BooleanField(help_text="Must be True to confirm commit")
 
 
+@extend_schema_serializer(component_name="FacultyImportCommitResponse")
 class CommitResponseSerializer(serializers.Serializer):
     """Serializer for commit response"""
 

@@ -1,5 +1,6 @@
 """ViewSet for Faculty CSV import API"""
 
+from drf_spectacular.utils import OpenApiTypes, extend_schema, extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -18,6 +19,14 @@ from sims_backend.faculty.imports.services import FacultyImportService
 from sims_backend.faculty.imports.templates import generate_csv_template
 
 
+@extend_schema_view(
+    preview=extend_schema(request=PreviewRequestSerializer, responses=PreviewResponseSerializer),
+    commit=extend_schema(request=CommitRequestSerializer, responses=CommitResponseSerializer),
+    template=extend_schema(responses=OpenApiTypes.BINARY),
+    jobs=extend_schema(responses=FacultyImportJobSerializer(many=True)),
+    job_detail=extend_schema(responses=FacultyImportJobSerializer),
+    errors_csv=extend_schema(responses=OpenApiTypes.BINARY),
+)
 class FacultyImportViewSet(viewsets.ViewSet):
     """
     ViewSet for Faculty CSV import operations.
@@ -25,6 +34,7 @@ class FacultyImportViewSet(viewsets.ViewSet):
     """
 
     permission_classes = [IsAuthenticated, IsAdminOrCoordinator]
+    queryset = FacultyImportJob.objects.none()
 
     @action(detail=False, methods=["post"], url_path="preview")
     def preview(self, request):

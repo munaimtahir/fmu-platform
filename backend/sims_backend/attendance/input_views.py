@@ -6,6 +6,7 @@ from datetime import datetime
 
 from django.http import HttpResponse
 from django.utils import timezone
+from drf_spectacular.utils import OpenApiTypes, extend_schema
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
@@ -63,6 +64,7 @@ def _require_session_access(user, session: Session) -> None:
 class LiveRosterAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(responses=OpenApiTypes.OBJECT)
     def get(self, request, *args, **kwargs):
         session_id = request.query_params.get("session_id")
         if not session_id:
@@ -96,6 +98,7 @@ class LiveRosterAPIView(APIView):
 class LiveSubmitAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
         payload = request.data
         session_id = payload.get("session_id")
@@ -146,6 +149,7 @@ class CSVDryRunAPIView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
+    @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
         # File size validation (10MB limit)
         max_file_size = 10 * 1024 * 1024  # 10MB in bytes
@@ -206,6 +210,7 @@ class CSVDryRunAPIView(APIView):
 class CSVCommitAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
         job_id = request.data.get("job_id")
         if not job_id:
@@ -248,6 +253,7 @@ class CSVCommitAPIView(APIView):
 class TickSheetTemplateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(responses=OpenApiTypes.BINARY)
     def get(self, request, *args, **kwargs):
         session_id = request.query_params.get("session_id")
         if not session_id:
@@ -305,6 +311,7 @@ class TickSheetDryRunAPIView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
+    @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
         # File size validation (20MB limit for scanned documents)
         max_file_size = 20 * 1024 * 1024  # 20MB in bytes
@@ -361,6 +368,7 @@ class TickSheetDryRunAPIView(APIView):
 class TickSheetCommitAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
         job_id = request.data.get("job_id")
         final_records = request.data.get("records", [])
@@ -395,6 +403,7 @@ class TickSheetCommitAPIView(APIView):
 class BiometricPunchAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
         punches = request.data.get("punches", [])
         if not isinstance(punches, list):

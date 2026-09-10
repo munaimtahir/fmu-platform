@@ -4,6 +4,7 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from drf_spectacular.utils import OpenApiTypes, extend_schema
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -25,6 +26,7 @@ class ImpersonationThrottle(UserRateThrottle):
     rate = "10/hour"  # Allow 10 impersonation starts per hour per user
 
 
+@extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated, IsAdmin])
 def start_impersonation(request):
@@ -118,6 +120,7 @@ def start_impersonation(request):
     )
 
 
+@extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated, IsAdmin])
 def stop_impersonation(request):

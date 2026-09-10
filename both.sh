@@ -46,6 +46,11 @@ echo -e "${GREEN}✓ Services stopped${NC}"
 echo ""
 echo -e "${BLUE}Step 2: Rebuilding containers (no cache)...${NC}"
 echo "-----------------------------------"
+PRE_DEPLOY_BACKEND_IMAGE=$(docker inspect --format='{{.Image}}' vexel_medsims_backend 2>/dev/null || echo "unavailable")
+PRE_DEPLOY_FRONTEND_IMAGE=$(docker inspect --format='{{.Image}}' vexel_medsims_frontend 2>/dev/null || echo "unavailable")
+echo -e "${YELLOW}Pre-rebuild image ID (backend):  ${PRE_DEPLOY_BACKEND_IMAGE}${NC}"
+echo -e "${YELLOW}Pre-rebuild image ID (frontend): ${PRE_DEPLOY_FRONTEND_IMAGE}${NC}"
+echo "  (keep these — needed to revert manually if this deploy goes wrong)"
 docker compose -f docker-compose.yml build --no-cache frontend backend
 echo -e "${GREEN}✓ Images built successfully${NC}"
 
@@ -103,10 +108,14 @@ fi
 
 # Test backend health endpoint
 HEALTH_RESPONSE=$(curl -s http://127.0.0.1:18010/api/health/ || echo "error")
-if echo "$HEALTH_RESPONSE" | grep -q '"status"'; then
-    echo -e "${GREEN}✓ Backend API is responding${NC}"
+if echo "$HEALTH_RESPONSE" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'; then
+    echo -e "${GREEN}✓ Backend API is responding and healthy (status: ok)${NC}"
 else
-    echo -e "${YELLOW}⚠️  Backend API health check inconclusive (this is okay if container just started)${NC}"
+    echo -e "${RED}✗ Backend health check FAILED (response: ${HEALTH_RESPONSE})${NC}"
+    echo "Backend did not report \"status\": \"ok\" — this may indicate DB/migration/Redis trouble."
+    echo "Pre-rebuild image IDs were: backend=${PRE_DEPLOY_BACKEND_IMAGE} frontend=${PRE_DEPLOY_FRONTEND_IMAGE}"
+    echo "Check logs with: docker compose -f docker-compose.yml logs backend"
+    exit 1
 fi
 
 # Test frontend endpoint

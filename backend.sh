@@ -93,8 +93,10 @@ else
     exit 1
 fi
 
-# Test backend health endpoint
-HEALTH_RESPONSE=$(curl -s http://127.0.0.1:18010/api/health/ || echo "error")
+# Test backend health endpoint. Send X-Forwarded-Proto like Caddy does in
+# production (SECURE_SSL_REDIRECT trusts that header) so this check exercises
+# the same path real traffic takes instead of hitting Django's HTTPS redirect.
+HEALTH_RESPONSE=$(curl -s -H "X-Forwarded-Proto: https" http://127.0.0.1:18010/api/health/ || echo "error")
 if echo "$HEALTH_RESPONSE" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'; then
     echo -e "${GREEN}✓ Backend API is responding and healthy (status: ok)${NC}"
 else
@@ -124,5 +126,5 @@ echo "Useful Commands:"
 echo "----------------"
 echo "  View logs: docker compose -f docker-compose.yml logs -f backend"
 echo "  Check status: docker compose -f docker-compose.yml ps backend"
-echo "  Test health: curl http://127.0.0.1:18010/api/health/"
+echo "  Test health: curl -H 'X-Forwarded-Proto: https' http://127.0.0.1:18010/api/health/"
 echo ""

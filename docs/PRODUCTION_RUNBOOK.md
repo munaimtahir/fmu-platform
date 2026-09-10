@@ -126,9 +126,12 @@ post-deploy health check reports a problem:
 5.  **If migrations broke the DB**, restore from backup (always take a DB
     backup before running a deploy — see the maintenance-window procedure
     below).
-6.  **Verify** the same way a normal deploy is verified: `curl
-    http://127.0.0.1:18010/api/health/` returns `{"status": "ok", ...}`,
-    `curl -I http://127.0.0.1:18080/` returns 200/304, and 2-3 real
+6.  **Verify** the same way a normal deploy is verified: `curl -H
+    "X-Forwarded-Proto: https" http://127.0.0.1:18010/api/health/` returns
+    `{"status": "ok", ...}` (the header is required locally — the backend's
+    `SECURE_SSL_REDIRECT` trusts `X-Forwarded-Proto` the way Caddy sets it
+    in production, so a plain local `curl` without it gets a 301 instead of
+    JSON), `curl -I http://127.0.0.1:18080/` returns 200/304, and 2-3 real
     user-facing pages load correctly (see "Deploy Dry-Run / Maintenance
     Window Procedure" below).
 

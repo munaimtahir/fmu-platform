@@ -163,9 +163,11 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="me")
     def me(self, request):
-        """Student's own results (published only)"""
+        """Student's own results (published or frozen; drafts are not yet finalized)"""
         # get_queryset() applies student-specific filtering
-        queryset = self.get_queryset().filter(status=ResultHeader.STATUS_PUBLISHED)
+        queryset = self.get_queryset().filter(
+            status__in=[ResultHeader.STATUS_PUBLISHED, ResultHeader.STATUS_FROZEN]
+        )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 

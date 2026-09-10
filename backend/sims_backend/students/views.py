@@ -30,7 +30,13 @@ class StudentViewSet(viewsets.ModelViewSet):
     required_tasks = ["students.students.view"]
 
     def get_permissions(self):
-        if self.action in ["list", "retrieve", "me"]:
+        if self.action == "me":
+            # Self-service: any authenticated user may fetch their own linked
+            # student record. This must not require the broad
+            # "students.students.view" task, which is reserved for staff
+            # views of other students' records.
+            return [IsAuthenticated()]
+        if self.action in ["list", "retrieve"]:
             self.required_tasks = ["students.students.view"]
         elif self.action == "create":
             self.required_tasks = ["students.students.create"]

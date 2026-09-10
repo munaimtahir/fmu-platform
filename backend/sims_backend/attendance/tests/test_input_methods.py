@@ -235,6 +235,7 @@ def test_live_submit_full_roster(api_client, setup_attendance_test_data):
     # Submit full roster
     records = [{"student_id": s.id, "status": "A" if i < 5 else "P"} for i, s in enumerate(students)]
 
+    # Use format='json' to ensure proper JSON serialization
     response = api_client.post(
         "/api/attendance-input/live/submit/",
         {
@@ -242,6 +243,7 @@ def test_live_submit_full_roster(api_client, setup_attendance_test_data):
             "default_status": "P",
             "records": records,
         },
+        format="json",
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -662,12 +664,14 @@ def test_sheet_commit_applies_reviewed_results(api_client, setup_attendance_test
         {"student_id": student2.id, "status": "P"},
     ]
 
+    # Use format='json' to ensure proper JSON serialization
     response = api_client.post(
         "/api/attendance-input/sheet/commit/",
         {
             "job_id": job_id,
             "records": records,
         },
+        format="json",
     )
 
     assert response.status_code == status.HTTP_200_OK

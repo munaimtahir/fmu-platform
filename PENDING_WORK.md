@@ -86,9 +86,9 @@ Done and deployed: `TimetableEntry` model (normalized, `Section`-linked), RBAC m
 **Done (2026-09-11, second follow-up session) — B3/B5, full `TimetableCell` removal:**
 Given this instance holds no real production data yet (pilot/demo only), the user explicitly authorized skipping the cautious production-verification steps below and discarding `TimetableCell` outright. Removed in one pass: the model/table (new migration `0007_delete_timetablecell.py`, depends on `0006_backfill_cells_to_entries`), `TimetableCellViewSet`/`TimetableCellSerializer`, the `/api/timetable/timetable-cells/` route, its admin registration, the `timetable.cells.*` permission tasks, and the mobile API's `_cell_to_dict` legacy-fallback path (`timetable_resolution.py` is now `TimetableEntry`-only — an empty week just returns an empty schedule, `source: "none"`). Also deleted the already-unwired legacy grid editor components (`TimetableEditor.tsx`, `TimetableTableView.tsx`) and the `TimetableCell` type/service methods on the frontend. Verified: `pytest sims_backend/timetable sims_backend/mobile` (18/18), full `pytest sims_backend -q`/`pytest tests -q` green, fresh-DB migration applies cleanly, `tsc --noEmit`/`npm run build` clean, zero remaining `TimetableCell` references outside old migration history.
 
-**No recurrence engine.** Only simple per-week dated occurrences exist. New scope if genuine recurring-schedule needs emerge, not follow-up.
-- **No `Room`/venue resource.** `TimetableEntry.room` is a plain `CharField`. Model properly if room-booking/conflict-detection across the whole institution becomes a real need.
-- **Two parallel academic-period hierarchies exist** (`academics.AcademicPeriod` vs. the newer `Program.periods`/`Track`/`LearningBlock`/`Module`) — still not reconciled. Understand which one is canonical before building more on either.
+**No recurrence engine.** Only simple per-week dated occurrences exist. New scope if genuine recurring-schedule needs emerge, not follow-up — explicitly still deferred, not built this session.
+- **No `Room`/venue resource.** `TimetableEntry.room` is a plain `CharField`. Model properly if room-booking/conflict-detection across the whole institution becomes a real need — explicitly still deferred, not built this session.
+- **RESOLVED (2026-09-11 minor-threads session) — the two academic-period hierarchies were investigated and are not actually duplicates.** `academics.AcademicPeriod` is the canonical scheduling/term model: it's the FK target for Exams, 5 Finance models, Timetable/Session, Learning materials, and Course/Section, and the universal fixture in the test suite and demo seeders. `Program.periods`/`Track`/`LearningBlock`/`Module` (added later, `0005_add_period_track_block_module.py`) models curriculum *structure* within a Program and is currently only consumed by `syllabus.SyllabusItem` — it was never meant to replace `AcademicPeriod`, it's a different concept (term vs. structure) that happened to lack any documentation saying so. Fixed by adding clarifying docstrings/comments to both model groups in `backend/sims_backend/academics/models.py` (near `AcademicPeriod` and the "New Academics Module Models" section). No data migration or code behavior change was needed.
 
 ---
 
@@ -101,6 +101,8 @@ Given this instance holds no real production data yet (pilot/demo only), the use
 **Result:** 54 accounts matched known demo/seed patterns, and **all 54** still have the documented default password. Every flagged account uses the `@examplemedical.edu` placeholder email domain, was created the same day (2026-09-08), and has never logged in (`last_login: never`) — consistent with this entire instance currently holding pilot/demo data rather than a mix with real staff/students.
 
 **User decision (2026-09-10): confirmed demo-only, leave passwords as-is for now** — no rotation/disabling performed. Revisit before this instance is handed to real users: at that point, re-run the audit and rotate/disable any accounts confirmed as demo-only once real accounts exist to distinguish them from.
+
+**Re-confirmed (2026-09-11 minor-threads session):** explicitly asked; real users are not being onboarded yet, so no action taken. Still the next trigger to revisit this section.
 
 ---
 

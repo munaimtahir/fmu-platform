@@ -89,7 +89,17 @@ class Batch(TimeStampedModel):
 
 
 class AcademicPeriod(TimeStampedModel):
-    """Academic period with hierarchical structure (YEAR / BLOCK / MODULE)"""
+    """Academic period with hierarchical structure (YEAR / BLOCK / MODULE).
+
+    This is the canonical term/scheduling-period model: it is what Exams,
+    Finance, Timetable/Session, Learning materials, and Course/Section all key
+    off, and what the whole test/demo-seed fixture set is built around. It is
+    a distinct concept from the Period/Track/LearningBlock/Module hierarchy
+    below, which models curriculum *structure* within a Program rather than a
+    scheduling term — the two are not duplicates of each other and neither is
+    a replacement for the other. See PENDING_WORK.md §4 for the reconciliation
+    note that established this.
+    """
 
     PERIOD_TYPE_YEAR = "YEAR"
     PERIOD_TYPE_BLOCK = "BLOCK"
@@ -311,6 +321,14 @@ class Section(TimeStampedModel):
 
 
 # New Academics Module Models
+#
+# Period/Track/LearningBlock/Module model curriculum *structure* within a
+# Program (e.g. MBBS Year 1 -> parallel Tracks -> integrated/rotation Blocks
+# -> Modules). This is a different concept from AcademicPeriod above, which
+# is the scheduling/term model used by Exams, Finance, Timetable, Learning
+# materials, and Course/Section. Only `syllabus.SyllabusItem` currently
+# attaches to this hierarchy. Neither hierarchy is deprecated or meant to
+# replace the other — see the AcademicPeriod docstring and PENDING_WORK.md §4.
 
 
 class Period(TimeStampedModel):

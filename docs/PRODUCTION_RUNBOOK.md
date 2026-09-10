@@ -158,7 +158,25 @@ does not apply to `ops/deploy.sh` (a separate git-pull-based CI/CD path).
   hard-fail immediately if it's missing.
 - Take a DB backup before the deploy, especially if migrations are
   included (there is no automated backup step in `backend.sh`/`both.sh` —
-  this is a manual pre-check).
+  this is a manual pre-check). Run from the repo root on the production
+  host:
+  ```bash
+  docker exec vexel_medsims_db pg_dump -U "${POSTGRES_USER:-vexel_medsims_app}" \
+    "${POSTGRES_DB:-vexel_medsims}" | gzip > \
+    "backups/pre-deploy-$(date +%Y%m%d-%H%M%S).sql.gz"
+  ```
+  (create a `backups/` directory first if it doesn't exist; keep these
+  outside the git working tree's tracked files). To restore from one of
+  these dumps if a migration breaks the DB:
+  ```bash
+  gunzip -c backups/pre-deploy-<timestamp>.sql.gz | \
+    docker exec -i vexel_medsims_db psql -U "${POSTGRES_USER:-vexel_medsims_app}" \
+    "${POSTGRES_DB:-vexel_medsims}"
+  ```
+  Restoring into a live database only works cleanly against an empty/reset
+  schema — if the failed migration partially applied, drop and recreate
+  the database (or the affected tables) before restoring, and expect this
+  to require judgment calls rather than being a single copy-paste command.
 - Confirm `docker ps` shows the expected containers currently healthy
   (`vexel_medsims_backend`, `vexel_medsims_frontend`, `vexel_medsims_db`)
   before touching anything.

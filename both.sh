@@ -123,7 +123,10 @@ FRONTEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:1808
 if [ "$FRONTEND_RESPONSE" = "200" ] || [ "$FRONTEND_RESPONSE" = "304" ]; then
     echo -e "${GREEN}✓ Frontend is responding${NC}"
 else
-    echo -e "${YELLOW}⚠️  Frontend health check inconclusive (HTTP $FRONTEND_RESPONSE)${NC}"
+    echo -e "${RED}✗ Frontend health check failed (HTTP $FRONTEND_RESPONSE)${NC}"
+    echo "Pre-rebuild image IDs were: backend=${PRE_DEPLOY_BACKEND_IMAGE} frontend=${PRE_DEPLOY_FRONTEND_IMAGE}"
+    echo "Check logs with: docker compose -f docker-compose.yml logs frontend"
+    exit 1
 fi
 
 echo ""

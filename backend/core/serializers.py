@@ -7,6 +7,8 @@ via either username or email using a single `identifier` field.
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import update_last_login
 from django.db.models import Q
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -33,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField()
     student_id = serializers.SerializerMethodField()
 
-    def get_student_id(self, obj):
+    def get_student_id(self, obj) -> int | None:
         """Get student ID if user has an associated student record."""
         try:
             if hasattr(obj, "student") and obj.student:
@@ -47,12 +49,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "full_name", "role", "student_id", "is_active"]
         read_only_fields = fields
 
-    def get_full_name(self, obj):
+    def get_full_name(self, obj) -> str:
         """Get user's full name."""
         full_name = f"{obj.first_name} {obj.last_name}".strip()
         return full_name if full_name else obj.username
 
-    def get_role(self, obj):
+    def get_role(self, obj) -> str:
         """Get user's primary role based on groups."""
         if obj.is_superuser:
             return "Admin"
@@ -261,6 +263,7 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "description", "is_system_role", "task_assignments", "created_at", "updated_at"]
         read_only_fields = ["id", "is_system_role", "created_at", "updated_at"]
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_task_assignments(self, obj):
         """Get list of permission tasks assigned to this role."""
         from core.models import RoleTaskAssignment
@@ -347,6 +350,7 @@ class UserMeSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "first_name", "last_name", "is_active", "roles", "tasks", "profile"]
         read_only_fields = fields
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_roles(self, obj):
         """Get user's roles."""
         from core.permissions import get_user_roles
@@ -354,6 +358,7 @@ class UserMeSerializer(serializers.ModelSerializer):
         roles = get_user_roles(obj)
         return [{"id": r.id, "name": r.name, "description": r.description} for r in roles]
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_tasks(self, obj):
         """Get user's permission tasks (both direct and via roles)."""
         from core.models import PermissionTask, RoleTaskAssignment, UserTaskAssignment
@@ -372,6 +377,7 @@ class UserMeSerializer(serializers.ModelSerializer):
 
         return [{"id": t.id, "code": t.code, "name": t.name, "module": t.module} for t in tasks]
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_profile(self, obj):
         """Get user's profile if exists."""
         if hasattr(obj, "profile"):

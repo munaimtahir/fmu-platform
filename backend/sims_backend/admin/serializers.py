@@ -2,6 +2,8 @@
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 User = get_user_model()
@@ -34,12 +36,12 @@ class AdminUserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "last_login", "date_joined"]
 
-    def get_full_name(self, obj):
+    def get_full_name(self, obj) -> str:
         """Get user's full name."""
         full_name = f"{obj.first_name} {obj.last_name}".strip()
         return full_name if full_name else obj.username
 
-    def get_role(self, obj):
+    def get_role(self, obj) -> str:
         """Get user's primary role."""
         if obj.is_superuser:
             return "Admin"
@@ -49,6 +51,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
                 return role
         return "User"
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
     def get_groups_list(self, obj):
         """Get list of group names."""
         return list(obj.groups.values_list("name", flat=True))

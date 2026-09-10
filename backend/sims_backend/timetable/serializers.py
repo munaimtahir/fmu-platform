@@ -1,3 +1,5 @@
+from datetime import date
+
 from rest_framework import serializers
 
 from sims_backend.timetable.models import Session, TimetableCell, WeeklyTimetable
@@ -77,7 +79,7 @@ class WeeklyTimetableSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at", "updated_at", "created_by"]
 
-    def get_week_end_date(self, obj):
+    def get_week_end_date(self, obj) -> date:
         """Calculate Saturday (week_end_date) from Monday (week_start_date)"""
         from datetime import timedelta
 
@@ -119,12 +121,12 @@ class WeeklyTimetableListSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at", "updated_at"]
 
-    def get_week_end_date(self, obj):
+    def get_week_end_date(self, obj) -> date:
         """Calculate Saturday (week_end_date) from Monday (week_start_date)"""
         from datetime import timedelta
 
         return obj.week_start_date + timedelta(days=5)
 
-    def get_cell_count(self, obj):
+    def get_cell_count(self, obj) -> int:
         """Get count of cells in this timetable"""
         return obj.cells.count()

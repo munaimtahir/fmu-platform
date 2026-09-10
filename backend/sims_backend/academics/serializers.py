@@ -114,7 +114,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at", "updated_at"]
 
-    def get_children_count(self, obj):
+    def get_children_count(self, obj) -> int:
         """Get count of child departments"""
         return obj.children.count() if hasattr(obj, "children") else 0
 
@@ -148,7 +148,7 @@ class PeriodSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at", "updated_at"]
 
-    def get_students_count(self, obj):
+    def get_students_count(self, obj) -> int:
         """Get count of active students in batches that correspond to this period"""
         from django.utils import timezone
 
@@ -257,7 +257,7 @@ class LearningBlockSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at", "updated_at"]
 
-    def get_modules_count(self, obj):
+    def get_modules_count(self, obj) -> int:
         """Get count of modules"""
         return obj.modules.count() if hasattr(obj, "modules") else 0
 
@@ -330,7 +330,7 @@ class SectionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at", "updated_at"]
 
-    def get_enrolled_count(self, obj):
+    def get_enrolled_count(self, obj) -> int:
         """Get count of enrolled students for this section."""
         # Legacy enrollment module removed - return 0 or implement via students app if needed
         return 0

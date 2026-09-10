@@ -18,7 +18,7 @@ class PreviewRequestSerializer(serializers.Serializer):
     )
 
 
-class RowErrorSerializer(serializers.Serializer):
+class FacultyImportRowErrorSerializer(serializers.Serializer):
     """Serializer for row validation errors"""
 
     column = serializers.CharField()
@@ -30,7 +30,7 @@ class PreviewRowSerializer(serializers.Serializer):
 
     row_number = serializers.IntegerField()
     action = serializers.CharField()  # CREATE, UPDATE, SKIP
-    errors = RowErrorSerializer(many=True)
+    errors = FacultyImportRowErrorSerializer(many=True)
     data = serializers.DictField()
 
 

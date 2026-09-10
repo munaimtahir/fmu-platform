@@ -79,6 +79,8 @@ class NotificationInboxViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated, IsStudentOrNotificationAdmin]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return NotificationInbox.objects.none()
         now = timezone.now()
         queryset = NotificationInbox.objects.select_related("notification").filter(
             user=self.request.user,

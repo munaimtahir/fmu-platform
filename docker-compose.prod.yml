@@ -44,6 +44,25 @@ services:
       - "127.0.0.1:8010:8000"
     restart: unless-stopped
 
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vexel_medsims_rq_worker_prod
+    env_file:
+      - .env
+    environment:
+      DJANGO_SECURE_SSL_REDIRECT: "True"
+      APP_VERSION: ${APP_VERSION:?APP_VERSION must be set to the deployed revision}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend/staticfiles:/app/staticfiles
+      - ./backend/media:/app/media
+    command: ["python", "manage.py", "rqworker", "default"]
+    restart: unless-stopped
+
   frontend:
     build:
       context: ./frontend

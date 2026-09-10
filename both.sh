@@ -38,6 +38,15 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
+# Record the deployed commit in .env (same convention as ops/deploy.sh) so
+# /api/health/'s "version" field reflects what's actually running.
+APP_VERSION="$(git rev-parse HEAD)"
+if grep -q '^APP_VERSION=' ".env"; then
+    sed -i "s/^APP_VERSION=.*/APP_VERSION=${APP_VERSION}/" ".env"
+else
+    echo "APP_VERSION=${APP_VERSION}" >> ".env"
+fi
+
 echo -e "${BLUE}Step 1: Stopping frontend and backend services...${NC}"
 echo "-----------------------------------"
 docker compose -f docker-compose.yml stop frontend backend

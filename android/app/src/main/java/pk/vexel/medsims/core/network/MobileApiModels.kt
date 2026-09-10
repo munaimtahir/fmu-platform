@@ -20,3 +20,21 @@ import kotlinx.serialization.Serializable
     val today_schedule: List<ScheduleEntryDto>,
 )
 @Serializable data class StudentTimetableResponse(val week_start_date: String, val entries: List<ScheduleEntryDto>, val source: String)
+
+/** Generic DRF `PageNumberPagination` envelope: `{count, next, previous, results}`. */
+@Serializable data class PaginatedResponse<T>(val count: Int, val next: String? = null, val previous: String? = null, val results: List<T>)
+
+/** One row from `GET /api/attendance/` — distinct from the home screen's [AttendanceSummaryDto] aggregate. */
+@Serializable data class AttendanceRecordDto(
+    val id: Long, val session: Long, val student: Long,
+    val student_reg_no: String? = null, val student_name: String? = null, val session_department: String? = null,
+    val status: String, val marked_by_username: String? = null, val marked_at: String? = null, val created_at: String,
+)
+
+/** One row from `GET /api/results/` — distinct from the home screen's [LatestResultDto] summary. */
+@Serializable data class ResultRecordDto(
+    val id: Long, val exam: Long, val exam_title: String? = null, val student: Long,
+    val student_reg_no: String? = null, val student_name: String? = null,
+    val total_obtained: String? = null, val total_max: String? = null,
+    val final_outcome: String? = null, val status: String, val created_at: String,
+)

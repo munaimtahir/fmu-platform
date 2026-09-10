@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 permissions: { contents: read }
 jobs:
-  android:
+  build:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: android } }
     steps:
@@ -13,3 +13,55 @@ jobs:
       - run: chmod +x gradlew
       - run: ./gradlew --version
       - run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:assembleRelease
+      # NOTE on bundleRelease: app/build.gradle.kts has a fail-fast guard that
+      # requires the canonical MedSIMS Play upload-key signing.properties
+      # (kept outside Git at ~/.config/vexel/medsims-signing/signing.properties,
+      # see android/docs/PLAY_SIGNING.md) before it will run `bundleRelease`.
+      # That key must never be generated or stored in CI, so CI cannot produce
+      # a real signed release bundle. We still verify the bundleRelease task
+      # graph is wired correctly (catches AGP/plugin/config regressions),
+      # while `assembleRelease` above remains the real signal for
+      # release-variant build breakage.
+      - name: Verify bundleRelease task is wired (no signing available in CI)
+        run: ./gradlew :app:tasks --all | grep -q '^bundleRelease ' && echo "bundleRelease task present" || (echo "bundleRelease task missing" && exit 1)
+
+  instrumented-tests:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: android } }
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Older API baseline
+          - api-level: 28
+            profile: pixel_5
+            target: default
+          # Current API baseline (matches compileSdk/targetSdk 36 as closely
+          # as available emulator system images allow; see android/docs/TESTING.md)
+          - api-level: 34
+            profile: pixel_5
+            target: google_apis
+          # Larger-screen / tablet-class coverage
+          - api-level: 33
+            profile: pixel_tablet
+            target: google_apis
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: gradle }
+      - run: chmod +x gradlew
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run instrumented tests on API ${{ matrix.api-level }} (${{ matrix.profile }})
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          profile: ${{ matrix.profile }}
+          arch: x86_64
+          working-directory: android
+          disable-animations: true
+          script: ./gradlew :app:connectedDebugAndroidTest

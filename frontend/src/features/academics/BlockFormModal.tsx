@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { Modal } from '@/components/ui/Modal'
 import { academicsNewService, type LearningBlock } from '@/services/academicsNew'
 
 interface BlockFormModalProps {
@@ -88,11 +89,7 @@ export const BlockFormModal: React.FC<BlockFormModalProps> = ({
   const isLoading = createMutation.isPending || updateMutation.isPending
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4">
-          {block ? 'Edit Block' : 'Create Block'}
-        </h2>
+    <Modal title={block ? 'Edit Block' : 'Create Block'} onClose={onClose} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Block Name"
@@ -175,8 +172,7 @@ export const BlockFormModal: React.FC<BlockFormModalProps> = ({
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   )
 }
 

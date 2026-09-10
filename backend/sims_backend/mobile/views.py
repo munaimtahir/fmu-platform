@@ -6,16 +6,26 @@ exposing large administrative serializers or requiring multiple
 administrative calls per screen load.
 """
 
+from datetime import date
+
 from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from sims_backend.attendance.models import Attendance
-from sims_backend.mobile.serializers import MobileStudentHomeSerializer
+from sims_backend.mobile.serializers import MobileStudentHomeSerializer, MobileStudentTimetableSerializer
+from sims_backend.mobile.timetable_resolution import get_student_today_schedule, get_student_week_schedule
 from sims_backend.results.models import ResultHeader
 
 LATEST_RESULTS_LIMIT = 5
+
+
+def _not_a_student_response():
+    return Response(
+        {"error": {"code": "NOT_A_STUDENT", "message": "No student record linked to your account"}},
+        status=404,
+    )
 
 
 class StudentHomeView(APIView):
@@ -32,10 +42,7 @@ class StudentHomeView(APIView):
     def get(self, request):
         student = getattr(request.user, "student", None)
         if student is None:
-            return Response(
-                {"error": {"code": "NOT_A_STUDENT", "message": "No student record linked to your account"}},
-                status=404,
-            )
+            return _not_a_student_response()
 
         display_name = student.name or (student.person.full_name if student.person else student.reg_no)
 
@@ -86,10 +93,43 @@ class StudentHomeView(APIView):
                 }
                 for r in latest_results
             ],
-            "timetable": {
-                "status": "BLOCKED_BY_DATA_MODEL",
-                "reason": "No canonical per-student timetable model exists yet; "
-                "WeeklyTimetable/TimetableCell are keyed by batch/group, not by individual student.",
-            },
+            "today_schedule": get_student_today_schedule(student),
         }
+        return Response(payload, status=200)
+
+
+class StudentTimetableView(APIView):
+    """GET /api/mobile/student/timetable/
+
+    Student-scoped, read-only weekly schedule. Accepts an optional
+    `week_start_date` (YYYY-MM-DD, any date within the target week) query
+    param; defaults to the current week. Returns 404 if the authenticated
+    user has no linked student record.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses=MobileStudentTimetableSerializer)
+    def get(self, request):
+        student = getattr(request.user, "student", None)
+        if student is None:
+            return _not_a_student_response()
+
+        week_start_date = None
+        raw_date = request.query_params.get("week_start_date")
+        if raw_date:
+            try:
+                week_start_date = date.fromisoformat(raw_date)
+            except ValueError:
+                return Response(
+                    {
+                        "error": {
+                            "code": "INVALID_DATE",
+                            "message": "week_start_date must be in YYYY-MM-DD format",
+                        }
+                    },
+                    status=400,
+                )
+
+        payload = get_student_week_schedule(student, week_start_date=week_start_date)
         return Response(payload, status=200)

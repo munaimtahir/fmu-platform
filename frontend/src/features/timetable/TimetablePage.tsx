@@ -14,6 +14,8 @@ import { useAuth } from '@/features/auth/useAuth'
 import { weeklyTimetableService, timetableCellService, academicsService, batchesService } from '@/services'
 import { TimetableTableView } from './TimetableTableView'
 import { TimetableEditor } from './TimetableEditor'
+import { StudentTimetableView } from './StudentTimetableView'
+import { EntriesPanel } from './EntriesPanel'
 
 type ViewMode = 'list' | 'view' | 'edit'
 
@@ -330,6 +332,19 @@ export function TimetablePage() {
     return { draft, published }
   }, [allWeeks])
 
+  if (isStudent) {
+    return (
+      <DashboardLayout>
+        <div className="container mx-auto py-6 px-4">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold">My Timetable</h1>
+          </div>
+          <StudentTimetableView />
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   return (
     <DashboardLayout>
       <div className="container mx-auto py-6 px-4">
@@ -520,6 +535,13 @@ export function TimetablePage() {
               )}
             </div>
             <TimetableTableView timetable={fullTimetable} />
+            <EntriesPanel
+              weeklyTimetableId={fullTimetable.id}
+              batchId={fullTimetable.batch}
+              academicPeriodId={fullTimetable.academic_period}
+              canEdit={canEdit}
+              isDraft={fullTimetable.status === 'draft'}
+            />
           </>
         ) : viewMode === 'edit' && fullTimetable ? (
           <>
@@ -553,6 +575,13 @@ export function TimetablePage() {
             <div className="mt-2 text-sm text-gray-600">
               <strong>Note:</strong> All 3 lines in every cell must be filled before publishing.
             </div>
+            <EntriesPanel
+              weeklyTimetableId={fullTimetable.id}
+              batchId={fullTimetable.batch}
+              academicPeriodId={fullTimetable.academic_period}
+              canEdit={canEdit}
+              isDraft={fullTimetable.status === 'draft'}
+            />
           </>
         ) : null}
       </div>

@@ -4,15 +4,18 @@ from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from core.permissions import PermissionTaskRequired
 from sims_backend.common_permissions import in_group
-from sims_backend.timetable.models import Session, TimetableCell, WeeklyTimetable
+from sims_backend.timetable.models import Session, TimetableCell, TimetableEntry, WeeklyTimetable
 from sims_backend.timetable.serializers import (
     SessionSerializer,
     TimetableCellSerializer,
+    TimetableEntrySerializer,
     WeeklyTimetableListSerializer,
     WeeklyTimetableSerializer,
 )
@@ -21,19 +24,24 @@ from sims_backend.timetable.serializers import (
 class SessionViewSet(viewsets.ModelViewSet):
     queryset = Session.objects.select_related("academic_period", "group", "faculty", "department").all()
     serializer_class = SessionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["academic_period", "group", "faculty", "department"]
     search_fields = ["department__name", "group__name"]
     ordering_fields = ["starts_at", "ends_at"]
     ordering = ["starts_at"]
+    required_tasks = ["timetable.sessions.view"]
 
     def get_permissions(self):
-        # OfficeAssistant, Faculty, Admin, Coordinator can CRUD sessions
-        if self.action in ["create", "update", "partial_update", "destroy"]:
-            # Allow OfficeAssistant, Faculty, Admin, Coordinator
-            return [IsAuthenticated()]
-        return [IsAuthenticated()]
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["timetable.sessions.view"]
+        elif self.action == "create":
+            self.required_tasks = ["timetable.sessions.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["timetable.sessions.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["timetable.sessions.delete"]
+        return super().get_permissions()
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -49,14 +57,15 @@ class SessionViewSet(viewsets.ModelViewSet):
 class WeeklyTimetableViewSet(viewsets.ModelViewSet):
     queryset = (
         WeeklyTimetable.objects.select_related("academic_period", "batch", "batch__program", "created_by")
-        .prefetch_related("cells")
+        .prefetch_related("cells", "entries__section__course", "entries__section__faculty", "entries__group")
         .all()
     )
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["academic_period", "batch", "status", "week_start_date"]
     ordering_fields = ["week_start_date", "created_at"]
     ordering = ["-week_start_date"]
+    required_tasks = ["timetable.weekly.view"]
 
     def get_serializer_class(self):
         """Use detailed serializer for retrieve, list serializer for list"""
@@ -79,12 +88,17 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_permissions(self):
-        """Restrict create/update/delete to Faculty/Admin/Coordinator"""
-        if self.action in ["create", "update", "partial_update", "destroy", "publish"]:
-            # Only Faculty, Admin, Coordinator can modify
-            return [IsAuthenticated()]
-        # Anyone authenticated can view (subject to queryset filtering)
-        return [IsAuthenticated()]
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["timetable.weekly.view"]
+        elif self.action == "create":
+            self.required_tasks = ["timetable.weekly.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["timetable.weekly.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["timetable.weekly.delete"]
+        elif self.action in ["publish", "unpublish", "generate_weekly_templates"]:
+            self.required_tasks = ["timetable.weekly.manage"]
+        return super().get_permissions()
 
     @action(detail=True, methods=["post"])
     def publish(self, request, pk=None):
@@ -245,11 +259,12 @@ class WeeklyTimetableViewSet(viewsets.ModelViewSet):
 class TimetableCellViewSet(viewsets.ModelViewSet):
     queryset = TimetableCell.objects.select_related("weekly_timetable").all()
     serializer_class = TimetableCellSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["weekly_timetable", "day_of_week", "time_slot"]
     ordering_fields = ["day_of_week", "time_slot"]
     ordering = ["day_of_week", "time_slot"]
+    required_tasks = ["timetable.cells.view"]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -266,10 +281,15 @@ class TimetableCellViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_permissions(self):
-        """Restrict create/update/delete to Faculty/Admin/Coordinator, and only for draft timetables"""
-        if self.action in ["create", "update", "partial_update", "destroy"]:
-            return [IsAuthenticated()]
-        return [IsAuthenticated()]
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["timetable.cells.view"]
+        elif self.action == "create":
+            self.required_tasks = ["timetable.cells.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["timetable.cells.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["timetable.cells.delete"]
+        return super().get_permissions()
 
     def perform_create(self, serializer):
         """Ensure timetable is draft before adding cells"""
@@ -324,3 +344,121 @@ class TimetableCellViewSet(viewsets.ModelViewSet):
                 raise PermissionDenied("You can only modify your own timetables")
 
         instance.delete()
+
+
+class TimetableEntryViewSet(viewsets.ModelViewSet):
+    """CRUD for the normalized TimetableEntry model (see models.py docstring).
+
+    Prefers cancellation (`cancel` action) over destructive deletion for
+    published/live entries, consistent with the audit-trail expectation for
+    staff-managed schedule changes; `destroy` remains available for
+    correcting mistakes on entries that were never really valid.
+    """
+
+    queryset = TimetableEntry.objects.select_related(
+        "weekly_timetable", "weekly_timetable__batch", "section", "section__course", "section__faculty", "group"
+    ).all()
+    serializer_class = TimetableEntrySerializer
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ["weekly_timetable", "section", "group", "day_of_week", "status"]
+    ordering_fields = ["day_of_week", "start_time", "created_at"]
+    ordering = ["day_of_week", "start_time"]
+    required_tasks = ["timetable.entries.view"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["timetable.entries.view"]
+        elif self.action == "create":
+            self.required_tasks = ["timetable.entries.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["timetable.entries.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["timetable.entries.delete"]
+        elif self.action == "cancel":
+            self.required_tasks = ["timetable.entries.cancel"]
+        return super().get_permissions()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+
+        # Students can only see entries from published timetables, scoped to
+        # their own group (entries with group=None apply to the whole batch).
+        student = getattr(user, "student", None)
+        if in_group(user, "STUDENT") and not (in_group(user, "ADMIN") or in_group(user, "FACULTY")):
+            queryset = queryset.filter(weekly_timetable__status="published")
+            if student is not None:
+                queryset = queryset.filter(Q(group__isnull=True) | Q(group=student.group)).filter(
+                    weekly_timetable__batch=student.batch
+                )
+            else:
+                queryset = queryset.none()
+
+        # Faculty can see entries from their own draft timetables, entries
+        # for sections they teach, or any published entry.
+        elif in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "COORDINATOR")):
+            queryset = queryset.filter(
+                Q(weekly_timetable__created_by=user)
+                | Q(section__faculty=user)
+                | Q(weekly_timetable__status="published")
+            )
+
+        return queryset
+
+    def perform_create(self, serializer):
+        weekly_timetable = serializer.validated_data["weekly_timetable"]
+        if weekly_timetable.status == "published":
+            raise ValidationError("Cannot add entries to a published timetable")
+
+        user = self.request.user
+        if in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "COORDINATOR")):
+            if weekly_timetable.created_by != user:
+                raise PermissionDenied("You can only modify your own timetables")
+
+        serializer.save()
+
+    def perform_update(self, serializer):
+        weekly_timetable = serializer.instance.weekly_timetable
+        if weekly_timetable.status == "published":
+            raise ValidationError("Cannot modify entries in a published timetable; cancel or unpublish first")
+
+        user = self.request.user
+        if in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "COORDINATOR")):
+            if weekly_timetable.created_by != user:
+                raise PermissionDenied("You can only modify your own timetables")
+
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        weekly_timetable = instance.weekly_timetable
+        if weekly_timetable.status == "published":
+            raise ValidationError("Cannot delete entries from a published timetable; use cancel instead")
+
+        user = self.request.user
+        if in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "COORDINATOR")):
+            if weekly_timetable.created_by != user:
+                raise PermissionDenied("You can only modify your own timetables")
+
+        instance.delete()
+
+    @action(detail=True, methods=["post"])
+    def cancel(self, request, pk=None):
+        """Mark an entry cancelled without deleting it (audit-friendly)."""
+        entry = self.get_object()
+
+        user = request.user
+        if in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "COORDINATOR")):
+            if entry.weekly_timetable.created_by != user and entry.section.faculty_id != user.id:
+                return Response(
+                    {"detail": "You can only cancel your own entries"}, status=status.HTTP_403_FORBIDDEN
+                )
+
+        if entry.status == TimetableEntry.STATUS_CANCELLED:
+            return Response({"detail": "Entry is already cancelled"}, status=status.HTTP_400_BAD_REQUEST)
+
+        entry.status = TimetableEntry.STATUS_CANCELLED
+        entry.save()
+
+        serializer = self.get_serializer(entry)
+        return Response(serializer.data)

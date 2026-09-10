@@ -4,6 +4,19 @@ import { useAuth } from './useAuth'
 import { Spinner } from '@/components/ui/Spinner'
 import { canAccessRoute } from '@/config/navConfig'
 
+// Hoisted to module scope: creating this inside the component body would
+// construct a brand-new lazy component on every render, causing React to
+// treat it as a different component and remount/refetch it each time.
+const UnauthorizedPage = React.lazy(() =>
+  import('@/pages/UnauthorizedPage').then((m) => ({ default: m.UnauthorizedPage }))
+)
+
+const RouteFallback = () => (
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <Spinner size="lg" />
+  </div>
+)
+
 export interface ProtectedRouteProps {
   children: React.ReactNode
   allowedRoles?: string[]
@@ -60,20 +73,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!hasAccess) {
     // 403: Show unauthorized page (stays logged in but blocked)
-    // Import dynamically to avoid circular dependencies
-    const UnauthorizedPage = React.lazy(() => 
-      import('@/pages/UnauthorizedPage').then(m => ({ default: m.UnauthorizedPage }))
-    )
     return (
-      <React.Suspense fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <Spinner size="lg" />
-        </div>
-      }>
+      <React.Suspense fallback={<RouteFallback />}>
         <UnauthorizedPage />
       </React.Suspense>
     )
   }
 
-  return <>{children}</>
+  // All route page components are lazy-loaded (see routes/appRoutes.tsx);
+  // this single Suspense boundary covers every protected route rather than
+  // wrapping each one individually at the call site.
+  return <React.Suspense fallback={<RouteFallback />}>{children}</React.Suspense>
 }

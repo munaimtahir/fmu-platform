@@ -163,3 +163,111 @@ class TimetableCell(TimeStampedModel):
 
     def __str__(self):
         return f"{self.get_day_of_week_display()} {self.time_slot} - {self.line1 or 'Empty'}"
+
+
+class TimetableEntry(TimeStampedModel):
+    """Normalized timetable entry, linked to a Section (course/faculty/group context).
+
+    This supersedes TimetableCell's free-text line1/2/3 content for new
+    writes, resolving the BLOCKED_BY_DATA_MODEL gap: a student's schedule
+    can now be derived from their group via `group` (or, when `group` is
+    left blank, the entry applies to the whole batch). TimetableCell/Session
+    are left untouched for backward compatibility with existing draft/
+    published weekly timetables; this model is additive, not a replacement.
+    """
+
+    STATUS_SCHEDULED = "SCHEDULED"
+    STATUS_CANCELLED = "CANCELLED"
+    STATUS_COMPLETED = "COMPLETED"
+
+    STATUS_CHOICES = [
+        (STATUS_SCHEDULED, "Scheduled"),
+        (STATUS_CANCELLED, "Cancelled"),
+        (STATUS_COMPLETED, "Completed"),
+    ]
+
+    weekly_timetable = models.ForeignKey(
+        WeeklyTimetable,
+        on_delete=models.CASCADE,
+        related_name="entries",
+        help_text="Weekly timetable this entry belongs to",
+    )
+    section = models.ForeignKey(
+        "academics.Section",
+        on_delete=models.PROTECT,
+        related_name="timetable_entries",
+        help_text="Section (course + faculty context) taught in this slot",
+    )
+    group = models.ForeignKey(
+        "academics.Group",
+        on_delete=models.PROTECT,
+        related_name="timetable_entries",
+        null=True,
+        blank=True,
+        help_text="Group this entry is scoped to; blank means it applies to the whole batch",
+    )
+    day_of_week = models.IntegerField(
+        choices=WeeklyTimetable.DAY_CHOICES, help_text="Day of the week (0=Monday, 5=Saturday)"
+    )
+    start_time = models.TimeField(help_text="Entry start time")
+    end_time = models.TimeField(help_text="Entry end time")
+    room = models.CharField(max_length=100, blank=True, help_text="Room/venue (free text; no Room resource yet)")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_SCHEDULED)
+    notes = models.CharField(max_length=255, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="created_timetable_entries",
+    )
+
+    class Meta:
+        ordering = ["day_of_week", "start_time"]
+        verbose_name_plural = "timetable entries"
+        indexes = [
+            models.Index(fields=["weekly_timetable", "day_of_week"]),
+            models.Index(fields=["group"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def clean(self):
+        errors = {}
+        if self.start_time and self.end_time and self.end_time <= self.start_time:
+            errors["end_time"] = "end_time must be after start_time"
+
+        if self.section_id and self.weekly_timetable_id:
+            if self.section.academic_period_id != self.weekly_timetable.academic_period_id:
+                errors["section"] = "Section's academic period must match the weekly timetable's academic period"
+
+        if self.group_id and self.weekly_timetable_id:
+            if self.group.batch_id != self.weekly_timetable.batch_id:
+                errors["group"] = "Group's batch must match the weekly timetable's batch"
+
+        if errors:
+            raise ValidationError(errors)
+
+        if self.weekly_timetable_id and self.day_of_week is not None and self.start_time and self.end_time:
+            overlapping = TimetableEntry.objects.filter(
+                weekly_timetable_id=self.weekly_timetable_id,
+                day_of_week=self.day_of_week,
+                start_time__lt=self.end_time,
+                end_time__gt=self.start_time,
+            ).exclude(status=self.STATUS_CANCELLED)
+            if self.pk:
+                overlapping = overlapping.exclude(pk=self.pk)
+
+            if self.section_id and overlapping.filter(section__faculty_id=self.section.faculty_id).exists():
+                if self.section.faculty_id is not None:
+                    raise ValidationError("This faculty member already has an overlapping entry at this time")
+
+            if self.group_id and overlapping.filter(group_id=self.group_id).exists():
+                raise ValidationError("This group already has an overlapping entry at this time")
+
+            if self.room and overlapping.filter(room=self.room).exists():
+                raise ValidationError("This room already has an overlapping entry at this time")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.section} - {self.get_day_of_week_display()} {self.start_time}-{self.end_time}"

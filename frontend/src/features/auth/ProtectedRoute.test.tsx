@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { render, screen } from '@testing-library/react'
 import { ProtectedRoute } from './ProtectedRoute'
@@ -57,9 +57,14 @@ describe('ProtectedRoute', () => {
     })
 
     const { result } = renderHook(() => useAuthStore())
-    
-    // Initialize to load auth state
-    result.current.initialize()
+
+    // Initialize to load auth state. This is async and updates store state,
+    // so it must be awaited inside act() - otherwise React warns that a
+    // state update (from ProtectedRoute's own effect calling initialize()
+    // again, or from this call resolving mid-render) happened outside act().
+    await act(async () => {
+      await result.current.initialize()
+    })
 
     render(
       <MemoryRouter initialEntries={['/protected']}>

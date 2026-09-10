@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { TextArea } from '@/components/ui/TextArea'
 import { Select } from '@/components/ui/Select'
+import { Modal } from '@/components/ui/Modal'
 import { academicsNewService, type Department } from '@/services/academicsNew'
 
 interface DepartmentFormModalProps {
@@ -73,52 +74,47 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({ depart
   const isLoading = createMutation.isPending || updateMutation.isPending
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">
-          {department ? 'Edit Department' : 'Create Department'}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Department Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <Input
-            label="Code (Optional)"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-          />
-          <TextArea
-            label="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-          />
-          <Select
-            label="Parent Department (Optional)"
-            value={parent ? String(parent) : ''}
-            onChange={(value) => setParent(value ? Number(value) : '')}
-            options={[
-              { value: '', label: 'None (Top-level)' },
-              ...availableParents.map((dept) => ({
-                value: String(dept.id),
-                label: dept.name,
-              })),
-            ]}
-          />
-          <div className="flex gap-2 justify-end">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {department ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal title={department ? 'Edit Department' : 'Create Department'} onClose={onClose}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
+          label="Department Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <Input
+          label="Code (Optional)"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+        />
+        <TextArea
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+        />
+        <Select
+          label="Parent Department (Optional)"
+          value={parent ? String(parent) : ''}
+          onChange={(value) => setParent(value ? Number(value) : '')}
+          options={[
+            { value: '', label: 'None (Top-level)' },
+            ...availableParents.map((dept) => ({
+              value: String(dept.id),
+              label: dept.name,
+            })),
+          ]}
+        />
+        <div className="flex gap-2 justify-end">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {department ? 'Update' : 'Create'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }
 

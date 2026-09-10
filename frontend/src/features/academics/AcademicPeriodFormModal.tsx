@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { Modal } from '@/components/ui/Modal'
 import { academicsService, type AcademicPeriod, type CreateAcademicPeriodData } from '@/services/academics'
 import toast from 'react-hot-toast'
 
@@ -94,63 +95,58 @@ export const AcademicPeriodFormModal: React.FC<AcademicPeriodFormModalProps> = (
   const isLoading = createMutation.isPending || updateMutation.isPending
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">
-          {period ? 'Edit Academic Period' : 'Create Academic Period'}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Select
-            label="Period Type"
-            value={periodType}
-            onChange={(value) => setPeriodType(value)}
-            options={[
-              { value: '', label: 'Select period type' },
-              ...PERIOD_TYPES,
-            ]}
-            required
-          />
-          <Input
-            label="Period Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            placeholder="e.g., Year 1, Block 1"
-          />
-          <Select
-            label="Parent Period (Optional)"
-            value={parentPeriod ? String(parentPeriod) : ''}
-            onChange={(value) => setParentPeriod(value ? Number(value) : '')}
-            options={[
-              { value: '', label: 'None (Top-level)' },
-              ...availableParents.map((p) => ({
-                value: String(p.id),
-                label: `${p.name} (${p.period_type})`,
-              })),
-            ]}
-          />
-          <Input
-            label="Start Date (Optional)"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-          <Input
-            label="End Date (Optional)"
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-          <div className="flex gap-2 justify-end">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {period ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal title={period ? 'Edit Academic Period' : 'Create Academic Period'} onClose={onClose}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Select
+          label="Period Type"
+          value={periodType}
+          onChange={(value) => setPeriodType(value)}
+          options={[
+            { value: '', label: 'Select period type' },
+            ...PERIOD_TYPES,
+          ]}
+          required
+        />
+        <Input
+          label="Period Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          placeholder="e.g., Year 1, Block 1"
+        />
+        <Select
+          label="Parent Period (Optional)"
+          value={parentPeriod ? String(parentPeriod) : ''}
+          onChange={(value) => setParentPeriod(value ? Number(value) : '')}
+          options={[
+            { value: '', label: 'None (Top-level)' },
+            ...availableParents.map((p) => ({
+              value: String(p.id),
+              label: `${p.name} (${p.period_type})`,
+            })),
+          ]}
+        />
+        <Input
+          label="Start Date (Optional)"
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
+        <Input
+          label="End Date (Optional)"
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
+        <div className="flex gap-2 justify-end">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {period ? 'Update' : 'Create'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

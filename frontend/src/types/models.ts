@@ -427,9 +427,62 @@ export interface WeeklyTimetable {
   created_by: number
   created_by_name?: string
   cells?: TimetableCell[]
+  entries?: TimetableEntry[]
   cell_count?: number // For list views
   created_at?: string
   updated_at?: string
+}
+
+// Normalized timetable entry (supersedes free-text cells for new writes)
+export type TimetableEntryStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED'
+
+export interface TimetableEntry {
+  id: number
+  weekly_timetable: number
+  section: number
+  section_name?: string
+  course_code?: string
+  course_name?: string
+  faculty_name?: string | null
+  group: number | null
+  group_name?: string | null
+  day_of_week: number // 0=Monday, 5=Saturday
+  day_of_week_display?: string
+  start_time: string // "HH:MM:SS" or "HH:MM"
+  end_time: string
+  room: string
+  status: TimetableEntryStatus
+  status_display?: string
+  notes?: string
+  created_by?: number
+  created_by_name?: string
+  created_at?: string
+  updated_at?: string
+}
+
+// Read-only student schedule entry, from /api/mobile/student/timetable/ and
+// the today_schedule field of /api/mobile/student/home/.
+export interface MobileScheduleEntry {
+  id: number
+  date: string
+  day_of_week: number
+  day_name: string | null
+  start_time: string | null
+  end_time: string | null
+  time_slot?: string
+  course_code: string | null
+  course_name: string | null
+  faculty_name: string | null
+  room: string | null
+  status: string
+  notes: string | null
+  source: 'entry' | 'legacy_cell'
+}
+
+export interface MobileStudentTimetable {
+  week_start_date: string
+  entries: MobileScheduleEntry[]
+  source: 'entry' | 'legacy_cell' | 'none'
 }
 
 // Pagination response

@@ -80,12 +80,33 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
             "academics.departments.view",
             "academics.courses.view",
             "academics.sections.view",
+            # Registrar is a designated timetable manager alongside Admin/Coordinator.
+            "timetable.",
         ],
         "FACULTY": [
             "academics.courses.view",
             "academics.sections.view",
             "results.result_headers.view",
             "results.result_components.view",
+            # Faculty can manage their own sessions/draft timetables/entries
+            # (object-level ownership is still enforced inside the view/
+            # action bodies), but cannot hard-delete entries.
+            "timetable.sessions.view",
+            "timetable.sessions.create",
+            "timetable.sessions.update",
+            "timetable.sessions.delete",
+            "timetable.weekly.view",
+            "timetable.weekly.create",
+            "timetable.weekly.update",
+            "timetable.weekly.manage",
+            "timetable.cells.view",
+            "timetable.cells.create",
+            "timetable.cells.update",
+            "timetable.cells.delete",
+            "timetable.entries.view",
+            "timetable.entries.create",
+            "timetable.entries.update",
+            "timetable.entries.cancel",
         ],
         "EXAMCELL": [
             "exams.exams.view",
@@ -99,6 +120,19 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
         ],
         "FINANCE": [
             "finance.",
+        ],
+        "COORDINATOR": [
+            # Coordinator is a designated timetable manager per RBAC matrix.
+            "timetable.",
+        ],
+        "STUDENT": [
+            # Students may only ever read published schedules; queryset-level
+            # filtering (in_group checks in timetable views) still restricts
+            # them to published data regardless of this task grant.
+            "timetable.sessions.view",
+            "timetable.weekly.view",
+            "timetable.cells.view",
+            "timetable.entries.view",
         ],
     }
 

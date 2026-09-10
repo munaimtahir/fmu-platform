@@ -1,15 +1,17 @@
+from datetime import date, time, timedelta
+
 from django.contrib.auth.models import Group as AuthGroup
 from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from sims_backend.academics.models import AcademicPeriod, Batch, Department, Group, Program
+from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Group, Program, Section
 from sims_backend.attendance.models import Attendance
 from sims_backend.exams.models import Exam
 from sims_backend.results.models import ResultHeader
 from sims_backend.students.models import Student
-from sims_backend.timetable.models import Session
+from sims_backend.timetable.models import Session, TimetableEntry, WeeklyTimetable
 
 URL = "/api/mobile/student/home/"
 
@@ -83,7 +85,7 @@ class StudentHomeViewTestCase(APITestCase):
         self.assertEqual(data["attendance_summary"]["total"], 0)
         self.assertEqual(data["attendance_summary"]["percentage"], 0.0)
         self.assertEqual(data["latest_results"], [])
-        self.assertEqual(data["timetable"]["status"], "BLOCKED_BY_DATA_MODEL")
+        self.assertEqual(data["today_schedule"], [])
 
     def test_student_sees_only_own_published_and_frozen_results_not_draft(self):
         exam2 = Exam.objects.create(academic_period=self.period, title="Block 2 Exam")
@@ -142,6 +144,39 @@ class StudentHomeViewTestCase(APITestCase):
         self.assertEqual(summary["present"], 1)
         self.assertEqual(summary["absent"], 1)
         self.assertEqual(summary["percentage"], 50.0)
+
+    def test_today_schedule_reflects_published_entry_for_students_group(self):
+        today = date.today()
+        if today.weekday() == 6:  # Sunday isn't representable (DAY_CHOICES is 0-5); nothing to assert.
+            return
+
+        weekly_timetable = WeeklyTimetable.objects.create(
+            academic_period=self.period,
+            batch=self.batch,
+            week_start_date=today - timedelta(days=today.weekday()),
+            status="published",
+            created_by=self.faculty_user,
+        )
+        course = Course.objects.create(code="ANAT-101", name="Human Anatomy", department=self.department)
+        section = Section.objects.create(course=course, name="Section A", academic_period=self.period, faculty=self.faculty_user, group=self.group)
+        TimetableEntry.objects.create(
+            weekly_timetable=weekly_timetable,
+            section=section,
+            group=self.group,
+            day_of_week=today.weekday(),
+            start_time=time(9, 0),
+            end_time=time(10, 0),
+            created_by=self.faculty_user,
+        )
+
+        self.client.force_authenticate(user=self.student_user)
+        response = self.client.get(URL)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        schedule = response.data["today_schedule"]
+        self.assertEqual(len(schedule), 1)
+        self.assertEqual(schedule[0]["course_code"], "ANAT-101")
+        self.assertEqual(schedule[0]["status"], "SCHEDULED")
 
     def test_schema_generation_includes_endpoint(self):
         from drf_spectacular.generators import SchemaGenerator

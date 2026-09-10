@@ -55,12 +55,31 @@ class UserSerializer(serializers.ModelSerializer):
         return full_name if full_name else obj.username
 
     def get_role(self, obj) -> str:
-        """Get user's primary role based on groups."""
+        """Get user's primary role based on groups.
+
+        Checked in this precedence order (most-privileged first) so a user
+        belonging to multiple groups resolves to their highest role.
+        """
         if obj.is_superuser:
             return "Admin"
         groups = list(obj.groups.values_list("name", flat=True))
-        for role in ["Registrar", "ExamCell", "Finance", "Faculty", "Student", "Admin"]:
-            if role in groups or role.upper() in groups:
+        # role -> accepted group-name spellings (mixed-case and canonical
+        # UPPER_SNAKE_CASE forms both exist across seed/test fixtures).
+        # Order matches the original precedence (Admin group membership is
+        # checked last, since is_superuser already covers "real" admins) -
+        # see tests/regression/test_stabilization_contracts.py.
+        role_group_names = {
+            "Registrar": ["Registrar", "REGISTRAR"],
+            "ExamCell": ["ExamCell", "EXAMCELL", "EXAM_CELL"],
+            "Coordinator": ["Coordinator", "COORDINATOR"],
+            "Finance": ["Finance", "FINANCE"],
+            "OfficeAssistant": ["OfficeAssistant", "OFFICE_ASSISTANT"],
+            "Faculty": ["Faculty", "FACULTY"],
+            "Student": ["Student", "STUDENT"],
+            "Admin": ["Admin", "ADMIN"],
+        }
+        for role, names in role_group_names.items():
+            if any(name in groups for name in names):
                 return role
         return "User"
 

@@ -235,6 +235,15 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Student Information Management System API schema.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    # Several unrelated models use a "status" CharField with their own
+    # STATUS_CHOICES, which drf-spectacular cannot disambiguate by name
+    # alone. Naming them explicitly avoids the auto-generated hash-suffixed
+    # "StatusXXXEnum" collision names in the generated schema.
+    "ENUM_NAME_OVERRIDES": {
+        "WeeklyTimetableStatusEnum": "sims_backend.timetable.models.WeeklyTimetable.STATUS_CHOICES",
+        "FacultyImportJobStatusEnum": "sims_backend.faculty.imports.models.FacultyImportJob.STATUS_CHOICES",
+        "NotificationStatusEnum": "sims_backend.notifications.models.Notification.STATUS_CHOICES",
+    },
 }
 
 # Register schema extensions explicitly so management-command generation and

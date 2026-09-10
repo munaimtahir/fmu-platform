@@ -138,46 +138,39 @@ export const navigationConfig: NavigationItem[] = [
 ]
 
 /**
- * Route policy map: route path pattern -> allowed roles
- * Used for route guards and 403 handling
+ * Route policy map: route path -> allowed roles, derived from
+ * `navigationConfig` so role permissions live in exactly one place.
+ *
+ * Previously this map was maintained by hand, separately from
+ * navigationConfig, and had drifted out of sync - e.g. `/academics/programs`
+ * allowed Coordinator in the sidebar but not in the route guard, so a
+ * Coordinator could see the nav link but get bounced to /unauthorized.
+ * Deriving it removes that class of bug.
+ *
+ * A route that exists only as a guard (not shown in the sidebar, e.g.
+ * `/profile`) is added via EXTRA_ROUTE_POLICY below.
  */
-export const routePolicy: Record<string, string[]> = {
-  '/dashboard': [],
-  '/notifications': [],
-  '/analytics': ['Admin'],
-  '/students': ['Admin', 'Registrar'],
-  '/courses': ['Admin', 'Registrar', 'Faculty'],
-  '/sections': ['Admin', 'Registrar', 'Faculty'],
-  '/academics/programs': ['Admin', 'Registrar'],
-  '/academics/batches': ['Admin', 'Registrar'],
-  '/academics/periods': ['Admin', 'Registrar'],
-  '/academics/groups': ['Admin', 'Registrar'],
-  '/academics/departments': ['Admin', 'Registrar'],
-  '/timetable': ['Admin', 'Faculty', 'Registrar', 'Coordinator', 'Student'],
-  // Legacy enrollment route removed
-  '/attendance': ['Admin', 'Faculty'],
-  '/attendance/bulk': ['Admin', 'Faculty'],
-  '/attendance/eligibility': ['Admin', 'Registrar'],
-  '/exams': ['Admin', 'Faculty', 'ExamCell'],
-  '/results': ['Admin', 'Faculty', 'Student', 'ExamCell'],
-  '/examcell/publish': ['Admin', 'ExamCell'],
-  '/transcripts': ['Admin', 'Registrar', 'Student', 'ExamCell'],
-  '/finance': ['Admin', 'Finance'],
-  '/finance/fee-plans': ['Admin', 'Finance'],
-  '/finance/vouchers': ['Admin', 'Finance'],
-  '/finance/vouchers/list': ['Admin', 'Finance'],
-  '/finance/payments': ['Admin', 'Finance'],
-  '/finance/reports/collection': ['Admin', 'Finance'],
-  '/finance/reports/defaulters': ['Admin', 'Finance'],
-  '/finance/reports/aging': ['Admin', 'Finance'],
-  '/finance/reports/statement': ['Admin', 'Finance', 'Student'],
-  '/finance/me': ['Student'],
-  '/system/users': ['Admin'],
-  '/system/roles': ['Admin'],
-  '/system/audit': ['Admin'],
-  '/system/students/import': ['Admin', 'Coordinator'],
+function flattenNavRoutePolicy(items: NavigationItem[]): Record<string, string[]> {
+  const policy: Record<string, string[]> = {}
+  for (const item of items) {
+    if (isNavGroup(item)) {
+      for (const sub of item.items) {
+        policy[sub.path] = sub.roles || []
+      }
+    } else {
+      policy[item.path] = item.roles || []
+    }
+  }
+  return policy
+}
+
+const EXTRA_ROUTE_POLICY: Record<string, string[]> = {
   '/profile': [],
-  // Legacy requests route removed
+}
+
+export const routePolicy: Record<string, string[]> = {
+  ...flattenNavRoutePolicy(navigationConfig),
+  ...EXTRA_ROUTE_POLICY,
 }
 
 /**

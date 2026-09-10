@@ -2,7 +2,7 @@ from datetime import date
 
 from rest_framework import serializers
 
-from sims_backend.timetable.models import Session, TimetableCell, WeeklyTimetable
+from sims_backend.timetable.models import Session, TimetableCell, TimetableEntry, WeeklyTimetable
 
 
 class SessionSerializer(serializers.ModelSerializer):
@@ -51,12 +51,59 @@ class TimetableCellSerializer(serializers.ModelSerializer):
         read_only_fields = ["created_at", "updated_at"]
 
 
+class TimetableEntrySerializer(serializers.ModelSerializer):
+    day_of_week_display = serializers.CharField(source="get_day_of_week_display", read_only=True)
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    section_name = serializers.CharField(source="section.name", read_only=True)
+    course_code = serializers.CharField(source="section.course.code", read_only=True)
+    course_name = serializers.CharField(source="section.course.name", read_only=True)
+    faculty_name = serializers.SerializerMethodField()
+    group_name = serializers.CharField(source="group.name", read_only=True, default=None)
+    created_by_name = serializers.CharField(source="created_by.get_full_name", read_only=True)
+
+    class Meta:
+        model = TimetableEntry
+        fields = [
+            "id",
+            "weekly_timetable",
+            "section",
+            "section_name",
+            "course_code",
+            "course_name",
+            "faculty_name",
+            "group",
+            "group_name",
+            "day_of_week",
+            "day_of_week_display",
+            "start_time",
+            "end_time",
+            "room",
+            "status",
+            "status_display",
+            "notes",
+            "created_by",
+            "created_by_name",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["created_at", "updated_at", "created_by"]
+
+    def get_faculty_name(self, obj) -> str | None:
+        faculty = obj.section.faculty
+        return faculty.get_full_name() or faculty.username if faculty else None
+
+    def create(self, validated_data):
+        validated_data["created_by"] = self.context["request"].user
+        return super().create(validated_data)
+
+
 class WeeklyTimetableSerializer(serializers.ModelSerializer):
     academic_period_name = serializers.CharField(source="academic_period.name", read_only=True)
     batch_name = serializers.CharField(source="batch.name", read_only=True)
     batch_program_name = serializers.CharField(source="batch.program.name", read_only=True)
     created_by_name = serializers.CharField(source="created_by.get_full_name", read_only=True)
     cells = TimetableCellSerializer(many=True, read_only=True)
+    entries = TimetableEntrySerializer(many=True, read_only=True)
     week_end_date = serializers.SerializerMethodField()
 
     class Meta:
@@ -74,6 +121,7 @@ class WeeklyTimetableSerializer(serializers.ModelSerializer):
             "created_by",
             "created_by_name",
             "cells",
+            "entries",
             "created_at",
             "updated_at",
         ]

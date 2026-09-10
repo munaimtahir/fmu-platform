@@ -2,7 +2,7 @@
  * Weekly Timetable API service
  */
 import api from '@/api/axios'
-import { PaginatedResponse, WeeklyTimetable, TimetableCell } from '@/types'
+import { PaginatedResponse, WeeklyTimetable, TimetableCell, TimetableEntry, MobileStudentTimetable } from '@/types'
 
 export const weeklyTimetableService = {
   /**
@@ -219,5 +219,67 @@ export const timetableCellService = {
     }
 
     return results
+  },
+}
+
+export const timetableEntryService = {
+  async getAll(params?: {
+    weekly_timetable?: number
+    section?: number
+    group?: number
+    day_of_week?: number
+    status?: string
+    ordering?: string
+  }): Promise<TimetableEntry[]> {
+    const response = await api.get('/api/timetable/entries/', { params })
+    if (Array.isArray(response.data)) {
+      return response.data
+    }
+    if (response.data && typeof response.data === 'object' && 'results' in response.data) {
+      return (response.data as PaginatedResponse<TimetableEntry>).results
+    }
+    return []
+  },
+
+  async create(data: {
+    weekly_timetable: number
+    section: number
+    group?: number | null
+    day_of_week: number
+    start_time: string
+    end_time: string
+    room?: string
+    notes?: string
+  }): Promise<TimetableEntry> {
+    const response = await api.post<TimetableEntry>('/api/timetable/entries/', data)
+    return response.data
+  },
+
+  async update(id: number, data: Partial<Omit<TimetableEntry, 'id' | 'created_at' | 'updated_at' | 'created_by'>>): Promise<TimetableEntry> {
+    const response = await api.patch<TimetableEntry>(`/api/timetable/entries/${id}/`, data)
+    return response.data
+  },
+
+  async cancel(id: number): Promise<TimetableEntry> {
+    const response = await api.post<TimetableEntry>(`/api/timetable/entries/${id}/cancel/`)
+    return response.data
+  },
+
+  async delete(id: number): Promise<void> {
+    await api.delete(`/api/timetable/entries/${id}/`)
+  },
+}
+
+export const mobileTimetableService = {
+  /**
+   * Student-scoped read-only weekly schedule. `weekStartDate` may be any
+   * date within the target week (any ISO date string); omit for the
+   * current week.
+   */
+  async getMyWeek(weekStartDate?: string): Promise<MobileStudentTimetable> {
+    const response = await api.get<MobileStudentTimetable>('/api/mobile/student/timetable/', {
+      params: weekStartDate ? { week_start_date: weekStartDate } : undefined,
+    })
+    return response.data
   },
 }

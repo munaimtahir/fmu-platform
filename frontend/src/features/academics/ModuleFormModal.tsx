@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { TextArea } from '@/components/ui/TextArea'
+import { Modal } from '@/components/ui/Modal'
 import { academicsNewService, type Module } from '@/services/academicsNew'
 
 interface ModuleFormModalProps {
@@ -62,43 +63,38 @@ export const ModuleFormModal: React.FC<ModuleFormModalProps> = ({ blockId, modul
   const isLoading = createMutation.isPending || updateMutation.isPending
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">
-          {module ? 'Edit Module' : 'Create Module'}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Module Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <TextArea
-            label="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-          />
-          <Input
-            label="Order"
-            type="number"
-            value={order}
-            onChange={(e) => setOrder(Number(e.target.value))}
-            min={1}
-            required
-          />
-          <div className="flex gap-2 justify-end">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {module ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal title={module ? 'Edit Module' : 'Create Module'} onClose={onClose}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
+          label="Module Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <TextArea
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+        />
+        <Input
+          label="Order"
+          type="number"
+          value={order}
+          onChange={(e) => setOrder(Number(e.target.value))}
+          min={1}
+          required
+        />
+        <div className="flex gap-2 justify-end">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {module ? 'Update' : 'Create'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }
 

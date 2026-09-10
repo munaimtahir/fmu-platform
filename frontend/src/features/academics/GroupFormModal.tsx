@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { Modal } from '@/components/ui/Modal'
 import { academicsService, type Group, type CreateGroupData } from '@/services/academics'
 import { batchesService } from '@/services/batches'
 import toast from 'react-hot-toast'
@@ -75,42 +76,37 @@ export const GroupFormModal: React.FC<GroupFormModalProps> = ({ group, onClose }
   const isLoading = createMutation.isPending || updateMutation.isPending
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">
-          {group ? 'Edit Group' : 'Create Group'}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Group Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            placeholder="e.g., Group A"
-          />
-          <Select
-            label="Batch"
-            value={batch ? String(batch) : ''}
-            onChange={(value) => setBatch(value ? Number(value) : '')}
-            options={[
-              { value: '', label: 'Select a batch' },
-              ...(batches?.results || []).map((b) => ({
-                value: String(b.id),
-                label: `${b.name} (${b.program_name || ''})`,
-              })),
-            ]}
-            required
-          />
-          <div className="flex gap-2 justify-end">
-            <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {group ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal title={group ? 'Edit Group' : 'Create Group'} onClose={onClose}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input
+          label="Group Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          placeholder="e.g., Group A"
+        />
+        <Select
+          label="Batch"
+          value={batch ? String(batch) : ''}
+          onChange={(value) => setBatch(value ? Number(value) : '')}
+          options={[
+            { value: '', label: 'Select a batch' },
+            ...(batches?.results || []).map((b) => ({
+              value: String(b.id),
+              label: `${b.name} (${b.program_name || ''})`,
+            })),
+          ]}
+          required
+        />
+        <div className="flex gap-2 justify-end">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {group ? 'Update' : 'Create'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

@@ -1,66 +1,79 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
-import { LoginPage } from '@/features/auth/LoginPage'
 import { ProtectedRoute } from '@/features/auth/ProtectedRoute'
+import { Spinner } from '@/components/ui/Spinner'
 // LegacyRouteGuard removed - all legacy routes have been deleted
-import { DashboardHome } from '@/pages/DashboardHome'
-import { AdminDashboard } from '@/pages/dashboards/AdminDashboard'
-import { RegistrarDashboard } from '@/pages/dashboards/RegistrarDashboard'
-import { FacultyDashboard } from '@/pages/dashboards/FacultyDashboard'
-import { StudentDashboard } from '@/pages/dashboards/StudentDashboard'
-import { ExamCellDashboard } from '@/pages/dashboards/ExamCellDashboard'
-import { DataTableDemo } from '@/pages/demo/DataTableDemo'
-import { AttendanceDashboard } from '@/pages/attendance/AttendanceDashboard'
-import { EligibilityReport } from '@/pages/attendance/EligibilityReport'
-import { AttendanceInputPage } from '@/pages/attendance/AttendanceInputPage'
-import { PublishResults } from '@/pages/examcell/PublishResults'
-import { TranscriptVerify } from '@/pages/verify/TranscriptVerify'
-import { AuditLog } from '@/pages/admin/AuditLog'
-import { StudentsImportPage } from '@/pages/admin/StudentsImportPage'
-import { StudentsPage } from '@/features/students/StudentsPage'
-import { CoursesPage } from '@/features/courses/CoursesPage'
-import { SectionsPage } from '@/features/sections/SectionsPage'
+
+const PublicRouteFallback = () => (
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <Spinner size="lg" />
+  </div>
+)
+
+const LoginPage = lazy(() => import('@/features/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
+const DashboardHome = lazy(() => import('@/pages/DashboardHome').then((m) => ({ default: m.DashboardHome })))
+const AdminDashboard = lazy(() => import('@/pages/dashboards/AdminDashboard').then((m) => ({ default: m.AdminDashboard })))
+const RegistrarDashboard = lazy(() => import('@/pages/dashboards/RegistrarDashboard').then((m) => ({ default: m.RegistrarDashboard })))
+const FacultyDashboard = lazy(() => import('@/pages/dashboards/FacultyDashboard').then((m) => ({ default: m.FacultyDashboard })))
+const StudentDashboard = lazy(() => import('@/pages/dashboards/StudentDashboard').then((m) => ({ default: m.StudentDashboard })))
+const ExamCellDashboard = lazy(() => import('@/pages/dashboards/ExamCellDashboard').then((m) => ({ default: m.ExamCellDashboard })))
+const DataTableDemo = lazy(() => import('@/pages/demo/DataTableDemo').then((m) => ({ default: m.DataTableDemo })))
+const AttendanceDashboard = lazy(() => import('@/pages/attendance/AttendanceDashboard').then((m) => ({ default: m.AttendanceDashboard })))
+const EligibilityReport = lazy(() => import('@/pages/attendance/EligibilityReport').then((m) => ({ default: m.EligibilityReport })))
+const AttendanceInputPage = lazy(() => import('@/pages/attendance/AttendanceInputPage').then((m) => ({ default: m.AttendanceInputPage })))
+const PublishResults = lazy(() => import('@/pages/examcell/PublishResults').then((m) => ({ default: m.PublishResults })))
+const TranscriptVerify = lazy(() => import('@/pages/verify/TranscriptVerify').then((m) => ({ default: m.TranscriptVerify })))
+const AuditLog = lazy(() => import('@/pages/admin/AuditLog').then((m) => ({ default: m.AuditLog })))
+const StudentsImportPage = lazy(() => import('@/pages/admin/StudentsImportPage').then((m) => ({ default: m.StudentsImportPage })))
+const StudentsPage = lazy(() => import('@/features/students/StudentsPage').then((m) => ({ default: m.StudentsPage })))
+const CoursesPage = lazy(() => import('@/features/courses/CoursesPage').then((m) => ({ default: m.CoursesPage })))
+const SectionsPage = lazy(() => import('@/features/sections/SectionsPage').then((m) => ({ default: m.SectionsPage })))
 // Legacy assessments removed
 // Legacy enrollment removed
-import { BulkAttendancePage } from '@/features/attendance/BulkAttendancePage'
-import { AnalyticsDashboard } from '@/features/analytics/AnalyticsDashboard'
-import { StudentApplicationPage } from '@/pages/StudentApplicationPage'
-import { FinanceDashboard } from '@/pages/finance/FinanceDashboard'
-import { FeePlansPage } from '@/pages/finance/FeePlansPage'
-import { VoucherGenerationPage } from '@/pages/finance/VoucherGenerationPage'
-import { StudentFinancePage } from '@/pages/finance/StudentFinancePage'
-import { DefaultersReportPage } from '@/pages/finance/DefaultersReportPage'
-import { CollectionReportPage } from '@/pages/finance/CollectionReportPage'
-import { AgingReportPage } from '@/pages/finance/AgingReportPage'
-import { StudentStatementPage } from '@/pages/finance/StudentStatementPage'
-import { VouchersPage } from '@/pages/finance/VouchersPage'
-import { PaymentsPage } from '@/pages/finance/PaymentsPage'
-import { TimetablePage } from '@/features/timetable/TimetablePage'
-import { ProfilePage } from '@/pages/ProfilePage'
-// UnauthorizedPage is imported dynamically in ProtectedRoute to avoid circular dependencies
-import { UsersPage } from '@/pages/admin/UsersPage'
-import { RolesPage } from '@/pages/admin/RolesPage'
-import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
-import { SyllabusManagerPage } from '@/pages/admin/SyllabusManagerPage'
-import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage'
+const BulkAttendancePage = lazy(() => import('@/features/attendance/BulkAttendancePage').then((m) => ({ default: m.BulkAttendancePage })))
+const AnalyticsDashboard = lazy(() => import('@/features/analytics/AnalyticsDashboard').then((m) => ({ default: m.AnalyticsDashboard })))
+const StudentApplicationPage = lazy(() => import('@/pages/StudentApplicationPage').then((m) => ({ default: m.StudentApplicationPage })))
+const FinanceDashboard = lazy(() => import('@/pages/finance/FinanceDashboard').then((m) => ({ default: m.FinanceDashboard })))
+const FeePlansPage = lazy(() => import('@/pages/finance/FeePlansPage').then((m) => ({ default: m.FeePlansPage })))
+const VoucherGenerationPage = lazy(() => import('@/pages/finance/VoucherGenerationPage').then((m) => ({ default: m.VoucherGenerationPage })))
+const StudentFinancePage = lazy(() => import('@/pages/finance/StudentFinancePage').then((m) => ({ default: m.StudentFinancePage })))
+const DefaultersReportPage = lazy(() => import('@/pages/finance/DefaultersReportPage').then((m) => ({ default: m.DefaultersReportPage })))
+const CollectionReportPage = lazy(() => import('@/pages/finance/CollectionReportPage').then((m) => ({ default: m.CollectionReportPage })))
+const AgingReportPage = lazy(() => import('@/pages/finance/AgingReportPage').then((m) => ({ default: m.AgingReportPage })))
+const StudentStatementPage = lazy(() => import('@/pages/finance/StudentStatementPage').then((m) => ({ default: m.StudentStatementPage })))
+const VouchersPage = lazy(() => import('@/pages/finance/VouchersPage').then((m) => ({ default: m.VouchersPage })))
+const PaymentsPage = lazy(() => import('@/pages/finance/PaymentsPage').then((m) => ({ default: m.PaymentsPage })))
+const TimetablePage = lazy(() => import('@/features/timetable/TimetablePage').then((m) => ({ default: m.TimetablePage })))
+const ProfilePage = lazy(() => import('@/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })))
+const UsersPage = lazy(() => import('@/pages/admin/UsersPage').then((m) => ({ default: m.UsersPage })))
+const RolesPage = lazy(() => import('@/pages/admin/RolesPage').then((m) => ({ default: m.RolesPage })))
+const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })))
+const SyllabusManagerPage = lazy(() => import('@/pages/admin/SyllabusManagerPage').then((m) => ({ default: m.SyllabusManagerPage })))
+const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })))
 // ProgramsPage removed - using ProgramsListPage instead
-import { ProgramsListPage } from '@/pages/academics/ProgramsListPage'
-import { ProgramDetailPage } from '@/pages/academics/ProgramDetailPage'
-import { ProgramFormPage } from '@/pages/academics/ProgramFormPage'
-import { BatchesPage } from '@/pages/academics/BatchesPage'
-import { AcademicPeriodsPage } from '@/pages/academics/AcademicPeriodsPage'
-import { GroupsPage } from '@/pages/academics/GroupsPage'
-import { DepartmentsPage } from '@/pages/academics/DepartmentsPage'
-import { ExamsPage } from '@/pages/exams/ExamsPage'
-import { ResultsPage } from '@/pages/results/ResultsPage'
+const ProgramsListPage = lazy(() => import('@/pages/academics/ProgramsListPage').then((m) => ({ default: m.ProgramsListPage })))
+const ProgramDetailPage = lazy(() => import('@/pages/academics/ProgramDetailPage').then((m) => ({ default: m.ProgramDetailPage })))
+const ProgramFormPage = lazy(() => import('@/pages/academics/ProgramFormPage').then((m) => ({ default: m.ProgramFormPage })))
+const BatchesPage = lazy(() => import('@/pages/academics/BatchesPage').then((m) => ({ default: m.BatchesPage })))
+const AcademicPeriodsPage = lazy(() => import('@/pages/academics/AcademicPeriodsPage').then((m) => ({ default: m.AcademicPeriodsPage })))
+const GroupsPage = lazy(() => import('@/pages/academics/GroupsPage').then((m) => ({ default: m.GroupsPage })))
+const DepartmentsPage = lazy(() => import('@/pages/academics/DepartmentsPage').then((m) => ({ default: m.DepartmentsPage })))
+const ExamsPage = lazy(() => import('@/pages/exams/ExamsPage').then((m) => ({ default: m.ExamsPage })))
+const ResultsPage = lazy(() => import('@/pages/results/ResultsPage').then((m) => ({ default: m.ResultsPage })))
 // Legacy requests removed
-import { TranscriptsPage } from '@/pages/transcripts/TranscriptsPage'
-import { NotificationsPage } from '@/pages/NotificationsPage'
+const TranscriptsPage = lazy(() => import('@/pages/transcripts/TranscriptsPage').then((m) => ({ default: m.TranscriptsPage })))
+const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })))
 // UnauthorizedPage is imported dynamically in ProtectedRoute to avoid circular dependencies
 
 /**
  * Application routes configuration
  * Public routes: /login
  * Protected routes: /dashboard and role-specific dashboards
+ *
+ * Every route component below is lazy-loaded (see the `lazy(...)` imports
+ * above) so the initial bundle only ships the app shell; ProtectedRoute
+ * wraps its children in a single shared <Suspense> boundary, so the
+ * loading fallback is defined once rather than at every route.
  */
 export const router = createBrowserRouter([
   {
@@ -69,11 +82,19 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <LoginPage />,
+    element: (
+      <Suspense fallback={<PublicRouteFallback />}>
+        <LoginPage />
+      </Suspense>
+    ),
   },
   {
     path: '/apply',
-    element: <StudentApplicationPage />,
+    element: (
+      <Suspense fallback={<PublicRouteFallback />}>
+        <StudentApplicationPage />
+      </Suspense>
+    ),
   },
   {
     path: '/dashboard',
@@ -171,7 +192,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/verify/:token',
-    element: <TranscriptVerify />,
+    element: (
+      <Suspense fallback={<PublicRouteFallback />}>
+        <TranscriptVerify />
+      </Suspense>
+    ),
   },
   {
     path: '/system/audit',

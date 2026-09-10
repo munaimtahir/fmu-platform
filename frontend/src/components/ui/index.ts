@@ -18,3 +18,6 @@ export type { SpinnerProps } from './Spinner'
 
 export { FormField } from './FormField'
 export type { FormFieldProps } from './FormField'
+
+export { Modal } from './Modal'
+export type { ModalProps } from './Modal'

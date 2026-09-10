@@ -195,6 +195,8 @@ urlpatterns = [
     path("", include("sims_backend.syllabus.urls")),
     path("", include("sims_backend.settings_app.urls")),
     path("", include("sims_backend.learning.urls")),
+    # Mobile Student Read API Freeze 01
+    path("api/mobile/", include("sims_backend.mobile.urls")),
     # Legacy apps removed - see docs/legacy/LEGACY_DEFINITION.md
 ]
 

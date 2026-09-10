@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     "sims_backend.syllabus",
     "sims_backend.settings_app",
     "sims_backend.learning",
+    "sims_backend.mobile",
     # Legacy apps removed - see docs/legacy/LEGACY_DEFINITION.md
     "apps.intake",
 ]

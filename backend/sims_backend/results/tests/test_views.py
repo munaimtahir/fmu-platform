@@ -92,6 +92,22 @@ class ResultHeaderViewSetTestCase(APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["id"], self.result1.id)
 
+    def test_student_sees_own_frozen_result(self):
+        exam3 = Exam.objects.create(academic_period=self.period, title="Exam 3")
+        frozen = ResultHeader.objects.create(
+            exam=exam3, student=self.student, status=ResultHeader.STATUS_FROZEN, total_obtained=95, total_max=100
+        )
+        self.client.force_authenticate(user=self.student_user)
+        response = self.client.get(f"{self.url}me/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.data
+        if "results" in results:
+            results = results["results"]
+        ids = [r["id"] for r in results]
+        self.assertIn(self.result1.id, ids)
+        self.assertIn(frozen.id, ids)
+
     def test_unlinked_student_sees_no_results(self):
         self.client.force_authenticate(user=self.unlinked_student_user)
         response = self.client.get(self.url)

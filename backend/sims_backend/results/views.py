@@ -72,8 +72,8 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
         if has_permission_task(user, "results.result_headers.view"):
             return queryset
 
-        # Students can only see published results for their own records
-        queryset = queryset.filter(status=ResultHeader.STATUS_PUBLISHED)
+        # Students can only see their own finalized (published or frozen) results
+        queryset = queryset.filter(status__in=[ResultHeader.STATUS_PUBLISHED, ResultHeader.STATUS_FROZEN])
         student = getattr(user, "student", None)
         if student:
             # Check finance gate

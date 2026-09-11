@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -6,6 +6,7 @@ import { Select } from '@/components/ui/Select'
 import { Modal } from '@/components/ui/Modal'
 import { academicsService, type AcademicPeriod, type CreateAcademicPeriodData } from '@/services/academics'
 import { academicPeriodsKey } from '@/utils/queryKeys'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import toast from 'react-hot-toast'
 
 interface AcademicPeriodFormModalProps {
@@ -33,13 +34,23 @@ export const AcademicPeriodFormModal: React.FC<AcademicPeriodFormModalProps> = (
     queryFn: () => academicsService.getAcademicPeriods(),
   })
 
+  const initialSnapshot = useRef({ periodType: '', name: '', parentPeriod: '' as number | '', startDate: '', endDate: '' })
+
   useEffect(() => {
     if (period) {
-      setPeriodType(period.period_type || '')
-      setName(period.name || '')
-      setParentPeriod(period.parent_period || '')
-      setStartDate(period.start_date ? period.start_date.split('T')[0] : '')
-      setEndDate(period.end_date ? period.end_date.split('T')[0] : '')
+      const next = {
+        periodType: period.period_type || '',
+        name: period.name || '',
+        parentPeriod: period.parent_period || ('' as number | ''),
+        startDate: period.start_date ? period.start_date.split('T')[0] : '',
+        endDate: period.end_date ? period.end_date.split('T')[0] : '',
+      }
+      setPeriodType(next.periodType)
+      setName(next.name)
+      setParentPeriod(next.parentPeriod)
+      setStartDate(next.startDate)
+      setEndDate(next.endDate)
+      initialSnapshot.current = next
     }
   }, [period])
 
@@ -94,6 +105,13 @@ export const AcademicPeriodFormModal: React.FC<AcademicPeriodFormModalProps> = (
   ) || []
 
   const isLoading = createMutation.isPending || updateMutation.isPending
+  const isDirty =
+    periodType !== initialSnapshot.current.periodType ||
+    name !== initialSnapshot.current.name ||
+    parentPeriod !== initialSnapshot.current.parentPeriod ||
+    startDate !== initialSnapshot.current.startDate ||
+    endDate !== initialSnapshot.current.endDate
+  useUnsavedChangesWarning(isDirty)
 
   return (
     <Modal title={period ? 'Edit Academic Period' : 'Create Academic Period'} onClose={onClose}>

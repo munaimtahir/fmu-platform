@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { Switch } from '@/components/ui/Switch'
 import { Modal } from '@/components/ui/Modal'
 import { batchesService, type Batch, type CreateBatchData } from '@/services/batches'
 import { academicsNewService } from '@/services/academicsNew'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import toast from 'react-hot-toast'
 
 interface BatchFormModalProps {
@@ -25,14 +27,25 @@ export const BatchFormModal: React.FC<BatchFormModalProps> = ({ batch, onClose }
     queryFn: () => academicsNewService.getPrograms(),
   })
 
+  const initialSnapshot = useRef({ name: '', program: '' as number | '', startYear: '', isActive: true })
+
   useEffect(() => {
     if (batch) {
-      setName(batch.name)
-      setProgram(batch.program)
-      setStartYear(String(batch.start_year || new Date().getFullYear()))
-      setIsActive(batch.is_active ?? true)
+      const next = {
+        name: batch.name,
+        program: batch.program,
+        startYear: String(batch.start_year || new Date().getFullYear()),
+        isActive: batch.is_active ?? true,
+      }
+      setName(next.name)
+      setProgram(next.program)
+      setStartYear(next.startYear)
+      setIsActive(next.isActive)
+      initialSnapshot.current = next
     } else {
-      setStartYear(String(new Date().getFullYear()))
+      const year = String(new Date().getFullYear())
+      setStartYear(year)
+      initialSnapshot.current = { name: '', program: '', startYear: year, isActive: true }
     }
   }, [batch])
 
@@ -86,6 +99,12 @@ export const BatchFormModal: React.FC<BatchFormModalProps> = ({ batch, onClose }
   }
 
   const isLoading = createMutation.isPending || updateMutation.isPending
+  const isDirty =
+    name !== initialSnapshot.current.name ||
+    program !== initialSnapshot.current.program ||
+    startYear !== initialSnapshot.current.startYear ||
+    isActive !== initialSnapshot.current.isActive
+  useUnsavedChangesWarning(isDirty)
 
   return (
     <Modal title={batch ? 'Edit Batch' : 'Create Batch'} onClose={onClose}>
@@ -119,18 +138,7 @@ export const BatchFormModal: React.FC<BatchFormModalProps> = ({ batch, onClose }
           min="2000"
           max="2100"
         />
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="isActive"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-            className="rounded"
-          />
-          <label htmlFor="isActive" className="text-sm">
-            Active
-          </label>
-        </div>
+        <Switch label="Active" checked={isActive} onChange={setIsActive} />
         <div className="flex gap-2 justify-end">
           <Button type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
             Cancel

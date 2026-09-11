@@ -103,7 +103,7 @@ export function ImportPreviewTable({
         header: 'Errors',
         accessor: (row: PreviewRow) =>
           row.errors.length > 0 ? (
-            <div className="text-red-600 text-sm">
+            <div className="text-danger text-sm">
               {row.errors.map((err, idx) => (
                 <div key={idx}>
                   {err.column}: {err.message}
@@ -111,20 +111,20 @@ export function ImportPreviewTable({
               ))}
             </div>
           ) : (
-            <span className="text-green-600">✓ Valid</span>
+            <span className="text-success">✓ Valid</span>
           ),
       },
       {
         header: 'Comment',
         accessor: (row: PreviewRow) => {
           if (row.errors.length === 0) {
-            return <span className="text-green-600 font-medium">Valid</span>
+            return <span className="text-success font-medium">Valid</span>
           } else {
-            const errorMessages = row.errors.map((err) => 
+            const errorMessages = row.errors.map((err) =>
               err.column ? `${err.column}: ${err.message}` : err.message
             ).join('; ')
             return (
-              <span className="text-red-600 text-sm" title={errorMessages}>
+              <span className="text-danger text-sm" title={errorMessages}>
                 {errorMessages}
               </span>
             )
@@ -139,10 +139,11 @@ export function ImportPreviewTable({
     <div className="space-y-4">
       <div className="flex gap-4 items-center flex-wrap">
         <div>
-          <label className="text-sm font-medium text-gray-700 mr-2">
+          <label htmlFor="preview-filter" className="text-sm font-medium text-gray-700 mr-2">
             Filter:
           </label>
           <select
+            id="preview-filter"
             value={filter}
             onChange={(e) => {
               setFilter(e.target.value as 'all' | 'valid' | 'invalid')
@@ -156,10 +157,11 @@ export function ImportPreviewTable({
           </select>
         </div>
         <div>
-          <label className="text-sm font-medium text-gray-700 mr-2">
+          <label htmlFor="preview-action-filter" className="text-sm font-medium text-gray-700 mr-2">
             Action:
           </label>
           <select
+            id="preview-action-filter"
             value={actionFilter}
             onChange={(e) => {
               setActionFilter(
@@ -176,10 +178,11 @@ export function ImportPreviewTable({
           </select>
         </div>
         <div>
-          <label className="text-sm font-medium text-gray-700 mr-2">
+          <label htmlFor="preview-page-size" className="text-sm font-medium text-gray-700 mr-2">
             Rows per page:
           </label>
           <select
+            id="preview-page-size"
             value={rowsPerPage}
             onChange={(e) => {
               const value = e.target.value
@@ -242,9 +245,10 @@ export function ImportPreviewTable({
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
+                  aria-current={currentPage === pageNum ? 'page' : undefined}
                   className={`px-3 py-1 rounded border ${
                     currentPage === pageNum
-                      ? 'bg-blue-600 text-white border-blue-600'
+                      ? 'bg-primary text-white border-primary'
                       : 'border-gray-300 hover:bg-gray-50'
                   }`}
                 >

@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import api from '@/api/axios'
+import { PageShell } from '@/components/shared/PageShell'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Alert } from '@/components/ui/Alert'
 import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
+import { Badge, type BadgeVariant } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 
 interface AuditLog {
   id: string
@@ -131,21 +135,15 @@ export function AuditLog() {
         accessorFn: (log) => log.method,
         cell: ({ row }) => {
           const log = row.original
-          return (
-            <span
-              className={`px-2 py-1 rounded text-xs font-medium ${
-                log.method === 'POST'
-                  ? 'bg-green-100 text-green-800'
-                  : log.method === 'PUT' || log.method === 'PATCH'
-                    ? 'bg-blue-100 text-blue-800'
-                    : log.method === 'DELETE'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-gray-100 text-gray-800'
-              }`}
-            >
-              {log.method}
-            </span>
-          )
+          const methodVariant: BadgeVariant =
+            log.method === 'POST'
+              ? 'success'
+              : log.method === 'PUT' || log.method === 'PATCH'
+                ? 'info'
+                : log.method === 'DELETE'
+                  ? 'danger'
+                  : 'default'
+          return <Badge variant={methodVariant}>{log.method}</Badge>
         },
       },
       {
@@ -162,19 +160,13 @@ export function AuditLog() {
         accessorFn: (log) => log.status_code,
         cell: ({ row }) => {
           const log = row.original
-          return (
-            <span
-              className={`px-2 py-1 rounded text-xs font-medium ${
-                log.status_code >= 200 && log.status_code < 300
-                  ? 'bg-green-100 text-green-800'
-                  : log.status_code >= 400
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-yellow-100 text-yellow-800'
-              }`}
-            >
-              {log.status_code}
-            </span>
-          )
+          const outcome =
+            log.status_code >= 200 && log.status_code < 300
+              ? 'SUCCESS'
+              : log.status_code >= 400
+                ? 'FAILURE'
+                : 'WARNING'
+          return <StatusBadge domain="audit" status={outcome} label={String(log.status_code)} />
         },
       },
       { accessorKey: 'model', header: 'Model' },
@@ -184,14 +176,11 @@ export function AuditLog() {
   )
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Audit Log</h1>
-        {logs.length > 0 && (
-          <Button onClick={handleExportCSV}>Export CSV</Button>
-        )}
-      </div>
-
+    <PageShell
+      title="Audit Log"
+      description="System-wide record of create/update/delete actions and their outcomes."
+      actions={logs.length > 0 ? <Button onClick={handleExportCSV}>Export CSV</Button> : undefined}
+    >
       {error && (
         <Alert variant="error">
           {error}
@@ -203,56 +192,44 @@ export function AuditLog() {
         <div className="p-4 space-y-4">
           <h2 className="text-lg font-semibold">Filters</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Actor</label>
-              <Input
-                type="text"
-                placeholder="Username"
-                value={actorFilter}
-                onChange={(e) => setActorFilter(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Entity</label>
-              <Input
-                type="text"
-                placeholder="Model name"
-                value={entityFilter}
-                onChange={(e) => setEntityFilter(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Method</label>
-              <select
-                className="w-full p-2 border rounded-md"
-                value={methodFilter}
-                onChange={(e) => setMethodFilter(e.target.value)}
-              >
-                <option value="">All</option>
-                <option value="POST">POST</option>
-                <option value="PUT">PUT</option>
-                <option value="PATCH">PATCH</option>
-                <option value="DELETE">DELETE</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Date From
-              </label>
-              <Input
-                type="datetime-local"
-                value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Date To</label>
-              <Input
-                type="datetime-local"
-                value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-              />
-            </div>
+            <Input
+              label="Actor"
+              type="text"
+              placeholder="Username"
+              value={actorFilter}
+              onChange={(e) => setActorFilter(e.target.value)}
+            />
+            <Input
+              label="Entity"
+              type="text"
+              placeholder="Model name"
+              value={entityFilter}
+              onChange={(e) => setEntityFilter(e.target.value)}
+            />
+            <Select
+              label="Method"
+              value={methodFilter}
+              onChange={setMethodFilter}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'POST', label: 'POST' },
+                { value: 'PUT', label: 'PUT' },
+                { value: 'PATCH', label: 'PATCH' },
+                { value: 'DELETE', label: 'DELETE' },
+              ]}
+            />
+            <Input
+              label="Date From"
+              type="datetime-local"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
+            <Input
+              label="Date To"
+              type="datetime-local"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
           </div>
           <div className="flex gap-2">
             <Button onClick={handleSearch} disabled={loading}>
@@ -273,6 +250,6 @@ export function AuditLog() {
           <DataTable data={logs} columns={columns} isLoading={loading} />
         </div>
       </Card>
-    </div>
+    </PageShell>
   )
 }

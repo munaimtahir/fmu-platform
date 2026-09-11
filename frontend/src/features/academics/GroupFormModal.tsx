@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -7,6 +7,7 @@ import { Modal } from '@/components/ui/Modal'
 import { academicsService, type Group, type CreateGroupData } from '@/services/academics'
 import { batchesService } from '@/services/batches'
 import { groupsKey } from '@/utils/queryKeys'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import toast from 'react-hot-toast'
 
 interface GroupFormModalProps {
@@ -24,10 +25,14 @@ export const GroupFormModal: React.FC<GroupFormModalProps> = ({ group, onClose }
     queryFn: () => batchesService.getAll(),
   })
 
+  const initialSnapshot = useRef({ name: '', batch: '' as number | '' })
+
   useEffect(() => {
     if (group) {
-      setName(group.name)
-      setBatch(group.batch)
+      const next = { name: group.name, batch: group.batch }
+      setName(next.name)
+      setBatch(next.batch)
+      initialSnapshot.current = next
     }
   }, [group])
 
@@ -75,6 +80,8 @@ export const GroupFormModal: React.FC<GroupFormModalProps> = ({ group, onClose }
   }
 
   const isLoading = createMutation.isPending || updateMutation.isPending
+  const isDirty = name !== initialSnapshot.current.name || batch !== initialSnapshot.current.batch
+  useUnsavedChangesWarning(isDirty)
 
   return (
     <Modal title={group ? 'Edit Group' : 'Create Group'} onClose={onClose}>

@@ -7,10 +7,26 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
+import type { PaginationState } from '@/components/ui/DataTable/types'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Badge } from '@/components/ui/Badge'
+import { FormSection } from '@/components/ui/FormSection'
+import { Switch } from '@/components/ui/Switch'
+import { Modal } from '@/components/ui/Modal'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { usersApi, type AdminUser, type CreateUserData, type UpdateUserData } from '@/api/users'
 
 const ROLES = ['ADMIN', 'REGISTRAR', 'EXAMCELL', 'COORDINATOR', 'FACULTY', 'FINANCE', 'STUDENT', 'OFFICE_ASSISTANT']
+
+const EMPTY_FORM_DATA: CreateUserData = {
+  username: '',
+  email: '',
+  first_name: '',
+  last_name: '',
+  password: '',
+  is_active: true,
+  role: 'STUDENT',
+}
 
 /**
  * UsersPage - Admin user management
@@ -18,27 +34,37 @@ const ROLES = ['ADMIN', 'REGISTRAR', 'EXAMCELL', 'COORDINATOR', 'FACULTY', 'FINA
 export const UsersPage: React.FC = () => {
   const queryClient = useQueryClient()
   const [filters, setFilters] = useState<{ role?: string; is_active?: boolean; q?: string }>({})
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 20 })
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState<CreateUserData>({
-    username: '',
-    email: '',
-    first_name: '',
-    last_name: '',
-    password: '',
-    is_active: true,
-    role: 'STUDENT',
-  })
+  const [formData, setFormData] = useState<CreateUserData>(EMPTY_FORM_DATA)
   const [tempPassword, setTempPassword] = useState<string | null>(null)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
 
-  // Fetch users
+  useUnsavedChangesWarning(showForm)
+
+  // Fetch users (server-side pagination — filters/search are query params,
+  // so every page reflects the full filtered result set, not just what's
+  // currently loaded).
   const { data: usersData, isLoading } = useQuery({
-    queryKey: ['admin-users', filters],
-    queryFn: () => usersApi.getAll({ ...filters, page_size: 1000 }),
+    queryKey: ['admin-users', filters, pagination.pageIndex, pagination.pageSize],
+    queryFn: () =>
+      usersApi.getAll({
+        ...filters,
+        page: pagination.pageIndex + 1,
+        page_size: pagination.pageSize,
+      }),
+    placeholderData: (previousData) => previousData,
   })
 
   const users = usersData?.results || []
+  const totalCount = usersData?.count ?? 0
+  const pageCount = Math.max(1, Math.ceil(totalCount / pagination.pageSize))
+
+  const updateFilters = (next: typeof filters) => {
+    setFilters(next)
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+  }
 
   // Create/Update mutation
   const saveMutation = useMutation({
@@ -52,15 +78,7 @@ export const UsersPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] })
       setShowForm(false)
       setEditingUser(null)
-      setFormData({
-        username: '',
-        email: '',
-        first_name: '',
-        last_name: '',
-        password: '',
-        is_active: true,
-        role: 'STUDENT',
-      })
+      setFormData(EMPTY_FORM_DATA)
     },
   })
 
@@ -160,9 +178,7 @@ export const UsersPage: React.FC = () => {
         accessorKey: 'is_active',
         header: 'Status',
         cell: ({ row }) => (
-          <Badge variant={row.original.is_active ? 'success' : 'secondary'}>
-            {row.original.is_active ? 'Active' : 'Inactive'}
-          </Badge>
+          <StatusBadge domain="record" status={row.original.is_active ? 'Active' : 'Inactive'} />
         ),
       },
       {
@@ -236,14 +252,14 @@ export const UsersPage: React.FC = () => {
                   label="Search"
                   placeholder="Search by name, email, username..."
                   value={filters.q || ''}
-                  onChange={(e) => setFilters({ ...filters, q: e.target.value || undefined })}
+                  onChange={(e) => updateFilters({ ...filters, q: e.target.value || undefined })}
                 />
 
                 <Select
                   label="Role"
                   value={filters.role || ''}
                   onChange={(value) =>
-                    setFilters({ ...filters, role: value || undefined })
+                    updateFilters({ ...filters, role: value || undefined })
                   }
                   options={[
                     { value: '', label: 'All Roles' },
@@ -255,7 +271,7 @@ export const UsersPage: React.FC = () => {
                   label="Status"
                   value={filters.is_active?.toString() || ''}
                   onChange={(value) => {
-                    setFilters({
+                    updateFilters({
                       ...filters,
                       is_active: value === '' ? undefined : value === 'true',
                     })
@@ -270,7 +286,7 @@ export const UsersPage: React.FC = () => {
                 <div className="flex items-end">
                   <Button
                     variant="secondary"
-                    onClick={() => setFilters({})}
+                    onClick={() => updateFilters({})}
                   >
                     Reset
                   </Button>
@@ -287,15 +303,7 @@ export const UsersPage: React.FC = () => {
                 <Button
                   onClick={() => {
                     setEditingUser(null)
-                    setFormData({
-                      username: '',
-                      email: '',
-                      first_name: '',
-                      last_name: '',
-                      password: '',
-                      is_active: true,
-                      role: 'STUDENT',
-                    })
+                    setFormData(EMPTY_FORM_DATA)
                     setShowForm(true)
                   }}
                 >
@@ -303,84 +311,94 @@ export const UsersPage: React.FC = () => {
                 </Button>
               </div>
 
-              <DataTable data={users} columns={columns} isLoading={isLoading} />
+              <DataTable
+                data={users}
+                columns={columns}
+                isLoading={isLoading}
+                manualPagination
+                pageCount={pageCount}
+                totalCount={totalCount}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+              />
             </div>
           </Card>
 
           {/* Create/Edit Form Modal */}
           {showForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                    {editingUser ? 'Edit User' : 'Create User'}
-                  </h2>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <Input
-                        label="Username *"
-                        value={formData.username}
-                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                        required
-                        disabled={!!editingUser}
-                      />
+            <Modal
+              title={editingUser ? 'Edit User' : 'Create User'}
+              size="lg"
+              onClose={() => {
+                setShowForm(false)
+                setEditingUser(null)
+                setFormData(EMPTY_FORM_DATA)
+              }}
+            >
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <FormSection title="Account Details">
+                      <div className="grid grid-cols-2 gap-4">
+                        <Input
+                          label="Username"
+                          value={formData.username}
+                          onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                          required
+                          disabled={!!editingUser}
+                        />
 
-                      <Input
-                        label="Email *"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <Input
-                        label="First Name"
-                        value={formData.first_name}
-                        onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                      />
-
-                      <Input
-                        label="Last Name"
-                        value={formData.last_name}
-                        onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                      />
-                    </div>
-
-                    {!editingUser && (
-                      <Input
-                        label="Password *"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        required
-                      />
-                    )}
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <Select
-                        label="Role *"
-                        value={formData.role}
-                        onChange={(value) => setFormData({ ...formData, role: value })}
-                        required
-                        options={ROLES.map((role) => ({ value: role, label: role }))}
-                      />
-
-                      <div className="flex items-center pt-6">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={formData.is_active}
-                            onChange={(e) =>
-                              setFormData({ ...formData, is_active: e.target.checked })
-                            }
-                            className="rounded"
-                          />
-                          <span className="text-sm text-gray-700">Active</span>
-                        </label>
+                        <Input
+                          label="Email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          required
+                        />
                       </div>
-                    </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <Input
+                          label="First Name"
+                          value={formData.first_name}
+                          onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                        />
+
+                        <Input
+                          label="Last Name"
+                          value={formData.last_name}
+                          onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                        />
+                      </div>
+
+                      {!editingUser && (
+                        <Input
+                          label="Password"
+                          type="password"
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                          required
+                        />
+                      )}
+                    </FormSection>
+
+                    <FormSection title="Access & Status">
+                      <div className="grid grid-cols-2 gap-4">
+                        <Select
+                          label="Role"
+                          value={formData.role}
+                          onChange={(value) => setFormData({ ...formData, role: value })}
+                          required
+                          options={ROLES.map((role) => ({ value: role, label: role }))}
+                        />
+
+                        <div className="flex items-center pt-6">
+                          <Switch
+                            label="Active"
+                            checked={formData.is_active}
+                            onChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                          />
+                        </div>
+                      </div>
+                    </FormSection>
 
                     <div className="flex gap-2 justify-end">
                       <Button
@@ -389,15 +407,7 @@ export const UsersPage: React.FC = () => {
                         onClick={() => {
                           setShowForm(false)
                           setEditingUser(null)
-                          setFormData({
-                            username: '',
-                            email: '',
-                            first_name: '',
-                            last_name: '',
-                            password: '',
-                            is_active: true,
-                            role: 'STUDENT',
-                          })
+                          setFormData(EMPTY_FORM_DATA)
                         }}
                       >
                         Cancel
@@ -407,45 +417,44 @@ export const UsersPage: React.FC = () => {
                       </Button>
                     </div>
                   </form>
-                </div>
-              </Card>
-            </div>
+            </Modal>
           )}
 
           {/* Temporary Password Modal */}
           {showPasswordModal && tempPassword && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <Card className="w-full max-w-md">
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Temporary Password</h2>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Share this temporary password with the user. They should change it on first login.
-                  </p>
-                  <div className="bg-gray-100 p-4 rounded mb-4">
-                    <code className="text-lg font-mono">{tempPassword}</code>
-                  </div>
-                  <div className="flex gap-2 justify-end">
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        navigator.clipboard.writeText(tempPassword)
-                        alert('Password copied to clipboard!')
-                      }}
-                    >
-                      Copy
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setShowPasswordModal(false)
-                        setTempPassword(null)
-                      }}
-                    >
-                      Close
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            </div>
+            <Modal
+              title="Temporary Password"
+              onClose={() => {
+                setShowPasswordModal(false)
+                setTempPassword(null)
+              }}
+            >
+              <p className="text-sm text-gray-600 mb-4">
+                Share this temporary password with the user. They should change it on first login.
+              </p>
+              <div className="bg-gray-100 p-4 rounded mb-4">
+                <code className="text-lg font-mono">{tempPassword}</code>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    navigator.clipboard.writeText(tempPassword)
+                    alert('Password copied to clipboard!')
+                  }}
+                >
+                  Copy
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowPasswordModal(false)
+                    setTempPassword(null)
+                  }}
+                >
+                  Close
+                </Button>
+              </div>
+            </Modal>
           )}
         </div>
       </PageShell>

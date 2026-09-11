@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { batchesService } from '@/services/batches'
 import type { Batch } from '@/services/batches'
 import { BatchFormModal } from '@/features/academics/BatchFormModal'
@@ -53,9 +54,7 @@ export const BatchesPage: React.FC = () => {
         accessorKey: 'is_active',
         header: 'Status',
         cell: ({ row }) => (
-          <span className={row.original.is_active ? 'text-green-600' : 'text-gray-400'}>
-            {row.original.is_active ? 'Active' : 'Inactive'}
-          </span>
+          <StatusBadge domain="record" status={row.original.is_active ? 'Active' : 'Inactive'} />
         ),
       },
       {
@@ -121,7 +120,7 @@ export const BatchesPage: React.FC = () => {
         actions={
           <div className="flex gap-2">
             <Input
-              placeholder="Search batches..."
+              aria-label="Search batches" placeholder="Search batches..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-64"

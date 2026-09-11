@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PageShell } from '@/components/shared/PageShell'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Alert } from '@/components/ui/Alert'
@@ -132,25 +133,25 @@ export function StudentsImportPage() {
   }
 
   return (
-    
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Bulk CSV Import</h1>
-          <div className="flex gap-2">
-            <Button
-              onClick={() => setViewMode('history')}
-              variant={viewMode === 'history' ? 'primary' : 'secondary'}
-            >
-              Import History
-            </Button>
-          </div>
-        </div>
-
+    <PageShell
+      title="Bulk CSV Import"
+      description="Import students or faculty in bulk from a CSV file."
+      actions={
+        <Button
+          onClick={() => setViewMode('history')}
+          variant={viewMode === 'history' ? 'primary' : 'secondary'}
+        >
+          Import History
+        </Button>
+      }
+    >
+      <div className="space-y-6">
         {/* Import Type Selection */}
         {viewMode === 'upload' && (
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-4 mb-6" role="group" aria-label="Import type">
             <button
               type="button"
+              aria-pressed={importType === 'student'}
               onClick={() => {
                 setImportType('student')
                 setPreviewData(null)
@@ -159,7 +160,7 @@ export function StudentsImportPage() {
                 setSuccess(null)
               }}
               className={`px-6 py-3 rounded-lg font-medium transition-colors ${importType === 'student'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
             >
@@ -167,6 +168,7 @@ export function StudentsImportPage() {
             </button>
             <button
               type="button"
+              aria-pressed={importType === 'faculty'}
               onClick={() => {
                 setImportType('faculty')
                 setPreviewData(null)
@@ -175,7 +177,7 @@ export function StudentsImportPage() {
                 setSuccess(null)
               }}
               className={`px-6 py-3 rounded-lg font-medium transition-colors ${importType === 'faculty'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
             >
@@ -231,19 +233,19 @@ export function StudentsImportPage() {
               </div>
 
               <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 bg-blue-50 rounded">
+                <div className="p-4 bg-info-subtle rounded">
                   <div className="text-sm text-gray-600">Total Rows</div>
                   <div className="text-2xl font-bold">{previewData.total_rows}</div>
                 </div>
-                <div className="p-4 bg-green-50 rounded">
+                <div className="p-4 bg-success-subtle rounded">
                   <div className="text-sm text-gray-600">Valid Rows</div>
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold text-success">
                     {previewData.valid_rows}
                   </div>
                 </div>
-                <div className="p-4 bg-red-50 rounded">
+                <div className="p-4 bg-danger-subtle rounded">
                   <div className="text-sm text-gray-600">Invalid Rows</div>
-                  <div className="text-2xl font-bold text-red-600">
+                  <div className="text-2xl font-bold text-danger">
                     {previewData.invalid_rows}
                   </div>
                 </div>
@@ -294,6 +296,6 @@ export function StudentsImportPage() {
           </Card>
         )}
       </div>
-    
+    </PageShell>
   )
 }

@@ -118,6 +118,7 @@ export const AcademicPeriodsPage: React.FC = () => {
         actions={
           <div className="flex gap-2">
             <Input
+              aria-label="Search periods"
               placeholder="Search periods..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}

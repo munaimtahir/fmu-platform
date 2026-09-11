@@ -21,6 +21,7 @@ export type StatusDomain =
   | 'finance'
   | 'audit'
   | 'health'
+  | 'record'
 
 const registries: Record<StatusDomain, Record<string, BadgeVariant>> = {
   student: {
@@ -102,6 +103,14 @@ const registries: Record<StatusDomain, Record<string, BadgeVariant>> = {
     degraded: 'warning',
     error: 'danger',
     down: 'danger',
+  },
+  // Generic on/off record state, shared by any entity with a plain
+  // is_active flag (users, syllabus items, batches, ...) rather than a
+  // richer lifecycle — unlike `student`, where "Inactive" carries more
+  // specific meaning alongside Graduated/Suspended.
+  record: {
+    Active: 'success',
+    Inactive: 'default',
   },
 }
 

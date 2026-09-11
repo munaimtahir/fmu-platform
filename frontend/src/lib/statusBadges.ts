@@ -52,6 +52,7 @@ const registries: Record<StatusDomain, Record<string, BadgeVariant>> = {
     FROZEN: 'success',
     DRAFT: 'warning',
     PENDING: 'warning',
+    VERIFIED: 'info',
     ready: 'success',
   },
   import: {
@@ -65,6 +66,8 @@ const registries: Record<StatusDomain, Record<string, BadgeVariant>> = {
     ABSENT: 'danger',
     LATE: 'warning',
     EXCUSED: 'info',
+    ELIGIBLE: 'success',
+    INELIGIBLE: 'danger',
   },
   finance: {
     PAID: 'success',

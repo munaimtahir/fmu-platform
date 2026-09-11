@@ -7,6 +7,7 @@ import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
 import { Input } from '@/components/ui/Input'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 
 interface Section {
   id: number
@@ -162,14 +163,11 @@ export function EligibilityReport() {
         cell: ({ row }) => {
           const record = row.original
           return (
-            <span
-              className={`px-2 py-1 rounded-full text-xs font-medium ${record.eligible
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
-                }`}
-            >
-              {record.eligible ? 'Eligible' : 'Not Eligible'}
-            </span>
+            <StatusBadge
+              domain="attendance"
+              status={record.eligible ? 'ELIGIBLE' : 'INELIGIBLE'}
+              label={record.eligible ? 'Eligible' : 'Not Eligible'}
+            />
           )
         },
       },
@@ -200,10 +198,8 @@ export function EligibilityReport() {
         <Card>
           <div className="p-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Attendance Threshold (%)
-              </label>
               <Input
+                label="Attendance Threshold (%)"
                 type="number"
                 min="0"
                 max="100"
@@ -213,10 +209,10 @@ export function EligibilityReport() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">
+            <fieldset>
+              <legend className="block text-sm font-medium text-gray-900 mb-1.5">
                 Select Sections
-              </label>
+              </legend>
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {sections.map((section) => (
                   <label key={section.id} className="flex items-center gap-2">
@@ -234,7 +230,7 @@ export function EligibilityReport() {
                   </label>
                 ))}
               </div>
-            </div>
+            </fieldset>
 
             <Button onClick={handleGenerateReport} disabled={loading}>
               {loading ? 'Generating...' : 'Generate Report'}

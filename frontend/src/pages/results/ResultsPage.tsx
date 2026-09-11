@@ -81,6 +81,7 @@ export const ResultsPage: React.FC = () => {
         description="View and manage student results"
         actions={
           <Input
+            aria-label="Search results"
             placeholder="Search results..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}

@@ -26,7 +26,7 @@ android {
         targetSdk = 36
         versionCode = 2
         versionName = "1.0.2"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "pk.vexel.medsims.HiltTestRunner"
     }
     signingConfigs {
         if (hasCanonicalSigning) {
@@ -74,4 +74,5 @@ dependencies {
     implementation(libs.errorprone.annotations)
     testImplementation(libs.junit); testImplementation(libs.mockwebserver); testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit); androidTestImplementation(libs.espresso); androidTestImplementation(platform(libs.compose.bom)); androidTestImplementation(libs.compose.ui.test)
+    androidTestImplementation(libs.hilt.android.testing); kspAndroidTest(libs.hilt.compiler)
 }

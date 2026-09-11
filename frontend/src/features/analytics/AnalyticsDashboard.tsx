@@ -97,7 +97,7 @@ export function AnalyticsDashboard() {
                 <p className="text-sm text-gray-600 mb-1">Total Students</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.totalStudents}</p>
               </div>
-              <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-3xl">
+              <div className="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center text-3xl">
                 👥
               </div>
             </div>
@@ -112,7 +112,7 @@ export function AnalyticsDashboard() {
                 <p className="text-sm text-gray-600 mb-1">Total Courses</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.totalCourses}</p>
               </div>
-              <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl">
+              <div className="w-14 h-14 bg-emerald-100 rounded-lg flex items-center justify-center text-3xl">
                 📚
               </div>
             </div>
@@ -127,7 +127,7 @@ export function AnalyticsDashboard() {
                 <p className="text-sm text-gray-600 mb-1">Total Enrollments</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.totalEnrollments}</p>
               </div>
-              <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center text-3xl">
+              <div className="w-14 h-14 bg-purple-100 rounded-lg flex items-center justify-center text-3xl">
                 📝
               </div>
             </div>
@@ -142,7 +142,7 @@ export function AnalyticsDashboard() {
                 <p className="text-sm text-gray-600 mb-1">Attendance Rate</p>
                 <p className="text-3xl font-bold text-gray-900">{attendanceRate}%</p>
               </div>
-              <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center text-3xl">
+              <div className="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center text-3xl">
                 ✅
               </div>
             </div>

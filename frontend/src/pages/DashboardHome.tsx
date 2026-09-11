@@ -94,7 +94,7 @@ export const DashboardHome: React.FC = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Status:</span>
-                <span className="font-medium text-emerald">{health.status.toUpperCase()}</span>
+                <span className="font-medium text-success">{health.status.toUpperCase()}</span>
               </div>
             </div>
           ) : (
@@ -106,7 +106,7 @@ export const DashboardHome: React.FC = () => {
 
         {/* Quick Actions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="hover:shadow-lg transition-shadow duration-150 cursor-pointer">
+          <Card className="hover:shadow-elevation-3 transition-shadow duration-150 cursor-pointer">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Stage-2 Complete ✓
             </h3>
@@ -116,7 +116,7 @@ export const DashboardHome: React.FC = () => {
             <Badge variant="success">Ready</Badge>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow duration-150">
+          <Card className="hover:shadow-elevation-3 transition-shadow duration-150">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               What&apos;s Next?
             </h3>
@@ -127,7 +127,7 @@ export const DashboardHome: React.FC = () => {
             </ul>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow duration-150">
+          <Card className="hover:shadow-elevation-3 transition-shadow duration-150">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               API Documentation
             </h3>

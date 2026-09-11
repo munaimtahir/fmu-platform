@@ -26,7 +26,7 @@ export const RegistrarDashboard = () => {
                 <p className="text-sm text-gray-600 mb-1">Pending Registrations</p>
                 <p className="text-2xl font-bold text-gray-900">24</p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center text-2xl">
                 ⏳
               </div>
             </div>
@@ -38,7 +38,7 @@ export const RegistrarDashboard = () => {
                 <p className="text-sm text-gray-600 mb-1">Active Students</p>
                 <p className="text-2xl font-bold text-gray-900">1,189</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
                 👥
               </div>
             </div>
@@ -50,7 +50,7 @@ export const RegistrarDashboard = () => {
                 <p className="text-sm text-gray-600 mb-1">Course Enrollments</p>
                 <p className="text-2xl font-bold text-gray-900">3,456</p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-2xl">
                 📝
               </div>
             </div>
@@ -62,7 +62,7 @@ export const RegistrarDashboard = () => {
                 <p className="text-sm text-gray-600 mb-1">Records Updated</p>
                 <p className="text-2xl font-bold text-gray-900">89</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-2xl">
                 📋
               </div>
             </div>

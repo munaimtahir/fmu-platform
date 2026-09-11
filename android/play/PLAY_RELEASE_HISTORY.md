@@ -99,7 +99,7 @@ Version:               1.0.3
 Version code:          3
 
 Release type:          Build + verify only — NOT submitted to Google Play
-Built Git SHA:          (this commit — see git log for the commit this file was added in)
+Built Git SHA:          1f31d4d (chore(android): bump to 1.0.3, build+verify signed release candidate)
 
 AAB SHA-256:            ff9b90ae705aafea13f71b5f458e57fe3643afaa509863944c63a7b684948fa1
 AAB size:               4,092,615 bytes

@@ -1,5 +1,7 @@
 # Vexel MedSIMS — Pending & Deferred Work
 
+**2026-09-11, design-system mega sprint (most recent session):** closed out the design-system rollout (§2) and the `page_size:1000` pagination gap (§3) in full, plus finished the previously-stopped Android Hilt instrumentation test scaffold (§1). Phase 0 foundation (design tokens, router-level `DashboardLayout` layout route, centralized `StatusBadge` registry, `Label`/`FormSection`/`useUnsavedChangesWarning` form primitives, `DataTable` server-pagination support) was done directly; five parallel worktree agents then covered dashboards, timetable/students/attendance, results/exams/transcripts, finance (newly brought into scope), and audit/admin (newly brought into scope, including wiring `UsersPage`/`SyllabusManagerPage` onto real server-side pagination); a sixth parallel agent finished the Android test scaffold. All six merged to `main` (two required manual conflict resolution in `frontend/src/lib/statusBadges.ts`/`EligibilityReport.tsx`, resolved by keeping the already-merged version's approach and folding in the incoming branch's non-conflicting additions). Verified end-to-end: `tsc`/`build`/`vitest`/`lint` clean, and — after spinning up a live `docker compose` dev stack and seeding demo accounts — the full Playwright suite passed 96/96 across every role, RBAC, and timetable spec. Deployed to production (`sims.vexel.pk`) after a pre-deploy DB backup: `./both.sh` succeeded, public health check confirmed `"status":"ok"` with the version field stamped at the exact deployed commit, and manual login/`/admin/` checks passed. See §1/§2/§3 for full detail; the priority-order section near the bottom has the updated next-steps list.
+
 Status as of commit `60bc7e3` (2026-09-10 follow-up session: ops hardening, demo-account audit command, dashboard/table unification subset, and timetable e2e coverage landed on top of `ddfcf9f`, the "mega sprint" deploy to production `sims.vexel.pk`).
 
 **2026-09-10, second follow-up session:** worked this document's priority list directly against production (`ssh test`, `/home/munaim/srv/apps/fmu-platform`). Resolved the deploy-path conflict (§7) with live evidence, found and fixed a real `ops/deploy.sh` bug (self-modifying-script corruption) discovered while deploying, found production was 5 commits behind and deployed it, ran the security audit (§5) and confirmed all flagged accounts are demo-only, and merged the duplicate admin dashboards (§2). See each section for detail.
@@ -42,6 +44,25 @@ This document tracks what was **explicitly deferred** from the "mega sprint" spe
 
 ---
 
+## 2. Web UI — full design-system rollout RESOLVED (2026-09-11, design-system mega sprint)
+
+**RESOLVED.** A mega sprint (Phase 0 foundation done directly, Phases 1–2 as five parallel worktree agents covering dashboards, timetable/students/attendance, results/exams/transcripts, finance, and audit/admin) closed out every item below:
+- Design tokens added to `frontend/tailwind.config.ts` (semantic color aliases, spacing/radius/elevation scale, documented breakpoints).
+- `DashboardLayout` converted to a router-level layout route (`<Outlet/>`) in `frontend/src/routes/appRoutes.tsx`; the ~44 pages that used to each wrap themselves in `<DashboardLayout>` no longer do.
+- Centralized status→Badge registry (`frontend/src/lib/statusBadges.ts`) and `<StatusBadge domain status/>` component; migrated every ad hoc status-color mapping found across dashboards, timetable, students, attendance, results, finance, audit, and imports.
+- Form primitives added (`Label` with required-asterisk, `FormSection`, `useUnsavedChangesWarning`) and wired into the forms across all five tracks.
+- Accessibility pass (focus order, icon-only button `aria-label`s, table `scope`/`role` semantics, a real Rules-of-Hooks bug fixed in `AdminSettingsPage.tsx`) and a mobile-viewport (~400px) responsive pass across all migrated pages, including a real un-responsive `grid-cols-4` fix in `BulkAttendancePage.tsx`.
+- **Finance, audit, and remaining admin screens are now fully in scope and done** — the earlier explicit exclusion is lifted. Finance's `StatusBadge` registry was corrected against the real `Voucher`/`Payment`/`Adjustment` backend model status enums (the initial guess was wrong).
+- Dead code removed: `components/admin/AdminSidebar.jsx`/`AdminLayout.jsx`.
+- `frontend/src/features/timetable/TimetableTableView.tsx` and `components/admin/import/ImportPreviewTable.tsx` deliberately kept off `DataTable` per the original documented decision — style-only pass applied.
+
+Verified: `tsc --noEmit`, `npm run build`, `npx vitest run` (50/50) clean after every merge step; full Playwright suite (96/96, all five roles + RBAC + timetable) green against a live `docker compose` stack; deployed to production and confirmed via `https://sims.vexel.pk/api/health/` (`"status":"ok"`, version stamped at the deployed commit) plus manual login/`/admin/` checks.
+
+**Not done — no longer a rollout gap, but real follow-up work if desired later:** typography/spacing token values were chosen conservatively (mostly value-preserving swaps of existing Tailwind defaults onto named tokens) rather than a genuine visual redesign; a from-scratch visual design pass is a different, larger undertaking than this sprint's scope (token *foundation* + consistency).
+
+<details>
+<summary>Original pre-sprint notes (superseded, kept for history)</summary>
+
 ## 2. Web UI — full design-system rollout still not done
 
 **Done this follow-up session** (see git log around commit `b714a85`/merge `60bc7e3`): `AdminDashboard.tsx`/`FacultyDashboard.tsx` migrated from manual `useEffect`/`Promise.all(Settled)` fetch state to React Query (`useQuery`/`useQueries`); 8 `SimpleTable` consumers migrated to the standardized `DataTable` (`@tanstack/react-table`) component — `ImportHistoryTable.tsx`, `UsersPage.tsx`, `AdminDashboardPage.tsx` (recent-activity table), `SyllabusManagerPage.tsx`, `AttendanceDashboard.tsx`, `EligibilityReport.tsx`, `PublishResults.tsx`, `AuditLog.tsx`.
@@ -63,7 +84,9 @@ Separately flagged, not touched: `components/admin/AdminSidebar.jsx` / `AdminLay
 - **Responsive verification not done** — builds pass but no actual small-viewport testing occurred across major workflows.
 - **Redesign was scoped to**: dashboards, timetable, students, attendance, results. **Finance, audit, and remaining admin screens were explicitly left untouched.**
 
-## 3. Web performance — partially done
+</details>
+
+## 3. Web performance — mostly done; `page_size: 1000` pagination RESOLVED (2026-09-11)
 
 Done: route code splitting, vendor chunk splitting (`vite.config.ts` `manualChunks` for react/query/forms), bundle measured before/after (870KB→258KB entry, gzip 235KB→84KB), `rollup-plugin-visualizer` wired as opt-in (`npm run build:analyze`).
 
@@ -72,9 +95,10 @@ Done: route code splitting, vendor chunk splitting (`vite.config.ts` `manualChun
 - **`AnalyticsDashboard.tsx` correctness bug fixed.** It computed student status breakdown (Active/Inactive/Graduated/Suspended) and attendance present/absent counts by `.filter()`-ing `.results` from unpaginated `getAll({})` calls — correct only while total rows ≤ the default page size, silently wrong (undercounting) beyond that. Fixed by adding a server-side aggregate: `StudentViewSet.stats` action (`backend/sims_backend/students/views.py`, `GET /api/students/stats/`) using `.values('status').annotate(count=Count('id'))`, exposed via `studentsService.getStats()` (`frontend/src/services/students.ts`). Attendance present/absent/total now come from the existing `attendanceService.getSummary()` / `/api/attendance/summary/` endpoint (already DB-aggregated, was previously unused by this dashboard). Course/section totals still use `.count` from the paginated response, which was already correct (DRF's `count` is a DB count, not `results.length`).
 - **Duplicated polling query fixed.** `Topbar.tsx` and `Sidebar.tsx` each ran their own identical `['notifications-unread-count']` query with `refetchInterval: 30000`. Extracted into `frontend/src/hooks/useUnreadNotificationsCount.ts`, exported from `frontend/src/hooks/index.ts`, used by both components — one shared cache entry/poll instead of two.
 
+**RESOLVED (2026-09-11, design-system mega sprint) — `page_size: 1000` call sites.** `frontend/src/components/ui/DataTable/` (`types.ts`/`useDataTable.ts`/`DataTable.tsx`) gained a manual/server-pagination mode (`manualPagination`, `pageCount`, `totalCount`, controlled `pagination`/`onPaginationChange`), with the existing client-side mode kept as the unaffected default for other consumers (`ImportHistoryTable.tsx`, `AuditLog.tsx`, etc.). `UsersPage.tsx` and `SyllabusManagerPage.tsx` now track real `{pageIndex, pageSize}` state, send `page`/`page_size` to `usersApi.getAll()`/`syllabusApi.getAll()`, and pass the manual-pagination props to `DataTable` — no backend changes were needed (`AdminUserViewSet`/`SyllabusItemViewSet` already return standard DRF `{count,next,previous,results}` pagination). Known follow-on nuance: `SyllabusManagerPage`'s move-up/move-down reorder helpers now only see the current page's items (documented inline at `handleMoveUp`) — rarely an issue in practice since the anchor filters already scope the working set, but a sibling item on another page won't be found by the reorder helpers.
+
 Not done:
 - **Component-level lazy loading** for genuinely heavy widgets (large charts, PDF/report preview components) — only route-level splitting happened. Re-checked this session: there is still no chart or PDF library anywhere in this codebase, so there is nothing to component-split yet. Revisit once such a library is actually introduced.
-- **`page_size: 1000` call sites** — `frontend/src/pages/admin/UsersPage.tsx` (`usersApi.getAll({ ...filters, page_size: 1000 })`) and `frontend/src/pages/admin/SyllabusManagerPage.tsx` (`syllabusApi.getAll({ ...filters, page_size: 1000 })`) still fetch up to 1000 rows in one request and paginate client-side. Investigated converting these to real server-side pagination via `DataTable`: `frontend/src/components/ui/DataTable/DataTable.tsx` has no server-side pagination mode today (no `manualPagination`, no `onPaginationChange`/`pageCount` props) — it's purely client-side (`useDataTable` + `@tanstack/react-table`'s built-in pagination over the full `data` array), confirmed by checking the other two existing consumers (`ImportHistoryTable.tsx`, `AuditLog.tsx`), which also just pass the full fetched array in and paginate client-side. Adding true server-driven pagination would mean extending `DataTable`/`useDataTable` with a manual-pagination mode and wiring page/pageSize state up to each caller's query params — a real (if not huge) feature addition, not a safe drop-in fix, so left as-is this session. Still an open, known gap.
 - **Query/render performance audit** (Phase 25) — the duplicate-key and dashboard-aggregate fixes above cover the worst offenders found this session, but no fully systematic pass (e.g. React Query devtools trace across every page, or a render-count audit) has been done.
 
 ---
@@ -169,7 +193,7 @@ All three environments (laptop, GitHub, production) ended the session in sync at
 
 ---
 
-## Suggested next-session priority order
+## Suggested next-session priority order (history, superseded below)
 
 1. ~~Reconcile the two deploy code paths (§7)~~ — **RESOLVED 2026-09-10.**
 2. ~~Run the security audit command against production and act on results (§5)~~ — **DONE 2026-09-10** (all flagged accounts confirmed demo-only; passwords left as-is per user decision, revisit before real users are onboarded).
@@ -180,4 +204,13 @@ All three environments (laptop, GitHub, production) ended the session in sync at
 7. ~~Investigate the 6 failing `sims_backend/attendance/tests/`~~ — **RESOLVED 2026-09-11 (second follow-up session)**: all 5 test bugs fixed, plus one real permission bug (students could write attendance records) closed with a new `IsAttendanceEditor` permission class. See §6.
 8. ~~Android core student screens (§1)~~ — **DONE 2026-09-11**: Home/Timetable/Attendance/Results screens, real navigation, and 401/session-expiry handling implemented and verified live against production; a real pre-existing sign-out infinite-loop bug was found and fixed along the way.
 10. **2026-09-11, minor-threads sprint** (parallel worktrees, this session): ~~full attendance/results history (§1)~~ **DONE**, ~~CI `bundleRelease` check + instrumented-test emulator matrix (§1)~~ **DONE**, ~~React Query key/perf cleanup + `AnalyticsDashboard` correctness fix (§3)~~ **DONE**, ~~academic-period hierarchy reconciliation (§4)~~ **DONE (documentation only, not a real duplicate)**. §5 re-confirmed as still deferred (no real users yet). **Deliberately stopped and left open:** Hilt instrumentation test-runner setup + real `@HiltAndroidTest` tests (§1) — a worktree agent was mid-implementation when the user asked to stop it and move on; partial uncommitted work sits in worktree branch `worktree-agent-aeb3b1de559e442ae`, not merged to `main`. Actual Play Console upload/track promotion also stays explicitly manual (credentialed, out of scope for automation).
-11. **Full design-system rollout + shell layout-route refactor (§2)** — the biggest remaining item; plan it as its own dedicated sprint with a real design pass, not squeezed alongside other work.
+11. ~~Full design-system rollout + shell layout-route refactor (§2)~~ — **RESOLVED 2026-09-11 (design-system mega sprint)**: Phase 0 foundation (tokens, layout route, StatusBadge, form primitives, DataTable server-pagination support) done directly, then five parallel worktree tracks covered dashboards, timetable/students/attendance, results/exams/transcripts, finance (newly in scope), and audit/admin (newly in scope) + the `page_size:1000`→server-pagination fix (§3). A sixth parallel track finished the Android Hilt instrumentation test scaffold (§1) from the previously-stopped WIP branch. All six merged to `main`, verified end-to-end (96/96 Playwright across every role + RBAC + timetable against a live docker stack), and deployed to production (`https://sims.vexel.pk`) with a pre-deploy DB backup and full health-check verification. §2 and §3's pagination item are now fully closed; §1's on-device Android test run is the one still-open verification step (test APK builds/packages correctly, but no emulator/device was available to actually run `connectedDebugAndroidTest`).
+
+## Suggested next-session priority order (updated 2026-09-11)
+
+With §1 (core Android screens + Hilt scaffold), §2 (design system), §3 (pagination), §4, §5, §6, and §7 all resolved or intentionally deferred, there is no large item queued. Remaining open threads, roughly in order of likely next value:
+1. **Android**: run `connectedDebugAndroidTest` on a real device/emulator to confirm the new `@HiltAndroidTest` suites actually pass (not just build) — the first thing to check next Android session.
+2. **Android stretch items, still not started**: `WindowSizeClass`/`sw600dp` tablet layouts, and offline/500 error-state hardening beyond what's tested.
+3. **§5 revisit trigger**: rotate/disable the 54 demo-account default passwords once real users are actually being onboarded (not yet — re-confirmed multiple sessions running).
+4. **New-scope items, not deferred follow-up**: timetable recurrence engine, `Room`/venue resource model — only take these on if a genuine product need emerges.
+5. A from-scratch visual design pass on top of the token foundation landed this session, if the team wants to go beyond "consistent tokens" to an actual visual refresh — a separate, larger initiative from what this sprint scoped.

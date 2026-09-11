@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { sessionsService, attendanceService } from '@/services'
 import type { Session, Attendance } from '@/types'
 
@@ -68,24 +69,7 @@ export function AttendanceDashboard() {
         id: 'status',
         header: 'Status',
         accessorFn: (record) => record.status,
-        cell: ({ row }) => {
-          const record = row.original
-          return (
-            <span
-              className={`px-2 py-1 rounded-full text-xs font-medium ${
-                record.status === 'PRESENT'
-                  ? 'bg-green-100 text-green-800'
-                  : record.status === 'ABSENT'
-                  ? 'bg-red-100 text-red-800'
-                  : record.status === 'LATE'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : 'bg-blue-100 text-blue-800'
-              }`}
-            >
-              {record.status}
-            </span>
-          )
-        },
+        cell: ({ row }) => <StatusBadge domain="attendance" status={row.original.status} />,
       },
       {
         id: 'marked_at',
@@ -113,7 +97,7 @@ export function AttendanceDashboard() {
   return (
     
       <div className="p-6 space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
           <div>
             <h1 className="text-3xl font-bold">Attendance Dashboard</h1>
             <p className="text-gray-600">View attendance records and statistics</p>
@@ -137,10 +121,11 @@ export function AttendanceDashboard() {
         {/* Session Selector */}
         <Card>
           <div className="p-4">
-            <label className="block text-sm font-medium mb-2">
+            <label htmlFor="attendance-session-select" className="block text-sm font-medium mb-2">
               Select Session
             </label>
             <select
+              id="attendance-session-select"
               className="w-full p-2 border rounded-md"
               value={selectedSessionId || ''}
               onChange={(e) => handleSessionChange(Number(e.target.value))}
@@ -213,32 +198,32 @@ export function AttendanceDashboard() {
               </Card>
               <Card>
                 <div className="p-4">
-                  <div className="text-sm text-green-700">Present</div>
-                  <div className="text-3xl font-bold text-green-700">
+                  <div className="text-sm text-success">Present</div>
+                  <div className="text-3xl font-bold text-success">
                     {summaryData.present}
                   </div>
                 </div>
               </Card>
               <Card>
                 <div className="p-4">
-                  <div className="text-sm text-red-700">Absent</div>
-                  <div className="text-3xl font-bold text-red-700">
+                  <div className="text-sm text-danger">Absent</div>
+                  <div className="text-3xl font-bold text-danger">
                     {summaryData.absent}
                   </div>
                 </div>
               </Card>
               <Card>
                 <div className="p-4">
-                  <div className="text-sm text-yellow-700">Late</div>
-                  <div className="text-3xl font-bold text-yellow-700">
+                  <div className="text-sm text-warning">Late</div>
+                  <div className="text-3xl font-bold text-warning">
                     {summaryData.late}
                   </div>
                 </div>
               </Card>
               <Card>
                 <div className="p-4">
-                  <div className="text-sm text-blue-700">Percentage</div>
-                  <div className="text-3xl font-bold text-blue-700">
+                  <div className="text-sm text-info">Percentage</div>
+                  <div className="text-3xl font-bold text-info">
                     {summaryData.percentage.toFixed(1)}%
                   </div>
                 </div>

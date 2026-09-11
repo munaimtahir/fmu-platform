@@ -10,10 +10,12 @@ import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { FormSection } from '@/components/ui/FormSection'
 import { studentsService, programsService, batchesService, academicsService } from '@/services'
 import { groupsKey } from '@/utils/queryKeys'
 import { Student, Program } from '@/types'
 import { Batch } from '@/services/batches'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 
 const studentSchema = z.object({
   reg_no: z.string().min(1, 'Registration number is required'),
@@ -42,7 +44,7 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     watch,
     setValue,
   } = useForm<StudentFormData>({
@@ -95,6 +97,8 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
       setValue('group', '')
     }
   }, [selectedBatch, setValue, student])
+
+  useUnsavedChangesWarning(isDirty)
 
   const mutation = useMutation({
     mutationFn: (data: StudentFormData) => {
@@ -177,116 +181,96 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="student-form-title"
     >
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 id="student-form-title" className="text-2xl font-bold mb-4">
           {student ? 'Edit Student' : 'Add Student'}
         </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label htmlFor="reg-no" className="block text-sm font-medium mb-1">
-              Registration Number <span className="text-red-500" aria-label="required">*</span>
-            </label>
-            <Input 
-              id="reg-no"
-              {...register('reg_no')} 
-              error={errors.reg_no?.message}
-              aria-required="true"
-              aria-invalid={!!errors.reg_no}
-              aria-describedby={errors.reg_no ? 'reg-no-error' : undefined}
-            />
-            {errors.reg_no && (
-              <p id="reg-no-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.reg_no.message}
-              </p>
-            )}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <FormSection title="Student Details">
+            <div>
+              <Input
+                id="reg-no"
+                label="Registration Number"
+                required
+                {...register('reg_no')}
+                error={errors.reg_no?.message}
+                aria-required="true"
+                aria-invalid={!!errors.reg_no}
+              />
+            </div>
 
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium mb-1">
-              Name <span className="text-red-500" aria-label="required">*</span>
-            </label>
-            <Input 
-              id="name"
-              {...register('name')} 
-              error={errors.name?.message}
-              aria-required="true"
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? 'name-error' : undefined}
-            />
-            {errors.name && (
-              <p id="name-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.name.message}
-              </p>
-            )}
-          </div>
+            <div>
+              <Input
+                id="name"
+                label="Name"
+                required
+                {...register('name')}
+                error={errors.name?.message}
+                aria-required="true"
+                aria-invalid={!!errors.name}
+              />
+            </div>
 
-          <div>
-            <Select
-              label="Program"
-              options={programOptions}
-              value={watch('program') || ''}
-              onChange={(value) => setValue('program', value)}
-              error={errors.program?.message}
-              required
-              placeholder="Select program..."
-            />
-          </div>
+            <div>
+              <Select
+                label="Program"
+                options={programOptions}
+                value={watch('program') || ''}
+                onChange={(value) => setValue('program', value, { shouldDirty: true })}
+                error={errors.program?.message}
+                required
+                placeholder="Select program..."
+              />
+            </div>
 
-          <div>
-            <Select
-              label="Batch"
-              options={batchOptions}
-              value={watch('batch') || ''}
-              onChange={(value) => setValue('batch', value)}
-              error={errors.batch?.message}
-              required
-              placeholder="Select batch..."
-              disabled={!selectedProgram}
-            />
-          </div>
+            <div>
+              <Select
+                label="Batch"
+                options={batchOptions}
+                value={watch('batch') || ''}
+                onChange={(value) => setValue('batch', value, { shouldDirty: true })}
+                error={errors.batch?.message}
+                required
+                placeholder="Select batch..."
+                disabled={!selectedProgram}
+              />
+            </div>
 
-          <div>
-            <Select
-              label="Group (Optional)"
-              options={groupOptions}
-              value={watch('group') || ''}
-              onChange={(value) => setValue('group', value)}
-              error={errors.group?.message}
-              placeholder="Select group..."
-              disabled={!selectedBatch}
-            />
-          </div>
+            <div>
+              <Select
+                label="Group (Optional)"
+                options={groupOptions}
+                value={watch('group') || ''}
+                onChange={(value) => setValue('group', value, { shouldDirty: true })}
+                error={errors.group?.message}
+                placeholder="Select group..."
+                disabled={!selectedBatch}
+              />
+            </div>
 
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium mb-1">
-              Status <span className="text-red-500" aria-label="required">*</span>
-            </label>
-            <select
-              id="status"
-              {...register('status')}
-              className="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              aria-required="true"
-              aria-invalid={!!errors.status}
-              aria-describedby={errors.status ? 'status-error' : undefined}
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="graduated">Graduated</option>
-              <option value="suspended">Suspended</option>
-              <option value="on_leave">On Leave</option>
-            </select>
-            {errors.status && (
-              <p id="status-error" className="mt-1 text-sm text-red-600" role="alert">
-                {errors.status.message}
-              </p>
-            )}
-          </div>
+            <div>
+              <Select
+                label="Status"
+                required
+                options={[
+                  { value: 'active', label: 'Active' },
+                  { value: 'inactive', label: 'Inactive' },
+                  { value: 'graduated', label: 'Graduated' },
+                  { value: 'suspended', label: 'Suspended' },
+                  { value: 'on_leave', label: 'On Leave' },
+                ]}
+                value={watch('status') || 'active'}
+                onChange={(value) => setValue('status', value as StudentFormData['status'], { shouldDirty: true })}
+                error={errors.status?.message}
+              />
+            </div>
+          </FormSection>
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button 

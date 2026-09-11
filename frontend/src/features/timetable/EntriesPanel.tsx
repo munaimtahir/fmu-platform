@@ -64,7 +64,7 @@ export function EntriesPanel({ weeklyTimetableId, batchId, academicPeriodId, can
             <div
               key={entry.id}
               data-testid={`entry-row-${entry.id}`}
-              className="flex items-center justify-between border rounded-lg px-3 py-2"
+              className="flex flex-wrap items-center justify-between gap-2 border rounded-lg px-3 py-2"
             >
               <div>
                 <span className="font-medium" data-testid={`entry-row-${entry.id}-day`}>

@@ -7,6 +7,7 @@ import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
 import { Input } from '@/components/ui/Input'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 
 interface Section {
   id: number
@@ -159,19 +160,9 @@ export function EligibilityReport() {
         id: 'eligible',
         header: 'Eligible',
         accessorFn: (record) => record.eligible,
-        cell: ({ row }) => {
-          const record = row.original
-          return (
-            <span
-              className={`px-2 py-1 rounded-full text-xs font-medium ${record.eligible
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
-                }`}
-            >
-              {record.eligible ? 'Eligible' : 'Not Eligible'}
-            </span>
-          )
-        },
+        cell: ({ row }) => (
+          <StatusBadge domain="attendance" status={row.original.eligible ? 'Eligible' : 'Not Eligible'} />
+        ),
       },
     ],
     []
@@ -183,7 +174,7 @@ export function EligibilityReport() {
   return (
     
       <div className="p-6 space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-wrap gap-3 justify-between items-center">
           <h1 className="text-3xl font-bold">Eligibility Report</h1>
           {eligibilityData.length > 0 && (
             <Button onClick={handleExportCSV}>Export CSV</Button>
@@ -200,10 +191,9 @@ export function EligibilityReport() {
         <Card>
           <div className="p-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Attendance Threshold (%)
-              </label>
               <Input
+                id="eligibility-threshold"
+                label="Attendance Threshold (%)"
                 type="number"
                 min="0"
                 max="100"
@@ -214,10 +204,10 @@ export function EligibilityReport() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <span id="eligibility-sections-label" className="block text-sm font-medium text-gray-900 mb-1.5">
                 Select Sections
-              </label>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
+              </span>
+              <div className="space-y-2 max-h-64 overflow-y-auto" role="group" aria-labelledby="eligibility-sections-label">
                 {sections.map((section) => (
                   <label key={section.id} className="flex items-center gap-2">
                     <input
@@ -263,7 +253,7 @@ export function EligibilityReport() {
               <Card>
                 <div className="p-4">
                   <div className="text-sm text-gray-600">Eligible</div>
-                  <div className="text-3xl font-bold text-green-600">
+                  <div className="text-3xl font-bold text-success">
                     {eligibleCount}
                   </div>
                 </div>
@@ -271,7 +261,7 @@ export function EligibilityReport() {
               <Card>
                 <div className="p-4">
                   <div className="text-sm text-gray-600">Not Eligible</div>
-                  <div className="text-3xl font-bold text-red-600">
+                  <div className="text-3xl font-bold text-danger">
                     {ineligibleCount}
                   </div>
                 </div>

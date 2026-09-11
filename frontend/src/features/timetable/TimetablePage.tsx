@@ -267,7 +267,7 @@ export function TimetablePage() {
           </div>
 
           {generateTemplatesMutation.isPending && (
-            <div className="text-sm text-blue-600">
+            <div className="text-sm text-info">
               Generating weekly templates for all weeks in this period...
             </div>
           )}
@@ -279,7 +279,7 @@ export function TimetablePage() {
                 <> ({format(new Date(selectedAcademicPeriod.start_date), 'MMM dd, yyyy')} - {format(new Date(selectedAcademicPeriod.end_date), 'MMM dd, yyyy')})</>
               )}
               {(!selectedAcademicPeriod.start_date || !selectedAcademicPeriod.end_date) && (
-                <span className="text-yellow-600 ml-2">⚠ Period dates not set - templates cannot be generated</span>
+                <span className="text-warning ml-2">⚠ Period dates not set - templates cannot be generated</span>
               )}
             </div>
           )}
@@ -320,7 +320,7 @@ export function TimetablePage() {
                           <div
                             key={week.id}
                             data-testid={`week-card-draft-${week.id}`}
-                            className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                            className="border rounded-lg p-4 hover:shadow-elevation-2 transition-shadow cursor-pointer"
                             onClick={() => handleWeekSelect(week.id)}
                           >
                             <div className="flex justify-between items-start mb-2">
@@ -367,7 +367,7 @@ export function TimetablePage() {
                           <div
                             key={week.id}
                             data-testid={`week-card-published-${week.id}`}
-                            className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer bg-green-50"
+                            className="border rounded-lg p-4 hover:shadow-elevation-2 transition-shadow cursor-pointer bg-success-subtle"
                             onClick={() => handleWeekSelect(week.id)}
                           >
                             <div className="flex justify-between items-start mb-2">

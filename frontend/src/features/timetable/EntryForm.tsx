@@ -8,9 +8,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
+import { Label } from '@/components/ui/Label'
 import api from '@/api/axios'
 import { academicsService, timetableEntryService } from '@/services'
 import { groupsKey } from '@/utils/queryKeys'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 
 // The shared `sectionsService`/`Section` type target a stale, mismatched
 // shape (course/term/teacher/capacity) that doesn't match the actual
@@ -47,6 +49,10 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('10:00')
   const [room, setRoom] = useState('')
+
+  // Warn on navigating away with an in-progress (not yet submitted) entry —
+  // section/group selected or a room typed in, beyond the day/time defaults.
+  useUnsavedChangesWarning(!!sectionId || !!groupId || room.trim() !== '')
 
   const { data: sections = [] } = useQuery({
     queryKey: ['academic-sections', academicPeriodId],
@@ -110,20 +116,21 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
       }}
     >
       <div className="md:col-span-2">
-        <label className="text-xs text-gray-600">Section</label>
-        <Select data-testid="entry-form-section-select" options={sectionOptions} value={sectionId} onChange={setSectionId} />
+        <Label htmlFor="entry-form-section" required className="text-xs text-gray-600 mb-0">Section</Label>
+        <Select id="entry-form-section" data-testid="entry-form-section-select" options={sectionOptions} value={sectionId} onChange={setSectionId} />
       </div>
       <div className="md:col-span-2">
-        <label className="text-xs text-gray-600">Group</label>
-        <Select data-testid="entry-form-group-select" options={groupOptions} value={groupId} onChange={setGroupId} />
+        <Label htmlFor="entry-form-group" className="text-xs text-gray-600 mb-0">Group</Label>
+        <Select id="entry-form-group" data-testid="entry-form-group-select" options={groupOptions} value={groupId} onChange={setGroupId} />
       </div>
       <div>
-        <label className="text-xs text-gray-600">Day</label>
-        <Select data-testid="entry-form-day-select" options={DAY_OPTIONS} value={dayOfWeek} onChange={setDayOfWeek} />
+        <Label htmlFor="entry-form-day" className="text-xs text-gray-600 mb-0">Day</Label>
+        <Select id="entry-form-day" data-testid="entry-form-day-select" options={DAY_OPTIONS} value={dayOfWeek} onChange={setDayOfWeek} />
       </div>
       <div>
-        <label className="text-xs text-gray-600">Start</label>
+        <Label htmlFor="entry-form-start" className="text-xs text-gray-600 mb-0">Start</Label>
         <input
+          id="entry-form-start"
           data-testid="entry-form-start-time"
           type="time"
           className="w-full border rounded px-2 py-1.5 text-sm"
@@ -132,8 +139,9 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
         />
       </div>
       <div>
-        <label className="text-xs text-gray-600">End</label>
+        <Label htmlFor="entry-form-end" className="text-xs text-gray-600 mb-0">End</Label>
         <input
+          id="entry-form-end"
           data-testid="entry-form-end-time"
           type="time"
           className="w-full border rounded px-2 py-1.5 text-sm"
@@ -142,8 +150,9 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
         />
       </div>
       <div>
-        <label className="text-xs text-gray-600">Room</label>
+        <Label htmlFor="entry-form-room" className="text-xs text-gray-600 mb-0">Room</Label>
         <input
+          id="entry-form-room"
           data-testid="entry-form-room"
           type="text"
           className="w-full border rounded px-2 py-1.5 text-sm"

@@ -70,6 +70,7 @@ export const ExamsPage: React.FC = () => {
         description="Manage exams and exam components"
         actions={
           <Input
+            aria-label="Search exams"
             placeholder="Search exams..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}

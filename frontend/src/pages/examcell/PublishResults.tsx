@@ -7,6 +7,7 @@ import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Alert } from '@/components/ui/Alert'
 import { Select } from '@/components/ui/Select'
 import { Input } from '@/components/ui/Input'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { resultsService, type ResultHeader } from '@/services/results'
 
 const STATUS_OPTIONS = [
@@ -99,7 +100,11 @@ export function PublishResults() {
         cell: ({ row }) => `${row.original.total_obtained} / ${row.original.total_max}`,
       },
       { accessorKey: 'final_outcome', header: 'Outcome' },
-      { accessorKey: 'status', header: 'Status' },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => <StatusBadge domain="results" status={row.original.status} />,
+      },
       {
         id: 'actions',
         header: 'Actions',

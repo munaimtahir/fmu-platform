@@ -46,7 +46,7 @@ class AttendanceScreenTest {
             ),
         )
 
-        composeRule.activity.setContent { MedSimsTheme(dark = false) { AttendanceScreen() } }
+        composeRule.setContent { MedSimsTheme(dark = false) { AttendanceScreen() } }
 
         composeRule.onNodeWithContentDescription("Attendance content").assertExists()
         composeRule.onNodeWithText("80.0% overall").assertExists()
@@ -62,7 +62,7 @@ class AttendanceScreenTest {
             Response.success(PaginatedResponse(count = 21, next = null, previous = null, results = listOf(record(21, "PAGE_TWO_MARKER")))),
         )
 
-        composeRule.activity.setContent { MedSimsTheme(dark = false) { AttendanceScreen() } }
+        composeRule.setContent { MedSimsTheme(dark = false) { AttendanceScreen() } }
 
         composeRule.waitUntil(timeoutMillis = 5_000) { fakeAttendanceApi.requestedPages.contains(1) }
 

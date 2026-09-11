@@ -21,20 +21,23 @@ import pk.vexel.medsims.core.network.NetworkResult
 import pk.vexel.medsims.core.network.PagedState
 import pk.vexel.medsims.core.network.ResultRecordDto
 import pk.vexel.medsims.core.network.ScreenState
+import pk.vexel.medsims.core.ui.AdaptiveWidthContainer
 import pk.vexel.medsims.core.ui.ErrorState
 
 @Composable fun ResultsScreen(viewModel: ResultsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     val history by viewModel.history.collectAsState()
-    when (val s = state) {
-        ScreenState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
-        is ScreenState.Error -> ErrorState(s, onRetry = viewModel::load)
-        is ScreenState.Content -> ResultsContent(
-            latestResults = s.value,
-            history = history,
-            onLoadMore = { viewModel.loadHistory() },
-            onRetryHistory = { viewModel.loadHistory(reset = true) },
-        )
+    AdaptiveWidthContainer {
+        when (val s = state) {
+            ScreenState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+            is ScreenState.Error -> ErrorState(s, onRetry = viewModel::load)
+            is ScreenState.Content -> ResultsContent(
+                latestResults = s.value,
+                history = history,
+                onLoadMore = { viewModel.loadHistory() },
+                onRetryHistory = { viewModel.loadHistory(reset = true) },
+            )
+        }
     }
 }
 
@@ -48,7 +51,7 @@ import pk.vexel.medsims.core.ui.ErrorState
     LaunchedEffect(listState, history.items.size, history.endReached) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index to listState.layoutInfo.totalItemsCount }
             .collect { (lastVisible, total) ->
-                if (lastVisible != null && total > 0 && lastVisible >= total - 3) onLoadMore()
+                if (history.items.isNotEmpty() && lastVisible != null && total > 0 && lastVisible >= total - 3) onLoadMore()
             }
     }
     val financeBlocked = (history.error as? NetworkResult.Failure)?.takeIf { it.code == FINANCE_BLOCKED_CODE }

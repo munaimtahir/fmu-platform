@@ -28,14 +28,14 @@ class LoginScreenTest {
     @Before fun setUp() { hiltRule.inject() }
 
     @Test fun login_screen_renders_identifier_and_password_fields() {
-        composeRule.activity.setContent { MedSimsTheme(dark = false) { LoginScreen(onAuthenticated = {}) } }
+        composeRule.setContent { MedSimsTheme(dark = false) { LoginScreen(onAuthenticated = {}) } }
         composeRule.onNodeWithContentDescription("Identifier").assertExists()
         composeRule.onNodeWithContentDescription("Password").assertExists()
     }
 
     @Test fun successful_login_invokes_onAuthenticated_with_user() {
         var authenticated: UserDto? = null
-        composeRule.activity.setContent { MedSimsTheme(dark = false) { LoginScreen(onAuthenticated = { authenticated = it }) } }
+        composeRule.setContent { MedSimsTheme(dark = false) { LoginScreen(onAuthenticated = { authenticated = it }) } }
 
         composeRule.onNodeWithContentDescription("Identifier").performTextInput("jane@example.edu")
         composeRule.onNodeWithContentDescription("Password").performTextInput("s3cret!")

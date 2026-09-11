@@ -15,20 +15,23 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pk.vexel.medsims.core.network.ScheduleEntryDto
 import pk.vexel.medsims.core.network.ScreenState
+import pk.vexel.medsims.core.ui.AdaptiveWidthContainer
 import pk.vexel.medsims.core.ui.ErrorState
 import java.time.LocalDate
 
 @Composable fun TimetableScreen(viewModel: TimetableViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     val mode by viewModel.mode.collectAsState()
-    Column(Modifier.fillMaxSize()) {
-        SegmentedButtonRow(mode, viewModel::setMode)
-        when (val s = state) {
-            ScreenState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
-            is ScreenState.Error -> ErrorState(s, onRetry = viewModel::load)
-            is ScreenState.Content -> {
-                val entries = if (mode == TimetableMode.TODAY) s.value.entries.filter { it.date == LocalDate.now().toString() } else s.value.entries
-                TimetableList(entries)
+    AdaptiveWidthContainer {
+        Column(Modifier.fillMaxSize()) {
+            SegmentedButtonRow(mode, viewModel::setMode)
+            when (val s = state) {
+                ScreenState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+                is ScreenState.Error -> ErrorState(s, onRetry = viewModel::load)
+                is ScreenState.Content -> {
+                    val entries = if (mode == TimetableMode.TODAY) s.value.entries.filter { it.date == LocalDate.now().toString() } else s.value.entries
+                    TimetableList(entries)
+                }
             }
         }
     }

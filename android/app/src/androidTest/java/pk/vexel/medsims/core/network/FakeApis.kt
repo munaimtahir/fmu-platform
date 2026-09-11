@@ -38,10 +38,16 @@ class FakeHealthApi @Inject constructor() : HealthApi {
 class FakeMobileApi @Inject constructor() : MobileApi {
     var homeResponse: Response<StudentHomeResponse> = Response.success(defaultHome())
     var timetableResponse: Response<StudentTimetableResponse> = Response.success(StudentTimetableResponse("2026-09-07", emptyList(), "live"))
+    /** When set, [studentHome] throws this instead of returning [homeResponse] — used to script OFFLINE/TIMEOUT. */
+    var homeThrowable: Throwable? = null
     val homeRequestCount get() = _homeRequestCount
     private var _homeRequestCount = 0
 
-    override suspend fun studentHome(): Response<StudentHomeResponse> { _homeRequestCount++; return homeResponse }
+    override suspend fun studentHome(): Response<StudentHomeResponse> {
+        _homeRequestCount++
+        homeThrowable?.let { throw it }
+        return homeResponse
+    }
     override suspend fun studentTimetable(weekStartDate: String?): Response<StudentTimetableResponse> = timetableResponse
 
     companion object {

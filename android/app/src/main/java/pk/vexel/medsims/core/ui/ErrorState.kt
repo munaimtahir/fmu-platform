@@ -20,8 +20,14 @@ import pk.vexel.medsims.core.network.ScreenState
 
 @Composable fun ErrorState(error: ScreenState.Error, onRetry: () -> Unit) {
     val notAStudent = error.kind == ErrorKind.NOT_FOUND && error.code == "NOT_A_STUDENT"
-    val title = if (notAStudent) "No student record is linked to this account." else error.message.ifBlank { "Something went wrong. Please try again." }
-    Column(Modifier.fillMaxSize().padding(24.dp).semantics { contentDescription = "Error state" }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+    val (description, title) = when {
+        notAStudent -> "Not a student state" to "No student record is linked to this account."
+        error.kind == ErrorKind.OFFLINE -> "Offline state" to "You're offline. Check your connection and try again."
+        error.kind == ErrorKind.TIMEOUT -> "Timeout state" to "That took too long. Please try again."
+        error.kind == ErrorKind.SERVER -> "Server error state" to "MedSIMS is having trouble right now. Please try again shortly."
+        else -> "Error state" to error.message.ifBlank { "Something went wrong. Please try again." }
+    }
+    Column(Modifier.fillMaxSize().padding(24.dp).semantics { contentDescription = description }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text(title, style = MaterialTheme.typography.bodyLarge)
         if (!notAStudent) { Spacer(Modifier.height(16.dp)); Button(onClick = onRetry) { Text("Retry") } }
     }

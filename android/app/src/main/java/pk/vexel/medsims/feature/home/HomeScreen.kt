@@ -14,14 +14,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pk.vexel.medsims.core.network.ScreenState
 import pk.vexel.medsims.core.network.StudentHomeResponse
+import pk.vexel.medsims.core.ui.AdaptiveWidthContainer
 import pk.vexel.medsims.core.ui.ErrorState
 
 @Composable fun HomeScreen(onOpenTimetable: () -> Unit, onOpenAttendance: () -> Unit, onOpenResults: () -> Unit, viewModel: HomeViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
-    when (val s = state) {
-        ScreenState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
-        is ScreenState.Error -> ErrorState(s, onRetry = viewModel::load)
-        is ScreenState.Content -> HomeContent(s.value, onOpenTimetable, onOpenAttendance, onOpenResults)
+    AdaptiveWidthContainer {
+        when (val s = state) {
+            ScreenState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+            is ScreenState.Error -> ErrorState(s, onRetry = viewModel::load)
+            is ScreenState.Content -> HomeContent(s.value, onOpenTimetable, onOpenAttendance, onOpenResults)
+        }
     }
 }
 

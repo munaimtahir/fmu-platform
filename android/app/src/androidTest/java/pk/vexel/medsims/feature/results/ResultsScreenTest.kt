@@ -2,6 +2,7 @@ package pk.vexel.medsims.feature.results
 
 import androidx.activity.compose.setContent
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -45,7 +46,7 @@ class ResultsScreenTest {
             ),
         )
 
-        composeRule.activity.setContent { MedSimsTheme(dark = false) { ResultsScreen() } }
+        composeRule.setContent { MedSimsTheme(dark = false) { ResultsScreen() } }
 
         composeRule.onNodeWithContentDescription("Results content").assertExists()
         composeRule.onNodeWithText("Anatomy Final").assertExists()
@@ -57,9 +58,11 @@ class ResultsScreenTest {
         val body = FINANCE_BLOCKED_JSON.toResponseBody("application/json".toMediaType())
         fakeResultsApi.pages = listOf(Response.error(403, body))
 
-        composeRule.activity.setContent { MedSimsTheme(dark = false) { ResultsScreen() } }
+        composeRule.setContent { MedSimsTheme(dark = false) { ResultsScreen() } }
 
-        composeRule.waitUntil(timeoutMillis = 5_000) { fakeResultsApi.requestedPages.contains(1) }
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithContentDescription("Results blocked").fetchSemanticsNodes().isNotEmpty()
+        }
         composeRule.onNodeWithContentDescription("Results blocked").assertExists()
         composeRule.onNodeWithText("Outstanding balance: 1500.00").assertExists()
     }

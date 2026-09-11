@@ -3,6 +3,7 @@ package pk.vexel.medsims.core.network
 import kotlinx.serialization.json.Json
 import retrofit2.Response
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 sealed interface NetworkResult<out T> {
     data class Success<T>(val value: T): NetworkResult<T>
@@ -24,7 +25,8 @@ suspend fun <T> safeCall(request: suspend () -> Response<T>): NetworkResult<T> =
     val response = request()
     val body = response.body()
     if (response.isSuccessful && body != null) NetworkResult.Success(body) else failure(response)
-} catch (e: IOException) { NetworkResult.Failure(ErrorKind.OFFLINE, "Check your internet connection and try again.") }
+} catch (e: SocketTimeoutException) { NetworkResult.Failure(ErrorKind.TIMEOUT, "The request timed out. Please try again.") }
+  catch (e: IOException) { NetworkResult.Failure(ErrorKind.OFFLINE, "Check your internet connection and try again.") }
 
 fun <T> failure(response: Response<T>): NetworkResult.Failure {
     val envelope = try { response.errorBody()?.string()?.let { errorJson.decodeFromString<ApiErrorEnvelope>(it) } } catch (e: Exception) { null }

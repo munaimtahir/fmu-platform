@@ -1,5 +1,4 @@
 import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useAuth } from '@/features/auth/useAuth'
 
@@ -27,7 +26,7 @@ export const ExamCellDashboard = () => {
                 <p className="text-sm text-gray-600 mb-1">Scheduled Exams</p>
                 <p className="text-2xl font-bold text-gray-900">12</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
                 📅
               </div>
             </div>
@@ -39,7 +38,7 @@ export const ExamCellDashboard = () => {
                 <p className="text-sm text-gray-600 mb-1">Pending Results</p>
                 <p className="text-2xl font-bold text-gray-900">8</p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center text-2xl">
                 ⏳
               </div>
             </div>
@@ -51,7 +50,7 @@ export const ExamCellDashboard = () => {
                 <p className="text-sm text-gray-600 mb-1">Published Results</p>
                 <p className="text-2xl font-bold text-gray-900">45</p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-2xl">
                 ✅
               </div>
             </div>
@@ -63,7 +62,7 @@ export const ExamCellDashboard = () => {
                 <p className="text-sm text-gray-600 mb-1">Re-evaluation Requests</p>
                 <p className="text-2xl font-bold text-gray-900">6</p>
               </div>
-              <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center text-2xl">
                 🔄
               </div>
             </div>
@@ -86,7 +85,7 @@ export const ExamCellDashboard = () => {
                   <p className="text-sm font-medium text-gray-900">{exam.code} - {exam.name}</p>
                   <p className="text-xs text-gray-500">{exam.date} • {exam.students} students</p>
                 </div>
-                <Badge variant="primary">Scheduled</Badge>
+                <StatusBadge domain="timetable" status="scheduled" label="Scheduled" />
               </div>
             ))}
           </div>

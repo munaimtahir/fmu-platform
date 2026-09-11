@@ -94,7 +94,7 @@ export const FacultyDashboard = () => {
                   {stats.my_sessions ?? 0}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
                 📚
               </div>
             </div>
@@ -112,7 +112,7 @@ export const FacultyDashboard = () => {
                   {stats.my_students ?? 0}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-2xl">
                 👥
               </div>
             </div>
@@ -130,7 +130,7 @@ export const FacultyDashboard = () => {
                   {stats.draft_results ?? 0}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center text-2xl">
                 📝
               </div>
             </div>
@@ -148,7 +148,7 @@ export const FacultyDashboard = () => {
                   {sections.length}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-2xl">
                 📋
               </div>
             </div>
@@ -180,7 +180,7 @@ export const FacultyDashboard = () => {
                   </div>
                   <Link
                     to={`/sections/${section.id}`}
-                    className="px-3 py-1 text-sm text-[#3B82F6] hover:bg-blue-50 rounded-lg transition-colors duration-150"
+                    className="px-3 py-1 text-sm text-primary hover:bg-blue-50 rounded-lg transition-colors duration-150"
                   >
                     View Details
                   </Link>
@@ -199,41 +199,47 @@ export const FacultyDashboard = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/attendance'}>
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl">
-                ✅
+          <Link to="/attendance" className="block">
+            <Card className="hover:shadow-elevation-3 transition-shadow cursor-pointer">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl">
+                  ✅
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Attendance</h3>
+                  <p className="text-sm text-gray-600">Mark and view attendance</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Attendance</h3>
-                <p className="text-sm text-gray-600">Mark and view attendance</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/exams'}>
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">
-                📖
+          <Link to="/exams" className="block">
+            <Card className="hover:shadow-elevation-3 transition-shadow cursor-pointer">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">
+                  📖
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Exams</h3>
+                  <p className="text-sm text-gray-600">Manage canonical exams and results</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Exams</h3>
-                <p className="text-sm text-gray-600">Manage canonical exams and results</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </Link>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/results'}>
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl">
-                📋
+          <Link to="/results" className="block">
+            <Card className="hover:shadow-elevation-3 transition-shadow cursor-pointer">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl">
+                  📋
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Results</h3>
+                  <p className="text-sm text-gray-600">View and manage results</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Results</h3>
-                <p className="text-sm text-gray-600">View and manage results</p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </Link>
         </div>
       </div>
     

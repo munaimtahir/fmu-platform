@@ -108,7 +108,7 @@ export const GroupsPage: React.FC = () => {
         actions={
           <div className="flex gap-2">
             <Input
-              placeholder="Search groups..."
+              aria-label="Search groups" placeholder="Search groups..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-64"

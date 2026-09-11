@@ -113,7 +113,7 @@ export const DepartmentsPage: React.FC = () => {
         actions={
           <div className="flex gap-2">
             <Input
-              placeholder="Search departments..."
+              aria-label="Search departments" placeholder="Search departments..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-64"

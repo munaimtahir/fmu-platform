@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -7,6 +7,8 @@ import { Select } from '@/components/ui/Select'
 import { Modal } from '@/components/ui/Modal'
 import { academicsNewService, type Department } from '@/services/academicsNew'
 import { departmentsKey } from '@/utils/queryKeys'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
+import toast from 'react-hot-toast'
 
 interface DepartmentFormModalProps {
   department?: Department | null
@@ -25,12 +27,21 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({ depart
     queryFn: () => academicsNewService.getDepartments(),
   })
 
+  const initialSnapshot = useRef({ name: '', code: '', description: '', parent: '' as number | '' })
+
   useEffect(() => {
     if (department) {
-      setName(department.name)
-      setCode(department.code || '')
-      setDescription(department.description || '')
-      setParent(department.parent || '')
+      const next = {
+        name: department.name,
+        code: department.code || '',
+        description: department.description || '',
+        parent: department.parent || ('' as number | ''),
+      }
+      setName(next.name)
+      setCode(next.code)
+      setDescription(next.description)
+      setParent(next.parent)
+      initialSnapshot.current = next
     }
   }, [department])
 
@@ -38,7 +49,11 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({ depart
     mutationFn: (data: any) => academicsNewService.createDepartment(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: departmentsKey() })
+      toast.success('Department created successfully')
       onClose()
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.error?.message || 'Failed to create department')
     },
   })
 
@@ -46,7 +61,11 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({ depart
     mutationFn: (data: any) => academicsNewService.updateDepartment(department!.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: departmentsKey() })
+      toast.success('Department updated successfully')
       onClose()
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.error?.message || 'Failed to update department')
     },
   })
 
@@ -73,6 +92,12 @@ export const DepartmentFormModal: React.FC<DepartmentFormModalProps> = ({ depart
   ) || []
 
   const isLoading = createMutation.isPending || updateMutation.isPending
+  const isDirty =
+    name !== initialSnapshot.current.name ||
+    code !== initialSnapshot.current.code ||
+    description !== initialSnapshot.current.description ||
+    parent !== initialSnapshot.current.parent
+  useUnsavedChangesWarning(isDirty)
 
   return (
     <Modal title={department ? 'Edit Department' : 'Create Department'} onClose={onClose}>

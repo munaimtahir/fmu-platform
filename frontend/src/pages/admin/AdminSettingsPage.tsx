@@ -7,9 +7,114 @@ import { Input } from '@/components/ui/Input'
 import { TextArea } from '@/components/ui/TextArea'
 import { Switch } from '@/components/ui/Switch'
 import { Select } from '@/components/ui/Select'
+import { Label } from '@/components/ui/Label'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { settingsApi, type AllowedKey } from '@/api/settings'
 import { academicsNewService } from '@/services/academicsNew'
+
+interface SettingRowProps {
+  keyInfo: AllowedKey
+  currentValue: any
+  isSaving: boolean
+  programs?: Array<{ id: number; name: string }>
+  onSave: (keyInfo: AllowedKey, value: any) => void
+}
+
+/**
+ * One editable setting row. Extracted to its own component so each row's
+ * "pending edit" state (`localValue`) is a real `useState` at the top of a
+ * component, rather than inside a `.map()` callback (which previously
+ * violated the Rules of Hooks by calling `useState` a variable number of
+ * times per render).
+ */
+const SettingRow: React.FC<SettingRowProps> = ({ keyInfo, currentValue, isSaving, programs, onSave }) => {
+  const [localValue, setLocalValue] = useState(currentValue)
+  const fieldId = `setting-${keyInfo.key}`
+  const fieldLabel = keyInfo.key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+
+  return (
+    <div className="border-b border-gray-200 pb-4 last:border-0">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <Label htmlFor={fieldId}>{fieldLabel}</Label>
+          <p className="text-sm text-gray-500 mb-3">{keyInfo.description}</p>
+
+          {keyInfo.type === 'boolean' && (
+            <Switch
+              id={fieldId}
+              checked={localValue as boolean}
+              onChange={(checked) => {
+                setLocalValue(checked)
+                onSave(keyInfo, checked)
+              }}
+              disabled={isSaving}
+            />
+          )}
+
+          {keyInfo.type === 'integer' && (
+            <div className="flex gap-2">
+              {keyInfo.key === 'default_academic_year_id' ? (
+                <Select
+                  id={fieldId}
+                  value={localValue?.toString() || ''}
+                  onChange={(value) => {
+                    const val = value ? Number(value) : null
+                    setLocalValue(val)
+                  }}
+                  disabled={isSaving}
+                  className="flex-1"
+                  options={[
+                    { value: '', label: 'Select Academic Year' },
+                    ...(programs?.map((p) => ({
+                      value: p.id.toString(),
+                      label: p.name,
+                    })) || []),
+                  ]}
+                />
+              ) : (
+                <Input
+                  id={fieldId}
+                  type="number"
+                  value={localValue as number}
+                  onChange={(e) => setLocalValue(Number(e.target.value))}
+                  disabled={isSaving}
+                  className="flex-1"
+                />
+              )}
+              <Button onClick={() => onSave(keyInfo, localValue)} disabled={isSaving || localValue === currentValue}>
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          )}
+
+          {keyInfo.type === 'string' && (
+            <div className="space-y-2">
+              {keyInfo.key === 'ui_banner_message' ? (
+                <TextArea
+                  id={fieldId}
+                  value={localValue as string}
+                  onChange={(e) => setLocalValue(e.target.value)}
+                  disabled={isSaving}
+                  rows={3}
+                />
+              ) : (
+                <Input
+                  id={fieldId}
+                  value={localValue as string}
+                  onChange={(e) => setLocalValue(e.target.value)}
+                  disabled={isSaving}
+                />
+              )}
+              <Button onClick={() => onSave(keyInfo, localValue)} disabled={isSaving || localValue === currentValue}>
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 /**
  * Admin Settings Page - Configure system settings
@@ -137,97 +242,16 @@ export const AdminSettingsPage: React.FC = () => {
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">{category}</h2>
                 <div className="space-y-6">
-                  {keys.map((keyInfo) => {
-                    const currentValue = getCurrentValue(keyInfo)
-                    const [localValue, setLocalValue] = useState(currentValue)
-                    const isSaving = savingKeys.has(keyInfo.key)
-
-                    return (
-                      <div key={keyInfo.key} className="border-b border-gray-200 pb-4 last:border-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              {keyInfo.key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                            </label>
-                            <p className="text-sm text-gray-500 mb-3">{keyInfo.description}</p>
-
-                            {keyInfo.type === 'boolean' && (
-                              <Switch
-                                checked={localValue as boolean}
-                                onChange={(checked) => {
-                                  setLocalValue(checked)
-                                  handleSave(keyInfo, checked)
-                                }}
-                                disabled={isSaving}
-                              />
-                            )}
-
-                            {keyInfo.type === 'integer' && (
-                              <div className="flex gap-2">
-                                {keyInfo.key === 'default_academic_year_id' ? (
-                                  <Select
-                                    value={localValue?.toString() || ''}
-                                    onChange={(value) => {
-                                      const val = value ? Number(value) : null
-                                      setLocalValue(val)
-                                    }}
-                                    disabled={isSaving}
-                                    className="flex-1"
-                                    options={[
-                                      { value: '', label: 'Select Academic Year' },
-                                      ...(programs?.map((p) => ({
-                                        value: p.id.toString(),
-                                        label: p.name,
-                                      })) || []),
-                                    ]}
-                                  />
-                                ) : (
-                                  <Input
-                                    type="number"
-                                    value={localValue as number}
-                                    onChange={(e) => setLocalValue(Number(e.target.value))}
-                                    disabled={isSaving}
-                                    className="flex-1"
-                                  />
-                                )}
-                                <Button
-                                  onClick={() => handleSave(keyInfo, localValue)}
-                                  disabled={isSaving || localValue === currentValue}
-                                >
-                                  {isSaving ? 'Saving...' : 'Save'}
-                                </Button>
-                              </div>
-                            )}
-
-                            {keyInfo.type === 'string' && (
-                              <div className="space-y-2">
-                                {keyInfo.key === 'ui_banner_message' ? (
-                                  <TextArea
-                                    value={localValue as string}
-                                    onChange={(e) => setLocalValue(e.target.value)}
-                                    disabled={isSaving}
-                                    rows={3}
-                                  />
-                                ) : (
-                                  <Input
-                                    value={localValue as string}
-                                    onChange={(e) => setLocalValue(e.target.value)}
-                                    disabled={isSaving}
-                                  />
-                                )}
-                                <Button
-                                  onClick={() => handleSave(keyInfo, localValue)}
-                                  disabled={isSaving || localValue === currentValue}
-                                >
-                                  {isSaving ? 'Saving...' : 'Save'}
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
+                  {keys.map((keyInfo) => (
+                    <SettingRow
+                      key={keyInfo.key}
+                      keyInfo={keyInfo}
+                      currentValue={getCurrentValue(keyInfo)}
+                      isSaving={savingKeys.has(keyInfo.key)}
+                      programs={programs}
+                      onSave={handleSave}
+                    />
+                  ))}
                 </div>
               </div>
             </Card>

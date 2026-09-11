@@ -6,8 +6,11 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { TextArea } from '@/components/ui/TextArea'
 import { Select } from '@/components/ui/Select'
+import { Switch } from '@/components/ui/Switch'
+import { FormSection } from '@/components/ui/FormSection'
 import { Card } from '@/components/ui/Card'
 import { academicsNewService } from '@/services/academicsNew'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 
 export const ProgramFormPage: React.FC = () => {
   const navigate = useNavigate()
@@ -46,6 +49,11 @@ export const ProgramFormPage: React.FC = () => {
     createMutation.mutate(data)
   }
 
+  const isDirty = Boolean(
+    name || description || periodLengthMonths !== '' || totalPeriods !== '' || structureType !== 'YEARLY' || !isActive
+  )
+  useUnsavedChangesWarning(isDirty)
+
   return (
     
       <PageShell
@@ -58,62 +66,60 @@ export const ProgramFormPage: React.FC = () => {
         }
       >
         <Card>
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            <Input
-              label="Program Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <TextArea
-              label="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-            <Select
-              label="Structure Type"
-              value={structureType}
-              onChange={(value) => setStructureType(value as 'YEARLY' | 'SEMESTER' | 'CUSTOM')}
-              options={[
-                { value: 'YEARLY', label: 'Yearly' },
-                { value: 'SEMESTER', label: 'Semester' },
-                { value: 'CUSTOM', label: 'Custom' },
-              ]}
-              required
-            />
-            {structureType === 'CUSTOM' && (
-              <>
-                <Input
-                  label="Period Length (Months)"
-                  type="number"
-                  value={periodLengthMonths === '' ? '' : String(periodLengthMonths)}
-                  onChange={(e) => setPeriodLengthMonths(e.target.value ? Number(e.target.value) : '')}
-                  min={1}
-                  required
-                />
-                <Input
-                  label="Total Periods"
-                  type="number"
-                  value={totalPeriods === '' ? '' : String(totalPeriods)}
-                  onChange={(e) => setTotalPeriods(e.target.value ? Number(e.target.value) : '')}
-                  min={1}
-                  required
-                />
-              </>
-            )}
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_active"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="w-4 h-4"
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <FormSection title="Program Details">
+              <Input
+                label="Program Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
               />
-              <label htmlFor="is_active" className="text-sm font-medium">
-                Active
-              </label>
-            </div>
+              <TextArea
+                label="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+              />
+            </FormSection>
+
+            <FormSection title="Structure" description="How this program's academic calendar is divided.">
+              <Select
+                label="Structure Type"
+                value={structureType}
+                onChange={(value) => setStructureType(value as 'YEARLY' | 'SEMESTER' | 'CUSTOM')}
+                options={[
+                  { value: 'YEARLY', label: 'Yearly' },
+                  { value: 'SEMESTER', label: 'Semester' },
+                  { value: 'CUSTOM', label: 'Custom' },
+                ]}
+                required
+              />
+              {structureType === 'CUSTOM' && (
+                <>
+                  <Input
+                    label="Period Length (Months)"
+                    type="number"
+                    value={periodLengthMonths === '' ? '' : String(periodLengthMonths)}
+                    onChange={(e) => setPeriodLengthMonths(e.target.value ? Number(e.target.value) : '')}
+                    min={1}
+                    required
+                  />
+                  <Input
+                    label="Total Periods"
+                    type="number"
+                    value={totalPeriods === '' ? '' : String(totalPeriods)}
+                    onChange={(e) => setTotalPeriods(e.target.value ? Number(e.target.value) : '')}
+                    min={1}
+                    required
+                  />
+                </>
+              )}
+            </FormSection>
+
+            <FormSection title="Status">
+              <Switch label="Active" checked={isActive} onChange={setIsActive} />
+            </FormSection>
+
             <div className="flex gap-2 justify-end">
               <Button type="button" variant="ghost" onClick={() => navigate('/academics/programs')}>
                 Cancel

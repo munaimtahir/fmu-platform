@@ -5,6 +5,7 @@ import { PageShell } from '@/components/shared/PageShell'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { academicsNewService } from '@/services/academicsNew'
@@ -175,11 +176,11 @@ export const ProgramDetailPage: React.FC = () => {
                 <div>
                   <label className="text-sm text-gray-600">Active</label>
                   <div className="mt-1">
-                    {program.is_active ? (
-                      <span className="text-green-600">Yes</span>
-                    ) : (
-                      <span className="text-gray-400">No</span>
-                    )}
+                    <StatusBadge
+                      domain="record"
+                      status={program.is_active ? 'Active' : 'Inactive'}
+                      label={program.is_active ? 'Yes' : 'No'}
+                    />
                   </div>
                 </div>
               </div>
@@ -188,32 +189,44 @@ export const ProgramDetailPage: React.FC = () => {
 
           {/* Tabs */}
           <div className="border-b">
-            <nav className="flex space-x-8">
+            <nav className="flex space-x-8" role="tablist" aria-label="Program sections">
               <button
+                role="tab"
+                aria-selected={activeTab === 'overview'}
+                id="program-tab-overview"
+                aria-controls="program-tabpanel-overview"
                 onClick={() => setActiveTab('overview')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'overview'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-primary text-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 Overview
               </button>
               <button
+                role="tab"
+                aria-selected={activeTab === 'batches'}
+                id="program-tab-batches"
+                aria-controls="program-tabpanel-batches"
                 onClick={() => setActiveTab('batches')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'batches'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-primary text-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 Batches ({batches?.results?.length || batches?.count || 0})
               </button>
               <button
+                role="tab"
+                aria-selected={activeTab === 'tracks'}
+                id="program-tab-tracks"
+                aria-controls="program-tabpanel-tracks"
                 onClick={() => setActiveTab('tracks')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'tracks'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-primary text-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
                 title="Tracks are parallel pathways within a program (e.g., different clinical tracks)"
@@ -221,10 +234,14 @@ export const ProgramDetailPage: React.FC = () => {
                 Tracks ({tracks?.length || 0})
               </button>
               <button
+                role="tab"
+                aria-selected={activeTab === 'periods'}
+                id="program-tab-periods"
+                aria-controls="program-tabpanel-periods"
                 onClick={() => setActiveTab('periods')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'periods'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-primary text-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -235,70 +252,76 @@ export const ProgramDetailPage: React.FC = () => {
 
           {/* Tab Content */}
           {activeTab === 'overview' && (
-            <Card>
-              <div className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Overview</h3>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium">Tracks</h4>
-                    <p className="text-gray-600">{tracks?.length || 0} track(s) defined</p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Tracks represent parallel pathways or streams within the program (e.g., "Track A", "Clinical Track"). 
-                      Different tracks can have different learning blocks scheduled in the same period.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Periods</h4>
-                    <p className="text-gray-600">{periods?.length || 0} block(s) generated</p>
-                    {!program.is_finalized && (
-                      <p className="text-sm text-amber-600 mt-1">
-                        ⚠️ Program must be finalized before blocks can be generated.
-                      </p>
-                    )}
-                    {program.is_finalized && periods && periods.length === 0 && (
+            <div role="tabpanel" id="program-tabpanel-overview" aria-labelledby="program-tab-overview">
+              <Card>
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Overview</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-medium">Tracks</h4>
+                      <p className="text-gray-600">{tracks?.length || 0} track(s) defined</p>
                       <p className="text-sm text-gray-500 mt-1">
-                        Click "Generate Blocks" button above to create blocks for this program.
+                        Tracks represent parallel pathways or streams within the program (e.g., "Track A", "Clinical Track").
+                        Different tracks can have different learning blocks scheduled in the same period.
                       </p>
-                    )}
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Periods</h4>
+                      <p className="text-gray-600">{periods?.length || 0} block(s) generated</p>
+                      {!program.is_finalized && (
+                        <p className="text-sm text-amber-600 mt-1">
+                          ⚠️ Program must be finalized before blocks can be generated.
+                        </p>
+                      )}
+                      {program.is_finalized && periods && periods.length === 0 && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          Click "Generate Blocks" button above to create blocks for this program.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           )}
 
           {activeTab === 'batches' && (
-            <Card>
-              <div className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Batches</h3>
-                {batches?.results && batches.results.length > 0 ? (
-                  <div className="space-y-2">
-                    {batches.results.map((batch: any) => (
-                      <div key={batch.id} className="border rounded p-3">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <h4 className="font-medium">{batch.name}</h4>
-                            <p className="text-sm text-gray-600">Year: {batch.year || batch.start_year}</p>
+            <div role="tabpanel" id="program-tabpanel-batches" aria-labelledby="program-tab-batches">
+              <Card>
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Batches</h3>
+                  {batches?.results && batches.results.length > 0 ? (
+                    <div className="space-y-2">
+                      {batches.results.map((batch: any) => (
+                        <div key={batch.id} className="border rounded p-3">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h4 className="font-medium">{batch.name}</h4>
+                              <p className="text-sm text-gray-600">Year: {batch.year || batch.start_year}</p>
+                            </div>
+                            <StatusBadge domain="record" status={batch.is_active ? 'Active' : 'Inactive'} />
                           </div>
-                          <Badge variant={batch.is_active ? 'success' : 'secondary'}>
-                            {batch.is_active ? 'Active' : 'Inactive'}
-                          </Badge>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500">No batches found for this program.</p>
-                )}
-              </div>
-            </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No batches found for this program.</p>
+                  )}
+                </div>
+              </Card>
+            </div>
           )}
 
           {activeTab === 'tracks' && (
-            <TracksManagement programId={Number(id!)} />
+            <div role="tabpanel" id="program-tabpanel-tracks" aria-labelledby="program-tab-tracks">
+              <TracksManagement programId={Number(id!)} />
+            </div>
           )}
 
           {activeTab === 'periods' && (
-            <PeriodsView programId={Number(id!)} />
+            <div role="tabpanel" id="program-tabpanel-periods" aria-labelledby="program-tab-periods">
+              <PeriodsView programId={Number(id!)} />
+            </div>
           )}
         </div>
       </PageShell>

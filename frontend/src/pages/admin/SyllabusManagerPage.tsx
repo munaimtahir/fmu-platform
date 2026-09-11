@@ -9,9 +9,19 @@ import { Select } from '@/components/ui/Select'
 import { TextArea } from '@/components/ui/TextArea'
 import { Switch } from '@/components/ui/Switch'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
-import { Badge } from '@/components/ui/Badge'
+import type { PaginationState } from '@/components/ui/DataTable/types'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import { FormSection } from '@/components/ui/FormSection'
+import { Modal } from '@/components/ui/Modal'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { syllabusApi, type SyllabusItem, type CreateSyllabusItemData } from '@/api/syllabus'
 import { academicsNewService } from '@/services/academicsNew'
+
+const EMPTY_ITEM_FORM_DATA: CreateSyllabusItemData = {
+  title: '',
+  order_no: 1,
+  is_active: true,
+}
 
 /**
  * Syllabus Manager Page - Admin can manage syllabus items
@@ -25,13 +35,17 @@ export const SyllabusManagerPage: React.FC = () => {
     module_id?: number
     is_active?: boolean
   }>({})
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 20 })
   const [editingItem, setEditingItem] = useState<SyllabusItem | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState<CreateSyllabusItemData>({
-    title: '',
-    order_no: 1,
-    is_active: true,
-  })
+  const [formData, setFormData] = useState<CreateSyllabusItemData>(EMPTY_ITEM_FORM_DATA)
+
+  useUnsavedChangesWarning(showForm)
+
+  const updateFilters = (next: typeof filters) => {
+    setFilters(next)
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+  }
 
   // Fetch programs for filter
   const { data: programs } = useQuery({
@@ -75,17 +89,23 @@ export const SyllabusManagerPage: React.FC = () => {
     enabled: !!filters.learning_block_id,
   })
 
-  // Fetch syllabus items
+  // Fetch syllabus items (server-side pagination; the backend already
+  // orders by order_no/title, and every filter here is a real query param,
+  // so a page always reflects the current filtered result set).
   const { data: syllabusData, isLoading } = useQuery({
-    queryKey: ['syllabus-items', filters],
-    queryFn: () => syllabusApi.getAll({ ...filters, page_size: 1000 }),
+    queryKey: ['syllabus-items', filters, pagination.pageIndex, pagination.pageSize],
+    queryFn: () =>
+      syllabusApi.getAll({
+        ...filters,
+        page: pagination.pageIndex + 1,
+        page_size: pagination.pageSize,
+      }),
+    placeholderData: (previousData) => previousData,
   })
 
   const syllabusItems = syllabusData?.results || []
-  const sortedSyllabusItems = useMemo(
-    () => [...syllabusItems].sort((a, b) => a.order_no - b.order_no),
-    [syllabusItems]
-  )
+  const totalCount = syllabusData?.count ?? 0
+  const pageCount = Math.max(1, Math.ceil(totalCount / pagination.pageSize))
 
   // Create/Update mutation
   const saveMutation = useMutation({
@@ -99,7 +119,7 @@ export const SyllabusManagerPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['syllabus-items'] })
       setShowForm(false)
       setEditingItem(null)
-      setFormData({ title: '', order_no: 1, is_active: true })
+      setFormData(EMPTY_ITEM_FORM_DATA)
     },
   })
 
@@ -143,6 +163,11 @@ export const SyllabusManagerPage: React.FC = () => {
     }
   }
 
+  // Note: reordering only considers items on the currently loaded page.
+  // In practice the anchor filters (program/period/block/module) above
+  // narrow the working set to a single small anchor group before reordering
+  // is used, so this rarely spans a page boundary — but a sibling item that
+  // has scrolled onto another page won't be found here.
   const handleMoveUp = (item: SyllabusItem) => {
     const filtered = syllabusItems.filter(
       i =>
@@ -187,7 +212,7 @@ export const SyllabusManagerPage: React.FC = () => {
   }
 
   const resetFilters = () => {
-    setFilters({})
+    updateFilters({})
   }
 
   const getAnchorDisplay = (item: SyllabusItem) => {
@@ -222,9 +247,7 @@ export const SyllabusManagerPage: React.FC = () => {
         accessorKey: 'is_active',
         header: 'Status',
         cell: ({ row }) => (
-          <Badge variant={row.original.is_active ? 'success' : 'secondary'}>
-            {row.original.is_active ? 'Active' : 'Inactive'}
-          </Badge>
+          <StatusBadge domain="record" status={row.original.is_active ? 'Active' : 'Inactive'} />
         ),
       },
       {
@@ -283,7 +306,7 @@ export const SyllabusManagerPage: React.FC = () => {
                   value={filters.program_id?.toString() || ''}
                   onChange={(value) => {
                     const programId = value ? Number(value) : undefined
-                    setFilters({
+                    updateFilters({
                       program_id: programId,
                       period_id: undefined,
                       learning_block_id: undefined,
@@ -304,7 +327,7 @@ export const SyllabusManagerPage: React.FC = () => {
                   value={filters.period_id?.toString() || ''}
                   onChange={(value) => {
                     const periodId = value ? Number(value) : undefined
-                    setFilters({
+                    updateFilters({
                       ...filters,
                       period_id: periodId,
                       learning_block_id: undefined,
@@ -326,7 +349,7 @@ export const SyllabusManagerPage: React.FC = () => {
                   value={filters.learning_block_id?.toString() || ''}
                   onChange={(value) => {
                     const blockId = value ? Number(value) : undefined
-                    setFilters({
+                    updateFilters({
                       ...filters,
                       learning_block_id: blockId,
                       module_id: undefined,
@@ -347,7 +370,7 @@ export const SyllabusManagerPage: React.FC = () => {
                   value={filters.module_id?.toString() || ''}
                   onChange={(value) => {
                     const moduleId = value ? Number(value) : undefined
-                    setFilters({ ...filters, module_id: moduleId })
+                    updateFilters({ ...filters, module_id: moduleId })
                   }}
                   disabled={!filters.learning_block_id}
                   options={[
@@ -375,7 +398,7 @@ export const SyllabusManagerPage: React.FC = () => {
                 <h2 className="text-lg font-semibold text-gray-900">Syllabus Items</h2>
                 <Button onClick={() => {
                   setEditingItem(null)
-                  setFormData({ title: '', order_no: 1, is_active: true })
+                  setFormData(EMPTY_ITEM_FORM_DATA)
                   setShowForm(true)
                 }}>
                   Add Syllabus Item
@@ -383,22 +406,31 @@ export const SyllabusManagerPage: React.FC = () => {
               </div>
 
               <DataTable
-                data={sortedSyllabusItems}
+                data={syllabusItems}
                 columns={columns}
                 isLoading={isLoading}
+                manualPagination
+                pageCount={pageCount}
+                totalCount={totalCount}
+                pagination={pagination}
+                onPaginationChange={setPagination}
               />
             </div>
           </Card>
 
           {/* Create/Edit Form Modal */}
           {showForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                    {editingItem ? 'Edit Syllabus Item' : 'Create Syllabus Item'}
-                  </h2>
-                  <form onSubmit={handleSubmit} className="space-y-4">
+            <Modal
+              title={editingItem ? 'Edit Syllabus Item' : 'Create Syllabus Item'}
+              size="lg"
+              onClose={() => {
+                setShowForm(false)
+                setEditingItem(null)
+                setFormData(EMPTY_ITEM_FORM_DATA)
+              }}
+            >
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <FormSection title="Anchor" description="Where this syllabus item lives in the program's curriculum structure.">
                     <div className="grid grid-cols-2 gap-4">
                       <Select
                         label="Program"
@@ -481,9 +513,11 @@ export const SyllabusManagerPage: React.FC = () => {
                         ]}
                       />
                     </div>
+                    </FormSection>
 
+                    <FormSection title="Content">
                     <Input
-                      label="Title *"
+                      label="Title"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                       required
@@ -510,10 +544,12 @@ export const SyllabusManagerPage: React.FC = () => {
                       }
                       rows={4}
                     />
+                    </FormSection>
 
+                    <FormSection title="Order & Status">
                     <div className="grid grid-cols-2 gap-4">
                       <Input
-                        label="Order Number *"
+                        label="Order Number"
                         type="number"
                         min="1"
                         value={formData.order_no}
@@ -531,6 +567,7 @@ export const SyllabusManagerPage: React.FC = () => {
                         />
                       </div>
                     </div>
+                    </FormSection>
 
                     <div className="flex gap-2 justify-end">
                       <Button
@@ -539,7 +576,7 @@ export const SyllabusManagerPage: React.FC = () => {
                         onClick={() => {
                           setShowForm(false)
                           setEditingItem(null)
-                          setFormData({ title: '', order_no: 1, is_active: true })
+                          setFormData(EMPTY_ITEM_FORM_DATA)
                         }}
                       >
                         Cancel
@@ -549,9 +586,7 @@ export const SyllabusManagerPage: React.FC = () => {
                       </Button>
                     </div>
                   </form>
-                </div>
-              </Card>
-            </div>
+            </Modal>
           )}
         </div>
       </PageShell>

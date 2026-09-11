@@ -81,7 +81,7 @@ export function ImportHistoryTable({
         header: 'Valid',
         accessorFn: (job) => job.valid_rows,
         cell: ({ row }) => (
-          <span className="text-green-600">{row.original.valid_rows}</span>
+          <span className="text-success">{row.original.valid_rows}</span>
         ),
       },
       {
@@ -89,7 +89,7 @@ export function ImportHistoryTable({
         header: 'Invalid',
         accessorFn: (job) => job.invalid_rows,
         cell: ({ row }) => (
-          <span className="text-red-600">{row.original.invalid_rows}</span>
+          <span className="text-danger">{row.original.invalid_rows}</span>
         ),
       },
       {
@@ -97,7 +97,7 @@ export function ImportHistoryTable({
         header: 'Created',
         accessorFn: (job) => job.created_count,
         cell: ({ row }) => (
-          <span className="text-blue-600">{row.original.created_count}</span>
+          <span className="text-info">{row.original.created_count}</span>
         ),
       },
       {

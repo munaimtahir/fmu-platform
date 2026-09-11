@@ -7,6 +7,7 @@ import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { LoadingState } from '@/components/shared/LoadingState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
@@ -43,7 +44,7 @@ export const ProgramsListPage: React.FC = () => {
         cell: ({ row }) => (
           <button
             onClick={() => navigate(`/academics/programs/${row.original.id}`)}
-            className="text-blue-600 hover:text-blue-800 font-medium"
+            className="text-primary hover:opacity-80 font-medium"
           >
             {row.original.name}
           </button>
@@ -71,9 +72,7 @@ export const ProgramsListPage: React.FC = () => {
         accessorKey: 'is_active',
         header: 'Active',
         cell: ({ row }) => (
-          <span className={row.original.is_active ? 'text-green-600' : 'text-gray-400'}>
-            {row.original.is_active ? 'Yes' : 'No'}
-          </span>
+          <StatusBadge domain="record" status={row.original.is_active ? 'Active' : 'Inactive'} label={row.original.is_active ? 'Yes' : 'No'} />
         ),
       },
       {
@@ -136,6 +135,7 @@ export const ProgramsListPage: React.FC = () => {
         actions={
           <div className="flex gap-2">
             <Input
+              aria-label="Search programs"
               placeholder="Search programs..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}

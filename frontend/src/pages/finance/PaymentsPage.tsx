@@ -5,6 +5,10 @@ import { ColumnDef } from '@tanstack/react-table'
 import { financeService } from '@/services'
 import type { Payment } from '@/types'
 import { Button } from '@/components/ui/Button'
+import { Alert } from '@/components/ui/Alert'
+import { Modal } from '@/components/ui/Modal'
+import { TextArea } from '@/components/ui/TextArea'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 
 export const PaymentsPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([])
@@ -74,6 +78,7 @@ export const PaymentsPage: React.FC = () => {
     {
       accessorKey: 'status',
       header: 'Status',
+      cell: ({ row }) => <StatusBadge domain="finance" status={row.getValue('status')} />,
     },
     {
       accessorKey: 'received_at',
@@ -107,11 +112,7 @@ export const PaymentsPage: React.FC = () => {
           <p className="text-gray-600">View and manage payment records.</p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+        {error && <Alert variant="error">{error}</Alert>}
 
         <Card>
           <DataTable
@@ -124,47 +125,45 @@ export const PaymentsPage: React.FC = () => {
           />
         </Card>
 
-        {/* Reverse Payment Modal */}
         {showReverseModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <Card className="max-w-md w-full m-4">
-              <h2 className="text-lg font-semibold mb-4">Reverse Payment</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Reason <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    value={reverseReason}
-                    onChange={(e) => setReverseReason(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                    required
-                  />
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setShowReverseModal(null)
-                      setReverseReason('')
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => handleReverse(showReverseModal)}
-                    disabled={reversingId === showReverseModal || !reverseReason.trim()}
-                  >
-                    {reversingId === showReverseModal ? 'Reversing...' : 'Confirm Reversal'}
-                  </Button>
-                </div>
+          <Modal
+            title="Reverse Payment"
+            onClose={() => {
+              setShowReverseModal(null)
+              setReverseReason('')
+            }}
+          >
+            <div className="space-y-4">
+              <TextArea
+                id="reverse-payment-reason"
+                label="Reason"
+                required
+                value={reverseReason}
+                onChange={(e) => setReverseReason(e.target.value)}
+                rows={3}
+              />
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowReverseModal(null)
+                    setReverseReason('')
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => handleReverse(showReverseModal)}
+                  disabled={reversingId === showReverseModal || !reverseReason.trim()}
+                >
+                  {reversingId === showReverseModal ? 'Reversing...' : 'Confirm Reversal'}
+                </Button>
               </div>
-            </Card>
-          </div>
+            </div>
+          </Modal>
         )}
       </div>
-    
+
   )
 }

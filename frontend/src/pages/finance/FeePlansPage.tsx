@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/Card'
+import { Input } from '@/components/ui/Input'
+import { FormSection } from '@/components/ui/FormSection'
+import { Alert } from '@/components/ui/Alert'
+import { Button } from '@/components/ui/Button'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import type { FeePlan } from '@/types'
 import { financeService } from '@/services'
 
+const emptyForm: Partial<FeePlan> = {
+  is_mandatory: true,
+  frequency: 'per_term',
+}
+
 export const FeePlansPage: React.FC = () => {
   const [feePlans, setFeePlans] = useState<FeePlan[]>([])
-  const [form, setForm] = useState<Partial<FeePlan>>({
-    is_mandatory: true,
-    frequency: 'per_term',
-  })
+  const [form, setForm] = useState<Partial<FeePlan>>(emptyForm)
   const [message, setMessage] = useState<string>('')
+  const [messageIsError, setMessageIsError] = useState(false)
 
   const loadFeePlans = async () => {
     const data = await financeService.getFeePlans()
@@ -20,16 +28,21 @@ export const FeePlansPage: React.FC = () => {
     loadFeePlans()
   }, [])
 
+  const isDirty = Boolean(form.program || form.term || form.fee_type || form.amount)
+  useUnsavedChangesWarning(isDirty)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage('')
     if (!form.program || !form.term || !form.fee_type || !form.amount) {
       setMessage('Program, term, fee type, and amount are required.')
+      setMessageIsError(true)
       return
     }
     await financeService.createFeePlan(form)
     setMessage('Fee plan created.')
-    setForm({ is_mandatory: true, frequency: 'per_term' })
+    setMessageIsError(false)
+    setForm(emptyForm)
     loadFeePlans()
   }
 
@@ -42,57 +55,51 @@ export const FeePlansPage: React.FC = () => {
         </div>
 
         <Card>
-          <h2 className="text-lg font-semibold mb-2">Create Fee Plan</h2>
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Program ID</label>
-              <input
-                type="number"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                value={form.program ?? ''}
-                onChange={(e) => setForm({ ...form, program: Number(e.target.value) })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Term ID</label>
-              <input
-                type="number"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                value={form.term ?? ''}
-                onChange={(e) => setForm({ ...form, term: Number(e.target.value) })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Fee Type ID</label>
-              <input
-                type="number"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                value={form.fee_type ?? ''}
-                onChange={(e) => setForm({ ...form, fee_type: Number(e.target.value) })}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Amount</label>
-              <input
-                type="number"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                value={form.amount ?? ''}
-                onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
-                required
-              />
-            </div>
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                className="mt-2 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
-              >
-                Save
-              </button>
-              {message && <p className="text-sm text-green-600 mt-2">{message}</p>}
-            </div>
+          <form onSubmit={handleSubmit}>
+            <FormSection title="Create Fee Plan">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  id="feeplan-program"
+                  label="Program ID"
+                  type="number"
+                  required
+                  value={form.program ?? ''}
+                  onChange={(e) => setForm({ ...form, program: Number(e.target.value) })}
+                />
+                <Input
+                  id="feeplan-term"
+                  label="Term ID"
+                  type="number"
+                  required
+                  value={form.term ?? ''}
+                  onChange={(e) => setForm({ ...form, term: Number(e.target.value) })}
+                />
+                <Input
+                  id="feeplan-fee-type"
+                  label="Fee Type ID"
+                  type="number"
+                  required
+                  value={form.fee_type ?? ''}
+                  onChange={(e) => setForm({ ...form, fee_type: Number(e.target.value) })}
+                />
+                <Input
+                  id="feeplan-amount"
+                  label="Amount"
+                  type="number"
+                  required
+                  value={form.amount ?? ''}
+                  onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
+                />
+              </div>
+              <div>
+                <Button type="submit">Save</Button>
+                {message && (
+                  <Alert variant={messageIsError ? 'error' : 'success'} className="mt-2">
+                    {message}
+                  </Alert>
+                )}
+              </div>
+            </FormSection>
           </form>
         </Card>
 
@@ -102,10 +109,10 @@ export const FeePlansPage: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead>
                 <tr>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fee Type</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fee Type</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">

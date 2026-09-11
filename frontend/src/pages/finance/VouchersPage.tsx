@@ -5,6 +5,10 @@ import { ColumnDef } from '@tanstack/react-table'
 import { financeService } from '@/services'
 import type { Voucher } from '@/types'
 import { Button } from '@/components/ui/Button'
+import { Alert } from '@/components/ui/Alert'
+import { Modal } from '@/components/ui/Modal'
+import { TextArea } from '@/components/ui/TextArea'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 
 export const VouchersPage: React.FC = () => {
   const [vouchers, setVouchers] = useState<Voucher[]>([])
@@ -69,6 +73,7 @@ export const VouchersPage: React.FC = () => {
     {
       accessorKey: 'status',
       header: 'Status',
+      cell: ({ row }) => <StatusBadge domain="finance" status={row.getValue('status')} />,
     },
     {
       accessorKey: 'total_amount',
@@ -107,11 +112,7 @@ export const VouchersPage: React.FC = () => {
           <p className="text-gray-600">View and manage vouchers.</p>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+        {error && <Alert variant="error">{error}</Alert>}
 
         <Card>
           <DataTable
@@ -124,47 +125,45 @@ export const VouchersPage: React.FC = () => {
           />
         </Card>
 
-        {/* Cancel Voucher Modal */}
         {showCancelModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <Card className="max-w-md w-full m-4">
-              <h2 className="text-lg font-semibold mb-4">Cancel Voucher</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Reason <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    value={cancelReason}
-                    onChange={(e) => setCancelReason(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                    required
-                  />
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setShowCancelModal(null)
-                      setCancelReason('')
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => handleCancel(showCancelModal)}
-                    disabled={cancellingId === showCancelModal || !cancelReason.trim()}
-                  >
-                    {cancellingId === showCancelModal ? 'Cancelling...' : 'Confirm Cancellation'}
-                  </Button>
-                </div>
+          <Modal
+            title="Cancel Voucher"
+            onClose={() => {
+              setShowCancelModal(null)
+              setCancelReason('')
+            }}
+          >
+            <div className="space-y-4">
+              <TextArea
+                id="cancel-voucher-reason"
+                label="Reason"
+                required
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                rows={3}
+              />
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setShowCancelModal(null)
+                    setCancelReason('')
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => handleCancel(showCancelModal)}
+                  disabled={cancellingId === showCancelModal || !cancelReason.trim()}
+                >
+                  {cancellingId === showCancelModal ? 'Cancelling...' : 'Confirm Cancellation'}
+                </Button>
               </div>
-            </Card>
-          </div>
+            </div>
+          </Modal>
         )}
       </div>
-    
+
   )
 }

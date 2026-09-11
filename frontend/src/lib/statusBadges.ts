@@ -70,11 +70,25 @@ const registries: Record<StatusDomain, Record<string, BadgeVariant>> = {
     INELIGIBLE: 'danger',
   },
   finance: {
-    PAID: 'success',
-    PARTIAL: 'warning',
-    UNPAID: 'danger',
-    OVERDUE: 'danger',
-    VOID: 'default',
+    // Voucher.status (backend/sims_backend/finance/models.py) — lowercase,
+    // snake_case, verified against the real STATUS_CHOICES (the earlier
+    // guessed UPPERCASE PAID/PARTIAL/UNPAID/OVERDUE/VOID values below never
+    // matched anything the API actually returns).
+    generated: 'info',
+    partially_paid: 'warning',
+    paid: 'success',
+    overdue: 'danger',
+    cancelled: 'default',
+    // Payment.status
+    received: 'info',
+    verified: 'success',
+    rejected: 'danger',
+    // Adjustment.status (waiver/scholarship/adjustment requests)
+    pending: 'warning',
+    approved: 'success',
+    // LedgerEntry has no status field — it's derived client-side from
+    // voided_at (see StudentStatementPage/VouchersPage) into this label.
+    Void: 'default',
   },
   audit: {
     SUCCESS: 'success',

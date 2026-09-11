@@ -1,4 +1,8 @@
 import React, { useState } from 'react'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
+import { Alert } from '@/components/ui/Alert'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 
 interface VoucherGenerationFormProps {
   onSubmit: (payload: { program_id?: number; term_id: number; due_date: string }) => Promise<void> | void
@@ -11,6 +15,9 @@ export const VoucherGenerationForm: React.FC<VoucherGenerationFormProps> = ({ on
   const [dueDate, setDueDate] = useState<string>('')
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState<string>('')
+
+  const isDirty = Boolean(programId || termId || dueDate)
+  useUnsavedChangesWarning(isDirty && !success)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,46 +39,38 @@ export const VoucherGenerationForm: React.FC<VoucherGenerationFormProps> = ({ on
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Program ID (optional)</label>
-        <input
-          type="number"
-          value={programId}
-          onChange={(e) => setProgramId(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          placeholder="Program ID"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Term ID</label>
-        <input
-          type="number"
-          value={termId}
-          onChange={(e) => setTermId(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          placeholder="Term ID"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Due Date</label>
-        <input
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-        />
-      </div>
+      <Input
+        id="voucher-gen-program"
+        label="Program ID (optional)"
+        type="number"
+        value={programId}
+        onChange={(e) => setProgramId(e.target.value)}
+        placeholder="Program ID"
+      />
+      <Input
+        id="voucher-gen-term"
+        label="Term ID"
+        required
+        type="number"
+        value={termId}
+        onChange={(e) => setTermId(e.target.value)}
+        placeholder="Term ID"
+      />
+      <Input
+        id="voucher-gen-due-date"
+        label="Due Date"
+        required
+        type="date"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
+      />
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-green-600">{success}</p>}
+      {error && <Alert variant="error">{error}</Alert>}
+      {success && <Alert variant="success">{success}</Alert>}
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-      >
+      <Button type="submit" disabled={isLoading}>
         {isLoading ? 'Generating...' : 'Generate Vouchers'}
-      </button>
+      </Button>
     </form>
   )
 }

@@ -3,6 +3,8 @@ import { Card } from '@/components/ui/Card'
 import { financeService } from '@/services'
 import type { AgingReport } from '@/types'
 import { Button } from '@/components/ui/Button'
+import { Alert } from '@/components/ui/Alert'
+import { Label } from '@/components/ui/Label'
 
 export const AgingReportPage: React.FC = () => {
   const [report, setReport] = useState<AgingReport | null>(null)
@@ -76,10 +78,9 @@ export const AgingReportPage: React.FC = () => {
             <h2 className="text-lg font-semibold">Filters</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Term (Optional)
-                </label>
+                <Label htmlFor="aging-term">Term (Optional)</Label>
                 <select
+                  id="aging-term"
                   value={selectedTerm}
                   onChange={(e) => setSelectedTerm(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -106,11 +107,7 @@ export const AgingReportPage: React.FC = () => {
           </div>
         </Card>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+        {error && <Alert variant="error">{error}</Alert>}
 
         {report && (
           <Card>
@@ -121,16 +118,13 @@ export const AgingReportPage: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Bucket
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Days
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Count
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Amount
                     </th>
                   </tr>
@@ -139,9 +133,6 @@ export const AgingReportPage: React.FC = () => {
                   {Object.entries(report.buckets).map(([key, data]) => (
                     <tr key={key}>
                       <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {bucketLabels[key]}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                         {bucketLabels[key]}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">

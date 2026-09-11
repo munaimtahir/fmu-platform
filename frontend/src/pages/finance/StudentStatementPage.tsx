@@ -5,6 +5,8 @@ import { ColumnDef } from '@tanstack/react-table'
 import { financeService } from '@/services'
 import type { StatementEntry, StudentStatement } from '@/types'
 import { Button } from '@/components/ui/Button'
+import { Alert } from '@/components/ui/Alert'
+import { Label } from '@/components/ui/Label'
 import { useAuth } from '@/features/auth/useAuth'
 
 export const StudentStatementPage: React.FC = () => {
@@ -143,10 +145,9 @@ export const StudentStatementPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {!user?.student_id && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Student ID <span className="text-red-500">*</span>
-                  </label>
+                  <Label htmlFor="statement-student-id" required>Student ID</Label>
                   <input
+                    id="statement-student-id"
                     type="number"
                     value={studentId || ''}
                     onChange={(e) => setStudentId(e.target.value ? parseInt(e.target.value) : null)}
@@ -156,10 +157,9 @@ export const StudentStatementPage: React.FC = () => {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Term (Optional)
-                </label>
+                <Label htmlFor="statement-term">Term (Optional)</Label>
                 <select
+                  id="statement-term"
                   value={selectedTerm}
                   onChange={(e) => setSelectedTerm(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -186,11 +186,7 @@ export const StudentStatementPage: React.FC = () => {
           </div>
         </Card>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+        {error && <Alert variant="error">{error}</Alert>}
 
         {statement && (
           <div className="space-y-4">

@@ -10,9 +10,11 @@ import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { FormSection } from '@/components/ui/FormSection'
 import { sessionsService, academicsService } from '@/services'
 import { academicPeriodsKey, groupsKey, departmentsKey } from '@/utils/queryKeys'
 import { Session } from '@/types'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 
 const sessionSchema = z.object({
   academic_period: z.string().min(1, 'Academic period is required'),
@@ -64,7 +66,7 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     setValue,
     watch,
   } = useForm<SessionFormData>({
@@ -101,6 +103,8 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
       }
     }
   }, [session, setValue])
+
+  useUnsavedChangesWarning(isDirty)
 
   const mutation = useMutation({
     mutationFn: (data: SessionFormData) => {
@@ -168,7 +172,8 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
           {session ? 'Edit Session' : 'Add Session'}
         </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <FormSection title="Session Details">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Select
@@ -208,19 +213,15 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
                   placeholder="Select faculty..."
                 />
               ) : (
-                <div>
-                  <label htmlFor="faculty" className="block text-sm font-medium mb-1">
-                    Faculty ID <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id="faculty"
-                    type="number"
-                    {...register('faculty')}
-                    error={errors.faculty?.message}
-                    required
-                    placeholder="Enter faculty user ID"
-                  />
-                </div>
+                <Input
+                  id="faculty"
+                  label="Faculty ID"
+                  type="number"
+                  {...register('faculty')}
+                  error={errors.faculty?.message}
+                  required
+                  placeholder="Enter faculty user ID"
+                />
               )}
             </div>
 
@@ -237,11 +238,9 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
             </div>
 
             <div>
-              <label htmlFor="starts_at" className="block text-sm font-medium mb-1">
-                Start Time <span className="text-red-500">*</span>
-              </label>
               <Input
                 id="starts_at"
+                label="Start Time"
                 type="datetime-local"
                 {...register('starts_at')}
                 error={errors.starts_at?.message}
@@ -250,11 +249,9 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
             </div>
 
             <div>
-              <label htmlFor="ends_at" className="block text-sm font-medium mb-1">
-                End Time <span className="text-red-500">*</span>
-              </label>
               <Input
                 id="ends_at"
+                label="End Time"
                 type="datetime-local"
                 {...register('ends_at')}
                 error={errors.ends_at?.message}
@@ -262,6 +259,7 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
               />
             </div>
           </div>
+          </FormSection>
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button 

@@ -177,8 +177,9 @@ export function BulkAttendancePage() {
             <h2 className="text-lg font-semibold mb-4">Select Session</h2>
             
             <div className="mb-4">
-              <label className="block text-sm text-gray-600 mb-1">Date</label>
+              <label htmlFor="bulk-attendance-date" className="block text-sm text-gray-600 mb-1">Date</label>
               <input
+                id="bulk-attendance-date"
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
@@ -207,7 +208,7 @@ export function BulkAttendancePage() {
                       onClick={() => setSelectedSessionId(session.id)}
                       className={`w-full text-left p-3 rounded-lg border transition-colors ${
                         selectedSessionId === session.id
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-info bg-info-subtle'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -249,33 +250,33 @@ export function BulkAttendancePage() {
             ) : (
               <>
                 {/* Statistics */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                  <div className="p-4 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                  <div className="p-4 bg-neutral-subtle rounded-lg">
                     <div className="text-sm text-gray-600">Total</div>
                     <div className="text-2xl font-bold">{stats.total}</div>
                   </div>
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <div className="text-sm text-green-700">Present</div>
-                    <div className="text-2xl font-bold text-green-700">{stats.present}</div>
+                  <div className="p-4 bg-success-subtle rounded-lg">
+                    <div className="text-sm text-success">Present</div>
+                    <div className="text-2xl font-bold text-success">{stats.present}</div>
                   </div>
-                  <div className="p-4 bg-red-50 rounded-lg">
-                    <div className="text-sm text-red-700">Absent</div>
-                    <div className="text-2xl font-bold text-red-700">{stats.absent}</div>
+                  <div className="p-4 bg-danger-subtle rounded-lg">
+                    <div className="text-sm text-danger">Absent</div>
+                    <div className="text-2xl font-bold text-danger">{stats.absent}</div>
                   </div>
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <div className="text-sm text-blue-700">Percentage</div>
-                    <div className="text-2xl font-bold text-blue-700">{stats.percentage}%</div>
+                  <div className="p-4 bg-info-subtle rounded-lg">
+                    <div className="text-sm text-info">Percentage</div>
+                    <div className="text-2xl font-bold text-info">{stats.percentage}%</div>
                   </div>
                 </div>
 
                 {/* Summary (if available) */}
                 {summaryData && (
-                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="mb-4 p-3 bg-info-subtle border border-blue-200 rounded-lg">
                     <div className="text-sm font-semibold text-blue-900 mb-1">
                       Session Summary (All Dates)
                     </div>
-                    <div className="text-xs text-blue-700">
-                      Total: {summaryData.total} | Present: {summaryData.present} | 
+                    <div className="text-xs text-info">
+                      Total: {summaryData.total} | Present: {summaryData.present} |
                       Absent: {summaryData.absent} | Attendance: {summaryData.percentage.toFixed(1)}%
                     </div>
                   </div>
@@ -285,6 +286,7 @@ export function BulkAttendancePage() {
                 <div className="flex flex-col sm:flex-row gap-2 mb-4">
                   <input
                     type="search"
+                    aria-label="Search by name or registration number"
                     placeholder="Search by name or reg no..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { attendanceInputService, sessionsService } from '@/services'
 import { Session } from '@/types'
 
@@ -259,6 +260,8 @@ export function AttendanceInputPage() {
 
   const renderSessionSelect = () => (
     <select
+      id="attendance-input-session-select"
+      aria-label="Select session"
       value={selectedSession ?? ''}
       onChange={(e) => setSelectedSession(Number(e.target.value))}
       className="w-full rounded-lg border border-gray-200 px-3 py-2"
@@ -298,8 +301,9 @@ export function AttendanceInputPage() {
             <h2 className="text-lg font-semibold">Session</h2>
             {renderSessionSelect()}
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Date</label>
+              <label htmlFor="attendance-input-date" className="block text-sm text-gray-600 mb-1">Date</label>
               <input
+                id="attendance-input-date"
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
@@ -335,6 +339,7 @@ export function AttendanceInputPage() {
                   </div>
                   <input
                     type="search"
+                    aria-label="Search students"
                     placeholder="Search students"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -345,7 +350,7 @@ export function AttendanceInputPage() {
                   {filteredRoster.map((student) => (
                     <div
                       key={student.student_id}
-                      className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 shadow-sm"
+                      className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 shadow-elevation-1"
                     >
                       <div>
                         <div className="font-semibold text-gray-900">{student.name}</div>
@@ -376,8 +381,8 @@ export function AttendanceInputPage() {
             {activeTab === 'csv' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Upload CSV</label>
-                  <input type="file" accept=".csv" onChange={(e) => setCsvFile(e.target.files?.[0] || null)} />
+                  <label htmlFor="attendance-csv-file" className="block text-sm text-gray-600 mb-1">Upload CSV</label>
+                  <input id="attendance-csv-file" type="file" accept=".csv" onChange={(e) => setCsvFile(e.target.files?.[0] || null)} />
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={handleCsvDryRun}>Preview</Button>
@@ -407,8 +412,9 @@ export function AttendanceInputPage() {
             {activeTab === 'sheet' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1">Upload scan</label>
+                  <label htmlFor="attendance-sheet-file" className="block text-sm text-gray-600 mb-1">Upload scan</label>
                   <input
+                    id="attendance-sheet-file"
                     type="file"
                     accept="image/*,application/pdf"
                     onChange={(e) => setSheetFile(e.target.files?.[0] || null)}
@@ -431,13 +437,7 @@ export function AttendanceInputPage() {
                           <div className="font-medium">{row.name}</div>
                           <div className="text-xs text-gray-500">{row.reg_no}</div>
                         </div>
-                        <span
-                          className={`text-sm font-semibold ${
-                            row.detected_status === 'ABSENT' ? 'text-red-600' : 'text-green-600'
-                          }`}
-                        >
-                          {row.detected_status}
-                        </span>
+                        <StatusBadge domain="attendance" status={row.detected_status} />
                       </div>
                     ))}
                   </div>

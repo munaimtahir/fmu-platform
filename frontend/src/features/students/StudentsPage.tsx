@@ -111,10 +111,10 @@ export function StudentsPage() {
   return (
     
       <div className="container mx-auto py-6 px-4">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
           <h1 className="text-3xl font-bold">Students</h1>
-          <div className="flex gap-3">
-            <Button 
+          <div className="flex flex-wrap gap-3">
+            <Button
               onClick={() => navigate('/admin/students/import')}
               variant="secondary"
             >

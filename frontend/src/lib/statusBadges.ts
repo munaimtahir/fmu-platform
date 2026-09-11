@@ -66,6 +66,8 @@ const registries: Record<StatusDomain, Record<string, BadgeVariant>> = {
     ABSENT: 'danger',
     LATE: 'warning',
     EXCUSED: 'info',
+    // Eligibility-report verdicts (attendance-percentage-derived, not a raw
+    // per-session status, but the same domain conceptually).
     ELIGIBLE: 'success',
     INELIGIBLE: 'danger',
   },

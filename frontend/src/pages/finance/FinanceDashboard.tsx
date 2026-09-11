@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import api from '@/api/axios'
 import { Card } from '@/components/ui/Card'
+import { Alert } from '@/components/ui/Alert'
 
 interface FinanceStats {
   total_vouchers?: number
@@ -42,9 +43,7 @@ export const FinanceDashboard: React.FC = () => {
         {loading ? (
           <p className="text-gray-500">Loading...</p>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
+          <Alert variant="error">{error}</Alert>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card>

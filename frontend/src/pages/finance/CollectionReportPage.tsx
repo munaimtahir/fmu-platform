@@ -3,6 +3,8 @@ import { Card } from '@/components/ui/Card'
 import { financeService } from '@/services'
 import type { CollectionReport } from '@/types'
 import { Button } from '@/components/ui/Button'
+import { Alert } from '@/components/ui/Alert'
+import { Label } from '@/components/ui/Label'
 
 export const CollectionReportPage: React.FC = () => {
   const [report, setReport] = useState<CollectionReport | null>(null)
@@ -65,10 +67,9 @@ export const CollectionReportPage: React.FC = () => {
             <h2 className="text-lg font-semibold">Date Range</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start Date <span className="text-red-500">*</span>
-                </label>
+                <Label htmlFor="collection-start-date" required>Start Date</Label>
                 <input
+                  id="collection-start-date"
                   type="date"
                   value={dateRange.start}
                   onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
@@ -77,10 +78,9 @@ export const CollectionReportPage: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End Date <span className="text-red-500">*</span>
-                </label>
+                <Label htmlFor="collection-end-date" required>End Date</Label>
                 <input
+                  id="collection-end-date"
                   type="date"
                   value={dateRange.end}
                   onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
@@ -102,11 +102,7 @@ export const CollectionReportPage: React.FC = () => {
           </div>
         </Card>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+        {error && <Alert variant="error">{error}</Alert>}
 
         {report && (
           <div className="space-y-4">
@@ -130,13 +126,13 @@ export const CollectionReportPage: React.FC = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Method
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Total
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Count
                       </th>
                     </tr>

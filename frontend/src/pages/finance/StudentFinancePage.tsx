@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/Card'
+import { Alert } from '@/components/ui/Alert'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useAuth } from '@/features/auth/useAuth'
 import type { FinanceSummary, Voucher } from '@/types'
 import { financeService } from '@/services'
@@ -52,9 +54,7 @@ export const StudentFinancePage: React.FC = () => {
         {loading ? (
           <p className="text-gray-500">Loading...</p>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
+          <Alert variant="error">{error}</Alert>
         ) : (
           <>
             {summary && (
@@ -93,10 +93,10 @@ export const StudentFinancePage: React.FC = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead>
                     <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voucher</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voucher</th>
+                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
+                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -104,7 +104,9 @@ export const StudentFinancePage: React.FC = () => {
                       <tr key={voucher.id}>
                         <td className="px-3 py-2 text-sm text-gray-900">{voucher.voucher_no}</td>
                         <td className="px-3 py-2 text-sm text-gray-900">{voucher.term_name || voucher.term}</td>
-                        <td className="px-3 py-2 text-sm text-gray-900">{voucher.status}</td>
+                        <td className="px-3 py-2 text-sm text-gray-900">
+                          <StatusBadge domain="finance" status={voucher.status} />
+                        </td>
                         <td className="px-3 py-2 text-sm text-gray-900">{voucher.total_amount}</td>
                       </tr>
                     ))}

@@ -5,6 +5,8 @@ import { ColumnDef } from '@tanstack/react-table'
 import { financeService } from '@/services'
 import type { DefaulterRow } from '@/types'
 import { Button } from '@/components/ui/Button'
+import { Alert } from '@/components/ui/Alert'
+import { Label } from '@/components/ui/Label'
 
 export const DefaultersReportPage: React.FC = () => {
   const [rows, setRows] = useState<DefaulterRow[]>([])
@@ -126,10 +128,9 @@ export const DefaultersReportPage: React.FC = () => {
             <h2 className="text-lg font-semibold">Filters</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Program (Optional)
-                </label>
+                <Label htmlFor="defaulters-program">Program (Optional)</Label>
                 <select
+                  id="defaulters-program"
                   value={filters.program_id}
                   onChange={(e) => setFilters({ ...filters, program_id: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -143,10 +144,9 @@ export const DefaultersReportPage: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Term <span className="text-red-500">*</span>
-                </label>
+                <Label htmlFor="defaulters-term" required>Term</Label>
                 <select
+                  id="defaulters-term"
                   value={filters.term_id}
                   onChange={(e) => setFilters({ ...filters, term_id: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -161,10 +161,9 @@ export const DefaultersReportPage: React.FC = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Min Outstanding
-                </label>
+                <Label htmlFor="defaulters-min-outstanding">Min Outstanding</Label>
                 <input
+                  id="defaulters-min-outstanding"
                   type="number"
                   value={filters.min_outstanding}
                   onChange={(e) => setFilters({ ...filters, min_outstanding: e.target.value })}
@@ -187,11 +186,7 @@ export const DefaultersReportPage: React.FC = () => {
           </div>
         </Card>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+        {error && <Alert variant="error">{error}</Alert>}
 
         {rows.length > 0 && (
           <Card>

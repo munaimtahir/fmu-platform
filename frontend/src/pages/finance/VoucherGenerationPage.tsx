@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Card } from '@/components/ui/Card'
+import { Alert } from '@/components/ui/Alert'
 import { VoucherGenerationForm } from '@/features/finance/VoucherGenerationForm'
 import { financeService } from '@/services'
 
@@ -33,9 +34,9 @@ export const VoucherGenerationPage: React.FC = () => {
         <Card>
           <VoucherGenerationForm onSubmit={handleGenerate} isLoading={loading} />
           {error && (
-            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+            <Alert variant="error" className="mt-4">
               {error}
-            </div>
+            </Alert>
           )}
           {result && (
             <div className="mt-4 text-sm text-gray-700">

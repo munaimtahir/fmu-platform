@@ -57,12 +57,12 @@ And separately verify, once installed from Play:
 
 If Google rejects this submission: do not modify the `android-v0.1.0-play-submitted` tag or this entry's historical values. Instead record the rejection here, fix the issue on a new branch, reuse the same canonical `medsims-upload` signing key, increment `versionCode` (>= 2), and submit a new AAB as a new entry below.
 
-## 1.0.2 (versionCode 2) — release candidate, not uploaded
+## 1.0.2 (versionCode 2) — release candidate, superseded, not uploaded
 
-Version `1.0.2` / `versionCode 2` is the next candidate after the historical
-0.1.0 / 1 internal-testing submission. Its release notes and gates are in
-`RELEASE_NOTES_1.0.2.md`. No Play upload, review, or publication is recorded
-by this entry.
+Version `1.0.2` / `versionCode 2` was the next candidate after the historical
+0.1.0 / 1 internal-testing submission. Its release notes and gates were in
+`RELEASE_NOTES_1.0.2.md`. No Play upload, review, or publication was ever
+recorded for this entry. Superseded by `1.0.3` below.
 
 ### CI coverage (informational, not a substitute for the manual release steps)
 
@@ -78,3 +78,40 @@ upload to Play Console — generating the signed AAB and performing the Play
 Console upload / internal-track promotion remain manual, credentialed steps
 the user performs on a release machine, as described in
 `android/play/RELEASE_CHECKLIST.md`.
+
+## 1.0.3 (versionCode 3) — release candidate, not uploaded
+
+Version `1.0.3` / `versionCode 3` supersedes the never-uploaded `1.0.2`
+candidate, incorporating real code changes: the instrumented UI test suite
+was verified actually running and passing for the first time (not just
+building), a real duplicate-fetch bug in the Attendance/Results history
+pagination was found and fixed, and the two previously-deferred Android
+stretch items (offline/timeout/server error-state hardening, minimal tablet
+adaptive layout) were completed. Its release notes and gates are in
+`RELEASE_NOTES_1.0.3.md`; its build+verify (no-upload) checklist is in
+`RELEASE_CHECKLIST_1.0.3.md`. **No Play upload, review, or publication is
+recorded by this entry.**
+
+```text
+Product:               Vexel MedSIMS
+Package:               pk.vexel.medsims
+Version:               1.0.3
+Version code:          3
+
+Release type:          Build + verify only — NOT submitted to Google Play
+Built Git SHA:          (this commit — see git log for the commit this file was added in)
+
+AAB SHA-256:            ff9b90ae705aafea13f71b5f458e57fe3643afaa509863944c63a7b684948fa1
+AAB size:               4,092,615 bytes
+
+Build date:             2026-09-12
+Status:                 Signed bundle built and jarsigner-verified locally; no Play submission
+```
+
+### CI coverage (informational, not a substitute for the manual release steps)
+
+Same `android-ci.yml` coverage as above. This cycle additionally confirmed
+the `instrumented-tests` job's underlying mechanics work correctly by first
+running the exact same suite locally against the `sims` AVD (API 36) and
+fixing two real bugs the first-ever run surfaced (see `RELEASE_NOTES_1.0.3.md`)
+— the CI matrix job itself was not separately dispatched this cycle.

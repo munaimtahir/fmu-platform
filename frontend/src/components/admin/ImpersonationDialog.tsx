@@ -91,8 +91,8 @@ export const ImpersonationDialog: React.FC<ImpersonationDialogProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <Card className="w-full max-w-2xl max-h-[80vh] flex flex-col">
         <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold">Impersonate User</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <h2 className="text-h3">Impersonate User</h2>
+          <p className="text-sm text-ink-secondary mt-1">
             Search for a user to impersonate. You will see the system as they do.
           </p>
         </div>
@@ -109,17 +109,17 @@ export const ImpersonationDialog: React.FC<ImpersonationDialogProps> = ({
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+            <div className="mb-4 p-3 bg-danger-subtle border border-danger/20 rounded text-danger-emphasis text-sm">
               {error}
             </div>
           )}
 
           {isSearching && (
-            <div className="text-center py-8 text-gray-500">Searching...</div>
+            <div className="text-center py-8 text-ink-muted">Searching...</div>
           )}
 
           {!isSearching && query.trim() && searchResults.length === 0 && !error && (
-            <div className="text-center py-8 text-gray-500">No users found</div>
+            <div className="text-center py-8 text-ink-muted">No users found</div>
           )}
 
           {!isSearching && searchResults.length > 0 && (
@@ -127,17 +127,17 @@ export const ImpersonationDialog: React.FC<ImpersonationDialogProps> = ({
               {searchResults.map((user) => (
                 <div
                   key={user.id}
-                  className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="p-4 border rounded-lg hover:bg-surface cursor-pointer transition-colors"
                   onClick={() => handleStartImpersonation(user)}
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-medium">{user.full_name}</div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-ink-secondary">
                         {user.username} • {user.email}
                       </div>
                     </div>
-                    <div className="text-sm text-gray-500">{user.role}</div>
+                    <div className="text-sm text-ink-muted">{user.role}</div>
                   </div>
                 </div>
               ))}

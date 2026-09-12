@@ -37,7 +37,7 @@ export const BlocksView: React.FC<BlocksViewProps> = ({ blocks }) => {
       {blocks.map((block) => (
         <div
           key={block.id}
-          className="border rounded-lg p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+          className="border rounded-lg p-3 bg-surface hover:bg-neutral-subtle transition-colors"
         >
           <div className="flex justify-between items-start">
             <div className="flex-1">
@@ -49,18 +49,18 @@ export const BlocksView: React.FC<BlocksViewProps> = ({ blocks }) => {
                   {block.block_type === 'INTEGRATED_BLOCK' ? 'Integrated' : 'Rotation'}
                 </Badge>
               </div>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-ink-secondary">
                 {new Date(block.start_date).toLocaleDateString()} -{' '}
                 {new Date(block.end_date).toLocaleDateString()}
               </p>
               {block.primary_department_name && (
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-xs text-ink-secondary mt-1">
                   Department: {block.primary_department_name}
                   {block.sub_department_name && ` / ${block.sub_department_name}`}
                 </p>
               )}
               {block.block_type === 'INTEGRATED_BLOCK' && block.modules_count > 0 && (
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-xs text-ink-secondary mt-1">
                   {block.modules_count} module(s)
                 </p>
               )}

@@ -15,8 +15,8 @@ export interface FormSectionProps {
 export const FormSection: React.FC<FormSectionProps> = ({ title, description, children, className = '' }) => (
   <fieldset className={`space-y-4 ${className}`}>
     <div>
-      <legend className="text-base font-semibold text-gray-900">{title}</legend>
-      {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
+      <legend className="text-h4 text-ink-primary">{title}</legend>
+      {description && <p className="mt-1 text-body-sm text-ink-secondary">{description}</p>}
     </div>
     <div className="space-y-4">{children}</div>
   </fieldset>

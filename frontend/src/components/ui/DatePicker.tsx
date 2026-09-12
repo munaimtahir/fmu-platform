@@ -48,9 +48,9 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
     return (
       <div className={className}>
         {label && (
-          <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor={id} className="block text-sm font-medium text-ink-secondary mb-1">
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="text-danger ml-1">*</span>}
           </label>
         )}
 
@@ -69,14 +69,14 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
             className={`
               w-full px-4 py-3 rounded-2xl border transition-all duration-150
               focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent
-              disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
-              ${error ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'}
+              disabled:bg-surface disabled:text-ink-muted disabled:cursor-not-allowed
+              ${error ? 'border-danger' : 'border-surface-border hover:border-ink-muted'}
             `}
           />
         </div>
 
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-        {!error && helperText && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
+        {error && <p className="mt-1 text-sm text-danger">{error}</p>}
+        {!error && helperText && <p className="mt-1 text-sm text-ink-muted">{helperText}</p>}
       </div>
     )
   }
@@ -114,9 +114,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   return (
     <div className={className}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-ink-secondary mb-1">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-danger ml-1">*</span>}
         </label>
       )}
 
@@ -139,8 +139,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
         />
       </div>
 
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-      {!error && helperText && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
+      {error && <p className="mt-1 text-sm text-danger">{error}</p>}
+      {!error && helperText && <p className="mt-1 text-sm text-ink-muted">{helperText}</p>}
     </div>
   )
 }

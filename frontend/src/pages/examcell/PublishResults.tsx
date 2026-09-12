@@ -139,8 +139,8 @@ export function PublishResults() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Publish Results</h1>
-        <p className="text-sm text-gray-600 mt-1">
+        <h1 className="text-h1">Publish Results</h1>
+        <p className="text-sm text-ink-secondary mt-1">
           Publish or freeze individual result headers using the canonical result workflow.
         </p>
       </div>
@@ -171,15 +171,15 @@ export function PublishResults() {
       </Card>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card><div className="p-4"><div className="text-sm text-gray-600">Draft</div><div className="text-3xl font-bold text-yellow-600">{counts.draft}</div></div></Card>
-        <Card><div className="p-4"><div className="text-sm text-gray-600">Verified</div><div className="text-3xl font-bold text-sky-600">{counts.verified}</div></div></Card>
-        <Card><div className="p-4"><div className="text-sm text-gray-600">Published</div><div className="text-3xl font-bold text-green-600">{counts.published}</div></div></Card>
-        <Card><div className="p-4"><div className="text-sm text-gray-600">Frozen</div><div className="text-3xl font-bold text-blue-600">{counts.frozen}</div></div></Card>
+        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Draft</div><div className="text-h1 text-warning">{counts.draft}</div></div></Card>
+        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Verified</div><div className="text-h1 text-sky-600">{counts.verified}</div></div></Card>
+        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Published</div><div className="text-h1 text-success">{counts.published}</div></div></Card>
+        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Frozen</div><div className="text-h1 text-blue-600">{counts.frozen}</div></div></Card>
       </div>
 
       <Card>
         <div className="p-4">
-          <h2 className="text-xl font-semibold mb-4">Result Headers</h2>
+          <h2 className="text-h3 mb-4">Result Headers</h2>
           <DataTable data={results} columns={columns} isLoading={query.isLoading} />
         </div>
       </Card>

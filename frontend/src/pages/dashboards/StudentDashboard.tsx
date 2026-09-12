@@ -57,7 +57,7 @@ export const StudentDashboard = () => {
       
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-h1 text-ink-primary mb-2">
               Student Dashboard
             </h1>
           </div>
@@ -77,14 +77,14 @@ export const StudentDashboard = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-h1 text-ink-primary mb-2">
             Student Dashboard
           </h1>
-          <p className="text-gray-600">
+          <p className="text-ink-secondary">
             Welcome back, {stats?.student_name || user?.full_name || 'Student'}. Here's your academic overview.
           </p>
           {stats?.reg_no && (
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-ink-muted mt-1">
               Registration Number: {stats.reg_no} | {stats.program} - {stats.batch}
             </p>
           )}
@@ -95,19 +95,19 @@ export const StudentDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Attendance Rate</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Attendance Rate</p>
+                <p className="text-h2 text-ink-primary">
                   {stats?.attendance_percentage !== undefined 
                     ? `${stats.attendance_percentage}%` 
                     : 'N/A'}
                 </p>
                 {stats?.classes_attended !== undefined && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-ink-muted mt-1">
                     {stats.classes_attended} classes attended
                   </p>
                 )}
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-success-subtle rounded-2xl flex items-center justify-center text-2xl">
                 📊
               </div>
             </div>
@@ -116,11 +116,11 @@ export const StudentDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Published Results</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Published Results</p>
+                <p className="text-h2 text-ink-primary">
                   {stats?.published_results ?? 0}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">Available results</p>
+                <p className="text-xs text-ink-muted mt-1">Available results</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">
                 📚
@@ -131,11 +131,11 @@ export const StudentDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Pending Dues</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Pending Dues</p>
+                <p className="text-h2 text-ink-primary">
                   {stats?.pending_dues ?? 0}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">Outstanding vouchers</p>
+                <p className="text-xs text-ink-muted mt-1">Outstanding vouchers</p>
               </div>
               <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">
                 💰
@@ -146,11 +146,11 @@ export const StudentDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Program</p>
-                <p className="text-lg font-bold text-gray-900 truncate">
+                <p className="text-sm text-ink-secondary mb-1">Program</p>
+                <p className="text-h4 text-ink-primary truncate">
                   {stats?.program || 'N/A'}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-ink-muted mt-1">
                   {stats?.batch || ''}
                 </p>
               </div>
@@ -169,32 +169,32 @@ export const StudentDashboard = () => {
                 📖
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Transcripts</h3>
-                <p className="text-sm text-gray-600">Generate and verify academic transcripts</p>
+                <h3 className="font-semibold text-ink-primary">Transcripts</h3>
+                <p className="text-sm text-ink-secondary">Generate and verify academic transcripts</p>
               </div>
             </div>
           </Card>
 
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/results'}>
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-success-subtle rounded-xl flex items-center justify-center text-2xl">
                 📋
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">View Results</h3>
-                <p className="text-sm text-gray-600">See published exam results</p>
+                <h3 className="font-semibold text-ink-primary">View Results</h3>
+                <p className="text-sm text-ink-secondary">See published exam results</p>
               </div>
             </div>
           </Card>
 
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/finance/me'}>
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-warning-subtle rounded-xl flex items-center justify-center text-2xl">
                 💳
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Finance</h3>
-                <p className="text-sm text-gray-600">View fees and payments</p>
+                <h3 className="font-semibold text-ink-primary">Finance</h3>
+                <p className="text-sm text-ink-secondary">View fees and payments</p>
               </div>
             </div>
           </Card>

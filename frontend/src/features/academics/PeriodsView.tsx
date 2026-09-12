@@ -106,15 +106,15 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, tracks }) => {
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="text-lg font-semibold">{period.name}</h3>
+            <h3 className="text-h4">{period.name}</h3>
             {period.start_date && period.end_date && (
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-ink-secondary">
                 {new Date(period.start_date).toLocaleDateString()} -{' '}
                 {new Date(period.end_date).toLocaleDateString()}
               </p>
             )}
           </div>
-          <span className="text-sm text-gray-500">Order: {period.order}</span>
+          <span className="text-sm text-ink-muted">Order: {period.order}</span>
         </div>
 
         {tracks.length > 0 ? (
@@ -132,14 +132,14 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, tracks }) => {
                   {trackBlocks.length > 0 ? (
                     <BlocksView blocks={trackBlocks} />
                   ) : (
-                    <p className="text-sm text-gray-500">No blocks scheduled</p>
+                    <p className="text-sm text-ink-muted">No blocks scheduled</p>
                   )}
                 </div>
               )
             })}
           </div>
         ) : (
-          <p className="text-sm text-gray-500">No batches defined. Create batches to schedule blocks.</p>
+          <p className="text-sm text-ink-muted">No batches defined. Create batches to schedule blocks.</p>
         )}
       </div>
       {isFormOpen && selectedTrack && (

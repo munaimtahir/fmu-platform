@@ -135,13 +135,13 @@ export const StudentStatementPage: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Student Ledger Statement</h1>
-          <p className="text-gray-600">Chronological ledger entries with running balances.</p>
+          <h1 className="text-h2 text-ink-primary">Student Ledger Statement</h1>
+          <p className="text-ink-secondary">Chronological ledger entries with running balances.</p>
         </div>
 
         <Card>
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Filters</h2>
+            <h2 className="text-h4">Filters</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {!user?.student_id && (
                 <div>
@@ -151,7 +151,7 @@ export const StudentStatementPage: React.FC = () => {
                     type="number"
                     value={studentId || ''}
                     onChange={(e) => setStudentId(e.target.value ? parseInt(e.target.value) : null)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
@@ -162,7 +162,7 @@ export const StudentStatementPage: React.FC = () => {
                   id="statement-term"
                   value={selectedTerm}
                   onChange={(e) => setSelectedTerm(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Time</option>
                   {terms.map((t) => (
@@ -191,19 +191,19 @@ export const StudentStatementPage: React.FC = () => {
         {statement && (
           <div className="space-y-4">
             <Card>
-              <h2 className="text-lg font-semibold mb-4">Student Information</h2>
+              <h2 className="text-h4 mb-4">Student Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm text-gray-500">Name</p>
-                  <p className="text-lg font-semibold">{statement.student_name}</p>
+                  <p className="text-sm text-ink-muted">Name</p>
+                  <p className="text-h4">{statement.student_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Registration No</p>
-                  <p className="text-lg font-semibold">{statement.student_reg_no}</p>
+                  <p className="text-sm text-ink-muted">Registration No</p>
+                  <p className="text-h4">{statement.student_reg_no}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Term</p>
-                  <p className="text-lg font-semibold">{statement.term_name}</p>
+                  <p className="text-sm text-ink-muted">Term</p>
+                  <p className="text-h4">{statement.term_name}</p>
                 </div>
               </div>
             </Card>
@@ -211,15 +211,15 @@ export const StudentStatementPage: React.FC = () => {
             <Card>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <p className="text-sm text-gray-500">Opening Balance</p>
-                  <p className="text-xl font-semibold">{statement.opening_balance.toFixed(2)} PKR</p>
+                  <p className="text-sm text-ink-muted">Opening Balance</p>
+                  <p className="text-h3">{statement.opening_balance.toFixed(2)} PKR</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Closing Balance</p>
-                  <p className="text-xl font-semibold">{statement.closing_balance.toFixed(2)} PKR</p>
+                  <p className="text-sm text-ink-muted">Closing Balance</p>
+                  <p className="text-h3">{statement.closing_balance.toFixed(2)} PKR</p>
                 </div>
               </div>
-              <h2 className="text-lg font-semibold mb-4">Ledger Entries</h2>
+              <h2 className="text-h4 mb-4">Ledger Entries</h2>
               <DataTable
                 data={statement.entries}
                 columns={columns}

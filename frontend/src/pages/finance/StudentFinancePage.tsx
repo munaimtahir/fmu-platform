@@ -38,7 +38,7 @@ export const StudentFinancePage: React.FC = () => {
   if (!user?.student_id) {
     return (
       
-        <p className="text-gray-600">No student profile linked to this account.</p>
+        <p className="text-ink-secondary">No student profile linked to this account.</p>
       
     )
   }
@@ -47,40 +47,40 @@ export const StudentFinancePage: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Fees</h1>
-          <p className="text-gray-600">Voucher balances and finance gates.</p>
+          <h1 className="text-h2 text-ink-primary">My Fees</h1>
+          <p className="text-ink-secondary">Voucher balances and finance gates.</p>
         </div>
 
         {loading ? (
-          <p className="text-gray-500">Loading...</p>
+          <p className="text-ink-muted">Loading...</p>
         ) : error ? (
           <Alert variant="error">{error}</Alert>
         ) : (
           <>
             {summary && (
               <Card>
-                <h2 className="text-lg font-semibold mb-2">Balance Summary</h2>
+                <h2 className="text-h4 mb-2">Balance Summary</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <p className="text-sm text-gray-500">Outstanding</p>
-                    <p className="text-xl font-semibold">{summary.outstanding}</p>
+                    <p className="text-sm text-ink-muted">Outstanding</p>
+                    <p className="text-h3">{summary.outstanding}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Total Debits</p>
-                    <p className="text-xl font-semibold">{summary.total_debits}</p>
+                    <p className="text-sm text-ink-muted">Total Debits</p>
+                    <p className="text-h3">{summary.total_debits}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Total Credits</p>
-                    <p className="text-xl font-semibold">{summary.total_credits}</p>
+                    <p className="text-sm text-ink-muted">Total Credits</p>
+                    <p className="text-h3">{summary.total_credits}</p>
                   </div>
                 </div>
                 {summary.gating && (
-                  <div className="mt-3 text-sm text-gray-700">
+                  <div className="mt-3 text-sm text-ink-secondary">
                     {!summary.gating['can_view_transcript'] && (
-                      <p className="text-red-600">Transcript locked until dues are cleared.</p>
+                      <p className="text-danger">Transcript locked until dues are cleared.</p>
                     )}
                     {!summary.gating['can_view_results'] && (
-                      <p className="text-red-600">Results locked until dues are cleared.</p>
+                      <p className="text-danger">Results locked until dues are cleared.</p>
                     )}
                   </div>
                 )}
@@ -88,26 +88,26 @@ export const StudentFinancePage: React.FC = () => {
             )}
 
             <Card>
-              <h2 className="text-lg font-semibold mb-2">Vouchers</h2>
+              <h2 className="text-h4 mb-2">Vouchers</h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-surface-border">
                   <thead>
                     <tr>
-                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voucher</th>
-                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
-                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">Voucher</th>
+                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">Term</th>
+                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">Status</th>
+                      <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">Total</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-surface-border">
                     {vouchers.map((voucher) => (
                       <tr key={voucher.id}>
-                        <td className="px-3 py-2 text-sm text-gray-900">{voucher.voucher_no}</td>
-                        <td className="px-3 py-2 text-sm text-gray-900">{voucher.term_name || voucher.term}</td>
-                        <td className="px-3 py-2 text-sm text-gray-900">
+                        <td className="px-3 py-2 text-sm text-ink-primary">{voucher.voucher_no}</td>
+                        <td className="px-3 py-2 text-sm text-ink-primary">{voucher.term_name || voucher.term}</td>
+                        <td className="px-3 py-2 text-sm text-ink-primary">
                           <StatusBadge domain="finance" status={voucher.status} />
                         </td>
-                        <td className="px-3 py-2 text-sm text-gray-900">{voucher.total_amount}</td>
+                        <td className="px-3 py-2 text-sm text-ink-primary">{voucher.total_amount}</td>
                       </tr>
                     ))}
                   </tbody>

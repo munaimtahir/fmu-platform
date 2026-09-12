@@ -182,7 +182,7 @@ export function EligibilityReport() {
     
       <div className="p-6 space-y-6">
         <div className="flex flex-wrap gap-3 justify-between items-center">
-          <h1 className="text-3xl font-bold">Eligibility Report</h1>
+          <h1 className="text-h1">Eligibility Report</h1>
           {eligibilityData.length > 0 && (
             <Button onClick={handleExportCSV}>Export CSV</Button>
           )}
@@ -211,7 +211,7 @@ export function EligibilityReport() {
             </div>
 
             <fieldset>
-              <legend className="block text-sm font-medium text-gray-900 mb-1.5">
+              <legend className="block text-sm font-medium text-ink-primary mb-1.5">
                 Select Sections
               </legend>
               <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -251,24 +251,24 @@ export function EligibilityReport() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
                 <div className="p-4">
-                  <div className="text-sm text-gray-600">Total Students</div>
-                  <div className="text-3xl font-bold">
+                  <div className="text-sm text-ink-secondary">Total Students</div>
+                  <div className="text-h1">
                     {eligibilityData.length}
                   </div>
                 </div>
               </Card>
               <Card>
                 <div className="p-4">
-                  <div className="text-sm text-gray-600">Eligible</div>
-                  <div className="text-3xl font-bold text-success">
+                  <div className="text-sm text-ink-secondary">Eligible</div>
+                  <div className="text-h1 text-success">
                     {eligibleCount}
                   </div>
                 </div>
               </Card>
               <Card>
                 <div className="p-4">
-                  <div className="text-sm text-gray-600">Not Eligible</div>
-                  <div className="text-3xl font-bold text-danger">
+                  <div className="text-sm text-ink-secondary">Not Eligible</div>
+                  <div className="text-h1 text-danger">
                     {ineligibleCount}
                   </div>
                 </div>
@@ -278,7 +278,7 @@ export function EligibilityReport() {
             {/* Results Table */}
             <Card>
               <div className="p-4">
-                <h2 className="text-xl font-semibold mb-4">
+                <h2 className="text-h3 mb-4">
                   Eligibility Details
                 </h2>
                 <DataTable data={eligibilityData} columns={columns} />

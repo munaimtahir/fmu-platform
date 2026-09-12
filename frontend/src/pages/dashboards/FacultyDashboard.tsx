@@ -56,7 +56,7 @@ export const FacultyDashboard = () => {
       
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-h1 text-ink-primary mb-2">
               Faculty Dashboard
             </h1>
           </div>
@@ -76,10 +76,10 @@ export const FacultyDashboard = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-h1 text-ink-primary mb-2">
             Faculty Dashboard
           </h1>
-          <p className="text-gray-600">
+          <p className="text-ink-secondary">
             Welcome, {user?.full_name || 'Professor'}. Manage your courses and students.
           </p>
         </div>
@@ -89,8 +89,8 @@ export const FacultyDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">My Sessions</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">My Sessions</p>
+                <p className="text-h2 text-ink-primary">
                   {stats.my_sessions ?? 0}
                 </p>
               </div>
@@ -100,51 +100,51 @@ export const FacultyDashboard = () => {
             </div>
             <div className="mt-4 flex items-center gap-2">
               <Badge variant="primary">{sections.length} Sections</Badge>
-              <span className="text-xs text-gray-500">assigned</span>
+              <span className="text-xs text-ink-muted">assigned</span>
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Students</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Total Students</p>
+                <p className="text-h2 text-ink-primary">
                   {stats.my_students ?? 0}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-success-subtle rounded-lg flex items-center justify-center text-2xl">
                 👥
               </div>
             </div>
             <div className="mt-4 flex items-center gap-2">
               <Badge variant="success">Active</Badge>
-              <span className="text-xs text-gray-500">across all sections</span>
+              <span className="text-xs text-ink-muted">across all sections</span>
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Draft Results</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Draft Results</p>
+                <p className="text-h2 text-ink-primary">
                   {stats.draft_results ?? 0}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-warning-subtle rounded-lg flex items-center justify-center text-2xl">
                 📝
               </div>
             </div>
             <div className="mt-4 flex items-center gap-2">
               <Badge variant="warning">Pending</Badge>
-              <span className="text-xs text-gray-500">awaiting review</span>
+              <span className="text-xs text-ink-muted">awaiting review</span>
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">My Sections</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">My Sections</p>
+                <p className="text-h2 text-ink-primary">
                   {sections.length}
                 </p>
               </div>
@@ -154,7 +154,7 @@ export const FacultyDashboard = () => {
             </div>
             <div className="mt-4 flex items-center gap-2">
               <Badge variant="primary">Active</Badge>
-              <span className="text-xs text-gray-500">this period</span>
+              <span className="text-xs text-ink-muted">this period</span>
             </div>
           </Card>
         </div>
@@ -162,17 +162,17 @@ export const FacultyDashboard = () => {
         {/* My Sections */}
         {sections.length > 0 ? (
           <Card>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-h3 text-ink-primary mb-4">
               My Sections
             </h2>
             <div className="space-y-3">
               {sections.map((section: any) => (
-                <div key={section.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                <div key={section.id} className="flex items-center justify-between py-3 border-b border-neutral-subtle last:border-0">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-ink-primary">
                       {section.course_code || 'N/A'} - {section.course_name || section.name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-ink-muted">
                       Section {section.name} • {section.academic_period_name || 'N/A'}
                       {section.group_name && ` • ${section.group_name}`}
                       {section.enrolled_count !== undefined && ` • ${section.enrolled_count} enrolled`}
@@ -191,8 +191,8 @@ export const FacultyDashboard = () => {
         ) : (
           <Card>
             <div className="text-center py-8">
-              <p className="text-gray-500">No sections assigned yet.</p>
-              <p className="text-sm text-gray-400 mt-2">Contact the administrator to get assigned to sections.</p>
+              <p className="text-ink-muted">No sections assigned yet.</p>
+              <p className="text-sm text-ink-muted mt-2">Contact the administrator to get assigned to sections.</p>
             </div>
           </Card>
         )}
@@ -202,12 +202,12 @@ export const FacultyDashboard = () => {
           <Link to="/attendance" className="block">
             <Card className="hover:shadow-elevation-3 transition-shadow cursor-pointer">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl">
+                <div className="w-12 h-12 bg-success-subtle rounded-xl flex items-center justify-center text-2xl">
                   ✅
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Attendance</h3>
-                  <p className="text-sm text-gray-600">Mark and view attendance</p>
+                  <h3 className="font-semibold text-ink-primary">Attendance</h3>
+                  <p className="text-sm text-ink-secondary">Mark and view attendance</p>
                 </div>
               </div>
             </Card>
@@ -220,8 +220,8 @@ export const FacultyDashboard = () => {
                   📖
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Exams</h3>
-                  <p className="text-sm text-gray-600">Manage canonical exams and results</p>
+                  <h3 className="font-semibold text-ink-primary">Exams</h3>
+                  <p className="text-sm text-ink-secondary">Manage canonical exams and results</p>
                 </div>
               </div>
             </Card>
@@ -230,12 +230,12 @@ export const FacultyDashboard = () => {
           <Link to="/results" className="block">
             <Card className="hover:shadow-elevation-3 transition-shadow cursor-pointer">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl">
+                <div className="w-12 h-12 bg-success-subtle rounded-xl flex items-center justify-center text-2xl">
                   📋
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Results</h3>
-                  <p className="text-sm text-gray-600">View and manage results</p>
+                  <h3 className="font-semibold text-ink-primary">Results</h3>
+                  <p className="text-sm text-ink-secondary">View and manage results</p>
                 </div>
               </div>
             </Card>

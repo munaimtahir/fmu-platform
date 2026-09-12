@@ -127,7 +127,7 @@ export const ProgramDetailPage: React.FC = () => {
               </Button>
             )}
             {program.is_finalized && periods && periods.length === 0 && !canGeneratePeriods && (
-              <span className="text-sm text-gray-500 flex items-center">
+              <span className="text-sm text-ink-muted flex items-center">
                 (Program is finalized but blocks generation may have failed. Check console for errors.)
               </span>
             )}
@@ -138,16 +138,16 @@ export const ProgramDetailPage: React.FC = () => {
           {/* Program Info */}
           <Card>
             <div className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Program Information</h3>
+              <h3 className="text-h4 mb-4">Program Information</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-gray-600">Structure Type</label>
+                  <label className="text-sm text-ink-secondary">Structure Type</label>
                   <div className="mt-1">
                     <Badge variant="default">{program.structure_type}</Badge>
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-600">Status</label>
+                  <label className="text-sm text-ink-secondary">Status</label>
                   <div className="mt-1">
                     <Badge variant={program.is_finalized ? 'success' : 'warning'}>
                       {program.is_finalized ? 'Finalized' : 'Draft'}
@@ -157,16 +157,16 @@ export const ProgramDetailPage: React.FC = () => {
                 {program.structure_type === 'CUSTOM' && (
                   <>
                     <div>
-                      <label className="text-sm text-gray-600">Period Length (Months)</label>
-                      <div className="mt-1">{program.period_length_months || <span className="text-red-500">Not set</span>}</div>
+                      <label className="text-sm text-ink-secondary">Period Length (Months)</label>
+                      <div className="mt-1">{program.period_length_months || <span className="text-danger">Not set</span>}</div>
                     </div>
                     <div>
-                      <label className="text-sm text-gray-600">Total Periods</label>
-                      <div className="mt-1">{program.total_periods || <span className="text-red-500">Not set</span>}</div>
+                      <label className="text-sm text-ink-secondary">Total Periods</label>
+                      <div className="mt-1">{program.total_periods || <span className="text-danger">Not set</span>}</div>
                     </div>
                     {(!program.period_length_months || !program.total_periods) && (
                       <div className="col-span-2">
-                        <p className="text-sm text-amber-600 mt-2">
+                        <p className="text-sm text-warning mt-2">
                           ⚠️ CUSTOM structure requires both Period Length (Months) and Total Periods to be set before finalizing.
                         </p>
                       </div>
@@ -174,7 +174,7 @@ export const ProgramDetailPage: React.FC = () => {
                   </>
                 )}
                 <div>
-                  <label className="text-sm text-gray-600">Active</label>
+                  <label className="text-sm text-ink-secondary">Active</label>
                   <div className="mt-1">
                     <StatusBadge
                       domain="record"
@@ -199,7 +199,7 @@ export const ProgramDetailPage: React.FC = () => {
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'overview'
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-ink-muted hover:text-ink-secondary hover:border-surface-border'
                 }`}
               >
                 Overview
@@ -213,7 +213,7 @@ export const ProgramDetailPage: React.FC = () => {
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'batches'
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-ink-muted hover:text-ink-secondary hover:border-surface-border'
                 }`}
               >
                 Batches ({batches?.results?.length || batches?.count || 0})
@@ -227,7 +227,7 @@ export const ProgramDetailPage: React.FC = () => {
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'tracks'
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-ink-muted hover:text-ink-secondary hover:border-surface-border'
                 }`}
                 title="Tracks are parallel pathways within a program (e.g., different clinical tracks)"
               >
@@ -242,7 +242,7 @@ export const ProgramDetailPage: React.FC = () => {
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'periods'
                     ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-ink-muted hover:text-ink-secondary hover:border-surface-border'
                 }`}
               >
                 Blocks ({periods?.length || 0})
@@ -255,26 +255,26 @@ export const ProgramDetailPage: React.FC = () => {
             <div role="tabpanel" id="program-tabpanel-overview" aria-labelledby="program-tab-overview">
               <Card>
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Overview</h3>
+                  <h3 className="text-h4 mb-4">Overview</h3>
                   <div className="space-y-4">
                     <div>
                       <h4 className="font-medium">Tracks</h4>
-                      <p className="text-gray-600">{tracks?.length || 0} track(s) defined</p>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-ink-secondary">{tracks?.length || 0} track(s) defined</p>
+                      <p className="text-sm text-ink-muted mt-1">
                         Tracks represent parallel pathways or streams within the program (e.g., "Track A", "Clinical Track").
                         Different tracks can have different learning blocks scheduled in the same period.
                       </p>
                     </div>
                     <div>
                       <h4 className="font-medium">Periods</h4>
-                      <p className="text-gray-600">{periods?.length || 0} block(s) generated</p>
+                      <p className="text-ink-secondary">{periods?.length || 0} block(s) generated</p>
                       {!program.is_finalized && (
-                        <p className="text-sm text-amber-600 mt-1">
+                        <p className="text-sm text-warning mt-1">
                           ⚠️ Program must be finalized before blocks can be generated.
                         </p>
                       )}
                       {program.is_finalized && periods && periods.length === 0 && (
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-ink-muted mt-1">
                           Click "Generate Blocks" button above to create blocks for this program.
                         </p>
                       )}
@@ -289,7 +289,7 @@ export const ProgramDetailPage: React.FC = () => {
             <div role="tabpanel" id="program-tabpanel-batches" aria-labelledby="program-tab-batches">
               <Card>
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Batches</h3>
+                  <h3 className="text-h4 mb-4">Batches</h3>
                   {batches?.results && batches.results.length > 0 ? (
                     <div className="space-y-2">
                       {batches.results.map((batch: any) => (
@@ -297,7 +297,7 @@ export const ProgramDetailPage: React.FC = () => {
                           <div className="flex justify-between items-center">
                             <div>
                               <h4 className="font-medium">{batch.name}</h4>
-                              <p className="text-sm text-gray-600">Year: {batch.year || batch.start_year}</p>
+                              <p className="text-sm text-ink-secondary">Year: {batch.year || batch.start_year}</p>
                             </div>
                             <StatusBadge domain="record" status={batch.is_active ? 'Active' : 'Inactive'} />
                           </div>
@@ -305,7 +305,7 @@ export const ProgramDetailPage: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-500">No batches found for this program.</p>
+                    <p className="text-ink-muted">No batches found for this program.</p>
                   )}
                 </div>
               </Card>

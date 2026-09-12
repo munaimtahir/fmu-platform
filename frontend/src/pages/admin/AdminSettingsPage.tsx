@@ -33,11 +33,11 @@ const SettingRow: React.FC<SettingRowProps> = ({ keyInfo, currentValue, isSaving
   const fieldLabel = keyInfo.key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
 
   return (
-    <div className="border-b border-gray-200 pb-4 last:border-0">
+    <div className="border-b border-surface-border pb-4 last:border-0">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
           <Label htmlFor={fieldId}>{fieldLabel}</Label>
-          <p className="text-sm text-gray-500 mb-3">{keyInfo.description}</p>
+          <p className="text-sm text-ink-muted mb-3">{keyInfo.description}</p>
 
           {keyInfo.type === 'boolean' && (
             <Switch
@@ -240,7 +240,7 @@ export const AdminSettingsPage: React.FC = () => {
           {Object.entries(groupedKeys).map(([category, keys]) => (
             <Card key={category}>
               <div className="p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">{category}</h2>
+                <h2 className="text-h4 text-ink-primary mb-4">{category}</h2>
                 <div className="space-y-6">
                   {keys.map((keyInfo) => (
                     <SettingRow

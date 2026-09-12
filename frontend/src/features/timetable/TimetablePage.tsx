@@ -231,7 +231,7 @@ export function TimetablePage() {
       
         <div className="container mx-auto py-6 px-4">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold">My Timetable</h1>
+            <h1 className="text-h1">My Timetable</h1>
           </div>
           <StudentTimetableView />
         </div>
@@ -243,7 +243,7 @@ export function TimetablePage() {
     
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Weekly Timetable</h1>
+          <h1 className="text-h1">Weekly Timetable</h1>
         </div>
 
         {/* Selection: Batch → Academic Period */}
@@ -273,7 +273,7 @@ export function TimetablePage() {
           )}
 
           {filterBatch && filterAcademicPeriod && selectedAcademicPeriod && (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-ink-secondary">
               <strong>Period:</strong> {selectedAcademicPeriod.name}
               {selectedAcademicPeriod.start_date && selectedAcademicPeriod.end_date && (
                 <> ({format(new Date(selectedAcademicPeriod.start_date), 'MMM dd, yyyy')} - {format(new Date(selectedAcademicPeriod.end_date), 'MMM dd, yyyy')})</>
@@ -287,7 +287,7 @@ export function TimetablePage() {
 
         {/* Main Content */}
         {!filterBatch || !filterAcademicPeriod ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-ink-muted">
             Please select Batch first, then Academic Period to view weekly timetables
           </div>
         ) : viewMode === 'list' ? (
@@ -295,10 +295,10 @@ export function TimetablePage() {
             {/* List View: Show all weeks */}
             {isLoadingTimetables ? (
               <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-ink-primary"></div>
               </div>
             ) : allWeeks.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-ink-muted">
                 No weekly templates found. Templates will be auto-generated when you select an Academic Period.
               </div>
             ) : (
@@ -306,7 +306,7 @@ export function TimetablePage() {
                 {/* Draft Weeks */}
                 {weeksByStatus.draft.length > 0 && (
                   <div>
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <h2 className="text-h3 mb-4 flex items-center gap-2">
                       <Badge variant="warning">Draft</Badge>
                       <span>Weeks to Complete ({weeksByStatus.draft.length})</span>
                     </h2>
@@ -326,7 +326,7 @@ export function TimetablePage() {
                             <div className="flex justify-between items-start mb-2">
                               <div>
                                 <h3 className="font-medium">Week {index + 1}</h3>
-                                <p className="text-sm text-gray-600">{weekRange}</p>
+                                <p className="text-sm text-ink-secondary">{weekRange}</p>
                               </div>
                               <Badge variant="warning">Draft</Badge>
                             </div>
@@ -353,7 +353,7 @@ export function TimetablePage() {
                 {/* Published Weeks */}
                 {weeksByStatus.published.length > 0 && (
                   <div>
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <h2 className="text-h3 mb-4 flex items-center gap-2">
                       <Badge variant="success">Published</Badge>
                       <span>Published Weeks ({weeksByStatus.published.length})</span>
                     </h2>
@@ -373,7 +373,7 @@ export function TimetablePage() {
                             <div className="flex justify-between items-start mb-2">
                               <div>
                                 <h3 className="font-medium">Week {index + 1}</h3>
-                                <p className="text-sm text-gray-600">{weekRange}</p>
+                                <p className="text-sm text-ink-secondary">{weekRange}</p>
                               </div>
                               <Badge variant="success">Published</Badge>
                             </div>
@@ -413,7 +413,7 @@ export function TimetablePage() {
                   status={fullTimetable.status}
                   label={fullTimetable.status === 'published' ? 'Published' : 'Draft'}
                 />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-ink-secondary">
                   Week of {format(parseISO(fullTimetable.week_start_date), 'MMM dd')} - {format(parseISO(fullTimetable.week_end_date || fullTimetable.week_start_date), 'MMM dd, yyyy')}
                 </span>
               </div>

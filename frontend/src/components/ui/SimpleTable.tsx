@@ -60,25 +60,25 @@ export function SimpleTable<T extends Record<string, any>>({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-surface-border">
+        <thead className="bg-surface">
           <tr>
             {normalizedColumns.map((column, index) => (
               <th
                 key={column.key || `header-${index}`}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider"
               >
                 {column.label}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-surface-border">
           {data.length === 0 ? (
             <tr>
               <td
                 colSpan={normalizedColumns.length}
-                className="px-6 py-4 text-center text-gray-500"
+                className="px-6 py-4 text-center text-ink-muted"
               >
                 No data available
               </td>
@@ -87,7 +87,7 @@ export function SimpleTable<T extends Record<string, any>>({
             data.map((item, rowIndex) => {
               const rowKey = getValue(item, keyField) ?? rowIndex
               return (
-                <tr key={rowKey} className="hover:bg-gray-50">
+                <tr key={rowKey} className="hover:bg-surface">
                   {normalizedColumns.map((column, colIndex) => {
                     const cellKey = column.key || `cell-${rowIndex}-${colIndex}`
                     let cellValue: React.ReactNode
@@ -103,7 +103,7 @@ export function SimpleTable<T extends Record<string, any>>({
                     return (
                       <td
                         key={cellKey}
-                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                        className="px-6 py-4 whitespace-nowrap text-sm text-ink-primary"
                       >
                         {cellValue}
                       </td>

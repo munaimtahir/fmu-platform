@@ -69,13 +69,13 @@ export const AgingReportPage: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Aging Report</h1>
-          <p className="text-gray-600">Outstanding dues grouped by aging buckets.</p>
+          <h1 className="text-h2 text-ink-primary">Aging Report</h1>
+          <p className="text-ink-secondary">Outstanding dues grouped by aging buckets.</p>
         </div>
 
         <Card>
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Filters</h2>
+            <h2 className="text-h4">Filters</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="aging-term">Term (Optional)</Label>
@@ -83,7 +83,7 @@ export const AgingReportPage: React.FC = () => {
                   id="aging-term"
                   value={selectedTerm}
                   onChange={(e) => setSelectedTerm(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Terms</option>
                   {terms.map((t) => (
@@ -111,34 +111,34 @@ export const AgingReportPage: React.FC = () => {
 
         {report && (
           <Card>
-            <h2 className="text-lg font-semibold mb-4">
+            <h2 className="text-h4 mb-4">
               Aging Report - {report.term_name}
             </h2>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-surface-border">
+                <thead className="bg-surface">
                   <tr>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                       Bucket
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                       Count
                     </th>
-                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                       Amount
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-surface-border">
                   {Object.entries(report.buckets).map(([key, data]) => (
                     <tr key={key}>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-ink-primary">
                         {bucketLabels[key]}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-ink-primary">
                         {data.count}
                       </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-4 py-3 whitespace-nowrap text-sm text-ink-primary">
                         {data.amount.toFixed(2)} PKR
                       </td>
                     </tr>

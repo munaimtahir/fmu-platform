@@ -187,7 +187,7 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
       aria-labelledby="student-form-title"
     >
       <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h2 id="student-form-title" className="text-2xl font-bold mb-4">
+        <h2 id="student-form-title" className="text-h2 mb-4">
           {student ? 'Edit Student' : 'Add Student'}
         </h2>
 

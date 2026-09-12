@@ -41,7 +41,7 @@ export const ModulesList: React.FC<ModulesListProps> = ({ blockId }) => {
   }
 
   if (isLoading) {
-    return <div className="text-sm text-gray-500">Loading modules...</div>
+    return <div className="text-sm text-ink-muted">Loading modules...</div>
   }
 
   return (
@@ -62,7 +62,7 @@ export const ModulesList: React.FC<ModulesListProps> = ({ blockId }) => {
               <div>
                 <span className="font-medium">{module.name}</span>
                 {module.description && (
-                  <span className="text-gray-600 ml-2">- {module.description}</span>
+                  <span className="text-ink-secondary ml-2">- {module.description}</span>
                 )}
               </div>
               <div className="flex gap-2">
@@ -85,7 +85,7 @@ export const ModulesList: React.FC<ModulesListProps> = ({ blockId }) => {
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">No modules. Click "Add Module" to create one.</p>
+        <p className="text-sm text-ink-muted">No modules. Click "Add Module" to create one.</p>
       )}
 
       {isFormOpen && (

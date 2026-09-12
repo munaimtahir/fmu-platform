@@ -78,7 +78,7 @@ export function WeekSelector({ selectedWeekStart, onWeekChange, className = '' }
           className="w-48"
         />
         {weekRange && (
-          <span className="text-sm text-gray-600 whitespace-nowrap">
+          <span className="text-sm text-ink-secondary whitespace-nowrap">
             ({weekRange})
           </span>
         )}

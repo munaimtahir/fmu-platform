@@ -58,13 +58,13 @@ export const CollectionReportPage: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Daily Collection Report</h1>
-          <p className="text-gray-600">Payment collections grouped by method for a date range.</p>
+          <h1 className="text-h2 text-ink-primary">Daily Collection Report</h1>
+          <p className="text-ink-secondary">Payment collections grouped by method for a date range.</p>
         </div>
 
         <Card>
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Date Range</h2>
+            <h2 className="text-h4">Date Range</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="collection-start-date" required>Start Date</Label>
@@ -73,7 +73,7 @@ export const CollectionReportPage: React.FC = () => {
                   type="date"
                   value={dateRange.start}
                   onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
@@ -84,7 +84,7 @@ export const CollectionReportPage: React.FC = () => {
                   type="date"
                   value={dateRange.end}
                   onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
@@ -107,46 +107,46 @@ export const CollectionReportPage: React.FC = () => {
         {report && (
           <div className="space-y-4">
             <Card>
-              <h2 className="text-lg font-semibold mb-4">Summary</h2>
+              <h2 className="text-h4 mb-4">Summary</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-500">Total Collected</p>
-                  <p className="text-2xl font-semibold">{report.total_collected.toFixed(2)} PKR</p>
+                  <p className="text-sm text-ink-muted">Total Collected</p>
+                  <p className="text-h2">{report.total_collected.toFixed(2)} PKR</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total Payments</p>
-                  <p className="text-2xl font-semibold">{report.total_count}</p>
+                  <p className="text-sm text-ink-muted">Total Payments</p>
+                  <p className="text-h2">{report.total_count}</p>
                 </div>
               </div>
             </Card>
 
             <Card>
-              <h2 className="text-lg font-semibold mb-4">By Payment Method</h2>
+              <h2 className="text-h4 mb-4">By Payment Method</h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-surface-border">
+                  <thead className="bg-surface">
                     <tr>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Method
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Total
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Count
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-surface-border">
                     {Object.entries(report.by_method).map(([method, data]) => (
                       <tr key={method}>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-ink-primary">
                           {method.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-ink-primary">
                           {data.total.toFixed(2)} PKR
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-ink-primary">
                           {data.count}
                         </td>
                       </tr>

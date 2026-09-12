@@ -168,7 +168,7 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
       }}
     >
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 id="session-form-title" className="text-2xl font-bold mb-4">
+        <h2 id="session-form-title" className="text-h2 mb-4">
           {session ? 'Edit Session' : 'Add Session'}
         </h2>
 

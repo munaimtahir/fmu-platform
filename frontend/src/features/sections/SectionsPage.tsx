@@ -105,7 +105,7 @@ export function SectionsPage() {
     
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Sections</h1>
+          <h1 className="text-h1">Sections</h1>
           <Button onClick={handleAdd}>Add Section</Button>
         </div>
 

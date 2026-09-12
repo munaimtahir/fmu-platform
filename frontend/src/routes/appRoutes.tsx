@@ -6,7 +6,7 @@ import { Spinner } from '@/components/ui/Spinner'
 // LegacyRouteGuard removed - all legacy routes have been deleted
 
 const PublicRouteFallback = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="min-h-screen bg-surface flex items-center justify-center">
     <Spinner size="lg" />
   </div>
 )
@@ -19,6 +19,7 @@ const FacultyDashboard = lazy(() => import('@/pages/dashboards/FacultyDashboard'
 const StudentDashboard = lazy(() => import('@/pages/dashboards/StudentDashboard').then((m) => ({ default: m.StudentDashboard })))
 const ExamCellDashboard = lazy(() => import('@/pages/dashboards/ExamCellDashboard').then((m) => ({ default: m.ExamCellDashboard })))
 const DataTableDemo = lazy(() => import('@/pages/demo/DataTableDemo').then((m) => ({ default: m.DataTableDemo })))
+const StyleGuidePage = lazy(() => import('@/pages/demo/StyleGuidePage').then((m) => ({ default: m.StyleGuidePage })))
 const AttendanceDashboard = lazy(() => import('@/pages/attendance/AttendanceDashboard').then((m) => ({ default: m.AttendanceDashboard })))
 const EligibilityReport = lazy(() => import('@/pages/attendance/EligibilityReport').then((m) => ({ default: m.EligibilityReport })))
 const AttendanceInputPage = lazy(() => import('@/pages/attendance/AttendanceInputPage').then((m) => ({ default: m.AttendanceInputPage })))
@@ -155,6 +156,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <DataTableDemo />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/demo/style-guide',
+    element: (
+      <ProtectedRoute>
+        <StyleGuidePage />
       </ProtectedRoute>
     ),
   },

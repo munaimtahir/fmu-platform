@@ -299,7 +299,7 @@ export const SyllabusManagerPage: React.FC = () => {
           {/* Filters */}
           <Card>
             <div className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
+              <h2 className="text-h4 text-ink-primary mb-4">Filters</h2>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <Select
                   label="Program"
@@ -395,7 +395,7 @@ export const SyllabusManagerPage: React.FC = () => {
           <Card>
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Syllabus Items</h2>
+                <h2 className="text-h4 text-ink-primary">Syllabus Items</h2>
                 <Button onClick={() => {
                   setEditingItem(null)
                   setFormData(EMPTY_ITEM_FORM_DATA)

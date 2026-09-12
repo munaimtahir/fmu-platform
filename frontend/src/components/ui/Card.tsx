@@ -44,7 +44,7 @@ export const Card: React.FC<CardProps> = ({
     <div
       onClick={onClick}
       className={`
-        bg-white rounded-2xl shadow-md border border-gray-200
+        bg-surface-card rounded-2xl shadow-elevation-1 border border-surface-border
         transition-all duration-150
         ${paddingClasses[padding]}
         ${className}

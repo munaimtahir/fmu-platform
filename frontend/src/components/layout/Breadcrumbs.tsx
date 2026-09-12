@@ -48,7 +48,7 @@ export const Breadcrumbs: React.FC = () => {
     <nav className="flex items-center gap-2 text-sm mb-6" aria-label="Breadcrumb">
       <Link
         to="/"
-        className="text-gray-500 hover:text-[#3B82F6] transition-colors duration-150"
+        className="text-ink-muted hover:text-primary-600 transition-colors duration-150"
       >
         Home
       </Link>
@@ -58,18 +58,18 @@ export const Breadcrumbs: React.FC = () => {
         
         return (
           <React.Fragment key={crumb.path}>
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
             
             {isLast ? (
-              <span className="text-gray-900 font-medium" aria-current="page">
+              <span className="text-ink-primary font-medium" aria-current="page">
                 {crumb.label}
               </span>
             ) : (
               <Link
                 to={crumb.path}
-                className="text-gray-500 hover:text-[#3B82F6] transition-colors duration-150"
+                className="text-ink-muted hover:text-primary-600 transition-colors duration-150"
               >
                 {crumb.label}
               </Link>

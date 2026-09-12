@@ -85,8 +85,8 @@ export function AnalyticsDashboard() {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Analytics Dashboard</h1>
-          <p className="text-gray-600">Comprehensive system statistics and insights</p>
+          <h1 className="text-h1 text-ink-primary mb-2">Analytics Dashboard</h1>
+          <p className="text-ink-secondary">Comprehensive system statistics and insights</p>
         </div>
 
         {/* Main Stats Grid */}
@@ -94,8 +94,8 @@ export function AnalyticsDashboard() {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Students</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalStudents}</p>
+                <p className="text-sm text-ink-secondary mb-1">Total Students</p>
+                <p className="text-h1 text-ink-primary">{stats.totalStudents}</p>
               </div>
               <div className="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center text-3xl">
                 👥
@@ -109,10 +109,10 @@ export function AnalyticsDashboard() {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Courses</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalCourses}</p>
+                <p className="text-sm text-ink-secondary mb-1">Total Courses</p>
+                <p className="text-h1 text-ink-primary">{stats.totalCourses}</p>
               </div>
-              <div className="w-14 h-14 bg-emerald-100 rounded-lg flex items-center justify-center text-3xl">
+              <div className="w-14 h-14 bg-success-subtle rounded-lg flex items-center justify-center text-3xl">
                 📚
               </div>
             </div>
@@ -124,8 +124,8 @@ export function AnalyticsDashboard() {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Enrollments</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalEnrollments}</p>
+                <p className="text-sm text-ink-secondary mb-1">Total Enrollments</p>
+                <p className="text-h1 text-ink-primary">{stats.totalEnrollments}</p>
               </div>
               <div className="w-14 h-14 bg-purple-100 rounded-lg flex items-center justify-center text-3xl">
                 📝
@@ -139,10 +139,10 @@ export function AnalyticsDashboard() {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Attendance Rate</p>
-                <p className="text-3xl font-bold text-gray-900">{attendanceRate}%</p>
+                <p className="text-sm text-ink-secondary mb-1">Attendance Rate</p>
+                <p className="text-h1 text-ink-primary">{attendanceRate}%</p>
               </div>
-              <div className="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center text-3xl">
+              <div className="w-14 h-14 bg-success-subtle rounded-lg flex items-center justify-center text-3xl">
                 ✅
               </div>
             </div>
@@ -156,7 +156,7 @@ export function AnalyticsDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Student Status Breakdown */}
           <Card>
-            <h3 className="text-lg font-semibold mb-4">Student Status Breakdown</h3>
+            <h3 className="text-h4 mb-4">Student Status Breakdown</h3>
             <div className="space-y-3">
               {Object.entries(studentsByStatus).map(([status, count]) => {
                 const percentage = stats.totalStudents > 0
@@ -167,20 +167,20 @@ export function AnalyticsDashboard() {
                   <div key={status} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <StatusBadge domain="student" status={status} />
-                      <span className="text-gray-600">{count} students</span>
+                      <span className="text-ink-secondary">{count} students</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                      <div className="w-32 bg-surface-border rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${
-                            status === 'Active' ? 'bg-green-500' :
+                            status === 'Active' ? 'bg-success' :
                             status === 'Graduated' ? 'bg-blue-500' :
-                            status === 'Inactive' ? 'bg-yellow-500' : 'bg-red-500'
+                            status === 'Inactive' ? 'bg-warning' : 'bg-danger'
                           }`}
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
-                      <span className="text-sm text-gray-600 w-12 text-right">{percentage}%</span>
+                      <span className="text-sm text-ink-secondary w-12 text-right">{percentage}%</span>
                     </div>
                   </div>
                 )
@@ -190,26 +190,26 @@ export function AnalyticsDashboard() {
 
           {/* Attendance Summary */}
           <Card>
-            <h3 className="text-lg font-semibold mb-4">Attendance Summary</h3>
+            <h3 className="text-h4 mb-4">Attendance Summary</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-success-subtle rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-600">Present</p>
-                  <p className="text-2xl font-bold text-green-700">{stats.presentCount}</p>
+                  <p className="text-sm text-ink-secondary">Present</p>
+                  <p className="text-h2 text-success-emphasis">{stats.presentCount}</p>
                 </div>
                 <div className="text-3xl">✅</div>
               </div>
-              <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-danger-subtle rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-600">Absent</p>
-                  <p className="text-2xl font-bold text-red-700">{stats.absentCount}</p>
+                  <p className="text-sm text-ink-secondary">Absent</p>
+                  <p className="text-h2 text-danger-emphasis">{stats.absentCount}</p>
                 </div>
                 <div className="text-3xl">❌</div>
               </div>
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-600">Total Records</p>
-                  <p className="text-2xl font-bold text-blue-700">{stats.totalAttendance}</p>
+                  <p className="text-sm text-ink-secondary">Total Records</p>
+                  <p className="text-h2 text-blue-700">{stats.totalAttendance}</p>
                 </div>
                 <div className="text-3xl">📊</div>
               </div>
@@ -218,22 +218,22 @@ export function AnalyticsDashboard() {
 
           {/* Enrollment Statistics */}
           <Card>
-            <h3 className="text-lg font-semibold mb-4">Enrollment Statistics</h3>
+            <h3 className="text-h4 mb-4">Enrollment Statistics</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Total Sections</span>
-                <span className="text-xl font-bold">{stats.totalSections}</span>
+                <span className="text-ink-secondary">Total Sections</span>
+                <span className="text-h3">{stats.totalSections}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Total Enrollments</span>
-                <span className="text-xl font-bold">{stats.totalEnrollments}</span>
+                <span className="text-ink-secondary">Total Enrollments</span>
+                <span className="text-h3">{stats.totalEnrollments}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">Avg Students/Section</span>
-                <span className="text-xl font-bold">{avgEnrollmentsPerSection}</span>
+                <span className="text-ink-secondary">Avg Students/Section</span>
+                <span className="text-h3">{avgEnrollmentsPerSection}</span>
               </div>
               <div className="flex items-center justify-between pt-4 border-t">
-                <span className="text-gray-600">Enrollment Rate</span>
+                <span className="text-ink-secondary">Enrollment Rate</span>
                 <Badge variant="success">
                   {stats.totalStudents > 0 
                     ? ((stats.totalEnrollments / stats.totalStudents) * 100).toFixed(1) 
@@ -245,30 +245,30 @@ export function AnalyticsDashboard() {
 
           {/* System Overview */}
           <Card>
-            <h3 className="text-lg font-semibold mb-4">System Overview</h3>
+            <h3 className="text-h4 mb-4">System Overview</h3>
             <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="p-4 bg-surface rounded-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Database Status</span>
+                  <span className="text-sm text-ink-secondary">Database Status</span>
                   <Badge variant="success">Healthy</Badge>
                 </div>
-                <p className="text-xs text-gray-500">All systems operational</p>
+                <p className="text-xs text-ink-muted">All systems operational</p>
               </div>
-              <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="p-4 bg-surface rounded-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Data Points</span>
-                  <span className="text-lg font-bold">
+                  <span className="text-sm text-ink-secondary">Data Points</span>
+                  <span className="text-h4">
                     {stats.totalStudents + stats.totalCourses + stats.totalSections + stats.totalEnrollments}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">Total records in system</p>
+                <p className="text-xs text-ink-muted">Total records in system</p>
               </div>
-              <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="p-4 bg-surface rounded-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Last Updated</span>
+                  <span className="text-sm text-ink-secondary">Last Updated</span>
                   <span className="text-sm font-medium">{new Date().toLocaleDateString()}</span>
                 </div>
-                <p className="text-xs text-gray-500">Real-time data</p>
+                <p className="text-xs text-ink-muted">Real-time data</p>
               </div>
             </div>
           </Card>

@@ -14,6 +14,7 @@ import { FormSection } from '@/components/ui/FormSection'
 import { Switch } from '@/components/ui/Switch'
 import { Modal } from '@/components/ui/Modal'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
+import { Heading } from '@/components/ui/Typography'
 import { usersApi, type AdminUser, type CreateUserData, type UpdateUserData } from '@/api/users'
 
 const ROLES = ['ADMIN', 'REGISTRAR', 'EXAMCELL', 'COORDINATOR', 'FACULTY', 'FINANCE', 'STUDENT', 'OFFICE_ASSISTANT']
@@ -246,7 +247,7 @@ export const UsersPage: React.FC = () => {
           {/* Filters */}
           <Card>
             <div className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
+              <Heading level={4} className="mb-4">Filters</Heading>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Input
                   label="Search"
@@ -299,7 +300,7 @@ export const UsersPage: React.FC = () => {
           <Card>
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Users</h2>
+                <Heading level={4}>Users</Heading>
                 <Button
                   onClick={() => {
                     setEditingUser(null)
@@ -429,10 +430,10 @@ export const UsersPage: React.FC = () => {
                 setTempPassword(null)
               }}
             >
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-body-sm text-ink-secondary mb-4">
                 Share this temporary password with the user. They should change it on first login.
               </p>
-              <div className="bg-gray-100 p-4 rounded mb-4">
+              <div className="bg-neutral-subtle p-4 rounded mb-4">
                 <code className="text-lg font-mono">{tempPassword}</code>
               </div>
               <div className="flex gap-2 justify-end">

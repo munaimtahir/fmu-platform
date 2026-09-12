@@ -26,7 +26,7 @@ describe('Input', () => {
   it('should have error styles when error is present', () => {
     render(<Input label="Email" error="Invalid email" />)
     const input = screen.getByLabelText('Email')
-    expect(input).toHaveClass('border-red-500')
+    expect(input).toHaveClass('border-danger')
   })
 
   it('should be accessible', () => {

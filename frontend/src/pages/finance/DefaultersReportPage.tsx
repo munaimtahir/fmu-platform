@@ -119,13 +119,13 @@ export const DefaultersReportPage: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Defaulters Report</h1>
-          <p className="text-gray-600">List of students with outstanding dues above threshold.</p>
+          <h1 className="text-h2 text-ink-primary">Defaulters Report</h1>
+          <p className="text-ink-secondary">List of students with outstanding dues above threshold.</p>
         </div>
 
         <Card>
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Filters</h2>
+            <h2 className="text-h4">Filters</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="defaulters-program">Program (Optional)</Label>
@@ -133,7 +133,7 @@ export const DefaultersReportPage: React.FC = () => {
                   id="defaulters-program"
                   value={filters.program_id}
                   onChange={(e) => setFilters({ ...filters, program_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Programs</option>
                   {programs.map((p) => (
@@ -149,7 +149,7 @@ export const DefaultersReportPage: React.FC = () => {
                   id="defaulters-term"
                   value={filters.term_id}
                   onChange={(e) => setFilters({ ...filters, term_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
                   <option value="">Select Term</option>
@@ -167,7 +167,7 @@ export const DefaultersReportPage: React.FC = () => {
                   type="number"
                   value={filters.min_outstanding}
                   onChange={(e) => setFilters({ ...filters, min_outstanding: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   min="0"
                   step="0.01"
                 />
@@ -190,7 +190,7 @@ export const DefaultersReportPage: React.FC = () => {
 
         {rows.length > 0 && (
           <Card>
-            <h2 className="text-lg font-semibold mb-4">Results ({rows.length} defaulters)</h2>
+            <h2 className="text-h4 mb-4">Results ({rows.length} defaulters)</h2>
             <DataTable
               data={rows}
               columns={columns}

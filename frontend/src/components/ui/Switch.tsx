@@ -27,14 +27,14 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
               <label
                 htmlFor={id}
                 className={`block text-sm font-medium mb-1 ${
-                  disabled ? 'text-gray-400' : 'text-gray-700'
+                  disabled ? 'text-ink-muted' : 'text-ink-secondary'
                 }`}
               >
                 {label}
               </label>
             )}
             {description && (
-              <p className="text-sm text-gray-500 mb-2">{description}</p>
+              <p className="text-sm text-ink-muted mb-2">{description}</p>
             )}
           </div>
           
@@ -49,7 +49,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
             className={`
               relative inline-flex h-6 w-11 items-center rounded-full
               transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2
-              ${checked ? 'bg-[#3B82F6]' : 'bg-gray-200'}
+              ${checked ? 'bg-[#3B82F6]' : 'bg-surface-border'}
               ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
             `}
           >
@@ -63,7 +63,7 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
         </div>
         
         {error && (
-          <p className="mt-1 text-sm text-red-600">{error}</p>
+          <p className="mt-1 text-sm text-danger">{error}</p>
         )}
       </div>
     )

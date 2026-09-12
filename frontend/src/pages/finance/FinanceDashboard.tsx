@@ -36,37 +36,37 @@ export const FinanceDashboard: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Finance Dashboard</h1>
-          <p className="text-gray-600">Collections, vouchers, and outstanding balances.</p>
+          <h1 className="text-h2 text-ink-primary">Finance Dashboard</h1>
+          <p className="text-ink-secondary">Collections, vouchers, and outstanding balances.</p>
         </div>
 
         {loading ? (
-          <p className="text-gray-500">Loading...</p>
+          <p className="text-ink-muted">Loading...</p>
         ) : error ? (
           <Alert variant="error">{error}</Alert>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card>
-              <h3 className="text-sm text-gray-500">Total Vouchers</h3>
-              <p className="text-2xl font-semibold">{stats.total_vouchers ?? 0}</p>
+              <h3 className="text-sm text-ink-muted">Total Vouchers</h3>
+              <p className="text-h2">{stats.total_vouchers ?? 0}</p>
             </Card>
             <Card>
-              <h3 className="text-sm text-gray-500">Verified Payments</h3>
-              <p className="text-2xl font-semibold">{stats.payments_recorded ?? 0}</p>
+              <h3 className="text-sm text-ink-muted">Verified Payments</h3>
+              <p className="text-h2">{stats.payments_recorded ?? 0}</p>
             </Card>
             <Card>
-              <h3 className="text-sm text-gray-500">Outstanding (derived)</h3>
-              <p className="text-2xl font-semibold">
+              <h3 className="text-sm text-ink-muted">Outstanding (derived)</h3>
+              <p className="text-h2">
                 {typeof stats.finance_outstanding === 'number' ? stats.finance_outstanding.toFixed(2) : '0.00'}
               </p>
             </Card>
             <Card>
-              <h3 className="text-sm text-gray-500">Paid Vouchers</h3>
-              <p className="text-2xl font-semibold">{stats.paid_vouchers ?? 0}</p>
+              <h3 className="text-sm text-ink-muted">Paid Vouchers</h3>
+              <p className="text-h2">{stats.paid_vouchers ?? 0}</p>
             </Card>
             <Card>
-              <h3 className="text-sm text-gray-500">Overdue Vouchers</h3>
-              <p className="text-2xl font-semibold">{stats.overdue_vouchers ?? 0}</p>
+              <h3 className="text-sm text-ink-muted">Overdue Vouchers</h3>
+              <p className="text-h2">{stats.overdue_vouchers ?? 0}</p>
             </Card>
           </div>
         )}

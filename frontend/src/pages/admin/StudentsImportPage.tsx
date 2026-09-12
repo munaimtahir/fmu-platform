@@ -161,7 +161,7 @@ export function StudentsImportPage() {
               }}
               className={`px-6 py-3 rounded-lg font-medium transition-colors ${importType === 'student'
                 ? 'bg-primary text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-surface-border text-ink-secondary hover:bg-surface-border'
                 }`}
             >
               Student CSV Import
@@ -178,7 +178,7 @@ export function StudentsImportPage() {
               }}
               className={`px-6 py-3 rounded-lg font-medium transition-colors ${importType === 'faculty'
                 ? 'bg-primary text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-surface-border text-ink-secondary hover:bg-surface-border'
                 }`}
             >
               Faculty CSV Import
@@ -201,10 +201,10 @@ export function StudentsImportPage() {
         {viewMode === 'upload' && (
           <Card>
             <div className="mb-4">
-              <h2 className="text-2xl font-semibold mb-2">
+              <h2 className="text-h2 mb-2">
                 {importType === 'student' ? 'Student CSV Import' : 'Faculty CSV Import'}
               </h2>
-              <p className="text-gray-600">
+              <p className="text-ink-secondary">
                 {importType === 'student'
                   ? 'Upload a CSV file with student data. The file will be validated before import. User accounts will be automatically created with passwords.'
                   : 'Upload a CSV file with faculty data. The file will be validated before import. User accounts will be automatically created with passwords.'}
@@ -224,7 +224,7 @@ export function StudentsImportPage() {
           <Card>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">
+                <h2 className="text-h2">
                   {importType === 'student' ? 'Student' : 'Faculty'} Import Preview
                 </h2>
                 <Button onClick={handleReset} variant="secondary">
@@ -234,18 +234,18 @@ export function StudentsImportPage() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 bg-info-subtle rounded">
-                  <div className="text-sm text-gray-600">Total Rows</div>
-                  <div className="text-2xl font-bold">{previewData.total_rows}</div>
+                  <div className="text-sm text-ink-secondary">Total Rows</div>
+                  <div className="text-h2">{previewData.total_rows}</div>
                 </div>
                 <div className="p-4 bg-success-subtle rounded">
-                  <div className="text-sm text-gray-600">Valid Rows</div>
-                  <div className="text-2xl font-bold text-success">
+                  <div className="text-sm text-ink-secondary">Valid Rows</div>
+                  <div className="text-h2 text-success">
                     {previewData.valid_rows}
                   </div>
                 </div>
                 <div className="p-4 bg-danger-subtle rounded">
-                  <div className="text-sm text-gray-600">Invalid Rows</div>
-                  <div className="text-2xl font-bold text-danger">
+                  <div className="text-sm text-ink-secondary">Invalid Rows</div>
+                  <div className="text-h2 text-danger">
                     {previewData.invalid_rows}
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export function StudentsImportPage() {
           <Card>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">Import History</h2>
+                <h2 className="text-h2">Import History</h2>
                 <Button onClick={() => setViewMode('upload')} variant="secondary">
                   New Import
                 </Button>

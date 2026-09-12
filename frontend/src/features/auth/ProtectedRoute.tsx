@@ -12,7 +12,7 @@ const UnauthorizedPage = React.lazy(() =>
 )
 
 const RouteFallback = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="min-h-screen bg-surface flex items-center justify-center">
     <Spinner size="lg" />
   </div>
 )
@@ -43,10 +43,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-surface flex items-center justify-center">
         <div className="text-center">
           <Spinner size="lg" />
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-ink-secondary">Loading...</p>
         </div>
       </div>
     )

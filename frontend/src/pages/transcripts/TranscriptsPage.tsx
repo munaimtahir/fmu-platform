@@ -22,8 +22,8 @@ export const TranscriptsPage: React.FC = () => {
 
           <Card>
             <div className="p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-gray-900">Transcript Features</h2>
-              <ul className="list-disc list-inside space-y-2 text-sm text-gray-600">
+              <h2 className="text-h4 text-ink-primary">Transcript Features</h2>
+              <ul className="list-disc list-inside space-y-2 text-sm text-ink-secondary">
                 <li>Generate transcripts for individual students</li>
                 <li>Background job processing for bulk transcript generation</li>
                 <li>QR code verification for transcript authenticity</li>
@@ -34,8 +34,8 @@ export const TranscriptsPage: React.FC = () => {
 
           <Card>
             <div className="p-6">
-              <h3 className="text-md font-semibold text-gray-900 mb-2">How to Generate Transcripts</h3>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
+              <h3 className="text-md font-semibold text-ink-primary mb-2">How to Generate Transcripts</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-ink-secondary">
                 <li>Navigate to the Students page</li>
                 <li>Select a student record</li>
                 <li>Use the "Generate Transcript" action</li>

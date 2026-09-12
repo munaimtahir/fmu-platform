@@ -20,7 +20,7 @@ export const ImpersonationBanner: React.FC = () => {
   }
 
   return (
-    <div className="bg-yellow-500 text-yellow-900 px-4 py-3 shadow-md border-b border-yellow-600 z-50">
+    <div className="bg-warning text-warning-emphasis px-4 py-3 shadow-md border-b border-warning z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2">
           <svg
@@ -45,7 +45,7 @@ export const ImpersonationBanner: React.FC = () => {
           onClick={handleStop}
           variant="secondary"
           size="sm"
-          className="bg-yellow-600 text-white border-yellow-700 hover:bg-yellow-700"
+          className="bg-warning text-white border-warning-emphasis hover:bg-warning-emphasis"
         >
           Stop Impersonation
         </Button>

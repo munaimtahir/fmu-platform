@@ -84,7 +84,7 @@ export const ProfilePage: React.FC = () => {
       
         <PageShell title="Profile">
           <div className="text-center py-12">
-            <p className="text-gray-500">User information not available</p>
+            <p className="text-ink-muted">User information not available</p>
           </div>
         </PageShell>
       
@@ -109,15 +109,15 @@ export const ProfilePage: React.FC = () => {
         <Card>
           <div className="p-6 space-y-6">
             {/* Avatar Section */}
-            <div className="flex items-center gap-4 pb-6 border-b border-gray-200">
+            <div className="flex items-center gap-4 pb-6 border-b border-surface-border">
               <div className="w-20 h-20 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-2xl">
                 {user.email.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-h3 text-ink-primary">
                   {user.full_name || user.email}
                 </h2>
-                <p className="text-sm text-gray-500">{user.role || 'User'}</p>
+                <p className="text-sm text-ink-muted">{user.role || 'User'}</p>
               </div>
             </div>
 
@@ -125,11 +125,11 @@ export const ProfilePage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fields.map((field) => (
                 <div key={field.key} className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-ink-secondary">
                     {field.label}
                   </label>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-sm text-gray-900">
+                    <div className="flex-1 px-3 py-2 bg-surface rounded-lg text-sm text-ink-primary">
                       {field.value}
                     </div>
                     <Button
@@ -140,7 +140,7 @@ export const ProfilePage: React.FC = () => {
                       title="Copy to clipboard"
                     >
                       {copiedField === field.key ? (
-                        <span className="text-green-600">✓</span>
+                        <span className="text-success">✓</span>
                       ) : (
                         <svg
                           className="w-4 h-4"
@@ -163,7 +163,7 @@ export const ProfilePage: React.FC = () => {
             </div>
 
             {/* Actions */}
-            <div className="pt-6 border-t border-gray-200">
+            <div className="pt-6 border-t border-surface-border">
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   variant="secondary"
@@ -191,23 +191,23 @@ export const ProfilePage: React.FC = () => {
         {showPasswordChange && (
           <Card className="mt-6">
             <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+              <h3 className="text-h4 text-ink-primary mb-4">Change Password</h3>
               
               {passwordSuccess && (
-                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
+                <div className="mb-4 p-3 bg-success-subtle border border-success/20 rounded-lg text-success-emphasis text-sm">
                   Password changed successfully!
                 </div>
               )}
 
               {passwordError && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+                <div className="mb-4 p-3 bg-danger-subtle border border-danger/20 rounded-lg text-danger-emphasis text-sm">
                   {passwordError}
                 </div>
               )}
 
               <form onSubmit={handlePasswordChange} className="space-y-4">
                 <div>
-                  <label htmlFor="old_password" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="old_password" className="block text-sm font-medium text-ink-secondary mb-1">
                     Current Password
                   </label>
                   <input
@@ -215,14 +215,14 @@ export const ProfilePage: React.FC = () => {
                     id="old_password"
                     value={passwordForm.old_password}
                     onChange={(e) => setPasswordForm({ ...passwordForm, old_password: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
                     required
                     disabled={passwordLoading}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="new_password" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="new_password" className="block text-sm font-medium text-ink-secondary mb-1">
                     New Password
                   </label>
                   <input
@@ -230,16 +230,16 @@ export const ProfilePage: React.FC = () => {
                     id="new_password"
                     value={passwordForm.new_password}
                     onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
                     required
                     minLength={8}
                     disabled={passwordLoading}
                   />
-                  <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters long</p>
+                  <p className="mt-1 text-xs text-ink-muted">Must be at least 8 characters long</p>
                 </div>
 
                 <div>
-                  <label htmlFor="new_password_confirm" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="new_password_confirm" className="block text-sm font-medium text-ink-secondary mb-1">
                     Confirm New Password
                   </label>
                   <input
@@ -247,7 +247,7 @@ export const ProfilePage: React.FC = () => {
                     id="new_password_confirm"
                     value={passwordForm.new_password_confirm}
                     onChange={(e) => setPasswordForm({ ...passwordForm, new_password_confirm: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
                     required
                     disabled={passwordLoading}
                   />

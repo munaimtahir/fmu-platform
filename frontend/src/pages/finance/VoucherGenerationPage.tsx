@@ -27,8 +27,8 @@ export const VoucherGenerationPage: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Voucher Generation</h1>
-          <p className="text-gray-600">Create vouchers for a program or selected students.</p>
+          <h1 className="text-h2 text-ink-primary">Voucher Generation</h1>
+          <p className="text-ink-secondary">Create vouchers for a program or selected students.</p>
         </div>
 
         <Card>
@@ -39,7 +39,7 @@ export const VoucherGenerationPage: React.FC = () => {
             </Alert>
           )}
           {result && (
-            <div className="mt-4 text-sm text-gray-700">
+            <div className="mt-4 text-sm text-ink-secondary">
               <p>Created: {result.created.length}</p>
               <p>Skipped: {result.skipped.length}</p>
             </div>

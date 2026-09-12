@@ -16,7 +16,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   const content = (
     <div className="flex flex-col items-center justify-center py-12">
       <Spinner size="lg" />
-      <p className="mt-4 text-sm text-gray-600">{message}</p>
+      <p className="mt-4 text-sm text-ink-secondary">{message}</p>
     </div>
   )
 

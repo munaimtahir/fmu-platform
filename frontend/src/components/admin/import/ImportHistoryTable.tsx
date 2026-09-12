@@ -144,13 +144,13 @@ export function ImportHistoryTable({
   }
 
   if (error) {
-    return <div className="text-red-600">{error}</div>
+    return <div className="text-danger">{error}</div>
   }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Import History</h3>
+        <h3 className="text-h4">Import History</h3>
         <Button onClick={fetchJobs} variant="secondary" size="sm">
           Refresh
         </Button>

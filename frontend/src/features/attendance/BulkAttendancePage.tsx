@@ -167,28 +167,28 @@ export function BulkAttendancePage() {
     
       <div className="container mx-auto py-6 px-4">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Bulk Attendance Marking</h1>
-          <p className="text-gray-600">Mark attendance for a timetable session</p>
+          <h1 className="text-h1 mb-2">Bulk Attendance Marking</h1>
+          <p className="text-ink-secondary">Mark attendance for a timetable session</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
           {/* Session Selection Sidebar */}
           <Card className="lg:col-span-1">
-            <h2 className="text-lg font-semibold mb-4">Select Session</h2>
+            <h2 className="text-h4 mb-4">Select Session</h2>
             
             <div className="mb-4">
-              <label htmlFor="bulk-attendance-date" className="block text-sm text-gray-600 mb-1">Date</label>
+              <label htmlFor="bulk-attendance-date" className="block text-sm text-ink-secondary mb-1">Date</label>
               <input
                 id="bulk-attendance-date"
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-surface-border rounded-lg"
               />
             </div>
 
             {sessionsLoading ? (
-              <div className="text-gray-500">Loading sessions...</div>
+              <div className="text-ink-muted">Loading sessions...</div>
             ) : (
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {sessionsData?.results.map((session: Session) => {
@@ -209,16 +209,16 @@ export function BulkAttendancePage() {
                       className={`w-full text-left p-3 rounded-lg border transition-colors ${
                         selectedSessionId === session.id
                           ? 'border-info bg-info-subtle'
-                          : 'border-gray-200 hover:border-gray-300'
+                          : 'border-surface-border hover:border-surface-border'
                       }`}
                     >
                       <div className="font-medium text-sm">
                         {session.group_name || `Group ${session.group}`}
                       </div>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-xs text-ink-secondary">
                         {displayDate} • {displayTime}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-ink-muted">
                         {session.faculty_name || `Faculty ${session.faculty}`}
                       </div>
                     </button>
@@ -240,11 +240,11 @@ export function BulkAttendancePage() {
           {/* Attendance Form */}
           <Card className="lg:col-span-3">
             {!selectedSessionId ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-ink-muted">
                 Please select a session
               </div>
             ) : roster.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-ink-muted">
                 Click "Load Roster" to begin marking attendance
               </div>
             ) : (
@@ -252,26 +252,26 @@ export function BulkAttendancePage() {
                 {/* Statistics */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                   <div className="p-4 bg-neutral-subtle rounded-lg">
-                    <div className="text-sm text-gray-600">Total</div>
-                    <div className="text-2xl font-bold">{stats.total}</div>
+                    <div className="text-sm text-ink-secondary">Total</div>
+                    <div className="text-h2">{stats.total}</div>
                   </div>
                   <div className="p-4 bg-success-subtle rounded-lg">
                     <div className="text-sm text-success">Present</div>
-                    <div className="text-2xl font-bold text-success">{stats.present}</div>
+                    <div className="text-h2 text-success">{stats.present}</div>
                   </div>
                   <div className="p-4 bg-danger-subtle rounded-lg">
                     <div className="text-sm text-danger">Absent</div>
-                    <div className="text-2xl font-bold text-danger">{stats.absent}</div>
+                    <div className="text-h2 text-danger">{stats.absent}</div>
                   </div>
                   <div className="p-4 bg-info-subtle rounded-lg">
                     <div className="text-sm text-info">Percentage</div>
-                    <div className="text-2xl font-bold text-info">{stats.percentage}%</div>
+                    <div className="text-h2 text-info">{stats.percentage}%</div>
                   </div>
                 </div>
 
                 {/* Summary (if available) */}
                 {summaryData && (
-                  <div className="mb-4 p-3 bg-info-subtle border border-blue-200 rounded-lg">
+                  <div className="mb-4 p-3 bg-info-subtle border border-info/20 rounded-lg">
                     <div className="text-sm font-semibold text-blue-900 mb-1">
                       Session Summary (All Dates)
                     </div>
@@ -290,7 +290,7 @@ export function BulkAttendancePage() {
                     placeholder="Search by name or reg no..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                    className="flex-1 px-3 py-2 border border-surface-border rounded-lg"
                   />
                   <Button size="sm" variant="ghost" onClick={() => handleMarkAll('PRESENT')}>
                     Mark All Present
@@ -307,11 +307,11 @@ export function BulkAttendancePage() {
                     return (
                       <div
                         key={student.student_id}
-                        className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                        className="flex items-center justify-between p-3 border border-surface-border rounded-lg hover:bg-surface"
                       >
                         <div className="flex-1">
                           <div className="font-medium">{student.name}</div>
-                          <div className="text-sm text-gray-600">{student.reg_no}</div>
+                          <div className="text-sm text-ink-secondary">{student.reg_no}</div>
                         </div>
                         <Button
                           size="sm"
@@ -325,7 +325,7 @@ export function BulkAttendancePage() {
                     )
                   })}
                   {filteredRoster.length === 0 && (
-                    <div className="text-center py-4 text-gray-500">
+                    <div className="text-center py-4 text-ink-muted">
                       No students match your search
                     </div>
                   )}

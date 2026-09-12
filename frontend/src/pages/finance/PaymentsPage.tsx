@@ -108,8 +108,8 @@ export const PaymentsPage: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-          <p className="text-gray-600">View and manage payment records.</p>
+          <h1 className="text-h2 text-ink-primary">Payments</h1>
+          <p className="text-ink-secondary">View and manage payment records.</p>
         </div>
 
         {error && <Alert variant="error">{error}</Alert>}

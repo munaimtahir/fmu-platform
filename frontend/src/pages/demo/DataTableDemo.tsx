@@ -50,7 +50,7 @@ export const DataTableDemo = () => {
       accessorKey: 'email',
       header: 'Email',
       cell: ({ row }) => (
-        <span className="text-gray-600">{row.getValue('email')}</span>
+        <span className="text-ink-secondary">{row.getValue('email')}</span>
       ),
     },
     {
@@ -63,7 +63,7 @@ export const DataTableDemo = () => {
       cell: ({ row }) => {
         const gpa = row.getValue('gpa') as number
         return (
-          <span className={`font-semibold ${gpa >= 3.8 ? 'text-emerald-600' : gpa >= 3.5 ? 'text-blue-600' : 'text-gray-600'}`}>
+          <span className={`font-semibold ${gpa >= 3.8 ? 'text-success' : gpa >= 3.5 ? 'text-blue-600' : 'text-ink-secondary'}`}>
             {gpa.toFixed(2)}
           </span>
         )
@@ -93,17 +93,17 @@ export const DataTableDemo = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-h1 text-ink-primary mb-2">
             DataTable Component Demo
           </h1>
-          <p className="text-gray-600">
+          <p className="text-ink-secondary">
             Interactive demonstration of the DataTable component with sorting, filtering, and pagination.
           </p>
         </div>
 
         {/* Features Overview */}
         <Card>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-h3 text-ink-primary mb-4">
             Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -115,11 +115,11 @@ export const DataTableDemo = () => {
               { icon: '✅', label: 'Row Selection', desc: 'Select specific rows' },
               { icon: '👁️', label: 'Column Visibility', desc: 'Show/hide columns' },
             ].map((feature, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+              <div key={index} className="flex items-start gap-3 p-3 bg-surface rounded-lg">
                 <span className="text-2xl">{feature.icon}</span>
                 <div>
-                  <p className="font-medium text-gray-900 text-sm">{feature.label}</p>
-                  <p className="text-xs text-gray-500">{feature.desc}</p>
+                  <p className="font-medium text-ink-primary text-sm">{feature.label}</p>
+                  <p className="text-xs text-ink-muted">{feature.desc}</p>
                 </div>
               </div>
             ))}
@@ -128,7 +128,7 @@ export const DataTableDemo = () => {
 
         {/* DataTable */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-h3 text-ink-primary mb-4">
             Student Records
           </h2>
           <DataTable
@@ -148,21 +148,21 @@ export const DataTableDemo = () => {
           <Card>
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-h4 text-ink-primary mb-2">
                   Selected Student
                 </h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="text-gray-600">ID:</span> <span className="font-mono">{selectedStudent.id}</span></p>
-                  <p><span className="text-gray-600">Name:</span> {selectedStudent.name}</p>
-                  <p><span className="text-gray-600">Email:</span> {selectedStudent.email}</p>
-                  <p><span className="text-gray-600">Program:</span> {selectedStudent.program}</p>
-                  <p><span className="text-gray-600">GPA:</span> {selectedStudent.gpa}</p>
-                  <p><span className="text-gray-600">Status:</span> {selectedStudent.status}</p>
+                  <p><span className="text-ink-secondary">ID:</span> <span className="font-mono">{selectedStudent.id}</span></p>
+                  <p><span className="text-ink-secondary">Name:</span> {selectedStudent.name}</p>
+                  <p><span className="text-ink-secondary">Email:</span> {selectedStudent.email}</p>
+                  <p><span className="text-ink-secondary">Program:</span> {selectedStudent.program}</p>
+                  <p><span className="text-ink-secondary">GPA:</span> {selectedStudent.gpa}</p>
+                  <p><span className="text-ink-secondary">Status:</span> {selectedStudent.status}</p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedStudent(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-ink-muted hover:text-ink-secondary"
               >
                 ✕
               </button>
@@ -172,10 +172,10 @@ export const DataTableDemo = () => {
 
         {/* Usage Example */}
         <Card>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-h3 text-ink-primary mb-4">
             Usage Example
           </h2>
-          <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+          <pre className="bg-ink-primary text-neutral-subtle p-4 rounded-lg overflow-x-auto text-sm">
 {`import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { ColumnDef } from '@tanstack/react-table'
 

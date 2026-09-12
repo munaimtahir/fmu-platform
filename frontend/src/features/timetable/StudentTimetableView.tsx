@@ -23,14 +23,14 @@ function EntryRow({ entry }: { entry: MobileScheduleEntry }) {
     : entry.time_slot || '—'
 
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-gray-100 py-3 last:border-b-0">
+    <div className="flex items-start justify-between gap-4 border-b border-neutral-subtle py-3 last:border-b-0">
       <div>
-        <div className="font-medium text-gray-900">
+        <div className="font-medium text-ink-primary">
           {entry.course_name || 'Untitled session'}
-          {entry.course_code && <span className="ml-2 text-xs text-gray-500">{entry.course_code}</span>}
+          {entry.course_code && <span className="ml-2 text-xs text-ink-muted">{entry.course_code}</span>}
         </div>
-        <div className="text-sm text-gray-600">{timeLabel}</div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-ink-secondary">{timeLabel}</div>
+        <div className="text-sm text-ink-muted">
           {entry.faculty_name && <span>{entry.faculty_name}</span>}
           {entry.faculty_name && entry.room && <span> · </span>}
           {entry.room && <span>{entry.room}</span>}
@@ -104,7 +104,7 @@ export function StudentTimetableView() {
           >
             ← Previous Week
           </Button>
-          <span className="text-gray-600">
+          <span className="text-ink-secondary">
             {data ? `Week of ${format(parseISO(data.week_start_date), 'MMM dd, yyyy')}` : ''}
           </span>
           <Button
@@ -137,7 +137,7 @@ export function StudentTimetableView() {
       ) : tab === 'today' ? (
         <Card padding="md">
           {todayEntries.length === 0 ? (
-            <p className="text-gray-500 py-4 text-center">No classes scheduled for today.</p>
+            <p className="text-ink-muted py-4 text-center">No classes scheduled for today.</p>
           ) : (
             todayEntries.map((entry) => <EntryRow key={`${entry.source}-${entry.id}`} entry={entry} />)
           )}
@@ -149,7 +149,7 @@ export function StudentTimetableView() {
             if (entries.length === 0) return null
             return (
               <Card key={day} padding="md">
-                <h3 className="font-semibold text-gray-900 mb-2">{day}</h3>
+                <h3 className="font-semibold text-ink-primary mb-2">{day}</h3>
                 {entries.map((entry) => (
                   <EntryRow key={`${entry.source}-${entry.id}`} entry={entry} />
                 ))}
@@ -158,7 +158,7 @@ export function StudentTimetableView() {
           })}
           {data && data.entries.length === 0 && (
             <Card padding="md">
-              <p className="text-gray-500 py-4 text-center">No published schedule for this week yet.</p>
+              <p className="text-ink-muted py-4 text-center">No published schedule for this week yet.</p>
             </Card>
           )}
         </div>

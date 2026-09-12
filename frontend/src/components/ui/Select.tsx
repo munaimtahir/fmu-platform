@@ -88,9 +88,9 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     return (
       <div className={className} ref={ref}>
         {label && (
-          <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor={id} className="block text-sm font-medium text-ink-secondary mb-1">
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="text-danger ml-1">*</span>}
           </label>
         )}
 
@@ -103,18 +103,18 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
             disabled={disabled}
             className={`
               w-full px-4 py-3 text-left rounded-2xl border transition-all duration-150
-              focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent
-              disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
-              ${error ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'}
-              ${isOpen ? 'ring-2 ring-[#3B82F6]' : ''}
+              focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent
+              disabled:bg-surface disabled:text-ink-muted disabled:cursor-not-allowed
+              ${error ? 'border-danger' : 'border-surface-border hover:border-ink-muted'}
+              ${isOpen ? 'ring-2 ring-primary-600' : ''}
             `}
           >
             <div className="flex items-center justify-between">
-              <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
+              <span className={selectedOption ? 'text-ink-primary' : 'text-ink-muted'}>
                 {selectedOption?.label || placeholder}
               </span>
               <svg
-                className={`w-5 h-5 text-gray-400 transition-transform duration-150 ${
+                className={`w-5 h-5 text-ink-muted transition-transform duration-150 ${
                   isOpen ? 'rotate-180' : ''
                 }`}
                 fill="none"
@@ -127,16 +127,16 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           </button>
 
           {isOpen && (
-            <div className="absolute z-10 w-full mt-2 bg-white rounded-2xl border border-gray-200 shadow-lg max-h-60 overflow-hidden">
+            <div className="absolute z-10 w-full mt-2 bg-white rounded-2xl border border-surface-border shadow-elevation-3 max-h-60 overflow-hidden">
               {searchable && (
-                <div className="p-2 border-b border-gray-200">
+                <div className="p-2 border-b border-surface-border">
                   <input
                     ref={searchInputRef}
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search..."
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-surface-border focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent text-sm"
                   />
                 </div>
               )}
@@ -153,8 +153,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
                             w-full text-left px-4 py-2.5 transition-colors duration-150
                             ${
                               option.value === value
-                                ? 'bg-[#3B82F6] text-white'
-                                : 'text-gray-900 hover:bg-gray-100'
+                                ? 'bg-primary-600 text-white'
+                                : 'text-ink-primary hover:bg-surface'
                             }
                           `}
                         >
@@ -164,7 +164,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
                     ))}
                   </ul>
                 ) : (
-                  <div className="px-4 py-6 text-center text-gray-500 text-sm">
+                  <div className="px-4 py-6 text-center text-ink-muted text-sm">
                     No options found
                   </div>
                 )}
@@ -173,8 +173,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           )}
         </div>
 
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-        {!error && helperText && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
+        {error && <p className="mt-1 text-body-sm text-danger">{error}</p>}
+        {!error && helperText && <p className="mt-1 text-body-sm text-ink-muted">{helperText}</p>}
       </div>
     )
   }

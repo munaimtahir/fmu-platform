@@ -23,8 +23,8 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4">
       <div className="text-6xl mb-4">⚠️</div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 text-center max-w-md mb-6">{message}</p>
+      <h3 className="text-h4 text-ink-primary mb-2">{title}</h3>
+      <p className="text-sm text-ink-muted text-center max-w-md mb-6">{message}</p>
       <div className="flex gap-2">
         {onRetry && (
           <Button onClick={onRetry} variant="primary">

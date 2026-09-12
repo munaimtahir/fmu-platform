@@ -22,9 +22,9 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     return (
       <div className={props.className || ''}>
         {label && (
-          <label htmlFor={props.id} className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor={props.id} className="block text-sm font-medium text-ink-secondary mb-1">
             {label}
-            {props.required && <span className="text-red-500 ml-1">*</span>}
+            {props.required && <span className="text-danger ml-1">*</span>}
           </label>
         )}
         
@@ -34,10 +34,10 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           className={`
             w-full px-4 py-3 rounded-2xl border transition-all duration-150
             focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent
-            disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
+            disabled:bg-surface disabled:text-ink-muted disabled:cursor-not-allowed
             ${error 
-              ? 'border-red-500 focus:ring-red-500' 
-              : 'border-gray-300 hover:border-gray-400'
+              ? 'border-danger focus:ring-danger' 
+              : 'border-surface-border hover:border-ink-muted'
             }
           `}
           maxLength={maxLength}
@@ -47,15 +47,15 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         <div className="flex justify-between items-center mt-1">
           <div className="flex-1">
             {error && (
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-danger">{error}</p>
             )}
             {!error && helperText && (
-              <p className="text-sm text-gray-500">{helperText}</p>
+              <p className="text-sm text-ink-muted">{helperText}</p>
             )}
           </div>
           
           {showCharCount && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-ink-muted">
               {charCount}
               {maxLength && ` / ${maxLength}`}
             </p>

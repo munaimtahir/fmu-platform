@@ -139,7 +139,7 @@ export function ImportPreviewTable({
     <div className="space-y-4">
       <div className="flex gap-4 items-center flex-wrap">
         <div>
-          <label htmlFor="preview-filter" className="text-sm font-medium text-gray-700 mr-2">
+          <label htmlFor="preview-filter" className="text-sm font-medium text-ink-secondary mr-2">
             Filter:
           </label>
           <select
@@ -157,7 +157,7 @@ export function ImportPreviewTable({
           </select>
         </div>
         <div>
-          <label htmlFor="preview-action-filter" className="text-sm font-medium text-gray-700 mr-2">
+          <label htmlFor="preview-action-filter" className="text-sm font-medium text-ink-secondary mr-2">
             Action:
           </label>
           <select
@@ -178,7 +178,7 @@ export function ImportPreviewTable({
           </select>
         </div>
         <div>
-          <label htmlFor="preview-page-size" className="text-sm font-medium text-gray-700 mr-2">
+          <label htmlFor="preview-page-size" className="text-sm font-medium text-ink-secondary mr-2">
             Rows per page:
           </label>
           <select
@@ -197,7 +197,7 @@ export function ImportPreviewTable({
             <option value="all">All</option>
           </select>
         </div>
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-ink-secondary">
           Showing {rowsPerPage === 'all' 
             ? filteredRows.length 
             : `${(currentPage - 1) * (rowsPerPage as number) + 1}-${Math.min(currentPage * (rowsPerPage as number), filteredRows.length)}`} of {filteredRows.length} rows (Total: {previewRows.length})
@@ -211,21 +211,21 @@ export function ImportPreviewTable({
       {/* Pagination Controls */}
       {rowsPerPage !== 'all' && totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-ink-secondary">
             Page {currentPage} of {totalPages}
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
-              className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-1 rounded border border-surface-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface"
             >
               « First
             </button>
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-1 rounded border border-surface-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface"
             >
               ‹ Prev
             </button>
@@ -249,7 +249,7 @@ export function ImportPreviewTable({
                   className={`px-3 py-1 rounded border ${
                     currentPage === pageNum
                       ? 'bg-primary text-white border-primary'
-                      : 'border-gray-300 hover:bg-gray-50'
+                      : 'border-surface-border hover:bg-surface'
                   }`}
                 >
                   {pageNum}
@@ -259,14 +259,14 @@ export function ImportPreviewTable({
             <button
               onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-1 rounded border border-surface-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface"
             >
               Next ›
             </button>
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-1 rounded border border-surface-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface"
             >
               Last »
             </button>

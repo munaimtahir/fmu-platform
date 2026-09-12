@@ -9,6 +9,7 @@ import { Alert } from '@/components/ui/Alert'
 import { Modal } from '@/components/ui/Modal'
 import { TextArea } from '@/components/ui/TextArea'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { Heading, Text } from '@/components/ui/Typography'
 
 export const VouchersPage: React.FC = () => {
   const [vouchers, setVouchers] = useState<Voucher[]>([])
@@ -108,8 +109,8 @@ export const VouchersPage: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vouchers</h1>
-          <p className="text-gray-600">View and manage vouchers.</p>
+          <Heading level={1}>Vouchers</Heading>
+          <Text tone="secondary">View and manage vouchers.</Text>
         </div>
 
         {error && <Alert variant="error">{error}</Alert>}

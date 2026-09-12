@@ -109,11 +109,11 @@ export const LoginPage: React.FC = () => {
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+              className="h-4 w-4 text-primary focus:ring-primary border-surface-border rounded"
             />
             <label
               htmlFor="remember-me"
-              className="ml-2 block text-sm text-gray-700"
+              className="ml-2 block text-sm text-ink-secondary"
             >
               Remember me
             </label>
@@ -140,7 +140,7 @@ export const LoginPage: React.FC = () => {
           Sign In
         </Button>
 
-        <div className="text-center text-sm text-gray-600">
+        <div className="text-center text-sm text-ink-secondary">
           Don&apos;t have an account?{' '}
           <a
             href="#"

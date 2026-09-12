@@ -12,7 +12,7 @@ describe('Button', () => {
   it('should apply primary variant styles by default', () => {
     render(<Button>Button</Button>)
     const button = screen.getByText('Button')
-    expect(button).toHaveClass('bg-primary')
+    expect(button).toHaveClass('bg-primary-600')
   })
 
   it('should apply ghost variant styles', () => {

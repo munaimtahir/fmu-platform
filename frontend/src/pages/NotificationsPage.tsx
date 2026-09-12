@@ -59,7 +59,7 @@ export const NotificationsPage: React.FC = () => {
     
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Announcements / Notifications</h1>
+          <h1 className="text-h2 text-ink-primary">Announcements / Notifications</h1>
           {hasUnread && (
             <Button
               onClick={() => markAllReadMutation.mutate()}
@@ -77,7 +77,7 @@ export const NotificationsPage: React.FC = () => {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'all'
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-surface-border text-ink-secondary hover:bg-surface-border'
             }`}
           >
             All
@@ -87,7 +87,7 @@ export const NotificationsPage: React.FC = () => {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'unread'
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-surface-border text-ink-secondary hover:bg-surface-border'
             }`}
           >
             Unread
@@ -100,19 +100,19 @@ export const NotificationsPage: React.FC = () => {
           </div>
         ) : isError ? (
           <Card className="p-12 text-center">
-            <p className="text-gray-500">We could not load notifications right now.</p>
+            <p className="text-ink-muted">We could not load notifications right now.</p>
           </Card>
         ) : items.length > 0 ? (
           <div className="space-y-3">
             {items.map((item) => (
               <Card
                 key={item.id}
-                className={`p-4 ${!item.read_at ? 'bg-blue-50 border-blue-200' : ''}`}
+                className={`p-4 ${!item.read_at ? 'bg-blue-50 border-info/20' : ''}`}
               >
                 <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-h4 text-ink-primary">
                         {item.notification.title}
                       </h3>
                       {!item.read_at && <Badge variant="default">New</Badge>}
@@ -121,8 +121,8 @@ export const NotificationsPage: React.FC = () => {
                       </Badge>
                       <Badge variant="success">{item.notification.category}</Badge>
                     </div>
-                    <p className="text-gray-700 mb-2">{item.notification.body}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-ink-secondary mb-2">{item.notification.body}</p>
+                    <p className="text-sm text-ink-muted">
                       {new Date(item.notification.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -142,7 +142,7 @@ export const NotificationsPage: React.FC = () => {
           </div>
         ) : (
           <Card className="p-12 text-center">
-            <p className="text-gray-500">
+            <p className="text-ink-muted">
               {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
             </p>
           </Card>

@@ -57,10 +57,10 @@ export const DashboardHome: React.FC = () => {
       <div className="space-y-8">
         {/* Welcome Section */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-h1 text-ink-primary mb-2">
             Welcome back{user?.full_name ? `, ${user.full_name}` : ''}!
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-ink-secondary text-lg">
             Here&apos;s what&apos;s happening in your system today.
           </p>
         </div>
@@ -68,7 +68,7 @@ export const DashboardHome: React.FC = () => {
         {/* System Status */}
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-h3 text-ink-primary">
               System Status
             </h2>
             {health && (
@@ -81,19 +81,19 @@ export const DashboardHome: React.FC = () => {
           </div>
           
           {loading ? (
-            <p className="text-gray-500">Checking system health...</p>
+            <p className="text-ink-muted">Checking system health...</p>
           ) : health ? (
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Backend Service:</span>
-                <span className="font-medium text-gray-900">{health.service}</span>
+                <span className="text-ink-secondary">Backend Service:</span>
+                <span className="font-medium text-ink-primary">{health.service}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">API Base URL:</span>
-                <code className="text-xs bg-gray-100 px-2 py-1 rounded">{env.apiBaseUrl}</code>
+                <span className="text-ink-secondary">API Base URL:</span>
+                <code className="text-xs bg-neutral-subtle px-2 py-1 rounded">{env.apiBaseUrl}</code>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Status:</span>
+                <span className="text-ink-secondary">Status:</span>
                 <span className="font-medium text-success">{health.status.toUpperCase()}</span>
               </div>
             </div>
@@ -107,20 +107,20 @@ export const DashboardHome: React.FC = () => {
         {/* Quick Actions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card className="hover:shadow-elevation-3 transition-shadow duration-150 cursor-pointer">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-h4 text-ink-primary mb-2">
               Stage-2 Complete ✓
             </h3>
-            <p className="text-gray-600 text-sm mb-4">
+            <p className="text-ink-secondary text-sm mb-4">
               Core UI layer with navigation, DataTable, and form components is now complete.
             </p>
             <Badge variant="success">Ready</Badge>
           </Card>
 
           <Card className="hover:shadow-elevation-3 transition-shadow duration-150">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-h4 text-ink-primary mb-2">
               What&apos;s Next?
             </h3>
-            <ul className="text-sm text-gray-600 space-y-2">
+            <ul className="text-sm text-ink-secondary space-y-2">
               <li>• Stage-3: Student Management</li>
               <li>• Stage-4: Course & Enrollment</li>
               <li>• Stage-5: Assessments & Results</li>
@@ -128,10 +128,10 @@ export const DashboardHome: React.FC = () => {
           </Card>
 
           <Card className="hover:shadow-elevation-3 transition-shadow duration-150">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-h4 text-ink-primary mb-2">
               API Documentation
             </h3>
-            <p className="text-gray-600 text-sm mb-4">
+            <p className="text-ink-secondary text-sm mb-4">
               Explore available endpoints and schemas.
             </p>
             <div className="flex gap-2">
@@ -158,25 +158,25 @@ export const DashboardHome: React.FC = () => {
         {/* User Info */}
         {user && (
           <Card>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-h3 text-ink-primary mb-4">
               Your Profile
             </h2>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Email:</span>
-                <span className="font-medium text-gray-900">{user.email}</span>
+                <span className="text-ink-secondary">Email:</span>
+                <span className="font-medium text-ink-primary">{user.email}</span>
               </div>
               {user.full_name && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Name:</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="text-ink-secondary">Name:</span>
+                  <span className="font-medium text-ink-primary">
                     {user.full_name}
                   </span>
                 </div>
               )}
               {user.role && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Role:</span>
+                  <span className="text-ink-secondary">Role:</span>
                   <div className="flex gap-2">
                     <Badge variant="primary">
                       {user.role}

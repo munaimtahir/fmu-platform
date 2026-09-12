@@ -21,9 +21,9 @@ export const LegacyRouteGuard: React.FC<LegacyRouteGuardProps> = ({ children }) 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface">
       {/* Legacy Warning Banner */}
-      <div className="bg-red-600 text-white px-4 py-3 shadow-lg">
+      <div className="bg-danger text-white px-4 py-3 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
           <span className="text-2xl">⚠️</span>
           <div className="flex-1">

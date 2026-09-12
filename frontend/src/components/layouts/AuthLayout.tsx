@@ -18,14 +18,14 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   subtitle 
 }) => {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-display text-ink-primary mb-2">
             {title}
           </h1>
           {subtitle && (
-            <p className="text-gray-600 text-lg">
+            <p className="text-ink-secondary text-lg">
               {subtitle}
             </p>
           )}
@@ -36,7 +36,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
         </Card>
         
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-ink-muted">
             {branding.institutionName} · Powered by {branding.platformName}
           </p>
         </div>

@@ -53,13 +53,13 @@ export function TranscriptVerify() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-surface py-8">
       <div className="max-w-3xl mx-auto px-6">
         <Card>
           <div className="p-8 space-y-6">
             <div className="text-center border-b pb-6">
-              <h1 className="text-3xl font-bold text-gray-900">Transcript Verification</h1>
-              <p className="text-sm text-gray-600 mt-2">
+              <h1 className="text-h1 text-ink-primary">Transcript Verification</h1>
+              <p className="text-sm text-ink-secondary mt-2">
                 Verification checks the authenticity token printed on a generated transcript.
               </p>
             </div>
@@ -72,21 +72,21 @@ export function TranscriptVerify() {
 
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <dt className="text-gray-600">Status</dt>
+                <dt className="text-ink-secondary">Status</dt>
                 <dd className="font-medium">{data?.valid ? 'Valid' : 'Invalid'}</dd>
               </div>
               {data?.student_id && (
                 <div>
-                  <dt className="text-gray-600">Student ID</dt>
+                  <dt className="text-ink-secondary">Student ID</dt>
                   <dd className="font-medium">{data.student_id}</dd>
                 </div>
               )}
               <div className="md:col-span-2">
-                <dt className="text-gray-600">Reason</dt>
+                <dt className="text-ink-secondary">Reason</dt>
                 <dd className="font-medium">{data?.reason}</dd>
               </div>
               <div className="md:col-span-2">
-                <dt className="text-gray-600">Verification Token</dt>
+                <dt className="text-ink-secondary">Verification Token</dt>
                 <dd className="font-mono text-xs break-all">{token}</dd>
               </div>
             </dl>

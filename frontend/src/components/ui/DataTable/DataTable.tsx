@@ -80,7 +80,7 @@ export function DataTable<TData>({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-surface-border p-6">
         <TableSkeleton rows={pageSize} columns={columns.length} />
       </div>
     )
@@ -88,7 +88,7 @@ export function DataTable<TData>({
 
   if (data.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-sm border border-surface-border">
         <EmptyState
           icon="📊"
           title="No data available"
@@ -99,9 +99,9 @@ export function DataTable<TData>({
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm border border-surface-border overflow-hidden">
       {/* Toolbar */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-surface-border">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           {/* Search */}
           {enableFiltering && (
@@ -111,10 +111,10 @@ export function DataTable<TData>({
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 placeholder="Search..."
-                className="w-full px-4 py-2 pl-10 rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all duration-150"
+                className="w-full px-4 py-2 pl-10 rounded-2xl border border-surface-border focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all duration-150"
               />
               <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-muted"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -132,14 +132,14 @@ export function DataTable<TData>({
           {/* Actions */}
           <div className="flex gap-2">
             {enableRowSelection && Object.keys(rowSelection).length > 0 && (
-              <span className="px-3 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg">
+              <span className="px-3 py-2 text-sm text-ink-secondary bg-neutral-subtle rounded-lg">
                 {Object.keys(rowSelection).length} selected
               </span>
             )}
             
             <button
               onClick={exportToCSV}
-              className="px-4 py-2 bg-[#10B981] text-white rounded-2xl hover:bg-emerald-600 transition-colors duration-150 flex items-center gap-2"
+              className="px-4 py-2 bg-[#10B981] text-white rounded-2xl hover:bg-success transition-colors duration-150 flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -154,7 +154,7 @@ export function DataTable<TData>({
 
             {enableColumnVisibility && (
               <button
-                className="px-4 py-2 border border-gray-300 rounded-2xl hover:bg-gray-50 transition-colors duration-150"
+                className="px-4 py-2 border border-surface-border rounded-2xl hover:bg-surface transition-colors duration-150"
                 onClick={() => {
                   // Column visibility toggle would go here
                 }}
@@ -169,26 +169,26 @@ export function DataTable<TData>({
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-surface border-b border-surface-border">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                    className="px-6 py-3 text-left text-xs font-medium text-ink-secondary uppercase tracking-wider"
                   >
                     {header.isPlaceholder ? null : (
                       <div
                         className={
                           header.column.getCanSort()
-                            ? 'flex items-center gap-2 cursor-pointer select-none hover:text-gray-900'
+                            ? 'flex items-center gap-2 cursor-pointer select-none hover:text-ink-primary'
                             : ''
                         }
                         onClick={header.column.getToggleSortingHandler()}
                       >
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() && (
-                          <span className="text-gray-400">
+                          <span className="text-ink-muted">
                             {{
                               asc: '↑',
                               desc: '↓',
@@ -202,19 +202,19 @@ export function DataTable<TData>({
               </tr>
             ))}
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-surface-border">
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
                 onClick={() => onRowClick?.(row.original)}
                 className={`
                   transition-colors duration-150
-                  ${onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''}
+                  ${onRowClick ? 'cursor-pointer hover:bg-surface' : ''}
                   ${row.getIsSelected() ? 'bg-blue-50' : ''}
                 `}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td key={cell.id} className="px-6 py-4 whitespace-nowrap text-sm text-ink-primary">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
@@ -226,9 +226,9 @@ export function DataTable<TData>({
 
       {/* Pagination */}
       {enablePagination && (
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-surface-border">
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-ink-secondary">
               {(() => {
                 const total = manualPagination ? totalCount ?? 0 : table.getFilteredRowModel().rows.length
                 const { pageIndex, pageSize: currentPageSize } = table.getState().pagination
@@ -245,33 +245,33 @@ export function DataTable<TData>({
               <button
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-1 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors duration-150"
+                className="px-3 py-1 rounded-lg border border-surface-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface transition-colors duration-150"
               >
                 «
               </button>
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-1 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors duration-150"
+                className="px-3 py-1 rounded-lg border border-surface-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface transition-colors duration-150"
               >
                 ‹
               </button>
               
-              <span className="px-3 py-1 text-sm text-gray-600">
+              <span className="px-3 py-1 text-sm text-ink-secondary">
                 Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
               </span>
               
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-1 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors duration-150"
+                className="px-3 py-1 rounded-lg border border-surface-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface transition-colors duration-150"
               >
                 ›
               </button>
               <button
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-1 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors duration-150"
+                className="px-3 py-1 rounded-lg border border-surface-border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface transition-colors duration-150"
               >
                 »
               </button>

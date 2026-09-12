@@ -106,44 +106,44 @@ export const RolesPage: React.FC = () => {
         <div className="space-y-6">
           <Card>
             <div className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Role Permissions Matrix</h2>
+              <h2 className="text-h4 text-ink-primary mb-4">Role Permissions Matrix</h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-surface-border">
+                  <thead className="bg-surface">
                     <tr>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Role
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Admissions
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Enrollment
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Attendance
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Assessments
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Results
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Transcripts
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">
                         Requests
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-surface-border">
                     {roles.map((role) => (
                       <tr key={role.name}>
                         <td className="px-4 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{role.name}</div>
-                            <div className="text-xs text-gray-500">{role.description}</div>
+                            <div className="text-sm font-medium text-ink-primary">{role.name}</div>
+                            <div className="text-xs text-ink-muted">{role.description}</div>
                           </div>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap">
@@ -191,23 +191,23 @@ export const RolesPage: React.FC = () => {
 
           <Card>
             <div className="p-6 space-y-4">
-              <h3 className="text-md font-semibold text-gray-900">Permission Abbreviations</h3>
+              <h3 className="text-md font-semibold text-ink-primary">Permission Abbreviations</h3>
               <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <dt className="font-medium text-gray-900">CRUD</dt>
-                  <dd className="text-gray-600">Create, Read, Update, Delete (full access)</dd>
+                  <dt className="font-medium text-ink-primary">CRUD</dt>
+                  <dd className="text-ink-secondary">Create, Read, Update, Delete (full access)</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-gray-900">Read / View</dt>
-                  <dd className="text-gray-600">Read-only access</dd>
+                  <dt className="font-medium text-ink-primary">Read / View</dt>
+                  <dd className="text-ink-secondary">Read-only access</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-gray-900">Approve / Publish</dt>
-                  <dd className="text-gray-600">Can approve or publish records</dd>
+                  <dt className="font-medium text-ink-primary">Approve / Publish</dt>
+                  <dd className="text-ink-secondary">Can approve or publish records</dd>
                 </div>
                 <div>
-                  <dt className="font-medium text-gray-900">Create / Apply</dt>
-                  <dd className="text-gray-600">Can create new records or apply</dd>
+                  <dt className="font-medium text-ink-primary">Create / Apply</dt>
+                  <dd className="text-ink-secondary">Can create new records or apply</dd>
                 </div>
               </dl>
             </div>
@@ -215,8 +215,8 @@ export const RolesPage: React.FC = () => {
 
           <Card>
             <div className="p-6">
-              <h3 className="text-md font-semibold text-gray-900 mb-2">Important Notes</h3>
-              <ul className="list-disc list-inside space-y-2 text-sm text-gray-600">
+              <h3 className="text-md font-semibold text-ink-primary mb-2">Important Notes</h3>
+              <ul className="list-disc list-inside space-y-2 text-sm text-ink-secondary">
                 <li>Role permissions are enforced at the backend API level</li>
                 <li>Changes to Results post-publish require approval and create an audit trail</li>
                 <li>Faculty can only manage attendance and assessments for their assigned sections</li>

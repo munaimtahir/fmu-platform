@@ -147,7 +147,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
   }, [])
 
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-30 bg-surface-card border-b border-surface-border shadow-sm">
       <div className="h-16 px-4 flex items-center justify-between">
         {/* Left Side */}
         <div className="flex items-center gap-4">
@@ -165,7 +165,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
 
           {/* Global Search */}
           <div className="hidden md:block relative" ref={searchRef}>
-            <div className="flex items-center gap-2 px-4 py-2 bg-[#FAFAFA] rounded-2xl w-96 border border-transparent focus-within:border-gray-300 focus-within:bg-white transition-all duration-150">
+            <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-2xl w-96 border border-transparent focus-within:border-surface-border focus-within:bg-white transition-all duration-150">
               {isSearching ? (
                 <svg className="w-5 h-5 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -188,13 +188,13 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                     setIsSearchOpen(true)
                   }
                 }}
-                className="bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400 flex-1"
+                className="bg-transparent outline-none text-sm text-ink-secondary placeholder-ink-muted flex-1"
               />
             </div>
 
             {/* Search Results Dropdown */}
             {isSearchOpen && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 mt-2 w-96 bg-white rounded-2xl shadow-lg border border-gray-200 max-h-96 overflow-y-auto z-50">
+              <div className="absolute top-full left-0 mt-2 w-96 bg-white rounded-2xl shadow-elevation-3 border border-surface-border max-h-96 overflow-y-auto z-50">
                 <div className="p-2">
                   {searchResults.map((result, index) => {
                     const getIcon = () => {
@@ -234,7 +234,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                         onClick={() => handleResultSelect(result)}
                         className={`
                           w-full text-left px-4 py-3 rounded-xl transition-colors duration-150
-                          ${index === selectedIndex ? 'bg-[#3B82F6] text-white' : 'text-gray-900 hover:bg-gray-100'}
+                          ${index === selectedIndex ? 'bg-primary-600 text-white' : 'text-ink-primary hover:bg-surface'}
                         `}
                         onMouseEnter={() => setSelectedIndex(index)}
                       >
@@ -242,15 +242,15 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                           <span className="text-lg">{getIcon()}</span>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className={`text-sm font-medium truncate ${index === selectedIndex ? 'text-white' : 'text-gray-900'}`}>
+                              <p className={`text-sm font-medium truncate ${index === selectedIndex ? 'text-white' : 'text-ink-primary'}`}>
                                 {result.title}
                               </p>
-                              <span className={`text-xs px-2 py-0.5 rounded ${index === selectedIndex ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                              <span className={`text-xs px-2 py-0.5 rounded ${index === selectedIndex ? 'bg-white/20 text-white' : 'bg-neutral-subtle text-neutral-emphasis'}`}>
                                 {getTypeLabel()}
                               </span>
                             </div>
                             {result.subtitle && (
-                              <p className={`text-xs mt-1 truncate ${index === selectedIndex ? 'text-white/80' : 'text-gray-500'}`}>
+                              <p className={`text-xs mt-1 truncate ${index === selectedIndex ? 'text-white/80' : 'text-ink-muted'}`}>
                                 {result.subtitle}
                               </p>
                             )}
@@ -260,8 +260,8 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                     )
                   })}
                 </div>
-                <div className="px-4 py-2 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                  <p className="text-xs text-gray-500 text-center">
+                <div className="px-4 py-2 border-t border-surface-border bg-surface rounded-b-2xl">
+                  <p className="text-xs text-ink-muted text-center">
                     {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
                   </p>
                 </div>
@@ -298,7 +298,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              <span className="absolute top-1 right-1 bg-danger text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -313,15 +313,15 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                 aria-label="User menu"
                 aria-expanded={isUserMenuOpen}
               >
-                <div className="w-8 h-8 rounded-full bg-[#3B82F6] text-white flex items-center justify-center font-medium text-sm">
+                <div className="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-medium text-sm">
                   {user.email.charAt(0).toUpperCase()}
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-ink-primary">
                     {user.full_name || user.email}
                   </p>
                   {user.role && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-ink-muted">
                       {user.role}
                     </p>
                   )}
@@ -338,11 +338,11 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
 
               {/* Dropdown Menu */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-lg border border-gray-200 py-2">
-                  <div className="px-4 py-3 border-b border-gray-200">
-                    <p className="text-sm font-medium text-gray-900">{user.email}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-elevation-3 border border-surface-border py-2">
+                  <div className="px-4 py-3 border-b border-surface-border">
+                    <p className="text-sm font-medium text-ink-primary">{user.email}</p>
                     {user.role && (
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-ink-muted mt-1">
                         Role: {user.role}
                       </p>
                     )}
@@ -353,7 +353,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                       setIsUserMenuOpen(false)
                       navigate('/profile')
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
+                    className="w-full text-left px-4 py-2 text-sm text-ink-secondary hover:bg-surface transition-colors duration-150"
                   >
                     My Profile
                   </button>
@@ -363,7 +363,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                       setIsUserMenuOpen(false)
                       navigate('/profile?action=change-password')
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
+                    className="w-full text-left px-4 py-2 text-sm text-ink-secondary hover:bg-surface transition-colors duration-150"
                   >
                     Change Password
                   </button>
@@ -374,20 +374,20 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                         setIsUserMenuOpen(false)
                         setIsImpersonationDialogOpen(true)
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
+                      className="w-full text-left px-4 py-2 text-sm text-ink-secondary hover:bg-surface transition-colors duration-150"
                     >
                       Impersonate User
                     </button>
                   )}
 
-                  <div className="border-t border-gray-200 my-2" />
+                  <div className="border-t border-surface-border my-2" />
 
                   <button
                     onClick={() => {
                       setIsUserMenuOpen(false)
                       handleLogout()
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150"
+                    className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-subtle transition-colors duration-150"
                   >
                     Logout
                   </button>

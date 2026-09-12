@@ -264,7 +264,7 @@ export function AttendanceInputPage() {
       aria-label="Select session"
       value={selectedSession ?? ''}
       onChange={(e) => setSelectedSession(Number(e.target.value))}
-      className="w-full rounded-lg border border-gray-200 px-3 py-2"
+      className="w-full rounded-lg border border-surface-border px-3 py-2"
     >
       {sessions?.results?.map((s: Session) => (
         <option key={s.id} value={s.id}>
@@ -279,8 +279,8 @@ export function AttendanceInputPage() {
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Attendance Input</h1>
-            <p className="text-gray-600">Live taps, CSV uploads, or scanned tick-sheets.</p>
+            <h1 className="text-h1">Attendance Input</h1>
+            <p className="text-ink-secondary">Live taps, CSV uploads, or scanned tick-sheets.</p>
           </div>
           <div className="flex gap-2">
             {(['live', 'csv', 'sheet'] as TabKey[]).map((tab) => (
@@ -298,16 +298,16 @@ export function AttendanceInputPage() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-4">
           <Card className="lg:col-span-1 space-y-3">
-            <h2 className="text-lg font-semibold">Session</h2>
+            <h2 className="text-h4">Session</h2>
             {renderSessionSelect()}
             <div>
-              <label htmlFor="attendance-input-date" className="block text-sm text-gray-600 mb-1">Date</label>
+              <label htmlFor="attendance-input-date" className="block text-sm text-ink-secondary mb-1">Date</label>
               <input
                 id="attendance-input-date"
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2"
+                className="w-full rounded-lg border border-surface-border px-3 py-2"
               />
             </div>
             {activeTab === 'live' && (
@@ -343,18 +343,18 @@ export function AttendanceInputPage() {
                     placeholder="Search students"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full md:w-64 rounded-lg border border-gray-200 px-3 py-2"
+                    className="w-full md:w-64 rounded-lg border border-surface-border px-3 py-2"
                   />
                 </div>
                 <div className="space-y-3">
                   {filteredRoster.map((student) => (
                     <div
                       key={student.student_id}
-                      className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3 shadow-elevation-1"
+                      className="flex items-center justify-between rounded-xl border border-surface-border px-4 py-3 shadow-elevation-1"
                     >
                       <div>
-                        <div className="font-semibold text-gray-900">{student.name}</div>
-                        <div className="text-sm text-gray-500">{student.reg_no}</div>
+                        <div className="font-semibold text-ink-primary">{student.name}</div>
+                        <div className="text-sm text-ink-muted">{student.reg_no}</div>
                       </div>
                       <Button
                         size="sm"
@@ -367,7 +367,7 @@ export function AttendanceInputPage() {
                     </div>
                   ))}
                   {filteredRoster.length === 0 && (
-                    <div className="text-center text-gray-500 py-8">Load a session roster to start.</div>
+                    <div className="text-center text-ink-muted py-8">Load a session roster to start.</div>
                   )}
                 </div>
                 <div className="sticky bottom-4 flex justify-end">
@@ -381,7 +381,7 @@ export function AttendanceInputPage() {
             {activeTab === 'csv' && (
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="attendance-csv-file" className="block text-sm text-gray-600 mb-1">Upload CSV</label>
+                  <label htmlFor="attendance-csv-file" className="block text-sm text-ink-secondary mb-1">Upload CSV</label>
                   <input id="attendance-csv-file" type="file" accept=".csv" onChange={(e) => setCsvFile(e.target.files?.[0] || null)} />
                 </div>
                 <div className="flex gap-2">
@@ -391,7 +391,7 @@ export function AttendanceInputPage() {
                   </Button>
                 </div>
                 {csvPreview && (
-                  <div className="rounded-lg bg-gray-50 p-4 text-sm">
+                  <div className="rounded-lg bg-surface p-4 text-sm">
                     <div className="font-semibold mb-2">Preview Summary</div>
                     <p>Matched: {csvPreview.matched}</p>
                     <p>Errors: {csvPreview.errors?.length || 0}</p>
@@ -412,7 +412,7 @@ export function AttendanceInputPage() {
             {activeTab === 'sheet' && (
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="attendance-sheet-file" className="block text-sm text-gray-600 mb-1">Upload scan</label>
+                  <label htmlFor="attendance-sheet-file" className="block text-sm text-ink-secondary mb-1">Upload scan</label>
                   <input
                     id="attendance-sheet-file"
                     type="file"
@@ -431,11 +431,11 @@ export function AttendanceInputPage() {
                     {sheetPreview.map((row: SheetPreviewRecord) => (
                       <div
                         key={row.student_id}
-                        className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-2"
+                        className="flex items-center justify-between rounded-lg border border-surface-border px-4 py-2"
                       >
                         <div>
                           <div className="font-medium">{row.name}</div>
-                          <div className="text-xs text-gray-500">{row.reg_no}</div>
+                          <div className="text-xs text-ink-muted">{row.reg_no}</div>
                         </div>
                         <StatusBadge domain="attendance" status={row.detected_status} />
                       </div>

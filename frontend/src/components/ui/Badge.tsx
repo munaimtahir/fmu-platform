@@ -32,13 +32,13 @@ export const Badge: React.FC<BadgeProps> = ({
   'data-testid': dataTestId,
 }) => {
   const variants = {
-    default: 'bg-gray-100 text-gray-800',
-    primary: 'bg-blue-100 text-blue-800',
-    success: 'bg-emerald-100 text-emerald-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    danger: 'bg-red-100 text-red-800',
-    info: 'bg-blue-100 text-blue-800',
-    secondary: 'bg-gray-100 text-gray-800',
+    default: 'bg-neutral-subtle text-neutral-emphasis',
+    primary: 'bg-primary-100 text-primary-700',
+    success: 'bg-success-subtle text-success-emphasis',
+    warning: 'bg-warning-subtle text-warning-emphasis',
+    danger: 'bg-danger-subtle text-danger-emphasis',
+    info: 'bg-info-subtle text-info-emphasis',
+    secondary: 'bg-neutral-subtle text-neutral-emphasis',
   }
 
   return (

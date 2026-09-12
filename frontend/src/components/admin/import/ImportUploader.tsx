@@ -52,7 +52,7 @@ export function ImportUploader({
     <form onSubmit={handleSubmit} className="space-y-6">
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-ink-secondary mb-2">
           Import Mode
         </label>
         <div className="space-y-2">
@@ -67,7 +67,7 @@ export function ImportUploader({
             />
             <div>
               <div className="font-medium">Create Only</div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-ink-muted">
                 Only create new {importTypeLabel}s. Rejects existing {uniqueKeyLabel}.
               </div>
             </div>
@@ -83,7 +83,7 @@ export function ImportUploader({
             />
             <div>
               <div className="font-medium">Upsert</div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-ink-muted">
                 Create new or update existing {importTypeLabel}s by {uniqueKeyLabel}.
               </div>
             </div>
@@ -102,7 +102,7 @@ export function ImportUploader({
             />
             <div>
               <div className="font-medium">Auto-create missing Programs, Batches, and Groups</div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-ink-muted">
                 Automatically create Programs, Batches, and Groups if they don't exist in the system.
                 This makes imports more flexible but requires careful batch name formatting (e.g., "2029 Batch").
               </div>
@@ -113,7 +113,7 @@ export function ImportUploader({
 
       <div>
         <div className="flex justify-between items-center mb-2">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-ink-secondary">
             CSV File
           </label>
           <Button
@@ -132,7 +132,7 @@ export function ImportUploader({
           disabled={loading}
         />
         {file && (
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-ink-secondary">
             Selected: {file.name} ({(file.size / 1024).toFixed(2)} KB)
           </p>
         )}

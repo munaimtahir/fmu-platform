@@ -50,8 +50,8 @@ export const FeePlansPage: React.FC = () => {
     
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Fee Plans</h1>
-          <p className="text-gray-600">Manage per-term fee schedules.</p>
+          <h1 className="text-h2 text-ink-primary">Fee Plans</h1>
+          <p className="text-ink-secondary">Manage per-term fee schedules.</p>
         </div>
 
         <Card>
@@ -104,24 +104,24 @@ export const FeePlansPage: React.FC = () => {
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold mb-2">Existing Fee Plans</h2>
+          <h2 className="text-h4 mb-2">Existing Fee Plans</h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="min-w-full divide-y divide-surface-border">
               <thead>
                 <tr>
-                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
-                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
-                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fee Type</th>
-                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">Program</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">Term</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">Fee Type</th>
+                  <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-ink-muted uppercase tracking-wider">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-surface-border">
                 {feePlans.map((plan) => (
                   <tr key={plan.id}>
-                    <td className="px-3 py-2 text-sm text-gray-900">{plan.program_name || plan.program}</td>
-                    <td className="px-3 py-2 text-sm text-gray-900">{plan.term_name || plan.term}</td>
-                    <td className="px-3 py-2 text-sm text-gray-900">{plan.fee_type_code || plan.fee_type}</td>
-                    <td className="px-3 py-2 text-sm text-gray-900">{plan.amount}</td>
+                    <td className="px-3 py-2 text-sm text-ink-primary">{plan.program_name || plan.program}</td>
+                    <td className="px-3 py-2 text-sm text-ink-primary">{plan.term_name || plan.term}</td>
+                    <td className="px-3 py-2 text-sm text-ink-primary">{plan.fee_type_code || plan.fee_type}</td>
+                    <td className="px-3 py-2 text-sm text-ink-primary">{plan.amount}</td>
                   </tr>
                 ))}
               </tbody>

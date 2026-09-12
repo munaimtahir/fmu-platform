@@ -105,7 +105,7 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
 
   return (
     <form
-      className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end p-4 bg-gray-50 rounded-lg"
+      className="grid grid-cols-1 md:grid-cols-6 gap-2 items-end p-4 bg-surface rounded-lg"
       onSubmit={(e) => {
         e.preventDefault()
         if (!sectionId) {
@@ -116,19 +116,19 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
       }}
     >
       <div className="md:col-span-2">
-        <Label htmlFor="entry-form-section" required className="text-xs text-gray-600 mb-0">Section</Label>
+        <Label htmlFor="entry-form-section" required className="text-xs text-ink-secondary mb-0">Section</Label>
         <Select id="entry-form-section" data-testid="entry-form-section-select" options={sectionOptions} value={sectionId} onChange={setSectionId} />
       </div>
       <div className="md:col-span-2">
-        <Label htmlFor="entry-form-group" className="text-xs text-gray-600 mb-0">Group</Label>
+        <Label htmlFor="entry-form-group" className="text-xs text-ink-secondary mb-0">Group</Label>
         <Select id="entry-form-group" data-testid="entry-form-group-select" options={groupOptions} value={groupId} onChange={setGroupId} />
       </div>
       <div>
-        <Label htmlFor="entry-form-day" className="text-xs text-gray-600 mb-0">Day</Label>
+        <Label htmlFor="entry-form-day" className="text-xs text-ink-secondary mb-0">Day</Label>
         <Select id="entry-form-day" data-testid="entry-form-day-select" options={DAY_OPTIONS} value={dayOfWeek} onChange={setDayOfWeek} />
       </div>
       <div>
-        <Label htmlFor="entry-form-start" className="text-xs text-gray-600 mb-0">Start</Label>
+        <Label htmlFor="entry-form-start" className="text-xs text-ink-secondary mb-0">Start</Label>
         <input
           id="entry-form-start"
           data-testid="entry-form-start-time"
@@ -139,7 +139,7 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
         />
       </div>
       <div>
-        <Label htmlFor="entry-form-end" className="text-xs text-gray-600 mb-0">End</Label>
+        <Label htmlFor="entry-form-end" className="text-xs text-ink-secondary mb-0">End</Label>
         <input
           id="entry-form-end"
           data-testid="entry-form-end-time"
@@ -150,7 +150,7 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
         />
       </div>
       <div>
-        <Label htmlFor="entry-form-room" className="text-xs text-gray-600 mb-0">Room</Label>
+        <Label htmlFor="entry-form-room" className="text-xs text-ink-secondary mb-0">Room</Label>
         <input
           id="entry-form-room"
           data-testid="entry-form-room"

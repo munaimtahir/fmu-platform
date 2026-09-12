@@ -16,10 +16,10 @@ export const UnauthorizedPage: React.FC = () => {
         <Card>
           <div className="p-12 text-center">
             <div className="text-6xl mb-4">🔒</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-h2 text-ink-primary mb-2">
               Access Denied
             </h2>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            <p className="text-ink-secondary mb-8 max-w-md mx-auto">
               You don't have permission to access this page. If you believe this is an error, 
               please contact your administrator.
             </p>

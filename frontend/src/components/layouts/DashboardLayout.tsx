@@ -40,7 +40,7 @@ export const DashboardLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex">
+    <div className="min-h-screen bg-surface flex">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />

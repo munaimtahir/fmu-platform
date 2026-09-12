@@ -90,7 +90,7 @@ export function CourseForm({ course, onClose, onSuccess }: CourseFormProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">
+        <h2 className="text-h2 mb-4">
           {course ? 'Edit Course' : 'Add Course'}
         </h2>
 
@@ -123,7 +123,7 @@ export function CourseForm({ course, onClose, onSuccess }: CourseFormProps) {
               ]}
             />
             {errors.department && (
-              <p className="text-red-500 text-sm mt-1">{errors.department.message}</p>
+              <p className="text-danger text-sm mt-1">{errors.department.message}</p>
             )}
           </div>
 

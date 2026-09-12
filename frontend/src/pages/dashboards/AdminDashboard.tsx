@@ -44,7 +44,7 @@ const recentActivityColumns: ColumnDef<RecentActivityItem>[] = [
     accessorKey: 'summary',
     header: 'Summary',
     cell: ({ row }) => (
-      <span className="text-sm text-gray-600 truncate max-w-xs">
+      <span className="text-sm text-ink-secondary truncate max-w-xs">
         {row.original.summary}
       </span>
     ),
@@ -140,7 +140,7 @@ export const AdminDashboard = () => {
     return (
       
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-600">Loading dashboard...</p>
+          <p className="text-ink-secondary">Loading dashboard...</p>
         </div>
       
     )
@@ -151,10 +151,10 @@ export const AdminDashboard = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-h1 text-ink-primary mb-2">
             Admin Dashboard
           </h1>
-          <p className="text-gray-600">
+          <p className="text-ink-secondary">
             Welcome back, {user?.full_name || 'Administrator'}. Here's your system overview.
           </p>
         </div>
@@ -164,8 +164,8 @@ export const AdminDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Students</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Total Students</p>
+                <p className="text-h2 text-ink-primary">
                   {stats.total_students}
                 </p>
               </div>
@@ -175,51 +175,51 @@ export const AdminDashboard = () => {
             </div>
             <div className="mt-4 flex items-center gap-2">
               <Badge variant="success">Active</Badge>
-              <span className="text-xs text-gray-500">students enrolled</span>
+              <span className="text-xs text-ink-muted">students enrolled</span>
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Courses</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Total Courses</p>
+                <p className="text-h2 text-ink-primary">
                   {stats.total_courses}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-success-subtle rounded-lg flex items-center justify-center text-2xl">
                 📚
               </div>
             </div>
             <div className="mt-4 flex items-center gap-2">
               <Badge variant="primary">{stats.total_sections} Sections</Badge>
-              <span className="text-xs text-gray-500">active sections</span>
+              <span className="text-xs text-ink-muted">active sections</span>
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Published Results</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Published Results</p>
+                <p className="text-h2 text-ink-primary">
                   {stats.published_results}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-success-subtle rounded-lg flex items-center justify-center text-2xl">
                 ✅
               </div>
             </div>
             <div className="mt-4 flex items-center gap-2">
               <Badge variant="success">Published</Badge>
-              <span className="text-xs text-gray-500">total results</span>
+              <span className="text-xs text-ink-muted">total results</span>
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Programs</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Total Programs</p>
+                <p className="text-h2 text-ink-primary">
                   {stats.total_programs}
                 </p>
               </div>
@@ -235,8 +235,8 @@ export const AdminDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Sessions</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Total Sessions</p>
+                <p className="text-h2 text-ink-primary">
                   {stats.total_sessions}
                 </p>
               </div>
@@ -249,12 +249,12 @@ export const AdminDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Draft Results</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Draft Results</p>
+                <p className="text-h2 text-ink-primary">
                   {stats.draft_results}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-warning-subtle rounded-lg flex items-center justify-center text-2xl">
                 📝
               </div>
             </div>
@@ -263,12 +263,12 @@ export const AdminDashboard = () => {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Faculty</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-ink-secondary mb-1">Total Faculty</p>
+                <p className="text-h2 text-ink-primary">
                   {adminDashboardError ? 0 : adminDashboard?.counts.faculty ?? 0}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-success-subtle rounded-lg flex items-center justify-center text-2xl">
                 👨‍🏫
               </div>
             </div>
@@ -278,8 +278,8 @@ export const AdminDashboard = () => {
         {/* Show note if some stats are unavailable */}
         {unavailable_stats.length > 0 && (
           <Card>
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm text-yellow-800">
+            <div className="p-4 bg-warning-subtle border border-warning/20 rounded-lg">
+              <p className="text-sm text-warning-emphasis">
                 <strong>Note:</strong> Some statistics could not be loaded: {unavailable_stats.join(', ')}.
                 Showing 0 for unavailable metrics.
               </p>
@@ -289,8 +289,8 @@ export const AdminDashboard = () => {
 
         {adminDashboardError && (
           <Card>
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm text-yellow-800">
+            <div className="p-4 bg-warning-subtle border border-warning/20 rounded-lg">
+              <p className="text-sm text-warning-emphasis">
                 <strong>Note:</strong> Attendance summary, recent activity, and system information could not be loaded.
               </p>
             </div>
@@ -301,31 +301,31 @@ export const AdminDashboard = () => {
           <>
             {/* Attendance Summary */}
             <Card>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-h4 text-ink-primary mb-4">
                 Attendance Summary (Last 7 Days)
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Marked</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm text-ink-secondary mb-1">Total Marked</p>
+                  <p className="text-h2 text-ink-primary">
                     {adminDashboard.attendance_stats.last_7_days.total_marked}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Absent %</p>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-sm text-ink-secondary mb-1">Absent %</p>
+                  <p className="text-h2 text-danger">
                     {adminDashboard.attendance_stats.last_7_days.absent_percent}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Late %</p>
-                  <p className="text-2xl font-bold text-yellow-600">
+                  <p className="text-sm text-ink-secondary mb-1">Late %</p>
+                  <p className="text-h2 text-warning">
                     {adminDashboard.attendance_stats.last_7_days.late_percent}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Missing Entries</p>
-                  <p className="text-2xl font-bold text-orange-600">
+                  <p className="text-sm text-ink-secondary mb-1">Missing Entries</p>
+                  <p className="text-h2 text-orange-600">
                     {adminDashboard.attendance_stats.last_7_days.missing_entries}
                   </p>
                 </div>
@@ -334,43 +334,43 @@ export const AdminDashboard = () => {
 
             {/* Recent Activity */}
             <Card>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-h4 text-ink-primary mb-4">
                 Recent Activity
               </h2>
               {adminDashboard.recent_activity.length > 0 ? (
                 <DataTable data={adminDashboard.recent_activity} columns={recentActivityColumns} />
               ) : (
-                <p className="text-gray-500 text-sm">No recent activity</p>
+                <p className="text-ink-muted text-sm">No recent activity</p>
               )}
             </Card>
 
             {/* System Information */}
             <Card>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-h4 text-ink-primary mb-4">
                 System Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">App Version</p>
-                  <p className="text-base font-medium text-gray-900">
+                  <p className="text-sm text-ink-secondary mb-1">App Version</p>
+                  <p className="text-base font-medium text-ink-primary">
                     {adminDashboard.system.app_version}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Environment</p>
-                  <p className="text-base font-medium text-gray-900 capitalize">
+                  <p className="text-sm text-ink-secondary mb-1">Environment</p>
+                  <p className="text-base font-medium text-ink-primary capitalize">
                     {adminDashboard.system.env_label}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Django Version</p>
-                  <p className="text-base font-medium text-gray-900">
+                  <p className="text-sm text-ink-secondary mb-1">Django Version</p>
+                  <p className="text-base font-medium text-ink-primary">
                     {adminDashboard.system.django_version}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Server Time</p>
-                  <p className="text-base font-medium text-gray-900">
+                  <p className="text-sm text-ink-secondary mb-1">Server Time</p>
+                  <p className="text-base font-medium text-ink-primary">
                     {formatTimestamp(adminDashboard.system.server_time)}
                   </p>
                 </div>
@@ -381,7 +381,7 @@ export const AdminDashboard = () => {
 
         {/* Module Entry Points */}
         <Card>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-h3 text-ink-primary mb-4">
             Module Entry Points
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -398,16 +398,16 @@ export const AdminDashboard = () => {
               <Link
                 key={index}
                 to={module.path}
-                className="p-4 border border-gray-200 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-150 text-center cursor-pointer"
+                className="p-4 border border-surface-border rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-150 text-center cursor-pointer"
               >
                 <div className="text-3xl mb-2">
                   {module.useText ? (
-                    <span className="text-lg font-semibold text-gray-700">timetable</span>
+                    <span className="text-h4 text-ink-secondary">timetable</span>
                   ) : (
                     module.icon
                   )}
                 </div>
-                <p className="text-sm font-medium text-gray-900">{module.label}</p>
+                <p className="text-sm font-medium text-ink-primary">{module.label}</p>
               </Link>
             ))}
           </div>

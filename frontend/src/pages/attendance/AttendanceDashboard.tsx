@@ -11,6 +11,7 @@ import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { Heading, Text } from '@/components/ui/Typography'
 import { sessionsService, attendanceService } from '@/services'
 import type { Session, Attendance } from '@/types'
 
@@ -99,8 +100,8 @@ export function AttendanceDashboard() {
       <div className="p-6 space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
           <div>
-            <h1 className="text-3xl font-bold">Attendance Dashboard</h1>
-            <p className="text-gray-600">View attendance records and statistics</p>
+            <Heading level={1}>Attendance Dashboard</Heading>
+            <Text tone="secondary">View attendance records and statistics</Text>
           </div>
           <div className="flex gap-2">
             <Button
@@ -171,11 +172,11 @@ export function AttendanceDashboard() {
         {!loading && selectedSessionId && view === 'records' && (
           <Card>
             <div className="p-4">
-              <h2 className="text-xl font-semibold mb-4">Attendance Records</h2>
+              <Heading level={3} className="mb-4">Attendance Records</Heading>
               {attendanceData?.results && attendanceData.results.length > 0 ? (
                 <DataTable data={attendanceData.results} columns={attendanceColumns} />
               ) : (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-ink-muted">
                   No attendance records found for this session
                 </div>
               )}
@@ -190,8 +191,8 @@ export function AttendanceDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <Card>
                 <div className="p-4">
-                  <div className="text-sm text-gray-600">Total</div>
-                  <div className="text-3xl font-bold">
+                  <div className="text-body-sm text-ink-secondary">Total</div>
+                  <div className="text-h1 text-ink-primary">
                     {summaryData.total}
                   </div>
                 </div>
@@ -199,7 +200,7 @@ export function AttendanceDashboard() {
               <Card>
                 <div className="p-4">
                   <div className="text-sm text-success">Present</div>
-                  <div className="text-3xl font-bold text-success">
+                  <div className="text-h1 text-success">
                     {summaryData.present}
                   </div>
                 </div>
@@ -207,7 +208,7 @@ export function AttendanceDashboard() {
               <Card>
                 <div className="p-4">
                   <div className="text-sm text-danger">Absent</div>
-                  <div className="text-3xl font-bold text-danger">
+                  <div className="text-h1 text-danger">
                     {summaryData.absent}
                   </div>
                 </div>
@@ -215,7 +216,7 @@ export function AttendanceDashboard() {
               <Card>
                 <div className="p-4">
                   <div className="text-sm text-warning">Late</div>
-                  <div className="text-3xl font-bold text-warning">
+                  <div className="text-h1 text-warning">
                     {summaryData.late}
                   </div>
                 </div>
@@ -223,7 +224,7 @@ export function AttendanceDashboard() {
               <Card>
                 <div className="p-4">
                   <div className="text-sm text-info">Percentage</div>
-                  <div className="text-3xl font-bold text-info">
+                  <div className="text-h1 text-info">
                     {summaryData.percentage.toFixed(1)}%
                   </div>
                 </div>

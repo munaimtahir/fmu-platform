@@ -190,7 +190,7 @@ export function AuditLog() {
       {/* Filters */}
       <Card>
         <div className="p-4 space-y-4">
-          <h2 className="text-lg font-semibold">Filters</h2>
+          <h2 className="text-h4">Filters</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
               label="Actor"
@@ -244,7 +244,7 @@ export function AuditLog() {
 
       <Card>
         <div className="p-4">
-          <h2 className="text-xl font-semibold mb-4">
+          <h2 className="text-h3 mb-4">
             Audit Log Entries ({logs.length})
           </h2>
           <DataTable data={logs} columns={columns} isLoading={loading} />

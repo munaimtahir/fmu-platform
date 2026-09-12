@@ -102,9 +102,9 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
     return (
       <div className={className}>
         {label && (
-          <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor={id} className="block text-sm font-medium text-ink-secondary mb-1">
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="text-danger ml-1">*</span>}
           </label>
         )}
 
@@ -115,9 +115,9 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
           onDrop={handleDrop}
           className={`
             border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-150 cursor-pointer
-            ${isDragging ? 'border-[#3B82F6] bg-blue-50' : 'border-gray-300 hover:border-gray-400'}
-            ${error ? 'border-red-500' : ''}
-            ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-50' : ''}
+            ${isDragging ? 'border-[#3B82F6] bg-blue-50' : 'border-surface-border hover:border-ink-muted'}
+            ${error ? 'border-danger' : ''}
+            ${disabled ? 'opacity-50 cursor-not-allowed bg-surface' : ''}
           `}
         >
           <input
@@ -133,7 +133,7 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
           />
 
           <div className="flex flex-col items-center gap-2">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-12 h-12 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -141,16 +141,16 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
               />
             </svg>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-ink-secondary">
               <span className="font-medium text-[#3B82F6]">Click to upload</span> or drag and drop
             </div>
             {accept && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-ink-muted">
                 Accepted formats: {accept}
               </p>
             )}
             {maxSize && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-ink-muted">
                 Max file size: {(maxSize / 1024 / 1024).toFixed(2)}MB
               </p>
             )}
@@ -162,10 +162,10 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
             {files.map((file, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-surface rounded-lg"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <svg className="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-ink-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -174,8 +174,8 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
                     />
                   </svg>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                    <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                    <p className="text-sm font-medium text-ink-primary truncate">{file.name}</p>
+                    <p className="text-xs text-ink-muted">{formatFileSize(file.size)}</p>
                   </div>
                 </div>
                 <button
@@ -184,7 +184,7 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
                     e.stopPropagation()
                     handleRemove(index)
                   }}
-                  className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors duration-150"
+                  className="p-1 text-danger hover:bg-danger-subtle rounded transition-colors duration-150"
                   aria-label="Remove file"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,8 +196,8 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
           </div>
         )}
 
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-        {!error && helperText && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
+        {error && <p className="mt-1 text-sm text-danger">{error}</p>}
+        {!error && helperText && <p className="mt-1 text-sm text-ink-muted">{helperText}</p>}
       </div>
     )
   }

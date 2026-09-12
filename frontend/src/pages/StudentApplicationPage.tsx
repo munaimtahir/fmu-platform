@@ -393,9 +393,9 @@ export const StudentApplicationPage = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-success-subtle rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-green-600"
+              className="w-8 h-8 text-success"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -408,10 +408,10 @@ export const StudentApplicationPage = () => {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-h2 text-ink-primary mb-2">
             Registration Submitted Successfully!
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-ink-secondary mb-6">
             Your registration has been received and is pending review. You will be
             notified via email once your registration has been processed.
           </p>
@@ -433,12 +433,12 @@ export const StudentApplicationPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Submission Inactive Banner */}
-        <div className="mb-8 bg-amber-50 border border-yellow-200 rounded-3xl p-6 text-center shadow-sm">
+        <div className="mb-8 bg-warning-subtle border border-warning/20 rounded-3xl p-6 text-center shadow-sm">
           <div className="flex items-center justify-center mb-2">
             <span className="text-2xl mr-2">ℹ️</span>
-            <h3 className="text-lg font-bold text-amber-900">Online Submission Inactive</h3>
+            <h3 className="text-h4 text-warning-emphasis">Online Submission Inactive</h3>
           </div>
-          <p className="text-amber-800">
+          <p className="text-warning-emphasis">
             Online registration is currently under maintenance. 
             Please use this form as a reference or for offline submission as directed by the Admissions Office.
           </p>
@@ -446,10 +446,10 @@ export const StudentApplicationPage = () => {
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-display text-ink-primary mb-2">
             Student Registration Form
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-ink-secondary">
             Complete your registration for the selected health-professions programme
           </p>
         </div>
@@ -459,7 +459,7 @@ export const StudentApplicationPage = () => {
           <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">
             {/* Personal Information Section */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+              <h2 className="text-h3 text-ink-primary mb-4 border-b pb-2">
                 Personal Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -539,7 +539,7 @@ export const StudentApplicationPage = () => {
 
             {/* Address Section */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+              <h2 className="text-h3 text-ink-primary mb-4 border-b pb-2">
                 Permanent Address
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -576,7 +576,7 @@ export const StudentApplicationPage = () => {
 
             {/* Mailing Address Section */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+              <h2 className="text-h3 text-ink-primary mb-4 border-b pb-2">
                 Mailing Address
               </h2>
               <div className="mb-4">
@@ -585,9 +585,9 @@ export const StudentApplicationPage = () => {
                     type="checkbox"
                     checked={mailingAddressSame}
                     onChange={(e) => setValue('mailing_address_same', e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-surface-border text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-sm text-gray-700">Same as permanent address</span>
+                  <span className="text-sm text-ink-secondary">Same as permanent address</span>
                 </label>
               </div>
               {!mailingAddressSame && (
@@ -629,7 +629,7 @@ export const StudentApplicationPage = () => {
 
             {/* Guardian Information Section */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+              <h2 className="text-h3 text-ink-primary mb-4 border-b pb-2">
                 Guardian Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -679,7 +679,7 @@ export const StudentApplicationPage = () => {
 
             {/* Admission/Merit Details Section */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+              <h2 className="text-h3 text-ink-primary mb-4 border-b pb-2">
                 Admission/Merit Details
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -713,7 +713,7 @@ export const StudentApplicationPage = () => {
 
             {/* Qualifications Section - HSSC */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+              <h2 className="text-h3 text-ink-primary mb-4 border-b pb-2">
                 Qualification - HSSC/Intermediate
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -754,7 +754,7 @@ export const StudentApplicationPage = () => {
 
             {/* Qualifications Section - SSC */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+              <h2 className="text-h3 text-ink-primary mb-4 border-b pb-2">
                 Qualification - SSC/Matric
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -795,7 +795,7 @@ export const StudentApplicationPage = () => {
 
             {/* Documents Section */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">
+              <h2 className="text-h3 text-ink-primary mb-4 border-b pb-2">
                 Required Documents
               </h2>
               <div className="space-y-4">
@@ -882,8 +882,8 @@ export const StudentApplicationPage = () => {
 
             {/* Error Message */}
             {submitError && (
-              <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
-                <p className="text-sm text-red-600">{submitError}</p>
+              <div className="bg-danger-subtle border border-danger/20 rounded-2xl p-4">
+                <p className="text-sm text-danger">{submitError}</p>
               </div>
             )}
 
@@ -891,13 +891,13 @@ export const StudentApplicationPage = () => {
             {draftMessage && (
               <div className={`border rounded-2xl p-4 ${
                 draftMessage.includes('successfully') || draftMessage.includes('loaded')
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-yellow-50 border-yellow-200'
+                  ? 'bg-success-subtle border-success/20'
+                  : 'bg-warning-subtle border-warning/20'
               }`}>
                 <p className={`text-sm ${
                   draftMessage.includes('successfully') || draftMessage.includes('loaded')
-                    ? 'text-green-600'
-                    : 'text-yellow-600'
+                    ? 'text-success'
+                    : 'text-warning'
                 }`}>{draftMessage}</p>
               </div>
             )}
@@ -937,7 +937,7 @@ export const StudentApplicationPage = () => {
         </div>
 
         {/* Footer Note */}
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-6 text-center text-sm text-ink-secondary">
           <p>
             Your registration will be reviewed by the admissions office. You will
             receive an email notification once your registration has been processed.
@@ -949,8 +949,8 @@ export const StudentApplicationPage = () => {
       {showLoadDraftModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Load Saved Draft</h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <h3 className="text-h3 text-ink-primary mb-4">Load Saved Draft</h3>
+            <p className="text-sm text-ink-secondary mb-4">
               Enter your email address to load your saved application draft.
             </p>
             <Input
@@ -964,8 +964,8 @@ export const StudentApplicationPage = () => {
             {draftMessage && (
               <div className={`mb-4 p-3 rounded-lg ${
                 draftMessage.includes('successfully') || draftMessage.includes('loaded')
-                  ? 'bg-green-50 text-green-600'
-                  : 'bg-red-50 text-red-600'
+                  ? 'bg-success-subtle text-success'
+                  : 'bg-danger-subtle text-danger'
               }`}>
                 <p className="text-sm">{draftMessage}</p>
               </div>

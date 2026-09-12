@@ -50,14 +50,14 @@ export function EntriesPanel({ weeklyTimetableId, batchId, academicPeriodId, can
 
   return (
     <div className="mt-6 border-t pt-4">
-      <h3 className="text-lg font-semibold mb-2">Course Entries</h3>
-      <p className="text-sm text-gray-500 mb-3">
+      <h3 className="text-h4 mb-2">Course Entries</h3>
+      <p className="text-sm text-ink-muted mb-3">
         These entries power the student mobile timetable and web timetable view, and are what publishing
         validates against (exactly 3 scheduled entries per day).
       </p>
 
       {entries.length === 0 ? (
-        <p className="text-gray-500 text-sm mb-3">No entries yet for this week.</p>
+        <p className="text-ink-muted text-sm mb-3">No entries yet for this week.</p>
       ) : (
         <div className="space-y-2 mb-4">
           {entries.map((entry: TimetableEntry) => (
@@ -70,15 +70,15 @@ export function EntriesPanel({ weeklyTimetableId, batchId, academicPeriodId, can
                 <span className="font-medium" data-testid={`entry-row-${entry.id}-day`}>
                   {DAY_NAMES[entry.day_of_week]}
                 </span>{' '}
-                <span className="text-sm text-gray-600" data-testid={`entry-row-${entry.id}-time`}>
+                <span className="text-sm text-ink-secondary" data-testid={`entry-row-${entry.id}-time`}>
                   {entry.start_time}–{entry.end_time}
                 </span>{' '}
                 <span className="text-sm" data-testid={`entry-row-${entry.id}-course`}>
                   {entry.course_code} {entry.course_name}
                 </span>
-                {entry.group_name && <span className="text-xs text-gray-500 ml-2">({entry.group_name})</span>}
+                {entry.group_name && <span className="text-xs text-ink-muted ml-2">({entry.group_name})</span>}
                 {entry.room && (
-                  <span className="text-xs text-gray-500 ml-2" data-testid={`entry-row-${entry.id}-room`}>
+                  <span className="text-xs text-ink-muted ml-2" data-testid={`entry-row-${entry.id}-room`}>
                     · {entry.room}
                   </span>
                 )}

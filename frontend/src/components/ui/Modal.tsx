@@ -43,7 +43,7 @@ export const Modal: React.FC<ModalProps> = ({ title, onClose, children, size = '
         aria-labelledby="modal-title"
         className={`bg-white rounded-lg p-6 w-full ${sizeClasses} ${className}`}
       >
-        <h2 id="modal-title" className="text-xl font-semibold mb-4">
+        <h2 id="modal-title" className="text-h3 mb-4">
           {title}
         </h2>
         {children}

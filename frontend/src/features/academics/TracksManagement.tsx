@@ -50,7 +50,7 @@ export const TracksManagement: React.FC<TracksManagementProps> = ({ programId })
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Batches</h3>
+        <h3 className="text-h4">Batches</h3>
         <Button onClick={handleCreate}>Create Batch</Button>
       </div>
 
@@ -86,7 +86,7 @@ export const TracksManagement: React.FC<TracksManagementProps> = ({ programId })
                   </div>
                 </div>
                 {track.description && (
-                  <p className="text-sm text-gray-600">{track.description}</p>
+                  <p className="text-sm text-ink-secondary">{track.description}</p>
                 )}
               </div>
             </Card>

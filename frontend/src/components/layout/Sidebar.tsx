@@ -111,7 +111,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
             flex items-center gap-3 px-3 py-2.5 rounded-2xl
             transition-all duration-150
             ${isActive 
-              ? 'bg-[#3B82F6] text-white shadow-lg' 
+              ? 'bg-primary-600 text-white shadow-lg' 
               : 'text-gray-300 hover:bg-gray-700 hover:text-white'
             }
             ${!isOpen && 'justify-center'}
@@ -124,7 +124,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
             <>
               <span className="font-medium truncate">{item.label}</span>
               {showUnreadBadge && (
-                <span className="ml-auto rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
+                <span className="ml-auto rounded-full bg-danger px-2 py-0.5 text-xs font-semibold text-white">
                   {unreadCount}
                 </span>
               )}
@@ -198,7 +198,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
                       flex items-center gap-2 px-3 py-2 rounded-xl
                       transition-all duration-150 text-sm
                       ${isActive
-                        ? 'bg-[#3B82F6] text-white shadow-md' 
+                        ? 'bg-primary-600 text-white shadow-md' 
                         : 'text-gray-400 hover:bg-gray-700 hover:text-white'
                       }
                     `}
@@ -230,7 +230,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:sticky top-0 left-0 h-screen bg-[#0F172A] text-white z-50
+          fixed lg:sticky top-0 left-0 h-screen bg-ink-primary text-white z-50
           transition-all duration-150 ease-in-out
           ${isOpen ? 'w-64' : 'w-20'}
           ${isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : ''}
@@ -248,7 +248,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
                 className={`${isOpen ? 'h-10 w-10' : 'h-8 w-8'} flex-shrink-0 object-contain`}
               />
             ) : (
-              <div className={`${isOpen ? 'h-10 w-10' : 'h-8 w-8'} flex-shrink-0 rounded-xl bg-blue-500 flex items-center justify-center text-sm font-bold`} aria-hidden="true">
+              <div className={`${isOpen ? 'h-10 w-10' : 'h-8 w-8'} flex-shrink-0 rounded-xl bg-primary-500 flex items-center justify-center text-sm font-bold`} aria-hidden="true">
                 {branding.institutionShortName.charAt(0)}
               </div>
             )}
@@ -284,7 +284,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
         {user && isOpen && (
           <div className="p-4 border-t border-gray-700">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#3B82F6] flex items-center justify-center font-medium text-white">
+              <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center font-medium text-white">
                 {user.email.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">

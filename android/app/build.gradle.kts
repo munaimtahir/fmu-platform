@@ -24,8 +24,8 @@ android {
         applicationId = "pk.vexel.medsims"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.3"
+        versionCode = 4
+        versionName = "1.0.4"
         testInstrumentationRunner = "pk.vexel.medsims.HiltTestRunner"
     }
     signingConfigs {
@@ -43,7 +43,9 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            ndk { debugSymbolLevel = "SYMBOL_TABLE" }
+            // Keep full symbols for any future project-owned native code. This app currently has
+            // no NDK module; R8's mapping.txt is the applicable release symbol artifact today.
+            ndk { debugSymbolLevel = "FULL" }
             buildConfigField("String", "API_BASE_URL", "\"https://sims.vexel.pk/\"")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (hasCanonicalSigning) signingConfig = signingConfigs.getByName("playRelease")

@@ -16,11 +16,15 @@ class FakeAuthApi @Inject constructor() : AuthApi {
     var refreshResponse: Response<RefreshResponse> = Response.success(RefreshResponse("fake-access", "fake-refresh"))
     var logoutResponse: Response<Unit> = Response.success(Unit)
     var meResponse: Response<UserDto> = Response.success(defaultUser())
+    var updateProfileResponse: Response<UserDto> = Response.success(defaultUser())
+    var changePasswordResponse: Response<MessageResponse> = Response.success(MessageResponse("Password updated."))
 
     override suspend fun login(request: LoginRequest): Response<LoginResponse> = loginResponse
     override suspend fun refresh(request: RefreshRequest): Response<RefreshResponse> = refreshResponse
     override suspend fun logout(request: LogoutRequest): Response<Unit> = logoutResponse
     override suspend fun me(): Response<UserDto> = meResponse
+    override suspend fun updateProfile(request: ProfileUpdateRequest): Response<UserDto> = updateProfileResponse
+    override suspend fun changePassword(request: PasswordChangeRequest): Response<MessageResponse> = changePasswordResponse
 
     companion object {
         fun defaultUser() = UserDto(id = 1, username = "jane", email = "jane@example.edu", full_name = "Jane Doe", role = "Student", student_id = 1)
@@ -85,4 +89,21 @@ class FakeResultsApi @Inject constructor() : ResultsApi {
         val index = (page ?: 1) - 1
         return pages.getOrElse(index) { Response.success(PaginatedResponse(count = 0, next = null, previous = null, results = emptyList())) }
     }
+}
+
+@Singleton
+class FakeStudentApi @Inject constructor() : StudentApi {
+    var notificationsResponse = Response.success(PaginatedResponse<NotificationInboxDto>(0, null, null, emptyList()))
+    var unreadResponse = Response.success(UnreadCountDto(0))
+    var materialsResponse = Response.success(emptyList<LearningMaterialDto>())
+    var complianceResponse = Response.success(PaginatedResponse<RequirementDto>(0, null, null, emptyList()))
+    var financeResponse = Response.success(StudentFinanceSummaryDto(1, "0", "0", "0"))
+    override suspend fun notifications(page: Int?) = notificationsResponse
+    override suspend fun markNotificationRead(id: Long) = Response.success<NotificationInboxDto>(null)
+    override suspend fun markAllNotificationsRead() = Response.success(MarkedReadDto(0))
+    override suspend fun unreadCount() = unreadResponse
+    override suspend fun learningFeed() = materialsResponse
+    override suspend fun compliance(page: Int?) = complianceResponse
+    override suspend fun submitCompliance(id: Long, body: Map<String, String>) = Response.success<RequirementDto>(null)
+    override suspend fun finance(id: Long) = financeResponse
 }

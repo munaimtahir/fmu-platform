@@ -18,5 +18,6 @@ class SessionViewModel @Inject constructor(private val repository: AuthRepositor
         viewModelScope.launch { expiryNotifier.expired.collect { repository.logout(); _state.value = SessionState.Expired } }
     }
     fun authenticated(user: pk.vexel.medsims.core.network.UserDto) { _state.value = SessionState.Authenticated(user) }
+    fun updateUser(user: pk.vexel.medsims.core.network.UserDto) { _state.value = SessionState.Authenticated(user) }
     fun logout() = viewModelScope.launch { repository.logout(); _state.value = SessionState.Unauthenticated }
 }

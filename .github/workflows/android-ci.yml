@@ -11,6 +11,9 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '21', cache: gradle }
       - run: chmod +x gradlew
+      - name: Verify Android API parity register
+        working-directory: ${{ github.workspace }}
+        run: python3 android/scripts/check_parity_register.py
       - run: ./gradlew --version
       - run: ./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:assembleRelease
       # NOTE on bundleRelease: app/build.gradle.kts has a fail-fast guard that

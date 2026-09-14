@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 /**
  * Test replacement for [NetworkModule]. Nothing in the app injects `Retrofit`/`OkHttpClient`/`Json`
- * directly (only the five API interfaces below), so this module only needs to bind those five to
+ * directly (only the API interfaces below), so this module only needs to bind those interfaces to
  * their fakes — no MockWebServer or real networking required, which keeps instrumented tests
  * hermetic and fast.
  */
@@ -20,4 +20,5 @@ abstract class FakeNetworkModule {
     @Binds @Singleton abstract fun bindMobileApi(impl: FakeMobileApi): MobileApi
     @Binds @Singleton abstract fun bindAttendanceApi(impl: FakeAttendanceApi): AttendanceApi
     @Binds @Singleton abstract fun bindResultsApi(impl: FakeResultsApi): ResultsApi
+    @Binds @Singleton abstract fun bindStudentApi(impl: FakeStudentApi): StudentApi
 }

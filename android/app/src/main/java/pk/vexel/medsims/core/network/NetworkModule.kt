@@ -40,4 +40,5 @@ object NetworkModule {
     @Provides fun mobileApi(retrofit: Retrofit): MobileApi = retrofit.create(MobileApi::class.java)
     @Provides fun attendanceApi(retrofit: Retrofit): AttendanceApi = retrofit.create(AttendanceApi::class.java)
     @Provides fun resultsApi(retrofit: Retrofit): ResultsApi = retrofit.create(ResultsApi::class.java)
+    @Provides fun studentApi(retrofit: Retrofit): StudentApi = retrofit.create(StudentApi::class.java)
 }

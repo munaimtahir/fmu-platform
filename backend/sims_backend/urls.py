@@ -14,6 +14,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from drf_spectacular.utils import OpenApiTypes, extend_schema
 
 from core.views import (
     ChangePasswordView,
@@ -67,6 +68,7 @@ def _check_migrations():
         return {"status": "fail", "error": str(e)}
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 def health_check(request):
     """
     Canonical health/readiness endpoint.

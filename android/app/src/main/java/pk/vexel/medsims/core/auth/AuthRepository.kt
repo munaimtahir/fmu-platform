@@ -20,6 +20,9 @@ class AuthRepository @Inject constructor(private val api: AuthApi, private val s
         return when (val refresh = refresh()) { is NetworkResult.Success -> when (val me = me()) { is NetworkResult.Success -> SessionState.Authenticated(me.value); is NetworkResult.Failure -> { store.clear(); SessionState.Expired } }; is NetworkResult.Failure -> { store.clear(); SessionState.Expired } }
     }
     suspend fun me(): NetworkResult<UserDto> = safeCall { api.me() }
+    suspend fun updateProfile(email: String): NetworkResult<UserDto> = safeCall { api.updateProfile(ProfileUpdateRequest(email = email.trim())) }
+    suspend fun changePassword(oldPassword: String, newPassword: String, confirmation: String): NetworkResult<MessageResponse> =
+        safeCall { api.changePassword(PasswordChangeRequest(oldPassword, newPassword, confirmation)) }
     override suspend fun refresh(): NetworkResult<Unit> = refreshMutex.withLock {
         val token = store.refreshToken() ?: return@withLock NetworkResult.Failure(ErrorKind.UNAUTHORIZED, "Your session has expired.")
         when (val result = safeCall { api.refresh(RefreshRequest(token)) }) {

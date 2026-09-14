@@ -1,6 +1,9 @@
 package pk.vexel.medsims.core.network
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -13,6 +16,7 @@ sealed interface NetworkResult<out T> {
         val code: String? = null,
         val reasons: List<String> = emptyList(),
         val outstanding: String? = null,
+        val fieldErrors: Map<String, String> = emptyMap(),
     ): NetworkResult<Nothing>
 }
 enum class ErrorKind { OFFLINE, TIMEOUT, VALIDATION, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, CONFLICT, SERVER, UNKNOWN }
@@ -29,8 +33,17 @@ suspend fun <T> safeCall(request: suspend () -> Response<T>): NetworkResult<T> =
   catch (e: IOException) { NetworkResult.Failure(ErrorKind.OFFLINE, "Check your internet connection and try again.") }
 
 fun <T> failure(response: Response<T>): NetworkResult.Failure {
-    val envelope = try { response.errorBody()?.string()?.let { errorJson.decodeFromString<ApiErrorEnvelope>(it) } } catch (e: Exception) { null }
+    val raw = try { response.errorBody()?.string() } catch (e: Exception) { null }
+    val envelope = try { raw?.let { errorJson.decodeFromString<ApiErrorEnvelope>(it) } } catch (e: Exception) { null }
+    val fields = try {
+        val root = raw?.let { errorJson.parseToJsonElement(it) as? JsonObject }.orEmpty()
+        root.filterKeys { it !in setOf("error", "detail", "code", "message", "reasons", "outstanding") }
+            .mapNotNull { (name, value) ->
+                val text = when (value) { is JsonArray -> value.firstOrNull()?.jsonPrimitive?.content; else -> value.jsonPrimitive.content }
+                text?.let { name to it }
+            }.toMap()
+    } catch (_: Exception) { emptyMap() }
     val message = envelope?.error?.message ?: envelope?.message ?: envelope?.detail ?: when (response.code()) { 401 -> "Your credentials or session are invalid."; 403 -> "You do not have permission for this action."; else -> "The service could not complete your request. Please try again." }
     val code = envelope?.error?.code ?: envelope?.code
-    return NetworkResult.Failure(errorKind(response.code()), message, code, envelope?.reasons.orEmpty(), envelope?.outstanding)
+    return NetworkResult.Failure(errorKind(response.code()), message, code, envelope?.reasons.orEmpty(), envelope?.outstanding, fields)
 }

@@ -115,3 +115,25 @@ the `instrumented-tests` job's underlying mechanics work correctly by first
 running the exact same suite locally against the `sims` AVD (API 36) and
 fixing two real bugs the first-ever run surfaced (see `RELEASE_NOTES_1.0.3.md`)
 — the CI matrix job itself was not separately dispatched this cycle.
+
+## 1.0.4 (versionCode 4) — signed Student internal-testing candidate, not uploaded
+
+```text
+Product:               Vexel MedSIMS
+Package:               pk.vexel.medsims
+Version:               1.0.4
+Version code:          4
+
+Release type:          Signed internal-testing candidate — NOT submitted to Google Play
+AAB SHA-256:           14a47158920bf469d1126b0b18b4d285929f95e6c784d6208297c92ddd1e2a3c
+AAB size:              4,174,970 bytes
+Build date:             2026-09-15
+Status:                 Signed bundle, lint, unit tests, debug/release builds, 12 instrumented
+                        tests (API 36 managed emulator), and release install/cold-launch smoke
+                        passed locally. Play upload remains manual.
+```
+
+Verification evidence: `jarsigner -verify -certs -verbose` reported `jar verified`; the release
+APK installed successfully on `emulator-5554`, reported version `1.0.4` / code `4`, and launched
+`pk.vexel.medsims.MainActivity`. The remaining seeded Student acceptance script and the external
+upload-key backup are operator-controlled checklist items; no Play Console upload was performed.

@@ -38,3 +38,12 @@ import kotlinx.serialization.Serializable
     val total_obtained: String? = null, val total_max: String? = null,
     val final_outcome: String? = null, val status: String, val created_at: String,
 )
+
+@Serializable data class NotificationDto(val id: Long, val title: String, val body: String, val category: String, val priority: String, val created_at: String)
+@Serializable data class NotificationInboxDto(val id: Long, val notification: NotificationDto, val delivered_at: String, val read_at: String? = null, val is_deleted: Boolean = false)
+@Serializable data class UnreadCountDto(val count: Int)
+@Serializable data class MarkedReadDto(val marked_read: Int)
+@Serializable data class LearningMaterialDto(val id: Long, val title: String, val description: String = "", val kind: String, val file: String? = null, val url: String? = null, val mime_type: String? = null, val published_at: String? = null)
+@Serializable data class RequirementSubmissionDto(val id: Long, val file: String? = null, val value: String? = null, val created_at: String)
+@Serializable data class RequirementDto(val id: Long, val definition_title: String, val definition_description: String = "", val definition_type: String, val status: String, val due_at: String? = null, val notes: String? = null, val is_locked: Boolean, val submissions: List<RequirementSubmissionDto> = emptyList())
+@Serializable data class StudentFinanceSummaryDto(val student_id: Long, val outstanding: String, val total_debits: String, val total_credits: String, val voucher_statuses: Map<String, String> = emptyMap())

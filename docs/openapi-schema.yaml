@@ -7862,6 +7862,49 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/mobile/student/home/:
+    get:
+      operationId: mobile_student_home_retrieve
+      description: |-
+        GET /api/mobile/student/home/
+
+        Student-scoped, read-only academic home aggregate. Returns 404 if the
+        authenticated user has no linked student record (staff/faculty/admin
+        accounts are not students and have no home screen).
+      tags:
+      - mobile
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileStudentHome'
+          description: ''
+  /api/mobile/student/timetable/:
+    get:
+      operationId: mobile_student_timetable_retrieve
+      description: |-
+        GET /api/mobile/student/timetable/
+
+        Student-scoped, read-only weekly schedule. Accepts an optional
+        `week_start_date` (YYYY-MM-DD, any date within the target week) query
+        param; defaults to the current week. Returns 404 if the authenticated
+        user has no linked student record.
+      tags:
+      - mobile
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileStudentTimetable'
+          description: ''
   /api/my/notifications/:
     get:
       operationId: my_notifications_list
@@ -7903,7 +7946,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this notification inbox.
         required: true
       tags:
       - my
@@ -9605,7 +9649,8 @@ paths:
   /api/results/me/:
     get:
       operationId: results_me_retrieve
-      description: Student's own results (published only)
+      description: Student's own results (published or frozen; drafts are not yet
+        finalized)
       tags:
       - results
       security:
@@ -9867,6 +9912,306 @@ paths:
               schema:
                 $ref: '#/components/schemas/Student'
           description: ''
+  /api/students/stats/:
+    get:
+      operationId: students_stats_retrieve
+      description: |-
+        Aggregate student counts by status, computed in the database.
+
+        Avoids paging through the full student list client-side just to
+        derive a status breakdown (the default list endpoint returns a
+        single page of results).
+      tags:
+      - students
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+  /api/timetable/entries/:
+    get:
+      operationId: timetable_entries_list
+      description: |-
+        CRUD for the normalized TimetableEntry model (see models.py docstring).
+
+        Prefers cancellation (`cancel` action) over destructive deletion for
+        published/live entries, consistent with the audit-trail expectation for
+        staff-managed schedule changes; `destroy` remains available for
+        correcting mistakes on entries that were never really valid.
+      parameters:
+      - in: query
+        name: day_of_week
+        schema:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+        description: |-
+          Day of the week (0=Monday, 5=Saturday)
+
+          * `0` - Monday
+          * `1` - Tuesday
+          * `2` - Wednesday
+          * `3` - Thursday
+          * `4` - Friday
+          * `5` - Saturday
+      - in: query
+        name: group
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: section
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - CANCELLED
+          - COMPLETED
+          - SCHEDULED
+        description: |-
+          * `SCHEDULED` - Scheduled
+          * `CANCELLED` - Cancelled
+          * `COMPLETED` - Completed
+      - in: query
+        name: weekly_timetable
+        schema:
+          type: integer
+      tags:
+      - timetable
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTimetableEntryList'
+          description: ''
+    post:
+      operationId: timetable_entries_create
+      description: |-
+        CRUD for the normalized TimetableEntry model (see models.py docstring).
+
+        Prefers cancellation (`cancel` action) over destructive deletion for
+        published/live entries, consistent with the audit-trail expectation for
+        staff-managed schedule changes; `destroy` remains available for
+        correcting mistakes on entries that were never really valid.
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimetableEntry'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TimetableEntry'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TimetableEntry'
+        required: true
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableEntry'
+          description: ''
+  /api/timetable/entries/{id}/:
+    get:
+      operationId: timetable_entries_retrieve
+      description: |-
+        CRUD for the normalized TimetableEntry model (see models.py docstring).
+
+        Prefers cancellation (`cancel` action) over destructive deletion for
+        published/live entries, consistent with the audit-trail expectation for
+        staff-managed schedule changes; `destroy` remains available for
+        correcting mistakes on entries that were never really valid.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this timetable entry.
+        required: true
+      tags:
+      - timetable
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableEntry'
+          description: ''
+    put:
+      operationId: timetable_entries_update
+      description: |-
+        CRUD for the normalized TimetableEntry model (see models.py docstring).
+
+        Prefers cancellation (`cancel` action) over destructive deletion for
+        published/live entries, consistent with the audit-trail expectation for
+        staff-managed schedule changes; `destroy` remains available for
+        correcting mistakes on entries that were never really valid.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this timetable entry.
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimetableEntry'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TimetableEntry'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TimetableEntry'
+        required: true
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableEntry'
+          description: ''
+    patch:
+      operationId: timetable_entries_partial_update
+      description: |-
+        CRUD for the normalized TimetableEntry model (see models.py docstring).
+
+        Prefers cancellation (`cancel` action) over destructive deletion for
+        published/live entries, consistent with the audit-trail expectation for
+        staff-managed schedule changes; `destroy` remains available for
+        correcting mistakes on entries that were never really valid.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this timetable entry.
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTimetableEntry'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTimetableEntry'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTimetableEntry'
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableEntry'
+          description: ''
+    delete:
+      operationId: timetable_entries_destroy
+      description: |-
+        CRUD for the normalized TimetableEntry model (see models.py docstring).
+
+        Prefers cancellation (`cancel` action) over destructive deletion for
+        published/live entries, consistent with the audit-trail expectation for
+        staff-managed schedule changes; `destroy` remains available for
+        correcting mistakes on entries that were never really valid.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this timetable entry.
+        required: true
+      tags:
+      - timetable
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/timetable/entries/{id}/cancel/:
+    post:
+      operationId: timetable_entries_cancel_create
+      description: Mark an entry cancelled without deleting it (audit-friendly).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this timetable entry.
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimetableEntry'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TimetableEntry'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TimetableEntry'
+        required: true
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableEntry'
+          description: ''
   /api/timetable/sessions/:
     get:
       operationId: timetable_sessions_list
@@ -10038,192 +10383,6 @@ paths:
         schema:
           type: integer
         description: A unique integer value identifying this session.
-        required: true
-      tags:
-      - timetable
-      security:
-      - ImpersonationJWTAuth: []
-      - jwtAuth: []
-      responses:
-        '204':
-          description: No response body
-  /api/timetable/timetable-cells/:
-    get:
-      operationId: timetable_timetable_cells_list
-      parameters:
-      - in: query
-        name: day_of_week
-        schema:
-          type: integer
-          enum:
-          - 0
-          - 1
-          - 2
-          - 3
-          - 4
-          - 5
-        description: |-
-          Day of the week (0=Monday, 5=Saturday)
-
-          * `0` - Monday
-          * `1` - Tuesday
-          * `2` - Wednesday
-          * `3` - Thursday
-          * `4` - Friday
-          * `5` - Saturday
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - in: query
-        name: time_slot
-        schema:
-          type: string
-      - in: query
-        name: weekly_timetable
-        schema:
-          type: integer
-      tags:
-      - timetable
-      security:
-      - ImpersonationJWTAuth: []
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedTimetableCellList'
-          description: ''
-    post:
-      operationId: timetable_timetable_cells_create
-      tags:
-      - timetable
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TimetableCell'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/TimetableCell'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/TimetableCell'
-        required: true
-      security:
-      - ImpersonationJWTAuth: []
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimetableCell'
-          description: ''
-  /api/timetable/timetable-cells/{id}/:
-    get:
-      operationId: timetable_timetable_cells_retrieve
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this timetable cell.
-        required: true
-      tags:
-      - timetable
-      security:
-      - ImpersonationJWTAuth: []
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimetableCell'
-          description: ''
-    put:
-      operationId: timetable_timetable_cells_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this timetable cell.
-        required: true
-      tags:
-      - timetable
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TimetableCell'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/TimetableCell'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/TimetableCell'
-        required: true
-      security:
-      - ImpersonationJWTAuth: []
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimetableCell'
-          description: ''
-    patch:
-      operationId: timetable_timetable_cells_partial_update
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this timetable cell.
-        required: true
-      tags:
-      - timetable
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedTimetableCell'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedTimetableCell'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedTimetableCell'
-      security:
-      - ImpersonationJWTAuth: []
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TimetableCell'
-          description: ''
-    delete:
-      operationId: timetable_timetable_cells_destroy
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this timetable cell.
         required: true
       tags:
       - timetable
@@ -10631,6 +10790,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/TranscriptVerifyResponse'
           description: ''
+  /api/health/:
+    get:
+      operationId: health_retrieve
+      description: Canonical health/readiness endpoint.
+      tags:
+      - health
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
 components:
   schemas:
     AcademicPeriod:
@@ -10888,6 +11061,7 @@ components:
           maxLength: 150
         full_name:
           type: string
+          description: Get user's full name.
           readOnly: true
         is_active:
           type: boolean
@@ -10905,9 +11079,12 @@ components:
             assigning them.
         role:
           type: string
+          description: Get user's primary role.
           readOnly: true
         groups_list:
-          type: string
+          type: object
+          additionalProperties: {}
+          description: Get list of group names.
           readOnly: true
         last_login:
           type: string
@@ -11493,7 +11670,8 @@ components:
           type: string
           readOnly: true
         children_count:
-          type: string
+          type: integer
+          description: Get count of child departments
           readOnly: true
         created_at:
           type: string
@@ -11510,7 +11688,6 @@ components:
       - created_at
       - id
       - name
-      - parent
       - parent_name
       - updated_at
     EmailTokenObtainPair:
@@ -11756,7 +11933,7 @@ components:
           description: Timestamp when import was completed or failed
         status:
           allOf:
-          - $ref: '#/components/schemas/Status9bdEnum'
+          - $ref: '#/components/schemas/FacultyImportJobStatusEnum'
           description: |-
             Current status of the import job
 
@@ -11830,6 +12007,18 @@ components:
       - total_rows
       - updated_count
       - valid_rows
+    FacultyImportJobStatusEnum:
+      enum:
+      - PENDING
+      - PREVIEWED
+      - COMMITTED
+      - FAILED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `PREVIEWED` - Previewed
+        * `COMMITTED` - Committed
+        * `FAILED` - Failed
     FacultyImportPreviewRequest:
       type: object
       description: Serializer for preview request
@@ -11879,6 +12068,17 @@ components:
       - summary
       - total_rows
       - valid_rows
+    FacultyImportRowError:
+      type: object
+      description: Serializer for row validation errors
+      properties:
+        column:
+          type: string
+        message:
+          type: string
+      required:
+      - column
+      - message
     FeePlan:
       type: object
       properties:
@@ -12186,7 +12386,7 @@ components:
           description: Timestamp when import was completed or failed
         status:
           allOf:
-          - $ref: '#/components/schemas/Status9bdEnum'
+          - $ref: '#/components/schemas/FacultyImportJobStatusEnum'
           description: |-
             Current status of the import job
 
@@ -12321,7 +12521,8 @@ components:
             $ref: '#/components/schemas/Module'
           readOnly: true
         modules_count:
-          type: string
+          type: integer
+          description: Get count of modules
           readOnly: true
         created_at:
           type: string
@@ -12677,6 +12878,232 @@ components:
         * `online` - Online
         * `scholarship` - Scholarship
         * `waiver` - Waiver
+    MobileAcademicPlacement:
+      type: object
+      properties:
+        programme:
+          type: string
+          nullable: true
+        batch:
+          type: string
+          nullable: true
+        group:
+          type: string
+          nullable: true
+        status:
+          type: string
+      required:
+      - batch
+      - group
+      - programme
+      - status
+    MobileAttendanceSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+        present:
+          type: integer
+        absent:
+          type: integer
+        late:
+          type: integer
+        leave:
+          type: integer
+        percentage:
+          type: number
+          format: double
+      required:
+      - absent
+      - late
+      - leave
+      - percentage
+      - present
+      - total
+    MobileLatestResult:
+      type: object
+      properties:
+        exam_id:
+          type: integer
+        exam_title:
+          type: string
+        status:
+          type: string
+        final_outcome:
+          type: string
+          nullable: true
+        total_obtained:
+          type: string
+          nullable: true
+      required:
+      - exam_id
+      - exam_title
+      - final_outcome
+      - status
+      - total_obtained
+    MobileScheduleEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        day_of_week:
+          type: integer
+        day_name:
+          type: string
+          nullable: true
+        start_time:
+          type: string
+          nullable: true
+        end_time:
+          type: string
+          nullable: true
+        time_slot:
+          type: string
+          nullable: true
+        course_code:
+          type: string
+          nullable: true
+        course_name:
+          type: string
+          nullable: true
+        faculty_name:
+          type: string
+          nullable: true
+        room:
+          type: string
+          nullable: true
+        status:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        source:
+          type: string
+      required:
+      - course_code
+      - course_name
+      - date
+      - day_name
+      - day_of_week
+      - end_time
+      - faculty_name
+      - id
+      - notes
+      - room
+      - source
+      - start_time
+      - status
+    MobileStudentHome:
+      type: object
+      description: Documented shape of GET /api/mobile/student/home/ (Mobile API Freeze
+        02).
+      properties:
+        student:
+          $ref: '#/components/schemas/MobileStudentIdentity'
+        academic_placement:
+          $ref: '#/components/schemas/MobileAcademicPlacement'
+        attendance_summary:
+          $ref: '#/components/schemas/MobileAttendanceSummary'
+        latest_results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MobileLatestResult'
+        today_schedule:
+          type: array
+          items:
+            $ref: '#/components/schemas/MobileTodaySchedule'
+      required:
+      - academic_placement
+      - attendance_summary
+      - latest_results
+      - student
+      - today_schedule
+    MobileStudentIdentity:
+      type: object
+      properties:
+        id:
+          type: integer
+        reg_no:
+          type: string
+        display_name:
+          type: string
+      required:
+      - display_name
+      - id
+      - reg_no
+    MobileStudentTimetable:
+      type: object
+      description: Documented shape of GET /api/mobile/student/timetable/.
+      properties:
+        week_start_date:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/MobileScheduleEntry'
+        source:
+          type: string
+      required:
+      - entries
+      - source
+      - week_start_date
+    MobileTodaySchedule:
+      type: object
+      description: Alias for readability in the student-home payload.
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        day_of_week:
+          type: integer
+        day_name:
+          type: string
+          nullable: true
+        start_time:
+          type: string
+          nullable: true
+        end_time:
+          type: string
+          nullable: true
+        time_slot:
+          type: string
+          nullable: true
+        course_code:
+          type: string
+          nullable: true
+        course_name:
+          type: string
+          nullable: true
+        faculty_name:
+          type: string
+          nullable: true
+        room:
+          type: string
+          nullable: true
+        status:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        source:
+          type: string
+      required:
+      - course_code
+      - course_name
+      - date
+      - day_name
+      - day_of_week
+      - end_time
+      - faculty_name
+      - id
+      - notes
+      - room
+      - source
+      - start_time
+      - status
     ModeEnum:
       enum:
       - CREATE_ONLY
@@ -12773,7 +13200,7 @@ components:
           nullable: true
         status:
           allOf:
-          - $ref: '#/components/schemas/StatusC12Enum'
+          - $ref: '#/components/schemas/NotificationStatusEnum'
           readOnly: true
         created_at:
           type: string
@@ -12863,7 +13290,7 @@ components:
           nullable: true
         status:
           allOf:
-          - $ref: '#/components/schemas/StatusC12Enum'
+          - $ref: '#/components/schemas/NotificationStatusEnum'
           readOnly: true
         audiences:
           type: array
@@ -12968,6 +13395,18 @@ components:
       - priority
       - publish_at
       - title
+    NotificationStatusEnum:
+      enum:
+      - DRAFT
+      - QUEUED
+      - SENT
+      - FAILED
+      type: string
+      description: |-
+        * `DRAFT` - Draft
+        * `QUEUED` - Queued
+        * `SENT` - Sent
+        * `FAILED` - Failed
     PaginatedAcademicPeriodList:
       type: object
       required:
@@ -13934,7 +14373,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SyllabusItem'
-    PaginatedTimetableCellList:
+    PaginatedTimetableEntryList:
       type: object
       required:
       - count
@@ -13956,7 +14395,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/TimetableCell'
+            $ref: '#/components/schemas/TimetableEntry'
     PaginatedTrackList:
       type: object
       required:
@@ -14508,7 +14947,8 @@ components:
           type: string
           readOnly: true
         children_count:
-          type: string
+          type: integer
+          description: Get count of child departments
           readOnly: true
         created_at:
           type: string
@@ -14910,7 +15350,8 @@ components:
             $ref: '#/components/schemas/Module'
           readOnly: true
         modules_count:
-          type: string
+          type: integer
+          description: Get count of modules
           readOnly: true
         created_at:
           type: string
@@ -15180,7 +15621,9 @@ components:
           nullable: true
           description: Period end date
         students_count:
-          type: string
+          type: integer
+          description: Get count of active students in batches that correspond to
+            this period
           readOnly: true
         created_at:
           type: string
@@ -15542,7 +15985,9 @@ components:
           readOnly: true
           description: True for built-in system roles that cannot be deleted
         task_assignments:
-          type: string
+          type: object
+          additionalProperties: {}
+          description: Get list of permission tasks assigned to this role.
           readOnly: true
         created_at:
           type: string
@@ -15630,7 +16075,8 @@ components:
           minimum: 0
           description: Maximum number of students
         enrolled_count:
-          type: string
+          type: integer
+          description: Get count of enrolled students for this section.
           readOnly: true
         created_at:
           type: string
@@ -15853,7 +16299,7 @@ components:
           format: date-time
           readOnly: true
           description: The timestamp when the record was last updated.
-    PatchedTimetableCell:
+    PatchedTimetableEntry:
       type: object
       properties:
         id:
@@ -15861,7 +16307,31 @@ components:
           readOnly: true
         weekly_timetable:
           type: integer
-          description: Weekly timetable this cell belongs to
+          description: Weekly timetable this entry belongs to
+        section:
+          type: integer
+          description: Section (course + faculty context) taught in this slot
+        section_name:
+          type: string
+          readOnly: true
+        course_code:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        faculty_name:
+          type: string
+          nullable: true
+          readOnly: true
+        group:
+          type: integer
+          nullable: true
+          description: Group this entry is scoped to; blank means it applies to the
+            whole batch
+        group_name:
+          type: string
+          readOnly: true
         day_of_week:
           allOf:
           - $ref: '#/components/schemas/DayOfWeekEnum'
@@ -15879,25 +16349,32 @@ components:
         day_of_week_display:
           type: string
           readOnly: true
-        time_slot:
+        start_time:
           type: string
-          description: Time slot identifier (e.g., '09:00-10:00')
-          maxLength: 50
-        line1:
+          format: time
+          description: Entry start time
+        end_time:
           type: string
-          description: First line of cell content (e.g., course name, or groups like
-            'Group A, Group B')
-          maxLength: 200
-        line2:
+          format: time
+          description: Entry end time
+        room:
           type: string
-          description: Second line of cell content (e.g., room number, or additional
-            groups)
-          maxLength: 200
-        line3:
+          description: Room/venue (free text; no Room resource yet)
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/TimetableEntryStatusEnum'
+        status_display:
           type: string
-          description: Third line of cell content (e.g., faculty name, or additional
-            info)
-          maxLength: 200
+          readOnly: true
+        notes:
+          type: string
+          maxLength: 255
+        created_by:
+          type: integer
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -16059,10 +16536,12 @@ components:
           description: Monday of the week this timetable covers
         week_end_date:
           type: string
+          format: date
+          description: Calculate Saturday (week_end_date) from Monday (week_start_date)
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/Status68aEnum'
+          - $ref: '#/components/schemas/WeeklyTimetableStatusEnum'
           description: |-
             Status of the timetable (draft/published)
 
@@ -16075,10 +16554,10 @@ components:
         created_by_name:
           type: string
           readOnly: true
-        cells:
+        entries:
           type: array
           items:
-            $ref: '#/components/schemas/TimetableCell'
+            $ref: '#/components/schemas/TimetableEntry'
           readOnly: true
         created_at:
           type: string
@@ -16203,7 +16682,9 @@ components:
           nullable: true
           description: Period end date
         students_count:
-          type: string
+          type: integer
+          description: Get count of active students in batches that correspond to
+            this period
           readOnly: true
         created_at:
           type: string
@@ -16421,7 +16902,7 @@ components:
         errors:
           type: array
           items:
-            $ref: '#/components/schemas/RowError'
+            $ref: '#/components/schemas/FacultyImportRowError'
         data:
           type: object
           additionalProperties: {}
@@ -16909,7 +17390,9 @@ components:
           readOnly: true
           description: True for built-in system roles that cannot be deleted
         task_assignments:
-          type: string
+          type: object
+          additionalProperties: {}
+          description: Get list of permission tasks assigned to this role.
           readOnly: true
         created_at:
           type: string
@@ -17023,7 +17506,8 @@ components:
           minimum: 0
           description: Maximum number of students
         enrolled_count:
-          type: string
+          type: integer
+          description: Get count of enrolled students for this section.
           readOnly: true
         created_at:
           type: string
@@ -17110,38 +17594,6 @@ components:
       - id
       - starts_at
       - updated_at
-    Status68aEnum:
-      enum:
-      - draft
-      - published
-      type: string
-      description: |-
-        * `draft` - Draft
-        * `published` - Published
-    Status9bdEnum:
-      enum:
-      - PENDING
-      - PREVIEWED
-      - COMMITTED
-      - FAILED
-      type: string
-      description: |-
-        * `PENDING` - Pending
-        * `PREVIEWED` - Previewed
-        * `COMMITTED` - Committed
-        * `FAILED` - Failed
-    StatusC12Enum:
-      enum:
-      - DRAFT
-      - QUEUED
-      - SENT
-      - FAILED
-      type: string
-      description: |-
-        * `DRAFT` - Draft
-        * `QUEUED` - Queued
-        * `SENT` - Sent
-        * `FAILED` - Failed
     StructureTypeEnum:
       enum:
       - YEARLY
@@ -17509,7 +17961,7 @@ components:
       - program_name
       - title
       - updated_at
-    TimetableCell:
+    TimetableEntry:
       type: object
       properties:
         id:
@@ -17517,7 +17969,31 @@ components:
           readOnly: true
         weekly_timetable:
           type: integer
-          description: Weekly timetable this cell belongs to
+          description: Weekly timetable this entry belongs to
+        section:
+          type: integer
+          description: Section (course + faculty context) taught in this slot
+        section_name:
+          type: string
+          readOnly: true
+        course_code:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        faculty_name:
+          type: string
+          nullable: true
+          readOnly: true
+        group:
+          type: integer
+          nullable: true
+          description: Group this entry is scoped to; blank means it applies to the
+            whole batch
+        group_name:
+          type: string
+          readOnly: true
         day_of_week:
           allOf:
           - $ref: '#/components/schemas/DayOfWeekEnum'
@@ -17535,25 +18011,32 @@ components:
         day_of_week_display:
           type: string
           readOnly: true
-        time_slot:
+        start_time:
           type: string
-          description: Time slot identifier (e.g., '09:00-10:00')
-          maxLength: 50
-        line1:
+          format: time
+          description: Entry start time
+        end_time:
           type: string
-          description: First line of cell content (e.g., course name, or groups like
-            'Group A, Group B')
-          maxLength: 200
-        line2:
+          format: time
+          description: Entry end time
+        room:
           type: string
-          description: Second line of cell content (e.g., room number, or additional
-            groups)
-          maxLength: 200
-        line3:
+          description: Room/venue (free text; no Room resource yet)
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/TimetableEntryStatusEnum'
+        status_display:
           type: string
-          description: Third line of cell content (e.g., faculty name, or additional
-            info)
-          maxLength: 200
+          readOnly: true
+        notes:
+          type: string
+          maxLength: 255
+        created_by:
+          type: integer
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -17565,13 +18048,33 @@ components:
           readOnly: true
           description: The timestamp when the record was last updated.
       required:
+      - course_code
+      - course_name
       - created_at
+      - created_by
+      - created_by_name
       - day_of_week
       - day_of_week_display
+      - end_time
+      - faculty_name
+      - group_name
       - id
-      - time_slot
+      - section
+      - section_name
+      - start_time
+      - status_display
       - updated_at
       - weekly_timetable
+    TimetableEntryStatusEnum:
+      enum:
+      - SCHEDULED
+      - CANCELLED
+      - COMPLETED
+      type: string
+      description: |-
+        * `SCHEDULED` - Scheduled
+        * `CANCELLED` - Cancelled
+        * `COMPLETED` - Completed
     TokenRefresh:
       type: object
       description: Serializer for token refresh endpoint.
@@ -17697,12 +18200,20 @@ components:
           title: Email address
         full_name:
           type: string
+          description: Get user's full name.
           readOnly: true
         role:
           type: string
+          description: |-
+            Get user's primary role based on groups.
+
+            Checked in this precedence order (most-privileged first) so a user
+            belonging to multiple groups resolves to their highest role.
           readOnly: true
         student_id:
-          type: string
+          type: integer
+          nullable: true
+          description: Get student ID if user has an associated student record.
           readOnly: true
         is_active:
           type: boolean
@@ -17748,13 +18259,19 @@ components:
           description: Designates whether this user should be treated as active. Unselect
             this instead of deleting accounts.
         roles:
-          type: string
+          type: object
+          additionalProperties: {}
+          description: Get user's roles.
           readOnly: true
         tasks:
-          type: string
+          type: object
+          additionalProperties: {}
+          description: Get user's permission tasks (both direct and via roles).
           readOnly: true
         profile:
-          type: string
+          type: object
+          additionalProperties: {}
+          description: Get user's profile if exists.
           readOnly: true
       required:
       - email
@@ -17964,10 +18481,12 @@ components:
           description: Monday of the week this timetable covers
         week_end_date:
           type: string
+          format: date
+          description: Calculate Saturday (week_end_date) from Monday (week_start_date)
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/Status68aEnum'
+          - $ref: '#/components/schemas/WeeklyTimetableStatusEnum'
           description: |-
             Status of the timetable (draft/published)
 
@@ -17980,10 +18499,10 @@ components:
         created_by_name:
           type: string
           readOnly: true
-        cells:
+        entries:
           type: array
           items:
-            $ref: '#/components/schemas/TimetableCell'
+            $ref: '#/components/schemas/TimetableEntry'
           readOnly: true
         created_at:
           type: string
@@ -18001,10 +18520,10 @@ components:
       - batch
       - batch_name
       - batch_program_name
-      - cells
       - created_at
       - created_by
       - created_by_name
+      - entries
       - id
       - updated_at
       - week_end_date
@@ -18037,10 +18556,12 @@ components:
           description: Monday of the week this timetable covers
         week_end_date:
           type: string
+          format: date
+          description: Calculate Saturday (week_end_date) from Monday (week_start_date)
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/Status68aEnum'
+          - $ref: '#/components/schemas/WeeklyTimetableStatusEnum'
           description: |-
             Status of the timetable (draft/published)
 
@@ -18050,9 +18571,6 @@ components:
           type: integer
           description: Faculty/Admin who created this timetable
         created_by_name:
-          type: string
-          readOnly: true
-        cell_count:
           type: string
           readOnly: true
         created_at:
@@ -18071,7 +18589,6 @@ components:
       - batch
       - batch_name
       - batch_program_name
-      - cell_count
       - created_at
       - created_by
       - created_by_name
@@ -18079,6 +18596,14 @@ components:
       - updated_at
       - week_end_date
       - week_start_date
+    WeeklyTimetableStatusEnum:
+      enum:
+      - draft
+      - published
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `published` - Published
   securitySchemes:
     ImpersonationJWTAuth:
       type: http

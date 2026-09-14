@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import pk.vexel.medsims.core.auth.SessionState
 import pk.vexel.medsims.core.auth.SessionViewModel
 import pk.vexel.medsims.core.network.UserDto
+import pk.vexel.medsims.core.network.normalizeRole
 import pk.vexel.medsims.core.ui.WindowWidthSizeClass
 import pk.vexel.medsims.core.ui.currentWindowWidthSizeClass
 import pk.vexel.medsims.feature.attendance.AttendanceScreen
@@ -25,12 +26,13 @@ import pk.vexel.medsims.feature.home.HomeScreen
 import pk.vexel.medsims.feature.profile.ProfileScreen
 import pk.vexel.medsims.feature.results.ResultsScreen
 import pk.vexel.medsims.feature.timetable.TimetableScreen
+import pk.vexel.medsims.feature.student.StudentServicesScreen
 
 @Composable fun MedSimsApp(viewModel: SessionViewModel = hiltViewModel()) {
     val session by viewModel.state.collectAsState()
     when (val state = session) { SessionState.Initializing -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator(); Text("Preparing MedSIMS", Modifier.padding(top = 72.dp)) }
         SessionState.Unauthenticated, SessionState.Expired -> LoginScreen(viewModel::authenticated)
-        is SessionState.Authenticated -> Shell(state.user, viewModel::logout) }
+        is SessionState.Authenticated -> Shell(state.user, viewModel::logout, viewModel::updateUser) }
 }
 
 /**
@@ -38,8 +40,10 @@ import pk.vexel.medsims.feature.timetable.TimetableScreen
  * exercise the rail-vs-bottom-bar branch directly without needing to resize a real window/emulator.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable internal fun Shell(user: UserDto, logout: () -> Unit, widthSizeClass: WindowWidthSizeClass = currentWindowWidthSizeClass()) {
+@Composable internal fun Shell(user: UserDto, logout: () -> Unit, onUserUpdated: (UserDto) -> Unit = {}, widthSizeClass: WindowWidthSizeClass = currentWindowWidthSizeClass()) {
     val navController = rememberNavController()
+    val destinations = remember(user.role) { Destination.forRole(normalizeRole(user.role)) }
+    val isStudent = normalizeRole(user.role) == pk.vexel.medsims.core.network.AppRole.STUDENT
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val useRail = widthSizeClass != WindowWidthSizeClass.COMPACT
@@ -51,7 +55,7 @@ import pk.vexel.medsims.feature.timetable.TimetableScreen
         bottomBar = {
             if (!useRail) {
                 NavigationBar {
-                    Destination.bottomNavItems.forEach { destination ->
+                    destinations.forEach { destination ->
                         NavigationBarItem(
                             selected = currentRoute == destination.route,
                             onClick = { navigate(destination) },
@@ -66,7 +70,7 @@ import pk.vexel.medsims.feature.timetable.TimetableScreen
         Row(Modifier.padding(padding).fillMaxSize()) {
             if (useRail) {
                 NavigationRail(Modifier.semantics { contentDescription = "Navigation rail" }) {
-                    Destination.bottomNavItems.forEach { destination ->
+                    destinations.forEach { destination ->
                         NavigationRailItem(
                             selected = currentRoute == destination.route,
                             onClick = { navigate(destination) },
@@ -76,17 +80,32 @@ import pk.vexel.medsims.feature.timetable.TimetableScreen
                     }
                 }
             }
-            NavHost(navController, startDestination = Destination.Home.route, modifier = Modifier.weight(1f)) {
-                composable(Destination.Home.route) { HomeScreen(
-                    onOpenTimetable = { navController.navigate(Destination.Timetable.route) { launchSingleTop = true } },
-                    onOpenAttendance = { navController.navigate(Destination.Attendance.route) { launchSingleTop = true } },
-                    onOpenResults = { navController.navigate(Destination.Results.route) { launchSingleTop = true } },
-                ) }
-                composable(Destination.Timetable.route) { TimetableScreen() }
-                composable(Destination.Attendance.route) { AttendanceScreen() }
-                composable(Destination.Results.route) { ResultsScreen() }
-                composable(Destination.Profile.route) { ProfileScreen(user, logout) }
+            NavHost(navController, startDestination = destinations.first().route, modifier = Modifier.weight(1f)) {
+                composable(Destination.Home.route) {
+                    if (isStudent) HomeScreen(
+                        onOpenTimetable = { navController.navigate(Destination.Timetable.route) { launchSingleTop = true } },
+                        onOpenAttendance = { navController.navigate(Destination.Attendance.route) { launchSingleTop = true } },
+                        onOpenResults = { navController.navigate(Destination.Results.route) { launchSingleTop = true } },
+                    ) else RoleWorkspaceScreen(user)
+                }
+                if (isStudent) {
+                    composable(Destination.Timetable.route) { TimetableScreen() }
+                    composable(Destination.Attendance.route) { AttendanceScreen() }
+                    composable(Destination.Results.route) { ResultsScreen() }
+                    composable(Destination.StudentServices.route) { StudentServicesScreen(user) }
+                }
+                composable(Destination.Profile.route) { ProfileScreen(user, logout, if (isStudent) ({ navController.navigate(Destination.StudentServices.route) }) else null, onUserUpdated) }
             }
+        }
+    }
+}
+
+@Composable private fun RoleWorkspaceScreen(user: UserDto) {
+    Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("${user.role} workspace", style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.height(8.dp))
+            Text("This role's native workflows are being released in staged parity deliveries.", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

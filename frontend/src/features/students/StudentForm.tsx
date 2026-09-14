@@ -22,7 +22,7 @@ const studentSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   program: z.string().min(1, 'Program is required'),
   batch: z.string().min(1, 'Batch is required'),
-  group: z.string().optional(),
+  group: z.string().min(1, 'Group is required'),
   status: z.enum(['active', 'inactive', 'graduated', 'suspended', 'on_leave']),
 })
 
@@ -108,29 +108,28 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
         throw new Error('Invalid program or batch ID')
       }
       
+      const groupId = parseInt(data.group, 10)
+      if (isNaN(groupId)) {
+        throw new Error('Invalid group ID')
+      }
+
       const studentData: Partial<Student> = {
         reg_no: data.reg_no,
         name: data.name,
         program: programId,
         batch: batchId,
+        group: groupId,
         status: data.status,
       }
-      
-      if (data.group) {
-        const groupId = parseInt(data.group, 10)
-        if (!isNaN(groupId)) {
-          studentData.group = groupId
-        }
-      }
-      
+
       if (!student) {
         const createData: Omit<Student, 'id'> = {
           reg_no: data.reg_no,
           name: data.name,
           program: programId,
           batch: batchId,
+          group: groupId,
           status: data.status,
-          ...(data.group && { group: parseInt(data.group, 10) }),
         }
         return studentsService.create(createData)
       }
@@ -170,13 +169,10 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
 
   const groupOptions = useMemo(() => {
     const groups = groupsData || []
-    return [
-      { value: '', label: 'None (Optional)' },
-      ...groups.map((g) => ({
-        value: String(g.id),
-        label: g.name,
-      })),
-    ]
+    return groups.map((g) => ({
+      value: String(g.id),
+      label: g.name,
+    }))
   }, [groupsData])
 
   return (
@@ -244,11 +240,12 @@ export function StudentForm({ student, onClose, onSuccess }: StudentFormProps) {
 
             <div>
               <Select
-                label="Group (Optional)"
+                label="Group"
                 options={groupOptions}
                 value={watch('group') || ''}
                 onChange={(value) => setValue('group', value, { shouldDirty: true })}
                 error={errors.group?.message}
+                required
                 placeholder="Select group..."
                 disabled={!selectedBatch}
               />

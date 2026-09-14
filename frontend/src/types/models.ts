@@ -26,7 +26,7 @@ export interface Student {
   program_full_name?: string
   batch: number
   batch_name?: string
-  group?: number
+  group: number
   group_name?: string
   status: 'active' | 'inactive' | 'graduated' | 'suspended' | 'on_leave'
   status_display?: string

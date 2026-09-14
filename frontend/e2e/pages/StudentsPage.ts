@@ -17,8 +17,12 @@ export class StudentsPage {
     return this.page.getByRole('heading', { name: /students/i }).first();
   }
 
+  // Note: `input[placeholder*="search" i]` alone also matches Topbar's global
+  // omnisearch ("Search students, courses, sections, programs...") which
+  // renders before this page's own search box in the DOM, so .first() would
+  // silently grab the wrong input - the exact placeholder disambiguates.
   get searchInput() {
-    return this.page.locator('input[type="search"], input[placeholder*="search" i]').first();
+    return this.page.getByPlaceholder('Search students...');
   }
 
   get addButton() {
@@ -51,43 +55,46 @@ export class StudentsPage {
   }
 
   /**
-   * Fill and submit the create-student form with minimal required fields.
-   * Returns a partial reg_no / identifier for later verification.
+   * Fill and submit the create-student form (src/features/students/StudentForm.tsx).
+   * Program and Batch are required cascading custom Selects (not native <select>,
+   * so getByLabel doesn't apply - StudentForm doesn't pass an `id` to associate
+   * the label) - this picks the first available option in each, which works
+   * against any seeded data without needing to know exact program/batch names.
+   * All locators are scoped to the modal dialog: the underlying page (sidebar
+   * nav included) stays mounted behind the modal overlay, and an unscoped
+   * `ul li button` also matches the sidebar's own nav list, clicking a point
+   * the modal's backdrop actually intercepts.
+   * Returns the generated name / reg_no for later verification.
    */
   async createStudent(overrides: Partial<{
     name: string;
     regNo: string;
-    email: string;
-  }> = {}): Promise<string> {
+  }> = {}): Promise<{ name: string; regNo: string }> {
     const suffix = Date.now().toString().slice(-6);
     const name = overrides.name ?? `E2E Student ${suffix}`;
-    const regNo = overrides.regNo ?? `TEST-${suffix}`;
+    const regNo = overrides.regNo ?? `E2E-${suffix}`;
 
-    // Fill name - look for various field name conventions
-    const nameField = this.page.locator(
-      'input[name="name"], input[name="full_name"], input[placeholder*="name" i]'
-    ).first();
-    if (await nameField.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await nameField.fill(name);
-    }
+    const dialog = this.page.locator('[role="dialog"]');
 
-    // Fill registration number
-    const regField = this.page.locator(
-      'input[name="reg_no"], input[name="regNo"], input[name="registration_number"], input[placeholder*="reg" i]'
-    ).first();
-    if (await regField.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await regField.fill(regNo);
-    }
+    await dialog.getByLabel('Registration Number').fill(regNo);
+    await dialog.getByLabel('Name').fill(name);
 
-    // Fill email if field exists
-    const emailField = this.page.locator('input[type="email"], input[name="email"]').first();
-    if (await emailField.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await emailField.fill(overrides.email ?? `${suffix}@test.edu`);
-    }
+    await dialog.getByRole('button', { name: /select program/i }).click();
+    await dialog.locator('ul li button').first().click();
 
-    // Submit
-    await this.page.locator('button[type="submit"]').first().click();
+    // Batch and Group are each disabled until their parent selection is made;
+    // Playwright's actionability check waits for them to become enabled
+    // before clicking. Both are required by the backend (Student.group has
+    // no null=True), matching the Select's `required` prop.
+    await dialog.getByRole('button', { name: /select batch/i }).click();
+    await dialog.locator('ul li button').first().click();
 
-    return regNo;
+    await dialog.getByRole('button', { name: /select group/i }).click();
+    await dialog.locator('ul li button').first().click();
+
+    // Status defaults to "Active" - no interaction needed.
+    await dialog.getByRole('button', { name: /create new student/i }).click();
+
+    return { name, regNo };
   }
 }

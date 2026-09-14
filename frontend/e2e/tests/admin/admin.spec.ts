@@ -4,7 +4,7 @@
  *
  * Uses pre-seeded auth state (admin storageState) for speed.
  * Tags: @admin
- * Target: 16 tests
+ * Target: 18 tests
  */
 
 import { test, expect } from '../../fixtures/auth';
@@ -13,7 +13,7 @@ import { DashboardPage } from '../../pages/DashboardPage';
 import { AuditPage } from '../../pages/AuditPage';
 import { AttendancePage } from '../../pages/AttendancePage';
 import { ResultsPage } from '../../pages/ResultsPage';
-import { expectNavItem, waitForPageData } from '../../helpers/assertions';
+import { expectNavItem, waitForPageData, expectSuccessToast } from '../../helpers/assertions';
 import { ROUTES } from '../../data/test-data';
 
 test.describe('Admin Role Tests @admin', () => {
@@ -186,5 +186,41 @@ test.describe('Admin Role Tests @admin', () => {
     await page.waitForLoadState('domcontentloaded');
     const heading = page.getByRole('heading', { name: /transcript/i }).first();
     await expect(heading).toBeVisible({ timeout: 8000 });
+  });
+
+  // ---- Create flows (migrated from the pre-role-organized legacy specs;
+  // unlike those, these assert hard success rather than soft-skipping when a
+  // selector isn't found) --------------------------------------------------
+
+  test('ADMIN-17: Admin can create a new student', async ({ adminPage: page }) => {
+    const studentsPage = new StudentsPage(page);
+    await studentsPage.goto();
+    await studentsPage.expectLoaded();
+    await studentsPage.openCreateForm();
+
+    const { regNo } = await studentsPage.createStudent();
+
+    await expectSuccessToast(page, /student created successfully/i);
+    await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 5000 });
+
+    // The new student may land on a later page of the (server-searched, not
+    // paginated-past) default list - search for it by reg_no to find it
+    // regardless of where sort/pagination places it.
+    await studentsPage.search(regNo);
+    await studentsPage.expectStudentInTable(regNo);
+  });
+
+  test('ADMIN-18: Admin can create a new academic program', async ({ adminPage: page }) => {
+    await page.goto('/academics/programs/new');
+    await page.waitForLoadState('domcontentloaded');
+
+    const name = `E2E Program ${Date.now().toString().slice(-6)}`;
+    await page.getByLabel('Program Name').fill(name);
+    // Structure Type defaults to "Yearly" - no CUSTOM-only fields required.
+    await page.getByRole('button', { name: /create program/i }).click();
+
+    // ProgramFormPage navigates to /academics/programs/:id on success.
+    await expect(page).toHaveURL(/\/academics\/programs\/\d+$/, { timeout: 8000 });
+    await expect(page.getByRole('heading', { name })).toBeVisible({ timeout: 8000 });
   });
 });

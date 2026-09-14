@@ -21,9 +21,19 @@ export const ProgramFormPage: React.FC = () => {
   const [totalPeriods, setTotalPeriods] = useState<number | ''>('')
   const [isActive, setIsActive] = useState(true)
 
+  const isDirty = Boolean(
+    name || description || periodLengthMonths !== '' || totalPeriods !== '' || structureType !== 'YEARLY' || !isActive
+  )
+  const { bypassNext } = useUnsavedChangesWarning(isDirty)
+
   const createMutation = useMutation({
     mutationFn: (data: any) => academicsNewService.createProgram(data),
     onSuccess: (data) => {
+      // Otherwise the blocker still sees isDirty=true (nothing here resets
+      // the form fields) and intercepts this same navigation with a "leave
+      // without saving?" confirm - which, unanswered, blocks it outright in
+      // most automated contexts and is nonsensical right after a successful save.
+      bypassNext()
       navigate(`/academics/programs/${data.id}`)
     },
   })
@@ -48,11 +58,6 @@ export const ProgramFormPage: React.FC = () => {
 
     createMutation.mutate(data)
   }
-
-  const isDirty = Boolean(
-    name || description || periodLengthMonths !== '' || totalPeriods !== '' || structureType !== 'YEARLY' || !isActive
-  )
-  useUnsavedChangesWarning(isDirty)
 
   return (
     

@@ -107,6 +107,15 @@ jobs:
             echo "Timetable demo seeding failed (continuing anyway)..."
           }
 
+      - name: Seed Frozen Pilot Baseline accounts
+        run: |
+          # Required by frontend/e2e/global.setup.ts, which logs in as
+          # pilot_admin/pilot_registrar/pilot_faculty/pilot_student/pilot_examcell
+          # before any test runs. Unlike the seed steps above this one must not
+          # be allowed to fail silently: without these accounts, global setup
+          # fails and zero Playwright tests run.
+          docker compose exec -T backend python manage.py seed_pilot_baseline
+
       - name: Create ExamCell test user
         run: |
           docker compose exec -T backend python manage.py shell -c "

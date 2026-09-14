@@ -174,7 +174,7 @@ export function PublishResults() {
         <Card><div className="p-4"><div className="text-sm text-ink-secondary">Draft</div><div className="text-h1 text-warning">{counts.draft}</div></div></Card>
         <Card><div className="p-4"><div className="text-sm text-ink-secondary">Verified</div><div className="text-h1 text-sky-600">{counts.verified}</div></div></Card>
         <Card><div className="p-4"><div className="text-sm text-ink-secondary">Published</div><div className="text-h1 text-success">{counts.published}</div></div></Card>
-        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Frozen</div><div className="text-h1 text-blue-600">{counts.frozen}</div></div></Card>
+        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Frozen</div><div className="text-h1 text-info">{counts.frozen}</div></div></Card>
       </div>
 
       <Card>

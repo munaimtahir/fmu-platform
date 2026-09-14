@@ -115,7 +115,7 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
           onDrop={handleDrop}
           className={`
             border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-150 cursor-pointer
-            ${isDragging ? 'border-[#3B82F6] bg-blue-50' : 'border-surface-border hover:border-ink-muted'}
+            ${isDragging ? 'border-primary-500 bg-primary-50' : 'border-surface-border hover:border-ink-muted'}
             ${error ? 'border-danger' : ''}
             ${disabled ? 'opacity-50 cursor-not-allowed bg-surface' : ''}
           `}
@@ -142,7 +142,7 @@ export const FileUpload = forwardRef<HTMLInputElement, FileUploadProps>(
               />
             </svg>
             <div className="text-sm text-ink-secondary">
-              <span className="font-medium text-[#3B82F6]">Click to upload</span> or drag and drop
+              <span className="font-medium text-primary">Click to upload</span> or drag and drop
             </div>
             {accept && (
               <p className="text-xs text-ink-muted">

@@ -139,7 +139,7 @@ export const DashboardHome: React.FC = () => {
                 href={`${env.apiBaseUrl}/api/docs/`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:text-blue-600 text-sm font-medium transition-colors duration-150"
+                className="text-primary hover:text-primary-700 text-sm font-medium transition-colors duration-150"
               >
                 Swagger UI →
               </a>
@@ -147,7 +147,7 @@ export const DashboardHome: React.FC = () => {
                 href={`${env.apiBaseUrl}/api/redoc/`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:text-blue-600 text-sm font-medium transition-colors duration-150"
+                className="text-primary hover:text-primary-700 text-sm font-medium transition-colors duration-150"
               >
                 ReDoc →
               </a>

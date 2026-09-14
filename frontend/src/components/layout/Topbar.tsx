@@ -154,7 +154,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
           {showMenuButton && (
             <button
               onClick={onMenuClick}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-150"
+              className="lg:hidden p-2 rounded-lg hover:bg-surface transition-colors duration-150"
               aria-label="Open menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,12 +167,12 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
           <div className="hidden md:block relative" ref={searchRef}>
             <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-2xl w-96 border border-transparent focus-within:border-surface-border focus-within:bg-white transition-all duration-150">
               {isSearching ? (
-                <svg className="w-5 h-5 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-ink-muted animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               ) : (
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               )}
@@ -276,11 +276,11 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
           {user?.role === 'Admin' && (
             <button
               onClick={() => setIsImpersonationDialogOpen(true)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-150"
+              className="p-2 rounded-lg hover:bg-surface transition-colors duration-150"
               aria-label="Impersonate user"
               title="Impersonate user"
             >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-ink-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21v-1m8 1v-1" />
               </svg>
@@ -290,11 +290,11 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
           {/* Notifications Bell */}
           <button
             onClick={() => navigate('/notifications')}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-150 relative"
+            className="p-2 rounded-lg hover:bg-surface transition-colors duration-150 relative"
             aria-label="Notifications"
             title={`${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`}
           >
-            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-ink-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
             {unreadCount > 0 && (
@@ -309,7 +309,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-3 px-3 py-2 rounded-2xl hover:bg-gray-100 transition-colors duration-150"
+                className="flex items-center gap-3 px-3 py-2 rounded-2xl hover:bg-surface transition-colors duration-150"
                 aria-label="User menu"
                 aria-expanded={isUserMenuOpen}
               >
@@ -327,7 +327,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick, showMenuButton = fa
                   )}
                 </div>
                 <svg
-                  className={`w-4 h-4 text-gray-500 transition-transform duration-150 ${isUserMenuOpen ? 'rotate-180' : ''}`}
+                  className={`w-4 h-4 text-ink-muted transition-transform duration-150 ${isUserMenuOpen ? 'rotate-180' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

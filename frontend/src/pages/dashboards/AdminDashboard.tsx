@@ -169,7 +169,7 @@ export const AdminDashboard = () => {
                   {stats.total_students}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-info-subtle rounded-lg flex items-center justify-center text-2xl">
                 👥
               </div>
             </div>
@@ -398,7 +398,7 @@ export const AdminDashboard = () => {
               <Link
                 key={index}
                 to={module.path}
-                className="p-4 border border-surface-border rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-150 text-center cursor-pointer"
+                className="p-4 border border-surface-border rounded-lg hover:border-primary hover:bg-primary-50 transition-all duration-150 text-center cursor-pointer"
               >
                 <div className="text-3xl mb-2">
                   {module.useText ? (

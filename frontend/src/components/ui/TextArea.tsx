@@ -33,7 +33,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           {...props}
           className={`
             w-full px-4 py-3 rounded-2xl border transition-all duration-150
-            focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent
+            focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
             disabled:bg-surface disabled:text-ink-muted disabled:cursor-not-allowed
             ${error 
               ? 'border-danger focus:ring-danger' 

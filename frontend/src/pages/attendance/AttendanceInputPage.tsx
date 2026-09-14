@@ -318,7 +318,7 @@ export function AttendanceInputPage() {
             {activeTab === 'sheet' && selectedSession && (
               <a
                 href={attendanceInputService.templateUrl(selectedSession)}
-                className="text-sm text-blue-600 underline"
+                className="text-sm text-primary underline"
               >
                 Download tick-sheet template
               </a>

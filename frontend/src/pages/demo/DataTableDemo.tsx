@@ -63,7 +63,7 @@ export const DataTableDemo = () => {
       cell: ({ row }) => {
         const gpa = row.getValue('gpa') as number
         return (
-          <span className={`font-semibold ${gpa >= 3.8 ? 'text-success' : gpa >= 3.5 ? 'text-blue-600' : 'text-ink-secondary'}`}>
+          <span className={`font-semibold ${gpa >= 3.8 ? 'text-success' : gpa >= 3.5 ? 'text-info' : 'text-ink-secondary'}`}>
             {gpa.toFixed(2)}
           </span>
         )

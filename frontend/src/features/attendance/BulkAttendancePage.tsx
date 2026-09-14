@@ -272,7 +272,7 @@ export function BulkAttendancePage() {
                 {/* Summary (if available) */}
                 {summaryData && (
                   <div className="mb-4 p-3 bg-info-subtle border border-info/20 rounded-lg">
-                    <div className="text-sm font-semibold text-blue-900 mb-1">
+                    <div className="text-sm font-semibold text-info-emphasis mb-1">
                       Session Summary (All Dates)
                     </div>
                     <div className="text-xs text-info">

@@ -391,7 +391,7 @@ export const StudentApplicationPage = () => {
 
   if (submitSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center">
           <div className="w-16 h-16 bg-success-subtle rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -430,7 +430,7 @@ export const StudentApplicationPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Submission Inactive Banner */}
         <div className="mb-8 bg-warning-subtle border border-warning/20 rounded-3xl p-6 text-center shadow-sm">
@@ -585,7 +585,7 @@ export const StudentApplicationPage = () => {
                     type="checkbox"
                     checked={mailingAddressSame}
                     onChange={(e) => setValue('mailing_address_same', e.target.checked)}
-                    className="rounded border-surface-border text-blue-600 focus:ring-blue-500"
+                    className="rounded border-surface-border text-primary focus:ring-primary-500"
                   />
                   <span className="text-sm text-ink-secondary">Same as permanent address</span>
                 </label>

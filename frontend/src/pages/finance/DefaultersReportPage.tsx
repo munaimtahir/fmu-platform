@@ -133,7 +133,7 @@ export const DefaultersReportPage: React.FC = () => {
                   id="defaulters-program"
                   value={filters.program_id}
                   onChange={(e) => setFilters({ ...filters, program_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">All Programs</option>
                   {programs.map((p) => (
@@ -149,7 +149,7 @@ export const DefaultersReportPage: React.FC = () => {
                   id="defaulters-term"
                   value={filters.term_id}
                   onChange={(e) => setFilters({ ...filters, term_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   required
                 >
                   <option value="">Select Term</option>
@@ -167,7 +167,7 @@ export const DefaultersReportPage: React.FC = () => {
                   type="number"
                   value={filters.min_outstanding}
                   onChange={(e) => setFilters({ ...filters, min_outstanding: e.target.value })}
-                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   min="0"
                   step="0.01"
                 />

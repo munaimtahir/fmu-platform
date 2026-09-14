@@ -122,7 +122,7 @@ export const LoginPage: React.FC = () => {
           <div className="text-sm">
             <a
               href="#"
-              className="font-medium text-primary hover:text-blue-600 transition-colors duration-150"
+              className="font-medium text-primary hover:text-primary-700 transition-colors duration-150"
             >
               Forgot password?
             </a>
@@ -144,7 +144,7 @@ export const LoginPage: React.FC = () => {
           Don&apos;t have an account?{' '}
           <a
             href="#"
-            className="font-medium text-primary hover:text-blue-600 transition-colors duration-150"
+            className="font-medium text-primary hover:text-primary-700 transition-colors duration-150"
           >
             Contact your administrator
           </a>

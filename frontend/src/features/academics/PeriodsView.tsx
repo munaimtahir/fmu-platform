@@ -122,7 +122,7 @@ const PeriodCard: React.FC<PeriodCardProps> = ({ period, tracks }) => {
             {tracks.map((track) => {
               const trackBlocks = blocks?.filter((b) => b.track === track.id) || []
               return (
-                <div key={track.id} className="border-l-4 border-blue-500 pl-4">
+                <div key={track.id} className="border-l-4 border-primary-500 pl-4">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="font-medium">{track.name}</h4>
                     <Button size="sm" onClick={() => handleCreateBlock(track)}>

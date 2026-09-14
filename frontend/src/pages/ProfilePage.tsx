@@ -110,7 +110,7 @@ export const ProfilePage: React.FC = () => {
           <div className="p-6 space-y-6">
             {/* Avatar Section */}
             <div className="flex items-center gap-4 pb-6 border-b border-surface-border">
-              <div className="w-20 h-20 rounded-full bg-[#3B82F6] flex items-center justify-center font-bold text-white text-2xl">
+              <div className="w-20 h-20 rounded-full bg-primary-600 flex items-center justify-center font-bold text-white text-2xl">
                 {user.email.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -215,7 +215,7 @@ export const ProfilePage: React.FC = () => {
                     id="old_password"
                     value={passwordForm.old_password}
                     onChange={(e) => setPasswordForm({ ...passwordForm, old_password: e.target.value })}
-                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     required
                     disabled={passwordLoading}
                   />
@@ -230,7 +230,7 @@ export const ProfilePage: React.FC = () => {
                     id="new_password"
                     value={passwordForm.new_password}
                     onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
-                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     required
                     minLength={8}
                     disabled={passwordLoading}
@@ -247,7 +247,7 @@ export const ProfilePage: React.FC = () => {
                     id="new_password_confirm"
                     value={passwordForm.new_password_confirm}
                     onChange={(e) => setPasswordForm({ ...passwordForm, new_password_confirm: e.target.value })}
-                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     required
                     disabled={passwordLoading}
                   />

@@ -151,7 +151,7 @@ export const StudentStatementPage: React.FC = () => {
                     type="number"
                     value={studentId || ''}
                     onChange={(e) => setStudentId(e.target.value ? parseInt(e.target.value) : null)}
-                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     required
                   />
                 </div>
@@ -162,7 +162,7 @@ export const StudentStatementPage: React.FC = () => {
                   id="statement-term"
                   value={selectedTerm}
                   onChange={(e) => setSelectedTerm(e.target.value)}
-                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-surface-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">All Time</option>
                   {terms.map((t) => (

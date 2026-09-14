@@ -38,7 +38,7 @@ export const RegistrarDashboard = () => {
                 <p className="text-sm text-ink-secondary mb-1">Active Students</p>
                 <p className="text-h2 text-ink-primary">1,189</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-info-subtle rounded-lg flex items-center justify-center text-2xl">
                 👥
               </div>
             </div>

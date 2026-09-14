@@ -76,7 +76,7 @@ export const NotificationsPage: React.FC = () => {
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'all'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-surface-border text-ink-secondary hover:bg-surface-border'
             }`}
           >
@@ -86,7 +86,7 @@ export const NotificationsPage: React.FC = () => {
             onClick={() => setFilter('unread')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'unread'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-surface-border text-ink-secondary hover:bg-surface-border'
             }`}
           >
@@ -107,7 +107,7 @@ export const NotificationsPage: React.FC = () => {
             {items.map((item) => (
               <Card
                 key={item.id}
-                className={`p-4 ${!item.read_at ? 'bg-blue-50 border-info/20' : ''}`}
+                className={`p-4 ${!item.read_at ? 'bg-info-subtle border-info/20' : ''}`}
               >
                 <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">

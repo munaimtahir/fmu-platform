@@ -94,7 +94,7 @@ export const FacultyDashboard = () => {
                   {stats.my_sessions ?? 0}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-info-subtle rounded-lg flex items-center justify-center text-2xl">
                 📚
               </div>
             </div>
@@ -180,7 +180,7 @@ export const FacultyDashboard = () => {
                   </div>
                   <Link
                     to={`/sections/${section.id}`}
-                    className="px-3 py-1 text-sm text-primary hover:bg-blue-50 rounded-lg transition-colors duration-150"
+                    className="px-3 py-1 text-sm text-primary hover:bg-primary-50 rounded-lg transition-colors duration-150"
                   >
                     View Details
                   </Link>
@@ -216,7 +216,7 @@ export const FacultyDashboard = () => {
           <Link to="/exams" className="block">
             <Card className="hover:shadow-elevation-3 transition-shadow cursor-pointer">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">
+                <div className="w-12 h-12 bg-info-subtle rounded-xl flex items-center justify-center text-2xl">
                   📖
                 </div>
                 <div>

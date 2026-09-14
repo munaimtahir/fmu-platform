@@ -97,7 +97,7 @@ export function AnalyticsDashboard() {
                 <p className="text-sm text-ink-secondary mb-1">Total Students</p>
                 <p className="text-h1 text-ink-primary">{stats.totalStudents}</p>
               </div>
-              <div className="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center text-3xl">
+              <div className="w-14 h-14 bg-info-subtle rounded-lg flex items-center justify-center text-3xl">
                 👥
               </div>
             </div>
@@ -174,7 +174,7 @@ export function AnalyticsDashboard() {
                         <div
                           className={`h-2 rounded-full ${
                             status === 'Active' ? 'bg-success' :
-                            status === 'Graduated' ? 'bg-blue-500' :
+                            status === 'Graduated' ? 'bg-info' :
                             status === 'Inactive' ? 'bg-warning' : 'bg-danger'
                           }`}
                           style={{ width: `${percentage}%` }}
@@ -206,10 +206,10 @@ export function AnalyticsDashboard() {
                 </div>
                 <div className="text-3xl">❌</div>
               </div>
-              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-info-subtle rounded-lg">
                 <div>
                   <p className="text-sm text-ink-secondary">Total Records</p>
-                  <p className="text-h2 text-blue-700">{stats.totalAttendance}</p>
+                  <p className="text-h2 text-info-emphasis">{stats.totalAttendance}</p>
                 </div>
                 <div className="text-3xl">📊</div>
               </div>

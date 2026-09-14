@@ -48,8 +48,8 @@ export const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
             onClick={handleClick}
             className={`
               relative inline-flex h-6 w-11 items-center rounded-full
-              transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:ring-offset-2
-              ${checked ? 'bg-[#3B82F6]' : 'bg-surface-border'}
+              transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+              ${checked ? 'bg-primary' : 'bg-surface-border'}
               ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
             `}
           >

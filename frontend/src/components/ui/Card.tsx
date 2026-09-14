@@ -22,7 +22,7 @@ export interface CardProps {
  * @returns {React.ReactElement} The rendered `Card` component.
  *
  * @example
- * <Card padding="lg" className="bg-blue-100">
+ * <Card padding="lg" className="bg-info-subtle">
  *   <h2>Card Title</h2>
  *   <p>This is the card content.</p>
  * </Card>

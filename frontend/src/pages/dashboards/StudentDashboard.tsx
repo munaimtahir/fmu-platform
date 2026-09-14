@@ -122,7 +122,7 @@ export const StudentDashboard = () => {
                 </p>
                 <p className="text-xs text-ink-muted mt-1">Available results</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-info-subtle rounded-2xl flex items-center justify-center text-2xl">
                 📚
               </div>
             </div>
@@ -165,7 +165,7 @@ export const StudentDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/transcripts'}>
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">
+              <div className="w-12 h-12 bg-info-subtle rounded-xl flex items-center justify-center text-2xl">
                 📖
               </div>
               <div>

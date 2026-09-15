@@ -9,6 +9,7 @@ sealed class Destination(val route: String, val label: String) {
     data object Results: Destination("results", "Results")
     data object Profile: Destination("profile", "Profile")
     data object StudentServices: Destination("student-services", "Services")
+    data object FacultyAttendance: Destination("faculty-attendance", "Attendance")
 
     companion object {
         /**
@@ -16,8 +17,9 @@ sealed class Destination(val route: String, val label: String) {
          * every request, but this prevents a staff session from accidentally entering one of the
          * student-scoped screens (which require a student id and call student-only APIs).
          */
-        fun forRole(role: AppRole): List<Destination> = when (role) {
+        fun forRole(role: AppRole, facultyEnabled: Boolean = true): List<Destination> = when (role) {
             AppRole.STUDENT -> listOf(Home, Timetable, Attendance, Results, Profile)
+            AppRole.FACULTY -> if (facultyEnabled) listOf(Home, FacultyAttendance, Profile) else listOf(Home, Profile)
             else -> listOf(Home, Profile)
         }
     }

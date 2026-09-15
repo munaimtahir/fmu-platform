@@ -62,9 +62,9 @@ def main() -> None:
         if unknown:
             fail(f"{item['id']} references paths absent from schema: {', '.join(sorted(unknown))}")
         for relative in item["contract_models"] + item["tests"]:
-            source_set = "test" if relative.endswith("Test.kt") else "main"
-            artifact = ROOT / "app" / "src" / source_set / "java/pk/vexel/medsims" / relative
-            if not artifact.is_file():
+            source_sets = ("test", "androidTest") if relative.endswith("Test.kt") else ("main",)
+            artifacts = [ROOT / "app" / "src" / source_set / "java/pk/vexel/medsims" / relative for source_set in source_sets]
+            if not any(artifact.is_file() for artifact in artifacts):
                 # A planned workflow may deliberately have no model/test.  Any declared file must exist.
                 fail(f"{item['id']} declares missing Android artifact: {relative}")
 

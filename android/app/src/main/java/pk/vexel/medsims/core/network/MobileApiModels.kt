@@ -47,3 +47,51 @@ import kotlinx.serialization.Serializable
 @Serializable data class RequirementSubmissionDto(val id: Long, val file: String? = null, val value: String? = null, val created_at: String)
 @Serializable data class RequirementDto(val id: Long, val definition_title: String, val definition_description: String = "", val definition_type: String, val status: String, val due_at: String? = null, val notes: String? = null, val is_locked: Boolean, val submissions: List<RequirementSubmissionDto> = emptyList())
 @Serializable data class StudentFinanceSummaryDto(val student_id: Long, val outstanding: String, val total_debits: String, val total_credits: String, val voucher_statuses: Map<String, String> = emptyMap())
+
+@Serializable data class FacultyDashboardDto(
+    val my_sessions: Int = 0,
+    val my_students: Int = 0,
+    val draft_results: Int = 0,
+)
+@Serializable data class FacultySessionDto(
+    val id: Long,
+    val academic_period: Long,
+    val academic_period_name: String? = null,
+    val group: Long,
+    val group_name: String? = null,
+    val faculty: Long? = null,
+    val faculty_name: String? = null,
+    val department: Long,
+    val department_name: String? = null,
+    val starts_at: String,
+    val ends_at: String,
+)
+@Serializable data class LiveRosterStudentDto(
+    val student_id: Long,
+    val reg_no: String,
+    val name: String,
+    val status: String? = null,
+    val default_status: String = "P",
+)
+@Serializable data class LiveRosterDto(
+    val session: Long,
+    val section: Long,
+    val date: String,
+    val default_status: String = "P",
+    val students: List<LiveRosterStudentDto>,
+)
+@Serializable data class LiveAttendanceRecordDto(val student_id: Long, val status: String)
+@Serializable data class LiveAttendanceRequest(
+    val session_id: Long,
+    val date: String,
+    val default_status: String = "P",
+    val records: List<LiveAttendanceRecordDto>,
+)
+@Serializable data class LiveAttendanceResultDto(
+    val total: Int,
+    val present: Int? = null,
+    val absent: Int? = null,
+    val created: Int? = null,
+    val updated: Int? = null,
+    val audit_summary: String? = null,
+)

@@ -5,11 +5,17 @@ import kotlinx.coroutines.sync.withLock
 import pk.vexel.medsims.core.network.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import pk.vexel.medsims.core.document.DocumentStore
 
 sealed interface SessionState { data object Initializing: SessionState; data object Unauthenticated: SessionState; data class Authenticated(val user: UserDto): SessionState; data object Expired: SessionState }
 
+interface ProfileRepository {
+    suspend fun updateProfile(email: String): NetworkResult<UserDto>
+    suspend fun changePassword(oldPassword: String, newPassword: String, confirmation: String): NetworkResult<MessageResponse>
+}
+
 @Singleton
-class AuthRepository @Inject constructor(private val api: AuthApi, private val store: SessionStore): TokenRefresher {
+class AuthRepository @Inject constructor(private val api: AuthApi, private val store: SessionStore, private val documents: DocumentStore): TokenRefresher, ProfileRepository {
     private val refreshMutex = Mutex()
     suspend fun login(identifier: String, password: String): NetworkResult<UserDto> = when (val result = safeCall { api.login(LoginRequest(identifier, password)) }) {
         is NetworkResult.Success -> { store.save(result.value.tokens.access, result.value.tokens.refresh); NetworkResult.Success(result.value.user) }
@@ -20,8 +26,8 @@ class AuthRepository @Inject constructor(private val api: AuthApi, private val s
         return when (val refresh = refresh()) { is NetworkResult.Success -> when (val me = me()) { is NetworkResult.Success -> SessionState.Authenticated(me.value); is NetworkResult.Failure -> { store.clear(); SessionState.Expired } }; is NetworkResult.Failure -> { store.clear(); SessionState.Expired } }
     }
     suspend fun me(): NetworkResult<UserDto> = safeCall { api.me() }
-    suspend fun updateProfile(email: String): NetworkResult<UserDto> = safeCall { api.updateProfile(ProfileUpdateRequest(email = email.trim())) }
-    suspend fun changePassword(oldPassword: String, newPassword: String, confirmation: String): NetworkResult<MessageResponse> =
+    override suspend fun updateProfile(email: String): NetworkResult<UserDto> = safeCall { api.updateProfile(ProfileUpdateRequest(email = email.trim())) }
+    override suspend fun changePassword(oldPassword: String, newPassword: String, confirmation: String): NetworkResult<MessageResponse> =
         safeCall { api.changePassword(PasswordChangeRequest(oldPassword, newPassword, confirmation)) }
     override suspend fun refresh(): NetworkResult<Unit> = refreshMutex.withLock {
         val token = store.refreshToken() ?: return@withLock NetworkResult.Failure(ErrorKind.UNAUTHORIZED, "Your session has expired.")
@@ -30,5 +36,5 @@ class AuthRepository @Inject constructor(private val api: AuthApi, private val s
             is NetworkResult.Failure -> result
         }
     }
-    suspend fun logout() { val refresh = store.refreshToken(); try { api.logout(LogoutRequest(refresh)) } catch (_: Exception) { } finally { store.clear() } }
+    suspend fun logout() { val refresh = store.refreshToken(); try { api.logout(LogoutRequest(refresh)) } catch (_: Exception) { } finally { store.clear(); documents.clear() } }
 }

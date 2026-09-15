@@ -27,6 +27,9 @@ import pk.vexel.medsims.feature.profile.ProfileScreen
 import pk.vexel.medsims.feature.results.ResultsScreen
 import pk.vexel.medsims.feature.timetable.TimetableScreen
 import pk.vexel.medsims.feature.student.StudentServicesScreen
+import pk.vexel.medsims.feature.faculty.FacultyHomeScreen
+import pk.vexel.medsims.feature.faculty.FacultyAttendanceScreen
+import pk.vexel.medsims.BuildConfig
 
 @Composable fun MedSimsApp(viewModel: SessionViewModel = hiltViewModel()) {
     val session by viewModel.state.collectAsState()
@@ -42,8 +45,9 @@ import pk.vexel.medsims.feature.student.StudentServicesScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable internal fun Shell(user: UserDto, logout: () -> Unit, onUserUpdated: (UserDto) -> Unit = {}, widthSizeClass: WindowWidthSizeClass = currentWindowWidthSizeClass()) {
     val navController = rememberNavController()
-    val destinations = remember(user.role) { Destination.forRole(normalizeRole(user.role)) }
+    val destinations = remember(user.role) { Destination.forRole(normalizeRole(user.role), BuildConfig.ENABLE_FACULTY) }
     val isStudent = normalizeRole(user.role) == pk.vexel.medsims.core.network.AppRole.STUDENT
+    val isFaculty = normalizeRole(user.role) == pk.vexel.medsims.core.network.AppRole.FACULTY && BuildConfig.ENABLE_FACULTY
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val useRail = widthSizeClass != WindowWidthSizeClass.COMPACT
@@ -86,7 +90,7 @@ import pk.vexel.medsims.feature.student.StudentServicesScreen
                         onOpenTimetable = { navController.navigate(Destination.Timetable.route) { launchSingleTop = true } },
                         onOpenAttendance = { navController.navigate(Destination.Attendance.route) { launchSingleTop = true } },
                         onOpenResults = { navController.navigate(Destination.Results.route) { launchSingleTop = true } },
-                    ) else RoleWorkspaceScreen(user)
+                    ) else if (isFaculty) FacultyHomeScreen() else RoleWorkspaceScreen(user)
                 }
                 if (isStudent) {
                     composable(Destination.Timetable.route) { TimetableScreen() }
@@ -94,6 +98,7 @@ import pk.vexel.medsims.feature.student.StudentServicesScreen
                     composable(Destination.Results.route) { ResultsScreen() }
                     composable(Destination.StudentServices.route) { StudentServicesScreen(user) }
                 }
+                if (isFaculty) composable(Destination.FacultyAttendance.route) { FacultyAttendanceScreen() }
                 composable(Destination.Profile.route) { ProfileScreen(user, logout, if (isStudent) ({ navController.navigate(Destination.StudentServices.route) }) else null, onUserUpdated) }
             }
         }

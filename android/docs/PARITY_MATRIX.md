@@ -10,10 +10,10 @@ of Android scope.
 | Domain | Web capability | Android status | Notes |
 |---|---|---|---|
 | Authentication | Login, refresh, logout, profile | FOUNDATION | Native secure session implemented; profile/password parity is registered for Student release |
-| Dashboard/notifications | Student dashboard, inbox, materials, fees, compliance | IN PROGRESS | Student services has pagination/read states and safe link handoff; document upload/download and PDF retrieval remain release blockers |
+| Dashboard/notifications | Student dashboard, inbox, materials, fees, compliance | IMPLEMENTED | Document upload/download, statement PDF, authenticated file handling, system-viewer handoff, and tests are implemented |
 | Students/academics/people | Records, programmes, courses, sections | PLANNED | Future parity sprint |
-| Timetable/attendance | Timetable, marking, eligibility | PLANNED | High-value mobile workflow |
+| Timetable/attendance | Timetable, marking, eligibility | IN PROGRESS | Student timetable and Faculty live attendance are implemented; eligibility remains planned |
 | Exams/results/transcripts | Gradebook, results, publication, transcripts | PLANNED | Server workflow remains authoritative |
 | Finance | Vouchers, payments, reports | PLANNED | No offline financial writes |
 | Admin/audit/settings | Users, roles, audit, configuration | PLANNED | Foundation only |
-| Learning/compliance/syllabus | Materials, requirements, syllabus | PLANNED | Future parity sprint |
+| Learning/compliance/syllabus | Materials, requirements, syllabus | IN PROGRESS | Student materials/compliance implemented; Faculty management and syllabus remain planned |

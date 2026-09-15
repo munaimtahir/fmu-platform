@@ -116,7 +116,7 @@ running the exact same suite locally against the `sims` AVD (API 36) and
 fixing two real bugs the first-ever run surfaced (see `RELEASE_NOTES_1.0.3.md`)
 — the CI matrix job itself was not separately dispatched this cycle.
 
-## 1.0.4 (versionCode 4) — signed Student internal-testing candidate, not uploaded
+## 1.0.4 (versionCode 4) — Student internal-testing release
 
 ```text
 Product:               Vexel MedSIMS
@@ -124,16 +124,42 @@ Package:               pk.vexel.medsims
 Version:               1.0.4
 Version code:          4
 
-Release type:          Signed internal-testing candidate — NOT submitted to Google Play
-AAB SHA-256:           14a47158920bf469d1126b0b18b4d285929f95e6c784d6208297c92ddd1e2a3c
-AAB size:              4,174,970 bytes
+Release type:          Google Play internal testing
+AAB SHA-256:           2ce0b0fee8fcecc8c29547dd31442ef44b60ed6ac70289fc5b982cdb1b8e353d
+AAB size:              4,310,424 bytes
 Build date:             2026-09-15
-Status:                 Signed bundle, lint, unit tests, debug/release builds, 12 instrumented
-                        tests (API 36 managed emulator), and release install/cold-launch smoke
-                        passed locally. Play upload remains manual.
+Status:                 Student gap-closure bundle; signed bundle, lint, unit tests,
+                        debug/release builds, and 16 instrumented tests (API 36 emulator)
+                        passed locally. AAB-derived install/cold-launch smoke passed.
 ```
 
-Verification evidence: `jarsigner -verify -certs -verbose` reported `jar verified`; the release
-APK installed successfully on `emulator-5554`, reported version `1.0.4` / code `4`, and launched
-`pk.vexel.medsims.MainActivity`. The remaining seeded Student acceptance script and the external
-upload-key backup are operator-controlled checklist items; no Play Console upload was performed.
+Verification evidence: `jarsigner -verify -certs` reported `jar verified`; a bundletool-derived
+universal APK installed on `emulator-5554`, reported version `1.0.4` / code `4`, and launched
+`pk.vexel.medsims.MainActivity`. The seeded Student acceptance script remains pending. The Play
+Console upload and external upload-key backup were subsequently confirmed by the user.
+
+## 1.1.0 (versionCode 5) — Faculty delivery candidate
+
+Adds the Faculty dashboard, paginated own-session selection, searchable live roster, present/absent
+controls, confirmation, and online-only attendance submission. Student document upload/download and
+fee-statement handling remain included. Play Console promotion is intentionally manual.
+
+```text
+Product:               Vexel MedSIMS
+Package:               pk.vexel.medsims
+Version:               1.1.0
+Version code:          5
+
+Release type:          Build + verify — manual Play Console upload pending
+AAB SHA-256:           21c540e98ae8441e899928edbc928cfdd33d21358959cb819f1ed315817e188d
+AAB size:              4,315,170 bytes
+Build date:             2026-09-15
+Status:                 Signed release candidate; parity, lint, unit tests,
+                        debug/release builds, and 16 instrumented tests passed.
+                        AAB-derived install/cold-launch smoke passed.
+```
+
+Verification evidence: `jarsigner -verify -certs` reported `jar verified`; a bundletool-derived
+universal APK installed on `emulator-5554`, reported version `1.1.0` / code `5`, launched, and remained
+running. Demo-account results and remaining acceptance limitations are recorded in
+`RELEASE_CHECKLIST_1.1.0.md`.

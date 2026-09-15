@@ -28,20 +28,20 @@ Status values: **Implemented**, **Implemented-with-gaps**, **Planned**, **Out-of
 |---|---|---|---|---|
 | Cross-cutting | Login, JWT refresh, logout, "me" | `/api/auth/login,refresh,me,logout/` | `student` (foundation, reused by all roles) | **Implemented** |
 | Cross-cutting | Profile view/update, change password | `/api/auth/me/`, `/api/auth/change-password/` | `student` | **Implemented** |
-| Cross-cutting | Notifications inbox, mark read/all, unread count | `/api/my/notifications/*` | `student` | **Implemented-with-gaps** (no tests) |
+| Cross-cutting | Notifications inbox, mark read/all, unread count | `/api/my/notifications/*` | `student` | **Implemented** |
 | Cross-cutting | Admin impersonation ("become user") | `/api/admin/impersonation/start,stop/` | `admin` | Planned |
 | Student | Dashboard home | `/api/mobile/student/home/` | `student` | **Implemented** |
 | Student | Timetable | `/api/mobile/student/timetable/` | `student` | **Implemented** |
 | Student | Attendance record view | `/api/attendance/` | `student` | **Implemented** |
 | Student | Results view | `/api/results/` | `student` | **Implemented** |
-| Student | Fee summary (self) | `/api/finance/students/{id}/` | `student` | **Implemented-with-gaps** |
-| Student | Learning materials feed | `/api/learning/student-feed/` | `student` | **Implemented-with-gaps** (safe-link only; no in-app document view/download) |
-| Student | Compliance requirements + text submission | `/api/compliance/my-compliance/*` | `student` | **Implemented-with-gaps** (document upload/download release blocker) |
-| Student | Fee statement PDF download | server-generated PDF (finance) | `student` | Planned (explicit release blocker) |
+| Student | Fee summary (self) | `/api/finance/students/{id}/` | `student` | **Implemented** |
+| Student | Learning materials feed | `/api/learning/student-feed/` | `student` | **Implemented** (authenticated download + system viewer) |
+| Student | Compliance requirements + text/document submission | `/api/compliance/my-compliance/*` | `student` | **Implemented** |
+| Student | Fee statement PDF download | `/api/finance/students/{id}/statement/pdf/` | `student` | **Implemented** |
 | Student | Public application / admission form | n/a | — | **Out-of-scope** |
 | Student | Public QR/token transcript verification | `/api/transcripts/verify/{token}/` | — | **Out-of-scope** |
-| Faculty | Dashboard/stats | `/api/dashboard/stats/` | `faculty` | Planned |
-| Faculty | Section roster / live attendance input | `/api/attendance-input/live/roster,submit/` | `faculty` | Planned |
+| Faculty | Dashboard/stats | `/api/dashboard/stats/` | `faculty` | **Implemented** (staged behind v1.1.0 release flag) |
+| Faculty | Section roster / live attendance input | `/api/attendance-input/live/roster,submit/` | `faculty` | **Implemented** (staged behind v1.1.0 release flag) |
 | Faculty | Results/gradebook entry | `/api/results/`, `/api/result-components/` | `faculty` | Planned |
 | Faculty | Learning materials management | `/api/learning/materials/` | `faculty` | Planned |
 | Registrar | Student/people records CRUD | `/api/students/`, `/api/people/persons/` | `registrar-coordinator` | Planned |
@@ -66,15 +66,15 @@ Phases follow the release-train sequence already committed to in `register.json`
 ### Phase 0 — Foundation (done)
 Session/auth (`core/auth/AuthRepository.kt`, `SessionViewModel.kt`), adaptive shell/navigation (`feature/shell/`), shared error handling (`core/network/NetworkResult.kt`), Hilt DI wiring, CI parity gate. Reused by every later phase — no further action needed unless a later phase surfaces a gap in this layer.
 
-### Phase 1 — Student (in progress, current release v1.0.4)
-- Close remaining gaps on `student-fees-learning-compliance`: document upload/download for compliance submissions, PDF retrieval for fee statements (both flagged as release blockers in `PARITY_MATRIX.md`).
-- Add missing test coverage: `StudentServicesScreen` (Compose UI test) and `ProfileViewModel` (unit test) — currently empty `tests: []` in the register for that workflow.
-- Ship v1.0.4 to Play internal testing (currently built/signed/verified locally, not yet uploaded — see §5).
+### Phase 1 — Student (code complete, release operations pending for v1.0.4)
+- Document upload/download, fee statement PDF retrieval, authenticated learning-file handling, and the reusable system-viewer handoff are implemented.
+- `StudentServicesScreen`, its API contract, and `ProfileViewModel` now have registered automated coverage.
+- Remaining work is operator-controlled: seeded acceptance, upload-key backup confirmation, and Play internal-track upload (see §5).
 
-### Phase 2 — Faculty (`faculty-delivery` in register)
-- Screens: Faculty dashboard/stats, section roster, live attendance marking, results/gradebook entry, learning materials management (upload, not just read).
-- Bind to `/api/dashboard/stats/`, `/api/attendance-input/live/roster,submit/`, `/api/results/`, `/api/result-components/`, `/api/learning/materials/`.
-- Add `contract_models`/`tests` entries to `register.json` for `faculty-delivery`; get `check_parity_register.py` green before merge.
+### Phase 2 — Faculty (`faculty-delivery` in register, partially implemented)
+- Implemented and tested: Faculty stat tiles, own-session selection, searchable roster, present/absent controls, confirmation, and live attendance submission.
+- Enabled for debug and release builds in v1.1.0 after the Student-only v1.0.4 upload.
+- Still pending: results/gradebook entry and learning-material management/upload.
 
 ### Phase 3 — Registrar/Coordinator (`registrar-coordinator-records`, `coordinator-records`)
 - Screens: student/people record CRUD, academics lifecycle management (programs/batches/periods/groups/departments), timetable publication, bulk student import, attendance eligibility report.
@@ -100,15 +100,15 @@ Source: direct inspection of `android/parity/register.json`, `android/docs/PARIT
 - ✅ **Auth/session foundation** — `core/auth/AuthRepository.kt`, `SessionViewModel.kt`, `SessionStore.kt`, `TokenRefresher.kt`. Register: `student-session-foundation` = implemented.
 - ✅ **Home/timetable/attendance/results (read)** — `feature/home/HomeScreen.kt`, `feature/timetable/TimetableScreen.kt`, `feature/attendance/AttendanceScreen.kt`, `feature/results/ResultsScreen.kt`, each with a ViewModel and unit test. Register: `student-home` = implemented.
 - ✅ **Profile/account** — `feature/profile/ProfileScreen.kt` + `ProfileViewModel.kt`. Register: `student-account` = implemented.
-- 🟡 **Student services (fees/learning/compliance/notifications)** — `feature/student/StudentServicesScreen.kt` + `StudentServicesViewModel.kt`, `core/student/StudentRepository.kt`. Functionally broad (notifications, learning feed with safe-link filtering, compliance submit/locked/rejected states, fee summary) but **no tests registered yet**, and document upload/download + PDF retrieval are not yet built. Register: `student-fees-learning-compliance` = implemented-with-gaps.
-- ⬜ **Faculty** — no screens exist; `feature/shell/MedSimsApp.kt` shows a generic `RoleWorkspaceScreen` placeholder for non-Student roles. Register: `faculty-delivery` = planned, empty `contract_models`/`tests`.
+- ✅ **Student services (fees/learning/compliance/notifications)** — supports authenticated downloads, system-viewer handoff, compliance document upload, fee statements, notifications, and registered tests. Register: `student-fees-learning-compliance` = implemented.
+- 🟡 **Faculty** — dashboard, own sessions, roster, and live attendance are implemented and tested but staged for v1.1.0; gradebook and material management remain. Register: `faculty-delivery` = implemented-with-gaps.
 - ⬜ **Registrar** — placeholder only. Register: `registrar-coordinator-records` = planned.
 - ⬜ **Coordinator** — placeholder only. Register: `coordinator-records` = planned.
 - ⬜ **ExamCell** — placeholder only. Register: `exam-cell-results` = planned.
 - ⬜ **Finance** — placeholder only. Register: `finance-operations` = planned.
 - ⬜ **Admin** — placeholder only. Register: `admin-governance` = planned.
 - **Infrastructure:** Hilt DI, Retrofit/OkHttp networking (`core/network/`), adaptive shell/navigation, shared `NetworkResult`/`safeCall` error pattern, unit + instrumented test scaffolding, CI workflow (`android-ci.yml`, unit tests/lint/assemble/instrumented tests across API 28/34/tablet — no signing/upload) — all ✅ in place and reusable by every future phase.
-- **Release status:** v1.0.4 (Student-only) is built, signed, jarsigner-verified, and passed local instrumented tests + manual acceptance script, but **not yet uploaded to Google Play** (outstanding: seeded acceptance script run, upload-key backup confirmation) — see `android/play/RELEASE_CHECKLIST_1.0.4.md`.
+- **Release status:** Student-only v1.0.4 was uploaded to Play internal testing and its upload-key backup was confirmed. Development has moved to v1.1.0 with the Faculty dashboard and live-attendance slice enabled; Play promotion remains manual.
 
 ## 6. Open gaps / risks
 

@@ -17,11 +17,15 @@ import javax.inject.Singleton
 import okhttp3.MediaType.Companion.toMediaType
 import pk.vexel.medsims.BuildConfig
 import pk.vexel.medsims.core.auth.SessionStore
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 private class AuthorizationInterceptor(private val store: SessionStore) : Interceptor {
+    private val apiOrigin = BuildConfig.API_BASE_URL.toHttpUrl()
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = store.accessToken()
-        val request = if (token.isNullOrBlank() || chain.request().url.encodedPath.endsWith("/refresh/")) chain.request()
+        val url = chain.request().url
+        val sameOrigin = url.scheme == apiOrigin.scheme && url.host == apiOrigin.host && url.port == apiOrigin.port
+        val request = if (token.isNullOrBlank() || !sameOrigin || url.encodedPath.endsWith("/refresh/")) chain.request()
         else chain.request().newBuilder().header("Authorization", "Bearer $token").build()
         return chain.proceed(request)
     }
@@ -41,4 +45,5 @@ object NetworkModule {
     @Provides fun attendanceApi(retrofit: Retrofit): AttendanceApi = retrofit.create(AttendanceApi::class.java)
     @Provides fun resultsApi(retrofit: Retrofit): ResultsApi = retrofit.create(ResultsApi::class.java)
     @Provides fun studentApi(retrofit: Retrofit): StudentApi = retrofit.create(StudentApi::class.java)
+    @Provides fun facultyApi(retrofit: Retrofit): FacultyApi = retrofit.create(FacultyApi::class.java)
 }

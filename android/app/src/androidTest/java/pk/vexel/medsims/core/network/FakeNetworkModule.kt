@@ -21,4 +21,5 @@ abstract class FakeNetworkModule {
     @Binds @Singleton abstract fun bindAttendanceApi(impl: FakeAttendanceApi): AttendanceApi
     @Binds @Singleton abstract fun bindResultsApi(impl: FakeResultsApi): ResultsApi
     @Binds @Singleton abstract fun bindStudentApi(impl: FakeStudentApi): StudentApi
+    @Binds @Singleton abstract fun bindFacultyApi(impl: FakeFacultyApi): FacultyApi
 }

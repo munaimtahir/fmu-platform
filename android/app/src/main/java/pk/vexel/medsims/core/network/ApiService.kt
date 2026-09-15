@@ -6,6 +6,14 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PATCH
 import retrofit2.http.Query
+import retrofit2.http.Multipart
+import retrofit2.http.Part
+import retrofit2.http.Path
+import retrofit2.http.Url
+import retrofit2.http.Streaming
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
 
 interface AuthApi {
     @POST("api/auth/login/") suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
@@ -41,6 +49,22 @@ interface StudentApi {
     @GET("api/my/notifications/unread-count/") suspend fun unreadCount(): Response<UnreadCountDto>
     @GET("api/learning/student-feed/") suspend fun learningFeed(): Response<List<LearningMaterialDto>>
     @GET("api/compliance/my-compliance/") suspend fun compliance(@Query("page") page: Int? = null): Response<PaginatedResponse<RequirementDto>>
-    @POST("api/compliance/my-compliance/{id}/submit/") suspend fun submitCompliance(@retrofit2.http.Path("id") id: Long, @Body body: Map<String, String>): Response<RequirementDto>
-    @GET("api/finance/students/{id}/") suspend fun finance(@retrofit2.http.Path("id") id: Long): Response<StudentFinanceSummaryDto>
+    @Multipart @POST("api/compliance/my-compliance/{id}/submit/") suspend fun submitCompliance(
+        @Path("id") id: Long,
+        @Part file: MultipartBody.Part? = null,
+        @Part("value") value: RequestBody? = null,
+    ): Response<RequirementDto>
+    @GET("api/finance/students/{id}/") suspend fun finance(@Path("id") id: Long): Response<StudentFinanceSummaryDto>
+    @Streaming @GET("api/finance/students/{id}/statement/pdf/") suspend fun statementPdf(@Path("id") id: Long): Response<ResponseBody>
+    @Streaming @GET suspend fun download(@Url url: String): Response<ResponseBody>
+}
+
+interface FacultyApi {
+    @GET("api/dashboard/stats/") suspend fun dashboard(): Response<FacultyDashboardDto>
+    @GET("api/timetable/sessions/") suspend fun sessions(
+        @Query("ordering") ordering: String = "starts_at",
+        @Query("page") page: Int? = null,
+    ): Response<PaginatedResponse<FacultySessionDto>>
+    @GET("api/attendance-input/live/roster/") suspend fun roster(@Query("session_id") sessionId: Long): Response<LiveRosterDto>
+    @POST("api/attendance-input/live/submit/") suspend fun submitAttendance(@Body request: LiveAttendanceRequest): Response<LiveAttendanceResultDto>
 }

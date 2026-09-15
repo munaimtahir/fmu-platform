@@ -8,9 +8,9 @@ Date: 2026-09-15
 | Unit tests | Passed: `:app:testDebugUnitTest` |
 | Lint | Passed: `:app:lintDebug` |
 | Build | Passed: `:app:assembleDebug :app:assembleRelease :app:bundleRelease` |
-| Instrumented tests | Passed: 12 tests on local managed API 36 emulator |
+| Instrumented tests | Passed: 16 tests on local API 36 emulator |
 | Bundle signature | `jarsigner -verify -certs -verbose`: `jar verified` |
-| AAB | `app-release.aab`, 4,174,970 bytes, SHA-256 `14a47158920bf469d1126b0b18b4d285929f95e6c784d6208297c92ddd1e2a3c` |
+| AAB | `app-release.aab`, 4,310,424 bytes, SHA-256 `2ce0b0fee8fcecc8c29547dd31442ef44b60ed6ac70289fc5b982cdb1b8e353d` |
 | R8 symbols | `medsims-1.0.4-r8-mapping.zip`, SHA-256 `423675be09f78ec3e50dc3fadd16e8b7a04eb1ab795f6623b6dcdc48a57ae0e6` |
 | Native-symbol upload ZIP | `native-debug-symbols-play.zip`, SHA-256 `8389167bce13372276bc5c14fb66f0c53a310b693fcfad4a168ee5d3a5c6e758` |
 | Release APK smoke | Installed successfully; version `1.0.4` / code `4`; launched `MainActivity` |

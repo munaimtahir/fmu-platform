@@ -1,6 +1,8 @@
 package pk.vexel.medsims.core.network
 
 import retrofit2.Response
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -98,12 +100,28 @@ class FakeStudentApi @Inject constructor() : StudentApi {
     var materialsResponse = Response.success(emptyList<LearningMaterialDto>())
     var complianceResponse = Response.success(PaginatedResponse<RequirementDto>(0, null, null, emptyList()))
     var financeResponse = Response.success(StudentFinanceSummaryDto(1, "0", "0", "0"))
+    var submitCount = 0
     override suspend fun notifications(page: Int?) = notificationsResponse
     override suspend fun markNotificationRead(id: Long) = Response.success<NotificationInboxDto>(null)
     override suspend fun markAllNotificationsRead() = Response.success(MarkedReadDto(0))
     override suspend fun unreadCount() = unreadResponse
     override suspend fun learningFeed() = materialsResponse
     override suspend fun compliance(page: Int?) = complianceResponse
-    override suspend fun submitCompliance(id: Long, body: Map<String, String>) = Response.success<RequirementDto>(null)
+    override suspend fun submitCompliance(id: Long, file: okhttp3.MultipartBody.Part?, value: okhttp3.RequestBody?): Response<RequirementDto> { submitCount++; return complianceResponse.body()?.results?.firstOrNull()?.let { Response.success(it) } ?: Response.success(null) }
     override suspend fun finance(id: Long) = financeResponse
+    override suspend fun statementPdf(id: Long) = Response.success("pdf".toResponseBody("application/pdf".toMediaType()))
+    override suspend fun download(url: String) = Response.success("document".toResponseBody("application/octet-stream".toMediaType()))
+}
+
+@Singleton
+class FakeFacultyApi @Inject constructor() : FacultyApi {
+    var dashboardResponse = Response.success(FacultyDashboardDto(3, 40, 2))
+    var sessionsResponse = Response.success(PaginatedResponse<FacultySessionDto>(0, null, null, emptyList()))
+    var rosterResponse = Response.success(LiveRosterDto(1, 1, "2026-09-15", students = emptyList()))
+    var submitResponse = Response.success(LiveAttendanceResultDto(total = 0))
+    var lastSubmit: LiveAttendanceRequest? = null
+    override suspend fun dashboard() = dashboardResponse
+    override suspend fun sessions(ordering: String, page: Int?) = sessionsResponse
+    override suspend fun roster(sessionId: Long) = rosterResponse
+    override suspend fun submitAttendance(request: LiveAttendanceRequest): Response<LiveAttendanceResultDto> { lastSubmit = request; return submitResponse }
 }

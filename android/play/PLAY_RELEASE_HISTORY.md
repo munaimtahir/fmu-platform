@@ -181,9 +181,11 @@ AAB size:              4,461,014 bytes
 Build date:             2026-09-15
 Status:                 Signed release candidate; parity, lint, unit tests, debug/release
                         builds, 18 instrumented tests, and backend regression suite passed.
-                        Production acceptance evidence is tracked in the release checklist.
+                        Production deployment and acceptance passed; Play upload is manual.
 ```
 
 Verification evidence: `jarsigner -verify -certs` reported `jar verified`; a bundletool-derived
 universal APK installed on `emulator-5554`, reported version `1.2.0` / code `6`, launched, and
-remained running.
+remained running. Commit `8ffaadc` was deployed to production after a verified database backup;
+public health and representative Registrar, Coordinator, ExamCell, Finance, Admin, Student, and
+Faculty acceptance checks passed. Detailed evidence is in `RELEASE_CHECKLIST_1.2.0.md`.

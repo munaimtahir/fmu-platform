@@ -29,7 +29,7 @@ Status values: **Implemented**, **Implemented-with-gaps**, **Planned**, **Out-of
 | Cross-cutting | Login, JWT refresh, logout, "me" | `/api/auth/login,refresh,me,logout/` | `student` (foundation, reused by all roles) | **Implemented** |
 | Cross-cutting | Profile view/update, change password | `/api/auth/me/`, `/api/auth/change-password/` | `student` | **Implemented** |
 | Cross-cutting | Notifications inbox, mark read/all, unread count | `/api/my/notifications/*` | `student` | **Implemented** |
-| Cross-cutting | Admin impersonation ("become user") | `/api/admin/impersonation/start,stop/` | `admin` | Planned |
+| Cross-cutting | Admin impersonation ("become user") | `/api/admin/impersonation/start,stop/` | `admin` | **Implemented** |
 | Student | Dashboard home | `/api/mobile/student/home/` | `student` | **Implemented** |
 | Student | Timetable | `/api/mobile/student/timetable/` | `student` | **Implemented** |
 | Student | Attendance record view | `/api/attendance/` | `student` | **Implemented** |
@@ -42,8 +42,8 @@ Status values: **Implemented**, **Implemented-with-gaps**, **Planned**, **Out-of
 | Student | Public QR/token transcript verification | `/api/transcripts/verify/{token}/` | — | **Out-of-scope** |
 | Faculty | Dashboard/stats | `/api/dashboard/stats/` | `faculty` | **Implemented** (staged behind v1.1.0 release flag) |
 | Faculty | Section roster / live attendance input | `/api/attendance-input/live/roster,submit/` | `faculty` | **Implemented** (staged behind v1.1.0 release flag) |
-| Faculty | Results/gradebook entry | `/api/results/`, `/api/result-components/` | `faculty` | Planned |
-| Faculty | Learning materials management | `/api/learning/materials/` | `faculty` | Planned |
+| Faculty | Scoped draft results/gradebook entry | `/api/results/`, `/api/result-components/` | `faculty` | **Implemented** |
+| Faculty | Learning materials and section audiences | `/api/learning/materials/`, `/api/learning/audiences/` | `faculty` | **Implemented** |
 | Registrar | Student/people records CRUD | `/api/students/`, `/api/people/*` | `registrar-coordinator` | **Implemented** |
 | Registrar | Academics lifecycle (programs/batches/periods/groups/departments) | `/api/academics/*` | `registrar-coordinator` | **Implemented** |
 | Registrar | Timetable CRUD/generation/publication | `/api/timetable/weekly-timetables/*`, `/api/timetable/entries/*` | `registrar-coordinator` | **Implemented** |
@@ -71,10 +71,10 @@ Session/auth (`core/auth/AuthRepository.kt`, `SessionViewModel.kt`), adaptive sh
 - `StudentServicesScreen`, its API contract, and `ProfileViewModel` now have registered automated coverage.
 - The v1.0.4 Play upload and external upload-key backup were confirmed by the operator; the production demo login and Student role-home smoke also pass.
 
-### Phase 2 — Faculty (`faculty-delivery` in register, partially implemented)
-- Implemented and tested: Faculty stat tiles, own-session selection, searchable roster, present/absent controls, confirmation, and live attendance submission.
+### Phase 2 — Faculty (`faculty-delivery` in register, implemented)
+- Implemented and tested: Faculty stat tiles, own-session selection, searchable roster, present/absent controls, confirmation, live attendance submission, scoped draft gradebook entry, component marks, and learning-material file/link management with teaching-section audiences.
 - Enabled for debug and release builds in v1.1.0 after the Student-only v1.0.4 upload.
-- Still pending: results/gradebook entry and learning-material management/upload.
+- Faculty result access is restricted to matching taught group/academic-period pairs. Faculty may create and edit drafts; ExamCell retains verify/publish/freeze authority.
 
 ### Phase 3 — Registrar/Coordinator (implemented for v1.2.0)
 - Screens: student/people record CRUD, academics lifecycle management (programs/batches/periods/groups/departments), timetable publication, bulk student import, attendance eligibility report.
@@ -101,14 +101,14 @@ Source: direct inspection of `android/parity/register.json`, `android/docs/PARIT
 - ✅ **Home/timetable/attendance/results (read)** — `feature/home/HomeScreen.kt`, `feature/timetable/TimetableScreen.kt`, `feature/attendance/AttendanceScreen.kt`, `feature/results/ResultsScreen.kt`, each with a ViewModel and unit test. Register: `student-home` = implemented.
 - ✅ **Profile/account** — `feature/profile/ProfileScreen.kt` + `ProfileViewModel.kt`. Register: `student-account` = implemented.
 - ✅ **Student services (fees/learning/compliance/notifications)** — supports authenticated downloads, system-viewer handoff, compliance document upload, fee statements, notifications, and registered tests. Register: `student-fees-learning-compliance` = implemented.
-- 🟡 **Faculty** — dashboard, own sessions, roster, and live attendance are implemented and tested but staged for v1.1.0; gradebook and material management remain. Register: `faculty-delivery` = implemented-with-gaps.
+- ✅ **Faculty** — dashboard, own sessions, live attendance, scoped draft gradebook, component marks, and learning-material file/link/audience lifecycle are implemented and tested. Register: `faculty-delivery` = implemented.
 - ✅ **Registrar** — native mobile record CRUD, academic lifecycle, timetable entries/generation/publication. Register: `registrar-coordinator-records` = implemented.
 - ✅ **Coordinator** — placement, CSV preview/commit/jobs/errors and eligibility. Register: `coordinator-records` = implemented.
 - ✅ **ExamCell** — exams/components, result lifecycle/corrections and authenticated transcripts. Register: `exam-cell-results` = implemented.
 - ✅ **Finance** — fee configuration, bulk vouchers, payments, ledger, adjustments, reports and documents. Register: `finance-operations` = implemented.
 - ✅ **Admin** — dashboard, users/RBAC, audit/export, settings, syllabus and guarded impersonation. Register: `admin-governance` = implemented.
 - **Infrastructure:** Hilt DI, Retrofit/OkHttp networking (`core/network/`), adaptive shell/navigation, shared `NetworkResult`/`safeCall` error pattern, unit + instrumented test scaffolding, CI workflow (`android-ci.yml`, unit tests/lint/assemble/instrumented tests across API 28/34/tablet — no signing/upload) — all ✅ in place and reusable by every future phase.
-- **Release status:** Student-only v1.0.4 was uploaded and the upload key was backed up. Phase 2 shipped in v1.1.0; Phases 3–5 are included in signed v1.2.0 (versionCode 6). Play internal-track upload remains manual.
+- **Release status:** Student-only v1.0.4 was uploaded and the upload key was backed up. The complete Faculty and Phase 3–5 implementation is included in the refreshed v1.2.0 candidate (versionCode 6). Per operator direction, no version bump or Play upload is required while that candidate remains unsubmitted.
 
 ## 6. Open gaps / risks
 

@@ -29,6 +29,8 @@ import pk.vexel.medsims.feature.timetable.TimetableScreen
 import pk.vexel.medsims.feature.student.StudentServicesScreen
 import pk.vexel.medsims.feature.faculty.FacultyHomeScreen
 import pk.vexel.medsims.feature.faculty.FacultyAttendanceScreen
+import pk.vexel.medsims.feature.faculty.FacultyGradebookScreen
+import pk.vexel.medsims.feature.faculty.FacultyMaterialsScreen
 import pk.vexel.medsims.BuildConfig
 import pk.vexel.medsims.core.network.AppRole
 import pk.vexel.medsims.feature.staff.*
@@ -110,7 +112,11 @@ import pk.vexel.medsims.feature.staff.*
                     composable(Destination.Results.route) { ResultsScreen() }
                     composable(Destination.StudentServices.route) { StudentServicesScreen(user) }
                 }
-                if (isFaculty) composable(Destination.FacultyAttendance.route) { FacultyAttendanceScreen() }
+                if (isFaculty) {
+                    composable(Destination.FacultyAttendance.route) { FacultyAttendanceScreen() }
+                    composable(Destination.FacultyGradebook.route) { FacultyGradebookScreen() }
+                    composable(Destination.FacultyMaterials.route) { FacultyMaterialsScreen(user.id) }
+                }
                 if (staffModules.isNotEmpty()) {
                     composable(Destination.Operations.route) { StaffHomeScreen(user.role, staffModules) { navController.navigate("staff/${it.key}") } }
                     composable("staff/{module}") { entry -> staffModules.firstOrNull { it.key == entry.arguments?.getString("module") }?.let { StaffModuleScreen(it) } }

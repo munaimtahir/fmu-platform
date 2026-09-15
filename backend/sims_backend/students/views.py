@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core.permissions import PermissionTaskRequired, has_permission_task
+from sims_backend.common_permissions import in_group
 from sims_backend.students.models import LeavePeriod, Student
 from sims_backend.students.serializers import (
     LeavePeriodSerializer,
@@ -56,6 +57,12 @@ class StudentViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         user = self.request.user
 
+        # Faculty gradebook selectors expose only students in groups they
+        # teach. This precedes the task check so the Faculty fallback never
+        # becomes institution-wide student access.
+        if in_group(user, "FACULTY") and not in_group(user, "ADMIN"):
+            return qs.filter(group__sections__faculty=user).distinct()
+
         # If user has permission to view all, return all
         if has_permission_task(user, "students.students.view"):
             return qs
@@ -99,9 +106,7 @@ class StudentViewSet(viewsets.ModelViewSet):
         """
         queryset = self.get_queryset()
         total = queryset.count()
-        by_status = {
-            row["status"]: row["count"] for row in queryset.values("status").annotate(count=Count("id"))
-        }
+        by_status = {row["status"]: row["count"] for row in queryset.values("status").annotate(count=Count("id"))}
 
         return Response(
             {

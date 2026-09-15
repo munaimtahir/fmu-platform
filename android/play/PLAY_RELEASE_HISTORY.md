@@ -166,8 +166,9 @@ running. Demo-account results and remaining acceptance limitations are recorded 
 
 ## 1.2.0 (versionCode 6) — Staff parity candidate
 
-Adds Registrar, Coordinator, ExamCell, Finance and Admin native workflows for Android Phases 3–5.
-The Play Console operation remains intentionally manual.
+Adds the complete Faculty workflow plus Registrar, Coordinator, ExamCell, Finance and Admin native
+workflows. The existing unsubmitted 1.2.0/code 6 candidate was refreshed without a version bump, per
+operator direction; no Play Console operation was performed.
 
 ```text
 Product:               Vexel MedSIMS
@@ -175,13 +176,13 @@ Package:               pk.vexel.medsims
 Version:               1.2.0
 Version code:          6
 
-Release type:          Build + verify — manual Play Console upload pending
-AAB SHA-256:           c1a7e43601eb07bcc7d8326bda2fb0a6d9bf313e5a06f329cb0ad61e5985c5f1
-AAB size:              4,461,014 bytes
+Release type:          Build + verify — intentionally not submitted
+AAB SHA-256:           311b6dbe2df91f8386a099718343a987f28066ea86e75b3a29117ac09fd96871
+AAB size:              4,568,671 bytes
 Build date:             2026-09-15
 Status:                 Signed release candidate; parity, lint, unit tests, debug/release
-                        builds, 18 instrumented tests, and backend regression suite passed.
-                        Production deployment and acceptance passed; Play upload is manual.
+                        builds, 20 instrumented tests, and 269 backend tests passed.
+                        Refreshed production deployment evidence is tracked in the checklist.
 ```
 
 Verification evidence: `jarsigner -verify -certs` reported `jar verified`; a bundletool-derived

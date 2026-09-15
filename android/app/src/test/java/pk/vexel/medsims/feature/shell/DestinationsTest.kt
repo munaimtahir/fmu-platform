@@ -16,6 +16,9 @@ class DestinationsTest {
         listOf(AppRole.ADMIN, AppRole.REGISTRAR, AppRole.EXAM_CELL, AppRole.FINANCE, AppRole.COORDINATOR)
             .forEach { role -> assertEquals(listOf(Destination.Home, Destination.Operations, Destination.Profile), Destination.forRole(role)) }
         assertEquals(listOf(Destination.Home, Destination.Profile), Destination.forRole(AppRole.UNKNOWN))
-        assertEquals(listOf(Destination.Home, Destination.FacultyAttendance, Destination.Profile), Destination.forRole(AppRole.FACULTY))
+        assertEquals(
+            listOf(Destination.Home, Destination.FacultyAttendance, Destination.FacultyGradebook, Destination.FacultyMaterials, Destination.Profile),
+            Destination.forRole(AppRole.FACULTY),
+        )
     }
 }

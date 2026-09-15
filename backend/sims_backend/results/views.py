@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import transaction
+from django.db.models import Exists, OuterRef
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -11,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core.permissions import PermissionTaskRequired, has_permission_task
+from sims_backend.academics.models import Section
 from sims_backend.common_permissions import in_group
 from sims_backend.exams.services import compute_result_passing_status
 from sims_backend.finance.services import finance_gate_checks
@@ -29,6 +31,24 @@ class ResultHeaderPermission(PermissionTaskRequired):
         if view.action in ["list", "retrieve", "me"] and in_group(request.user, "STUDENT"):
             return True
         return super().has_permission(request, view)
+
+
+def _faculty_result_queryset(queryset, user):
+    """Limit Faculty gradebook access to matching taught group/period pairs."""
+    taught = Section.objects.filter(
+        faculty=user,
+        academic_period_id=OuterRef("exam__academic_period_id"),
+        group_id=OuterRef("student__group_id"),
+    )
+    return queryset.annotate(_faculty_teaches=Exists(taught)).filter(_faculty_teaches=True)
+
+
+def _faculty_can_manage_result(user, exam, student) -> bool:
+    return Section.objects.filter(
+        faculty=user,
+        academic_period_id=exam.academic_period_id,
+        group_id=student.group_id,
+    ).exists()
 
 
 class ResultHeaderViewSet(viewsets.ModelViewSet):
@@ -68,6 +88,9 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         user = self.request.user
 
+        if in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "EXAMCELL")):
+            return _faculty_result_queryset(queryset, user)
+
         # If user has permission to view all, return all
         if has_permission_task(user, "results.result_headers.view"):
             return queryset
@@ -96,6 +119,16 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
+        if in_group(self.request.user, "FACULTY") and not in_group(self.request.user, "ADMIN"):
+            exam = serializer.validated_data["exam"]
+            student = serializer.validated_data["student"]
+            if not _faculty_can_manage_result(self.request.user, exam, student):
+                raise PermissionDenied(
+                    detail={
+                        "code": "RESULT_SCOPE_DENIED",
+                        "message": "You may enter results only for groups and periods you teach.",
+                    }
+                )
         instance = serializer.save()
         # Compute passing status after creation
         compute_result_passing_status(instance)
@@ -117,7 +150,10 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         if not instance.is_editable:
             raise PermissionDenied(
-                detail={"code": "IMMUTABLE_RESULT", "message": f"Cannot delete result with status {instance.status}. Submit a correction request instead."}
+                detail={
+                    "code": "IMMUTABLE_RESULT",
+                    "message": f"Cannot delete result with status {instance.status}. Submit a correction request instead.",
+                }
             )
         instance.delete()
 
@@ -165,9 +201,7 @@ class ResultHeaderViewSet(viewsets.ModelViewSet):
     def me(self, request):
         """Student's own results (published or frozen; drafts are not yet finalized)"""
         # get_queryset() applies student-specific filtering
-        queryset = self.get_queryset().filter(
-            status__in=[ResultHeader.STATUS_PUBLISHED, ResultHeader.STATUS_FROZEN]
-        )
+        queryset = self.get_queryset().filter(status__in=[ResultHeader.STATUS_PUBLISHED, ResultHeader.STATUS_FROZEN])
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -193,6 +227,14 @@ class ResultComponentEntryViewSet(viewsets.ModelViewSet):
             self.required_tasks = ["results.result_components.delete"]
         return super().get_permissions()
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        if in_group(user, "FACULTY") and not (in_group(user, "ADMIN") or in_group(user, "EXAMCELL")):
+            scoped_headers = _faculty_result_queryset(ResultHeader.objects.all(), user)
+            return queryset.filter(result_header__in=scoped_headers)
+        return queryset
+
     def perform_update(self, serializer):
         """Enforce immutability: Only editable result headers can have component updates."""
         instance = serializer.instance
@@ -209,9 +251,20 @@ class ResultComponentEntryViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         result_header = serializer.validated_data["result_header"]
+        if in_group(self.request.user, "FACULTY") and not in_group(self.request.user, "ADMIN"):
+            if not _faculty_can_manage_result(self.request.user, result_header.exam, result_header.student):
+                raise PermissionDenied(
+                    detail={
+                        "code": "RESULT_SCOPE_DENIED",
+                        "message": "You may enter component marks only for groups and periods you teach.",
+                    }
+                )
         if not result_header.is_editable:
             raise PermissionDenied(
-                detail={"code": "IMMUTABLE_RESULT", "message": f"Cannot add a component to result with status {result_header.status}. Submit a correction request instead."}
+                detail={
+                    "code": "IMMUTABLE_RESULT",
+                    "message": f"Cannot add a component to result with status {result_header.status}. Submit a correction request instead.",
+                }
             )
         instance = serializer.save()
         compute_result_passing_status(instance.result_header)
@@ -219,7 +272,10 @@ class ResultComponentEntryViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         if not instance.result_header.is_editable:
             raise PermissionDenied(
-                detail={"code": "IMMUTABLE_RESULT", "message": f"Cannot delete a component from result with status {instance.result_header.status}. Submit a correction request instead."}
+                detail={
+                    "code": "IMMUTABLE_RESULT",
+                    "message": f"Cannot delete a component from result with status {instance.result_header.status}. Submit a correction request instead.",
+                }
             )
         result_header = instance.result_header
         instance.delete()
@@ -229,7 +285,9 @@ class ResultComponentEntryViewSet(viewsets.ModelViewSet):
 class ResultCorrectionRequestViewSet(viewsets.ModelViewSet):
     """Narrow, auditable exception path for immutable result corrections."""
 
-    queryset = ResultCorrectionRequest.objects.select_related("result_header", "requested_by", "reviewed_by", "applied_by")
+    queryset = ResultCorrectionRequest.objects.select_related(
+        "result_header", "requested_by", "reviewed_by", "applied_by"
+    )
     serializer_class = ResultCorrectionRequestSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ["get", "post", "head", "options"]
@@ -249,9 +307,19 @@ class ResultCorrectionRequestViewSet(viewsets.ModelViewSet):
         student = getattr(user, "student", None)
         if in_group(user, "STUDENT"):
             if not student or result.student_id != student.id:
-                raise PermissionDenied(detail={"code": "RESULT_SCOPE_DENIED", "message": "Students may request corrections only for their own results."})
+                raise PermissionDenied(
+                    detail={
+                        "code": "RESULT_SCOPE_DENIED",
+                        "message": "Students may request corrections only for their own results.",
+                    }
+                )
         elif not has_permission_task(user, "results.result_corrections.create"):
-            raise PermissionDenied(detail={"code": "CORRECTION_REQUEST_DENIED", "message": "You are not allowed to request a result correction."})
+            raise PermissionDenied(
+                detail={
+                    "code": "CORRECTION_REQUEST_DENIED",
+                    "message": "You are not allowed to request a result correction.",
+                }
+            )
 
         original_values = {
             "total_obtained": str(result.total_obtained),
@@ -264,13 +332,29 @@ class ResultCorrectionRequestViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"])
     def review(self, request, pk=None):
         if not self._can_review(request.user):
-            raise PermissionDenied(detail={"code": "CORRECTION_REVIEW_DENIED", "message": "You are not allowed to review result corrections."})
+            raise PermissionDenied(
+                detail={
+                    "code": "CORRECTION_REVIEW_DENIED",
+                    "message": "You are not allowed to review result corrections.",
+                }
+            )
         correction = self.get_object()
         decision = request.data.get("decision")
         if correction.status != ResultCorrectionRequest.STATUS_PENDING:
-            return Response({"error": {"code": "INVALID_CORRECTION_STATE", "message": "Only pending correction requests can be reviewed."}}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "error": {
+                        "code": "INVALID_CORRECTION_STATE",
+                        "message": "Only pending correction requests can be reviewed.",
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if decision not in [ResultCorrectionRequest.STATUS_APPROVED, ResultCorrectionRequest.STATUS_REJECTED]:
-            return Response({"error": {"code": "INVALID_DECISION", "message": "Decision must be APPROVED or REJECTED."}}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": {"code": "INVALID_DECISION", "message": "Decision must be APPROVED or REJECTED."}},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         correction.status = decision
         correction.reviewed_by = request.user
         correction.reviewed_at = timezone.now()
@@ -281,10 +365,23 @@ class ResultCorrectionRequestViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"])
     def apply(self, request, pk=None):
         if not self._can_review(request.user):
-            raise PermissionDenied(detail={"code": "CORRECTION_APPLY_DENIED", "message": "You are not allowed to apply result corrections."})
+            raise PermissionDenied(
+                detail={
+                    "code": "CORRECTION_APPLY_DENIED",
+                    "message": "You are not allowed to apply result corrections.",
+                }
+            )
         correction = self.get_object()
         if correction.status != ResultCorrectionRequest.STATUS_APPROVED:
-            return Response({"error": {"code": "INVALID_CORRECTION_STATE", "message": "Only approved correction requests can be applied."}}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "error": {
+                        "code": "INVALID_CORRECTION_STATE",
+                        "message": "Only approved correction requests can be applied.",
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         with transaction.atomic():
             result = ResultHeader.objects.select_for_update().get(pk=correction.result_header_id)
@@ -293,7 +390,15 @@ class ResultCorrectionRequestViewSet(viewsets.ModelViewSet):
             entries = {str(entry.id): entry for entry in result.component_entries.select_for_update()}
             unknown = set(component_marks) - set(entries)
             if unknown:
-                return Response({"error": {"code": "UNKNOWN_COMPONENT_ENTRY", "message": "Correction references a component entry outside this result."}}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {
+                        "error": {
+                            "code": "UNKNOWN_COMPONENT_ENTRY",
+                            "message": "Correction references a component entry outside this result.",
+                        }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             if "total_obtained" in changes:
                 result.total_obtained = Decimal(str(changes["total_obtained"]))
             if "total_max" in changes:

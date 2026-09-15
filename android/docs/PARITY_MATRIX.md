@@ -16,4 +16,4 @@ of Android scope.
 | Exams/results/transcripts | Exams, components, result lifecycle, corrections, transcripts | IMPLEMENTED | Sensitive transitions require explicit confirmation; server workflow remains authoritative |
 | Finance | Vouchers, payments, ledger, adjustments, reports | IMPLEMENTED | Immediate online writes with confirmations; no offline financial writes |
 | Admin/audit/settings | Dashboard, users, RBAC, audit/export, settings, impersonation | IMPLEMENTED | Secure token swap blocks nesting and provides a persistent acting-as banner |
-| Learning/compliance/syllabus | Materials, requirements, syllabus | IMPLEMENTED-WITH-GAPS | Student materials/compliance and Admin syllabus are implemented; Faculty material management remains the recorded Phase 2 gap |
+| Learning/compliance/syllabus | Materials, requirements, syllabus | IMPLEMENTED | Student materials/compliance, Faculty file/link/audience management, and Admin syllabus are implemented |

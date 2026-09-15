@@ -138,8 +138,47 @@ class FakeFacultyApi @Inject constructor() : FacultyApi {
     var rosterResponse = Response.success(LiveRosterDto(1, 1, "2026-09-15", students = emptyList()))
     var submitResponse = Response.success(LiveAttendanceResultDto(total = 0))
     var lastSubmit: LiveAttendanceRequest? = null
+    var studentsResponse = Response.success(PaginatedResponse<FacultyStudentDto>(0, results = emptyList()))
+    var examsResponse = Response.success(PaginatedResponse<FacultyExamDto>(0, results = emptyList()))
+    var gradebookResponse = Response.success(PaginatedResponse<FacultyResultDto>(0, results = emptyList()))
+    var sectionsResponse = Response.success(PaginatedResponse<FacultySectionDto>(0, results = emptyList()))
+    var facultyMaterialsResponse = Response.success(PaginatedResponse<LearningMaterialDto>(0, results = emptyList()))
+    var lastCreatedResult: FacultyResultWriteRequest? = null
+    var lastCreatedLink: FacultyMaterialLinkRequest? = null
+    var lastAudience: FacultyAudienceRequest? = null
+    var lastPublishedMaterialId: Long? = null
     override suspend fun dashboard() = dashboardResponse
     override suspend fun sessions(ordering: String, page: Int?) = sessionsResponse
     override suspend fun roster(sessionId: Long) = rosterResponse
     override suspend fun submitAttendance(request: LiveAttendanceRequest): Response<LiveAttendanceResultDto> { lastSubmit = request; return submitResponse }
+    override suspend fun students(search: String?, page: Int?) = studentsResponse
+    override suspend fun exams(page: Int?) = examsResponse
+    override suspend fun gradebook(search: String?, page: Int?) = gradebookResponse
+    override suspend fun createResult(request: FacultyResultWriteRequest): Response<FacultyResultDto> {
+        lastCreatedResult = request
+        return Response.success(FacultyResultDto(10, request.exam, student = request.student, total_obtained = request.total_obtained, total_max = request.total_max))
+    }
+    override suspend fun updateResult(id: Long, request: FacultyResultUpdateRequest) = Response.success(FacultyResultDto(id, 1, student = 1, total_obtained = request.total_obtained, total_max = request.total_max))
+    override suspend fun createResultComponent(request: FacultyComponentWriteRequest) = Response.success(FacultyResultComponentDto(20, request.result_header ?: 0, request.exam_component ?: 0, marks_obtained = request.marks_obtained))
+    override suspend fun updateResultComponent(id: Long, request: FacultyComponentWriteRequest) = Response.success(FacultyResultComponentDto(id, 1, 1, marks_obtained = request.marks_obtained))
+    override suspend fun deleteResultComponent(id: Long) = Response.success(Unit)
+    override suspend fun sections(page: Int?) = sectionsResponse
+    override suspend fun materials(search: String?, page: Int?) = facultyMaterialsResponse
+    override suspend fun createLinkMaterial(request: FacultyMaterialLinkRequest): Response<LearningMaterialDto> {
+        lastCreatedLink = request
+        return Response.success(LearningMaterialDto(30, request.title, request.description, request.kind, url = request.url, status = "DRAFT", created_by = 1))
+    }
+    override suspend fun createFileMaterial(file: MultipartBody.Part, title: RequestBody, description: RequestBody, kind: RequestBody, availableFrom: RequestBody?, availableUntil: RequestBody?) = Response.success(LearningMaterialDto(31, "Uploaded file", kind = "FILE", status = "DRAFT", created_by = 1))
+    override suspend fun updateMaterial(id: Long, request: FacultyMaterialUpdateRequest) = Response.success(LearningMaterialDto(id, request.title, request.description, "LINK", url = request.url, status = "DRAFT", created_by = 1))
+    override suspend fun deleteMaterial(id: Long) = Response.success(Unit)
+    override suspend fun publishMaterial(id: Long, request: EmptyRequest): Response<LearningMaterialDto> {
+        lastPublishedMaterialId = id
+        return Response.success(LearningMaterialDto(id, "Published", kind = "LINK", status = "PUBLISHED", created_by = 1))
+    }
+    override suspend fun archiveMaterial(id: Long, request: EmptyRequest) = Response.success(LearningMaterialDto(id, "Archived", kind = "LINK", status = "ARCHIVED", created_by = 1))
+    override suspend fun addMaterialAudience(id: Long, request: FacultyAudienceRequest): Response<List<LearningMaterialAudienceDto>> {
+        lastAudience = request
+        return Response.success(listOf(LearningMaterialAudienceDto(40, id, section = request.section)))
+    }
+    override suspend fun deleteMaterialAudience(id: Long) = Response.success(Unit)
 }

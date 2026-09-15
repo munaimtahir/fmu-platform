@@ -10,6 +10,8 @@ sealed class Destination(val route: String, val label: String) {
     data object Profile: Destination("profile", "Profile")
     data object StudentServices: Destination("student-services", "Services")
     data object FacultyAttendance: Destination("faculty-attendance", "Attendance")
+    data object FacultyGradebook: Destination("faculty-gradebook", "Gradebook")
+    data object FacultyMaterials: Destination("faculty-materials", "Materials")
     data object Operations: Destination("operations", "Operations")
 
     companion object {
@@ -20,7 +22,7 @@ sealed class Destination(val route: String, val label: String) {
          */
         fun forRole(role: AppRole, facultyEnabled: Boolean = true): List<Destination> = when (role) {
             AppRole.STUDENT -> listOf(Home, Timetable, Attendance, Results, Profile)
-            AppRole.FACULTY -> if (facultyEnabled) listOf(Home, FacultyAttendance, Profile) else listOf(Home, Profile)
+            AppRole.FACULTY -> if (facultyEnabled) listOf(Home, FacultyAttendance, FacultyGradebook, FacultyMaterials, Profile) else listOf(Home, Profile)
             AppRole.REGISTRAR, AppRole.COORDINATOR, AppRole.EXAM_CELL, AppRole.FINANCE, AppRole.ADMIN -> listOf(Home, Operations, Profile)
             else -> listOf(Home, Profile)
         }

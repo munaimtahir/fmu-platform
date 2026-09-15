@@ -70,6 +70,31 @@ interface FacultyApi {
     ): Response<PaginatedResponse<FacultySessionDto>>
     @GET("api/attendance-input/live/roster/") suspend fun roster(@Query("session_id") sessionId: Long): Response<LiveRosterDto>
     @POST("api/attendance-input/live/submit/") suspend fun submitAttendance(@Body request: LiveAttendanceRequest): Response<LiveAttendanceResultDto>
+    @GET("api/students/") suspend fun students(@Query("search") search: String? = null, @Query("page") page: Int? = null): Response<PaginatedResponse<FacultyStudentDto>>
+    @GET("api/exams/") suspend fun exams(@Query("page") page: Int? = null): Response<PaginatedResponse<FacultyExamDto>>
+    @GET("api/results/") suspend fun gradebook(@Query("search") search: String? = null, @Query("page") page: Int? = null): Response<PaginatedResponse<FacultyResultDto>>
+    @POST("api/results/") suspend fun createResult(@Body request: FacultyResultWriteRequest): Response<FacultyResultDto>
+    @PATCH("api/results/{id}/") suspend fun updateResult(@Path("id") id: Long, @Body request: FacultyResultUpdateRequest): Response<FacultyResultDto>
+    @POST("api/result-components/") suspend fun createResultComponent(@Body request: FacultyComponentWriteRequest): Response<FacultyResultComponentDto>
+    @PATCH("api/result-components/{id}/") suspend fun updateResultComponent(@Path("id") id: Long, @Body request: FacultyComponentWriteRequest): Response<FacultyResultComponentDto>
+    @HTTP(method = "DELETE", path = "api/result-components/{id}/", hasBody = false) suspend fun deleteResultComponent(@Path("id") id: Long): Response<Unit>
+    @GET("api/academics/sections/") suspend fun sections(@Query("page") page: Int? = null): Response<PaginatedResponse<FacultySectionDto>>
+    @GET("api/learning/materials/") suspend fun materials(@Query("search") search: String? = null, @Query("page") page: Int? = null): Response<PaginatedResponse<LearningMaterialDto>>
+    @POST("api/learning/materials/") suspend fun createLinkMaterial(@Body request: FacultyMaterialLinkRequest): Response<LearningMaterialDto>
+    @Multipart @POST("api/learning/materials/") suspend fun createFileMaterial(
+        @Part file: MultipartBody.Part,
+        @Part("title") title: RequestBody,
+        @Part("description") description: RequestBody,
+        @Part("kind") kind: RequestBody,
+        @Part("available_from") availableFrom: RequestBody?,
+        @Part("available_until") availableUntil: RequestBody?,
+    ): Response<LearningMaterialDto>
+    @PATCH("api/learning/materials/{id}/") suspend fun updateMaterial(@Path("id") id: Long, @Body request: FacultyMaterialUpdateRequest): Response<LearningMaterialDto>
+    @HTTP(method = "DELETE", path = "api/learning/materials/{id}/", hasBody = false) suspend fun deleteMaterial(@Path("id") id: Long): Response<Unit>
+    @POST("api/learning/materials/{id}/publish/") suspend fun publishMaterial(@Path("id") id: Long, @Body request: EmptyRequest = EmptyRequest): Response<LearningMaterialDto>
+    @POST("api/learning/materials/{id}/archive/") suspend fun archiveMaterial(@Path("id") id: Long, @Body request: EmptyRequest = EmptyRequest): Response<LearningMaterialDto>
+    @POST("api/learning/materials/{id}/audiences/") suspend fun addMaterialAudience(@Path("id") id: Long, @Body request: FacultyAudienceRequest): Response<List<LearningMaterialAudienceDto>>
+    @HTTP(method = "DELETE", path = "api/learning/audiences/{id}/", hasBody = false) suspend fun deleteMaterialAudience(@Path("id") id: Long): Response<Unit>
 }
 
 /** Dynamic transport for the shared staff APIs. Domain repositories still own paths and policy. */

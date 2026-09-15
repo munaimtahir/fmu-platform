@@ -82,6 +82,7 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
         "FACULTY": [
             "academics.courses.view",
             "academics.sections.view",
+            "students.students.view",
             # Faculty need to browse batches/periods/groups read-only to
             # drive the /timetable page (batch + academic period selectors,
             # and the EntryForm's group dropdown) — without these, the
@@ -91,7 +92,14 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
             "academics.terms.view",
             "academics.groups.view",
             "results.result_headers.view",
+            "results.result_headers.create",
+            "results.result_headers.update",
             "results.result_components.view",
+            "results.result_components.create",
+            "results.result_components.update",
+            "results.result_components.delete",
+            "exams.exams.view",
+            "exams.components.view",
             # Faculty can manage their own sessions/draft timetables/entries
             # (object-level ownership is still enforced inside the view/
             # action bodies), but cannot hard-delete entries.

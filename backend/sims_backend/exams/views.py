@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core.permissions import PermissionTaskRequired
+from sims_backend.common_permissions import in_group
 from sims_backend.exams.models import Exam, ExamComponent
 from sims_backend.exams.serializers import ExamComponentSerializer, ExamSerializer
 
@@ -23,13 +24,23 @@ class ExamViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         action_tasks = {
-            "list": "exams.exams.view", "retrieve": "exams.exams.view",
-            "create": "exams.exams.create", "update": "exams.exams.update",
-            "partial_update": "exams.exams.update", "destroy": "exams.exams.delete",
+            "list": "exams.exams.view",
+            "retrieve": "exams.exams.view",
+            "create": "exams.exams.create",
+            "update": "exams.exams.update",
+            "partial_update": "exams.exams.update",
+            "destroy": "exams.exams.delete",
             "publish": "exams.exams.publish",
         }
         self.required_tasks = [action_tasks.get(self.action, "exams.exams.view")]
         return super().get_permissions()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        if in_group(user, "FACULTY") and not in_group(user, "ADMIN"):
+            return queryset.filter(academic_period__sections__faculty=user).distinct()
+        return queryset
 
     @action(detail=True, methods=["post"], url_path="publish")
     def publish(self, request, pk=None):
@@ -54,9 +65,19 @@ class ExamComponentViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         action_tasks = {
-            "list": "exams.components.view", "retrieve": "exams.components.view",
-            "create": "exams.components.create", "update": "exams.components.update",
-            "partial_update": "exams.components.update", "destroy": "exams.components.delete",
+            "list": "exams.components.view",
+            "retrieve": "exams.components.view",
+            "create": "exams.components.create",
+            "update": "exams.components.update",
+            "partial_update": "exams.components.update",
+            "destroy": "exams.components.delete",
         }
         self.required_tasks = [action_tasks.get(self.action, "exams.components.view")]
         return super().get_permissions()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        if in_group(user, "FACULTY") and not in_group(user, "ADMIN"):
+            return queryset.filter(exam__academic_period__sections__faculty=user).distinct()
+        return queryset

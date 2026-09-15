@@ -8,6 +8,8 @@
 - Added Admin dashboard, user/RBAC, audit/export, settings, syllabus/reorder and guarded impersonation workflows.
 - Added server-authoritative capability context, search/pagination, typed field forms, authenticated document streaming and explicit confirmations.
 - Hardened exam mutation RBAC, expanded built-in staff task mappings, corrected complete Admin role serialization/validation, and fixed OpenAPI collection types.
+- Closed the remaining Faculty parity gaps with taught-group/period-scoped draft gradebook entry and component-mark editing; ExamCell retains verify/publish/freeze authority.
+- Added Faculty learning-material link/file upload, draft editing/deletion, teaching-section audiences, publish/archive lifecycle, pagination, validation, and guarded online actions.
 
 ## 2026-09-09 - Vexel MedSIMS Android: first Google Play submission (0.1.0 / versionCode 1)
 

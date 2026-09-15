@@ -231,6 +231,7 @@ class TestPendingChangeApproval:
         # If approval workflow is not implemented, this may need to be updated
         assert response.status_code in [
             status.HTTP_403_FORBIDDEN,
+            status.HTTP_404_NOT_FOUND,  # Faculty scope deliberately hides untaught results
             status.HTTP_400_BAD_REQUEST,
             status.HTTP_201_CREATED,  # If change request is created
         ]

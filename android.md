@@ -66,10 +66,10 @@ Phases follow the release-train sequence already committed to in `register.json`
 ### Phase 0 — Foundation (done)
 Session/auth (`core/auth/AuthRepository.kt`, `SessionViewModel.kt`), adaptive shell/navigation (`feature/shell/`), shared error handling (`core/network/NetworkResult.kt`), Hilt DI wiring, CI parity gate. Reused by every later phase — no further action needed unless a later phase surfaces a gap in this layer.
 
-### Phase 1 — Student (code complete, release operations pending for v1.0.4)
+### Phase 1 — Student (implemented; v1.0.4 uploaded)
 - Document upload/download, fee statement PDF retrieval, authenticated learning-file handling, and the reusable system-viewer handoff are implemented.
 - `StudentServicesScreen`, its API contract, and `ProfileViewModel` now have registered automated coverage.
-- Remaining work is operator-controlled: seeded acceptance, upload-key backup confirmation, and Play internal-track upload (see §5).
+- The v1.0.4 Play upload and external upload-key backup were confirmed by the operator; the production demo login and Student role-home smoke also pass.
 
 ### Phase 2 — Faculty (`faculty-delivery` in register, partially implemented)
 - Implemented and tested: Faculty stat tiles, own-session selection, searchable roster, present/absent controls, confirmation, and live attendance submission.
@@ -79,17 +79,17 @@ Session/auth (`core/auth/AuthRepository.kt`, `SessionViewModel.kt`), adaptive sh
 ### Phase 3 — Registrar/Coordinator (implemented for v1.2.0)
 - Screens: student/people record CRUD, academics lifecycle management (programs/batches/periods/groups/departments), timetable publication, bulk student import, attendance eligibility report.
 - Bind to `/api/students/`, `/api/people/persons/`, `/api/academics/*`, `/api/timetable/weekly-timetables/*`, `/api/admin/students/import/*`, `/api/attendance/eligibility/`.
-- These are CRUD/table-heavy screens on web (`DataTable` component) — design a mobile-appropriate list/detail pattern rather than porting wide tables directly.
+- CRUD/table-heavy web surfaces use searchable, paginated mobile cards and typed detail/edit dialogs rather than wide table ports.
 
 ### Phase 4 — ExamCell/Finance (implemented for v1.2.0)
 - Screens: exam management + publish workflow, result publication/correction, internal transcript generation (authenticated — not the public QR flow), finance dashboard, vouchers, payments, ledger, adjustments, reports, statement PDF.
 - Bind to `/api/exams/*`, `/api/results/`, `/api/result-corrections/`, `/api/transcripts/{student_id}/`, `/api/finance/*`.
-- Finance writes are sensitive (payment/adjustment/reversal/approval) — confirm server-side authorization is sufficient before assuming client-side role gating is enough.
+- Sensitive Finance writes use explicit confirmations and backend task authorization; contract/regression coverage and production role smokes verify server-side enforcement.
 
 ### Phase 5 — Admin (implemented for v1.2.0)
 - Screens: user management, role/permission assignment, audit log (+export), impersonation, system settings, syllabus manager, analytics dashboard (stat-tile style, matching web's non-chart approach).
 - Bind to `/api/admin/*`, `/api/core/roles/*`, `/api/audit/*`.
-- Impersonation on mobile needs explicit UX consideration (token swap, clear visual indicator of "acting as" state) — mirror the web's backup/restore token pattern in `frontend/src/api/impersonation.ts`.
+- Impersonation uses the web-equivalent backup/restore token pattern, prevents nesting, displays a persistent acting-as banner, and restores the Admin session on stop.
 
 Each phase's Definition of Done: screens implemented, `register.json` workflow entry updated from `planned` to `implemented` (or `implemented-with-gaps` with a stated reason), unit + Compose UI tests added, `check_parity_register.py` passes in CI.
 
@@ -112,8 +112,8 @@ Source: direct inspection of `android/parity/register.json`, `android/docs/PARIT
 
 ## 6. Open gaps / risks
 
-- **Offline-write policy vs. field usage:** Faculty attendance marking and Registrar/Coordinator workflows may be used in low-connectivity settings on campus; the current "offline writes forbidden" policy should be revisited with product before Phase 2/3 if that's a real constraint, rather than discovered mid-build.
+- **Offline-write policy vs. field usage:** all staff writes remain deliberately online-only. Reconsidering offline mutation support is a future product-policy decision, not a Phase 3–5 implementation gap.
 - **Mobile-curated API coverage:** Student uses curated `/api/mobile/*`; staff roles intentionally consume the same typed/general REST contracts as the web application.
-- **Wide web tables → mobile:** Registrar/Coordinator and Admin screens are dense `DataTable`-based CRUD on web; these need a deliberate mobile list/detail/search design pass, not a literal port.
-- **Finance write sensitivity:** payment/adjustment/reversal/approval flows need explicit confirmation that mobile client-side role gating is backed by adequate server-side authorization (should already be true given shared backend, but worth a dedicated check before Phase 4).
+- **Wide web tables → mobile:** Registrar/Coordinator and Admin CRUD is implemented as searchable, paginated mobile cards with typed edit/action dialogs.
+- **Finance write sensitivity:** payment/adjustment/reversal/approval flows retain explicit client confirmation and backend task authorization; dedicated tests and production role acceptance passed.
 - **Document viewing on mobile:** authenticated documents are streamed to app-private cache and handed to the system viewer through `FileProvider`; the pattern is reused by statements, receipts, vouchers, transcripts and CSV exports.

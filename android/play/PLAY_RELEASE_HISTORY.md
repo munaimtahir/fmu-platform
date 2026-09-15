@@ -187,6 +187,7 @@ Status:                 Signed release candidate; parity, lint, unit tests, debu
 
 Verification evidence: `jarsigner -verify -certs` reported `jar verified`; a bundletool-derived
 universal APK installed on `emulator-5554`, reported version `1.2.0` / code `6`, launched, and
-remained running. Commit `8ffaadc` was deployed to production after a verified database backup;
-public health and representative Registrar, Coordinator, ExamCell, Finance, Admin, Student, and
-Faculty acceptance checks passed. Detailed evidence is in `RELEASE_CHECKLIST_1.2.0.md`.
+remained running. Commit `5fb8d8b` was deployed to production after a verified database backup;
+public health, Faculty scoped reads, draft grade entry, component editing, result-publication denial,
+and learning-material lifecycle checks passed. The write acceptance transaction was rolled back and
+left no test records. Detailed evidence is in `RELEASE_CHECKLIST_1.2.0.md`.

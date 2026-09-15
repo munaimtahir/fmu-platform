@@ -163,3 +163,27 @@ Verification evidence: `jarsigner -verify -certs` reported `jar verified`; a bun
 universal APK installed on `emulator-5554`, reported version `1.1.0` / code `5`, launched, and remained
 running. Demo-account results and remaining acceptance limitations are recorded in
 `RELEASE_CHECKLIST_1.1.0.md`.
+
+## 1.2.0 (versionCode 6) — Staff parity candidate
+
+Adds Registrar, Coordinator, ExamCell, Finance and Admin native workflows for Android Phases 3–5.
+The Play Console operation remains intentionally manual.
+
+```text
+Product:               Vexel MedSIMS
+Package:               pk.vexel.medsims
+Version:               1.2.0
+Version code:          6
+
+Release type:          Build + verify — manual Play Console upload pending
+AAB SHA-256:           c1a7e43601eb07bcc7d8326bda2fb0a6d9bf313e5a06f329cb0ad61e5985c5f1
+AAB size:              4,461,014 bytes
+Build date:             2026-09-15
+Status:                 Signed release candidate; parity, lint, unit tests, debug/release
+                        builds, 18 instrumented tests, and backend regression suite passed.
+                        Production acceptance evidence is tracked in the release checklist.
+```
+
+Verification evidence: `jarsigner -verify -certs` reported `jar verified`; a bundletool-derived
+universal APK installed on `emulator-5554`, reported version `1.2.0` / code `6`, launched, and
+remained running.

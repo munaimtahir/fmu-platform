@@ -44,20 +44,20 @@ Status values: **Implemented**, **Implemented-with-gaps**, **Planned**, **Out-of
 | Faculty | Section roster / live attendance input | `/api/attendance-input/live/roster,submit/` | `faculty` | **Implemented** (staged behind v1.1.0 release flag) |
 | Faculty | Results/gradebook entry | `/api/results/`, `/api/result-components/` | `faculty` | Planned |
 | Faculty | Learning materials management | `/api/learning/materials/` | `faculty` | Planned |
-| Registrar | Student/people records CRUD | `/api/students/`, `/api/people/persons/` | `registrar-coordinator` | Planned |
-| Registrar | Academics lifecycle (programs/batches/periods/groups/departments) | `/api/academics/*` | `registrar-coordinator` | Planned |
-| Registrar | Timetable publication | `/api/timetable/weekly-timetables/*` | `registrar-coordinator` | Planned |
-| Coordinator | Bulk student import | `/api/admin/students/import/*` | `registrar-coordinator` | Planned |
-| Coordinator | Attendance eligibility report | `/api/attendance/eligibility/` | `registrar-coordinator` | Planned |
-| ExamCell | Exam management + publish | `/api/exams/*` | `exam-finance` | Planned |
-| ExamCell | Result publication / correction workflow | `/api/results/`, `/api/result-corrections/` | `exam-finance` | Planned |
-| ExamCell | Transcript generation (internal, authenticated) | `/api/transcripts/{student_id}/` | `exam-finance` | Planned |
-| Finance | Fee plans, vouchers, payments, ledger, adjustments | `/api/finance/*` | `exam-finance` | Planned |
-| Finance | Reports (defaulters/collection/aging) + statement PDF | `/api/finance/reports/*` | `exam-finance` | Planned |
-| Admin | User management, role/permission assignment | `/api/admin/users/*`, `/api/core/roles/*` | `admin` | Planned |
-| Admin | Audit log (+ export) | `/api/audit/*` | `admin` | Planned |
-| Admin | System settings, syllabus manager | `/api/admin/settings/*`, `/api/admin/syllabus/*` | `admin` | Planned |
-| Analytics | Aggregated admin analytics dashboard | derived from students/courses/attendance APIs | `admin` | Planned (no charts on web either — replicate as stat tiles) |
+| Registrar | Student/people records CRUD | `/api/students/`, `/api/people/*` | `registrar-coordinator` | **Implemented** |
+| Registrar | Academics lifecycle (programs/batches/periods/groups/departments) | `/api/academics/*` | `registrar-coordinator` | **Implemented** |
+| Registrar | Timetable CRUD/generation/publication | `/api/timetable/weekly-timetables/*`, `/api/timetable/entries/*` | `registrar-coordinator` | **Implemented** |
+| Coordinator | Bulk student import | `/api/admin/students/import/*` | `registrar-coordinator` | **Implemented** |
+| Coordinator | Attendance eligibility report | `/api/attendance/eligibility/` | `registrar-coordinator` | **Implemented** |
+| ExamCell | Exam management + publish | `/api/exams/*` | `exam-finance` | **Implemented** |
+| ExamCell | Result publication / correction workflow | `/api/results/`, `/api/result-corrections/` | `exam-finance` | **Implemented** |
+| ExamCell | Transcript generation (internal, authenticated) | `/api/transcripts/{student_id}/` | `exam-finance` | **Implemented** |
+| Finance | Fee plans, vouchers, payments, ledger, adjustments | `/api/finance/*` | `exam-finance` | **Implemented** |
+| Finance | Reports (defaulters/collection/aging) + statement PDF | `/api/finance/reports/*` | `exam-finance` | **Implemented** |
+| Admin | User management, role/permission assignment | `/api/admin/users/*`, `/api/core/roles/*` | `admin` | **Implemented** |
+| Admin | Audit log (+ export) | `/api/audit/*` | `admin` | **Implemented** |
+| Admin | System settings, syllabus manager | `/api/admin/settings/*`, `/api/admin/syllabus/*` | `admin` | **Implemented** |
+| Analytics | Aggregated admin analytics dashboard | `/api/admin/dashboard/` | `admin` | **Implemented** (stat-tile/detail payload; no charts) |
 
 ## 4. Staged development plan
 
@@ -76,17 +76,17 @@ Session/auth (`core/auth/AuthRepository.kt`, `SessionViewModel.kt`), adaptive sh
 - Enabled for debug and release builds in v1.1.0 after the Student-only v1.0.4 upload.
 - Still pending: results/gradebook entry and learning-material management/upload.
 
-### Phase 3 — Registrar/Coordinator (`registrar-coordinator-records`, `coordinator-records`)
+### Phase 3 — Registrar/Coordinator (implemented for v1.2.0)
 - Screens: student/people record CRUD, academics lifecycle management (programs/batches/periods/groups/departments), timetable publication, bulk student import, attendance eligibility report.
 - Bind to `/api/students/`, `/api/people/persons/`, `/api/academics/*`, `/api/timetable/weekly-timetables/*`, `/api/admin/students/import/*`, `/api/attendance/eligibility/`.
 - These are CRUD/table-heavy screens on web (`DataTable` component) — design a mobile-appropriate list/detail pattern rather than porting wide tables directly.
 
-### Phase 4 — ExamCell/Finance (`exam-cell-results`, `finance-operations`)
+### Phase 4 — ExamCell/Finance (implemented for v1.2.0)
 - Screens: exam management + publish workflow, result publication/correction, internal transcript generation (authenticated — not the public QR flow), finance dashboard, vouchers, payments, ledger, adjustments, reports, statement PDF.
 - Bind to `/api/exams/*`, `/api/results/`, `/api/result-corrections/`, `/api/transcripts/{student_id}/`, `/api/finance/*`.
 - Finance writes are sensitive (payment/adjustment/reversal/approval) — confirm server-side authorization is sufficient before assuming client-side role gating is enough.
 
-### Phase 5 — Admin (`admin-governance`)
+### Phase 5 — Admin (implemented for v1.2.0)
 - Screens: user management, role/permission assignment, audit log (+export), impersonation, system settings, syllabus manager, analytics dashboard (stat-tile style, matching web's non-chart approach).
 - Bind to `/api/admin/*`, `/api/core/roles/*`, `/api/audit/*`.
 - Impersonation on mobile needs explicit UX consideration (token swap, clear visual indicator of "acting as" state) — mirror the web's backup/restore token pattern in `frontend/src/api/impersonation.ts`.
@@ -102,18 +102,18 @@ Source: direct inspection of `android/parity/register.json`, `android/docs/PARIT
 - ✅ **Profile/account** — `feature/profile/ProfileScreen.kt` + `ProfileViewModel.kt`. Register: `student-account` = implemented.
 - ✅ **Student services (fees/learning/compliance/notifications)** — supports authenticated downloads, system-viewer handoff, compliance document upload, fee statements, notifications, and registered tests. Register: `student-fees-learning-compliance` = implemented.
 - 🟡 **Faculty** — dashboard, own sessions, roster, and live attendance are implemented and tested but staged for v1.1.0; gradebook and material management remain. Register: `faculty-delivery` = implemented-with-gaps.
-- ⬜ **Registrar** — placeholder only. Register: `registrar-coordinator-records` = planned.
-- ⬜ **Coordinator** — placeholder only. Register: `coordinator-records` = planned.
-- ⬜ **ExamCell** — placeholder only. Register: `exam-cell-results` = planned.
-- ⬜ **Finance** — placeholder only. Register: `finance-operations` = planned.
-- ⬜ **Admin** — placeholder only. Register: `admin-governance` = planned.
+- ✅ **Registrar** — native mobile record CRUD, academic lifecycle, timetable entries/generation/publication. Register: `registrar-coordinator-records` = implemented.
+- ✅ **Coordinator** — placement, CSV preview/commit/jobs/errors and eligibility. Register: `coordinator-records` = implemented.
+- ✅ **ExamCell** — exams/components, result lifecycle/corrections and authenticated transcripts. Register: `exam-cell-results` = implemented.
+- ✅ **Finance** — fee configuration, bulk vouchers, payments, ledger, adjustments, reports and documents. Register: `finance-operations` = implemented.
+- ✅ **Admin** — dashboard, users/RBAC, audit/export, settings, syllabus and guarded impersonation. Register: `admin-governance` = implemented.
 - **Infrastructure:** Hilt DI, Retrofit/OkHttp networking (`core/network/`), adaptive shell/navigation, shared `NetworkResult`/`safeCall` error pattern, unit + instrumented test scaffolding, CI workflow (`android-ci.yml`, unit tests/lint/assemble/instrumented tests across API 28/34/tablet — no signing/upload) — all ✅ in place and reusable by every future phase.
-- **Release status:** Student-only v1.0.4 was uploaded to Play internal testing and its upload-key backup was confirmed. Development has moved to v1.1.0 with the Faculty dashboard and live-attendance slice enabled; Play promotion remains manual.
+- **Release status:** Student-only v1.0.4 was uploaded and the upload key was backed up. Phase 2 shipped in v1.1.0; Phases 3–5 are included in signed v1.2.0 (versionCode 6). Play internal-track upload remains manual.
 
 ## 6. Open gaps / risks
 
 - **Offline-write policy vs. field usage:** Faculty attendance marking and Registrar/Coordinator workflows may be used in low-connectivity settings on campus; the current "offline writes forbidden" policy should be revisited with product before Phase 2/3 if that's a real constraint, rather than discovered mid-build.
-- **Mobile-curated API coverage:** only Student has a curated `/api/mobile/*` surface. Later phases will hit the general API directly (more payload, more client-side shaping) unless the backend team adds curated views per role — worth a backend-side decision before Phase 2 starts.
+- **Mobile-curated API coverage:** Student uses curated `/api/mobile/*`; staff roles intentionally consume the same typed/general REST contracts as the web application.
 - **Wide web tables → mobile:** Registrar/Coordinator and Admin screens are dense `DataTable`-based CRUD on web; these need a deliberate mobile list/detail/search design pass, not a literal port.
 - **Finance write sensitivity:** payment/adjustment/reversal/approval flows need explicit confirmation that mobile client-side role gating is backed by adequate server-side authorization (should already be true given shared backend, but worth a dedicated check before Phase 4).
-- **Document viewing on mobile:** several planned features (learning materials, compliance submissions, fee statement PDFs, transcripts) involve file/PDF handling with no existing Android pattern yet — first phase to hit this (Phase 1 gap-closure) should establish the reusable pattern (in-app viewer vs. system intent hand-off) for later phases to reuse.
+- **Document viewing on mobile:** authenticated documents are streamed to app-private cache and handed to the system viewer through `FileProvider`; the pattern is reused by statements, receipts, vouchers, transcripts and CSV exports.

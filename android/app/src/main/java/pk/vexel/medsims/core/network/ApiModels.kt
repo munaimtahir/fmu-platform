@@ -11,6 +11,10 @@ import kotlinx.serialization.Serializable
 @Serializable data class ProfileUpdateRequest(val first_name: String? = null, val last_name: String? = null, val email: String? = null)
 @Serializable data class MessageResponse(val message: String)
 @Serializable data class UserDto(val id: Long, val username: String, val email: String = "", val full_name: String = "", val role: String = "User", val student_id: Long? = null, val is_active: Boolean = true)
+@Serializable data class AccessRoleDto(val id:Long,val name:String,val description:String="")
+@Serializable data class AccessTaskDto(val id:Long,val code:String,val name:String="",val module:String="")
+@Serializable data class AccessProfileDto(val phone:String?=null,val date_of_birth:String?=null)
+@Serializable data class AccessContextDto(val id:Long,val username:String,val email:String="",val first_name:String="",val last_name:String="",val is_active:Boolean=true,val roles:List<AccessRoleDto> = emptyList(),val tasks:List<AccessTaskDto> = emptyList(),val profile:AccessProfileDto?=null)
 @Serializable data class LoginResponse(val user: UserDto, val tokens: TokenPair)
 @Serializable data class HealthResponse(val status: String)
 /**

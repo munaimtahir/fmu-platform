@@ -41,9 +41,11 @@ object NetworkModule {
     @Provides @Singleton fun retrofit(json: Json, client: OkHttpClient): Retrofit = Retrofit.Builder().baseUrl(BuildConfig.API_BASE_URL).client(client).addConverterFactory(json.asConverterFactory("application/json".toMediaType())).build()
     @Provides fun authApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
     @Provides fun healthApi(retrofit: Retrofit): HealthApi = retrofit.create(HealthApi::class.java)
+    @Provides fun coreApi(retrofit: Retrofit): CoreApi = retrofit.create(CoreApi::class.java)
     @Provides fun mobileApi(retrofit: Retrofit): MobileApi = retrofit.create(MobileApi::class.java)
     @Provides fun attendanceApi(retrofit: Retrofit): AttendanceApi = retrofit.create(AttendanceApi::class.java)
     @Provides fun resultsApi(retrofit: Retrofit): ResultsApi = retrofit.create(ResultsApi::class.java)
     @Provides fun studentApi(retrofit: Retrofit): StudentApi = retrofit.create(StudentApi::class.java)
     @Provides fun facultyApi(retrofit: Retrofit): FacultyApi = retrofit.create(FacultyApi::class.java)
+    @Provides fun staffApi(retrofit: Retrofit): StaffApi = retrofit.create(StaffApi::class.java)
 }

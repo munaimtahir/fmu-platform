@@ -11,9 +11,11 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Url
 import retrofit2.http.Streaming
+import retrofit2.http.HTTP
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import kotlinx.serialization.json.JsonElement
 
 interface AuthApi {
     @POST("api/auth/login/") suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
@@ -24,6 +26,7 @@ interface AuthApi {
     @POST("api/auth/change-password/") suspend fun changePassword(@Body request: PasswordChangeRequest): Response<MessageResponse>
 }
 interface HealthApi { @GET("api/health/") suspend fun health(): Response<HealthResponse> }
+interface CoreApi { @GET("api/core/users/me/") suspend fun accessContext():Response<AccessContextDto> }
 interface MobileApi {
     @GET("api/mobile/student/home/") suspend fun studentHome(): Response<StudentHomeResponse>
     @GET("api/mobile/student/timetable/") suspend fun studentTimetable(@Query("week_start_date") weekStartDate: String? = null): Response<StudentTimetableResponse>
@@ -67,4 +70,19 @@ interface FacultyApi {
     ): Response<PaginatedResponse<FacultySessionDto>>
     @GET("api/attendance-input/live/roster/") suspend fun roster(@Query("session_id") sessionId: Long): Response<LiveRosterDto>
     @POST("api/attendance-input/live/submit/") suspend fun submitAttendance(@Body request: LiveAttendanceRequest): Response<LiveAttendanceResultDto>
+}
+
+/** Dynamic transport for the shared staff APIs. Domain repositories still own paths and policy. */
+interface StaffApi {
+    @GET suspend fun get(@Url url: String): Response<JsonElement>
+    @POST suspend fun post(@Url url: String, @Body body: JsonElement): Response<JsonElement>
+    @PATCH suspend fun patch(@Url url: String, @Body body: JsonElement): Response<JsonElement>
+    @HTTP(method = "DELETE", hasBody = false) suspend fun delete(@Url url: String): Response<Unit>
+    @Streaming @GET suspend fun download(@Url url: String): Response<ResponseBody>
+    @Multipart @POST suspend fun upload(
+        @Url url: String,
+        @Part file: MultipartBody.Part,
+        @Part("mode") mode: RequestBody,
+        @Part("auto_create") autoCreate: RequestBody,
+    ): Response<JsonElement>
 }

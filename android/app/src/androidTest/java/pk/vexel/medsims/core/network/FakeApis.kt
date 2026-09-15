@@ -5,6 +5,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.serialization.json.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 /**
  * Hand-rolled fakes for every Retrofit API interface [NetworkModule] provides. Bound in place of
@@ -38,6 +41,21 @@ class FakeAuthApi @Inject constructor() : AuthApi {
 class FakeHealthApi @Inject constructor() : HealthApi {
     var response: Response<HealthResponse> = Response.success(HealthResponse("ok"))
     override suspend fun health(): Response<HealthResponse> = response
+}
+
+@Singleton class FakeCoreApi @Inject constructor():CoreApi{
+    var response:Response<AccessContextDto> = Response.success(AccessContextDto(1,"jane",roles=listOf(AccessRoleDto(1,"STUDENT"))))
+    override suspend fun accessContext()=response
+}
+
+@Singleton class FakeStaffApi @Inject constructor():StaffApi{
+    var jsonResponse:Response<JsonElement> = Response.success(JsonArray(emptyList()))
+    override suspend fun get(url:String)=jsonResponse
+    override suspend fun post(url:String,body:JsonElement)=jsonResponse
+    override suspend fun patch(url:String,body:JsonElement)=jsonResponse
+    override suspend fun delete(url:String)=Response.success(Unit)
+    override suspend fun download(url:String)=Response.success(ByteArray(0).toResponseBody("application/octet-stream".toMediaType()))
+    override suspend fun upload(url:String,file:MultipartBody.Part,mode:RequestBody,autoCreate:RequestBody)=jsonResponse
 }
 
 @Singleton

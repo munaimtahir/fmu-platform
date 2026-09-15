@@ -11082,8 +11082,9 @@ components:
           description: Get user's primary role.
           readOnly: true
         groups_list:
-          type: object
-          additionalProperties: {}
+          type: array
+          items:
+            type: string
           description: Get list of group names.
           readOnly: true
         last_login:
@@ -18259,19 +18260,21 @@ components:
           description: Designates whether this user should be treated as active. Unselect
             this instead of deleting accounts.
         roles:
-          type: object
-          additionalProperties: {}
-          description: Get user's roles.
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
           readOnly: true
         tasks:
-          type: object
-          additionalProperties: {}
-          description: Get user's permission tasks (both direct and via roles).
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
           readOnly: true
         profile:
           type: object
           additionalProperties: {}
-          description: Get user's profile if exists.
+          nullable: true
           readOnly: true
       required:
       - email

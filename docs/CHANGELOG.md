@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-09-15 - Android staff parity Phases 3–5 (1.2.0 / versionCode 6)
+
+- Added Registrar/Coordinator student, people, academic lifecycle, timetable, placement, import and eligibility workflows.
+- Added ExamCell exam/component, result publication/freeze/correction and authenticated transcript workflows.
+- Added Finance fee setup, voucher generation/PDF, payment receipt/reversal, ledger, adjustment, report and statement workflows.
+- Added Admin dashboard, user/RBAC, audit/export, settings, syllabus/reorder and guarded impersonation workflows.
+- Added server-authoritative capability context, search/pagination, typed field forms, authenticated document streaming and explicit confirmations.
+- Hardened exam mutation RBAC, expanded built-in staff task mappings, corrected complete Admin role serialization/validation, and fixed OpenAPI collection types.
+
 ## 2026-09-09 - Vexel MedSIMS Android: first Google Play submission (0.1.0 / versionCode 1)
 
 ### Summary

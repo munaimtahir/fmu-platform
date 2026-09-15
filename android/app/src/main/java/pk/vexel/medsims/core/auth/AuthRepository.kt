@@ -7,7 +7,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import pk.vexel.medsims.core.document.DocumentStore
 
-sealed interface SessionState { data object Initializing: SessionState; data object Unauthenticated: SessionState; data class Authenticated(val user: UserDto): SessionState; data object Expired: SessionState }
+sealed interface SessionState { data object Initializing: SessionState; data object Unauthenticated: SessionState; data class Authenticated(val user: UserDto,val access:AccessContextDto?=null): SessionState; data object Expired: SessionState }
 
 interface ProfileRepository {
     suspend fun updateProfile(email: String): NetworkResult<UserDto>
@@ -15,7 +15,8 @@ interface ProfileRepository {
 }
 
 @Singleton
-class AuthRepository @Inject constructor(private val api: AuthApi, private val store: SessionStore, private val documents: DocumentStore): TokenRefresher, ProfileRepository {
+class AuthRepository @Inject constructor(private val api: AuthApi, private val coreApi:CoreApi, private val store: SessionStore, private val documents: DocumentStore): TokenRefresher, ProfileRepository {
+    val impersonation=store.impersonation
     private val refreshMutex = Mutex()
     suspend fun login(identifier: String, password: String): NetworkResult<UserDto> = when (val result = safeCall { api.login(LoginRequest(identifier, password)) }) {
         is NetworkResult.Success -> { store.save(result.value.tokens.access, result.value.tokens.refresh); NetworkResult.Success(result.value.user) }
@@ -23,9 +24,10 @@ class AuthRepository @Inject constructor(private val api: AuthApi, private val s
     }
     suspend fun restore(): SessionState {
         if (store.refreshToken().isNullOrBlank()) return SessionState.Unauthenticated
-        return when (val refresh = refresh()) { is NetworkResult.Success -> when (val me = me()) { is NetworkResult.Success -> SessionState.Authenticated(me.value); is NetworkResult.Failure -> { store.clear(); SessionState.Expired } }; is NetworkResult.Failure -> { store.clear(); SessionState.Expired } }
+        return when (val refresh = refresh()) { is NetworkResult.Success -> when (val me = me()) { is NetworkResult.Success -> { val access=accessContext();SessionState.Authenticated(me.value,(access as? NetworkResult.Success)?.value) }; is NetworkResult.Failure -> { store.clear(); SessionState.Expired } }; is NetworkResult.Failure -> { store.clear(); SessionState.Expired } }
     }
     suspend fun me(): NetworkResult<UserDto> = safeCall { api.me() }
+    suspend fun accessContext():NetworkResult<AccessContextDto> = safeCall { coreApi.accessContext() }
     override suspend fun updateProfile(email: String): NetworkResult<UserDto> = safeCall { api.updateProfile(ProfileUpdateRequest(email = email.trim())) }
     override suspend fun changePassword(oldPassword: String, newPassword: String, confirmation: String): NetworkResult<MessageResponse> =
         safeCall { api.changePassword(PasswordChangeRequest(oldPassword, newPassword, confirmation)) }

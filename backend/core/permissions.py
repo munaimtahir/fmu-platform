@@ -71,16 +71,12 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
 
     role_task_prefixes = {
         "REGISTRAR": [
-            "students.students.view",
-            "students.students.manage_placement",
-            "academics.programs.view",
-            "academics.batches.view",
-            "academics.terms.view",
-            "academics.groups.view",
-            "academics.departments.view",
-            "academics.courses.view",
-            "academics.sections.view",
-            # Registrar is a designated timetable manager alongside Admin/Coordinator.
+            # Registrar owns authoritative student, person, academic-lifecycle and
+            # timetable records.  Prefixes deliberately mirror task-code namespaces;
+            # API viewsets still enforce action and object-level constraints.
+            "students.",
+            "people.",
+            "academics.",
             "timetable.",
         ],
         "FACULTY": [
@@ -113,14 +109,8 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
             "timetable.entries.cancel",
         ],
         "EXAMCELL": [
-            "exams.exams.view",
-            "exams.components.view",
-            "results.result_headers.view",
-            "results.result_headers.verify",
-            "results.result_headers.publish",
-            "results.result_headers.freeze",
-            "results.result_components.view",
-            "results.result_corrections.review",
+            "exams.",
+            "results.",
         ],
         "FINANCE": [
             "finance.",
@@ -133,6 +123,8 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
             "academics.batches.view",
             "academics.terms.view",
             "academics.groups.view",
+            "students.students.view",
+            "students.students.manage_placement",
         ],
         "STUDENT": [
             # Students may only ever read published schedules; queryset-level

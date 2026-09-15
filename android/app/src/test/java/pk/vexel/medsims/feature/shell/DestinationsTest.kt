@@ -13,8 +13,9 @@ class DestinationsTest {
     }
 
     @Test fun non_student_roles_cannot_reach_student_scoped_destinations() {
-        listOf(AppRole.ADMIN, AppRole.REGISTRAR, AppRole.EXAM_CELL, AppRole.FINANCE, AppRole.COORDINATOR, AppRole.UNKNOWN)
-            .forEach { role -> assertEquals(listOf(Destination.Home, Destination.Profile), Destination.forRole(role)) }
+        listOf(AppRole.ADMIN, AppRole.REGISTRAR, AppRole.EXAM_CELL, AppRole.FINANCE, AppRole.COORDINATOR)
+            .forEach { role -> assertEquals(listOf(Destination.Home, Destination.Operations, Destination.Profile), Destination.forRole(role)) }
+        assertEquals(listOf(Destination.Home, Destination.Profile), Destination.forRole(AppRole.UNKNOWN))
         assertEquals(listOf(Destination.Home, Destination.FacultyAttendance, Destination.Profile), Destination.forRole(AppRole.FACULTY))
     }
 }

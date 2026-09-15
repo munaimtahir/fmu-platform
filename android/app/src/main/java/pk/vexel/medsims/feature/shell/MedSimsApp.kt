@@ -30,12 +30,15 @@ import pk.vexel.medsims.feature.student.StudentServicesScreen
 import pk.vexel.medsims.feature.faculty.FacultyHomeScreen
 import pk.vexel.medsims.feature.faculty.FacultyAttendanceScreen
 import pk.vexel.medsims.BuildConfig
+import pk.vexel.medsims.core.network.AppRole
+import pk.vexel.medsims.feature.staff.*
 
 @Composable fun MedSimsApp(viewModel: SessionViewModel = hiltViewModel()) {
     val session by viewModel.state.collectAsState()
+    val impersonation by viewModel.impersonation.collectAsState()
     when (val state = session) { SessionState.Initializing -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator(); Text("Preparing MedSIMS", Modifier.padding(top = 72.dp)) }
         SessionState.Unauthenticated, SessionState.Expired -> LoginScreen(viewModel::authenticated)
-        is SessionState.Authenticated -> Shell(state.user, viewModel::logout, viewModel::updateUser) }
+        is SessionState.Authenticated -> Shell(state.user, viewModel::logout, viewModel::updateUser,access=state.access,impersonation=impersonation) }
 }
 
 /**
@@ -43,11 +46,20 @@ import pk.vexel.medsims.BuildConfig
  * exercise the rail-vs-bottom-bar branch directly without needing to resize a real window/emulator.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable internal fun Shell(user: UserDto, logout: () -> Unit, onUserUpdated: (UserDto) -> Unit = {}, widthSizeClass: WindowWidthSizeClass = currentWindowWidthSizeClass()) {
+@Composable internal fun Shell(user: UserDto, logout: () -> Unit, onUserUpdated: (UserDto) -> Unit = {}, widthSizeClass: WindowWidthSizeClass = currentWindowWidthSizeClass(),access:pk.vexel.medsims.core.network.AccessContextDto?=null,impersonation:pk.vexel.medsims.core.auth.ImpersonationState?=null) {
     val navController = rememberNavController()
     val destinations = remember(user.role) { Destination.forRole(normalizeRole(user.role), BuildConfig.ENABLE_FACULTY) }
     val isStudent = normalizeRole(user.role) == pk.vexel.medsims.core.network.AppRole.STUDENT
     val isFaculty = normalizeRole(user.role) == pk.vexel.medsims.core.network.AppRole.FACULTY && BuildConfig.ENABLE_FACULTY
+    val role = normalizeRole(user.role)
+    val staffModules = remember(role,access) { when(role) {
+        AppRole.REGISTRAR -> StaffCatalog.registrar
+        AppRole.COORDINATOR -> StaffCatalog.coordinator
+        AppRole.EXAM_CELL -> StaffCatalog.exam
+        AppRole.FINANCE -> StaffCatalog.finance
+        AppRole.ADMIN -> StaffCatalog.registrar + StaffCatalog.coordinator + StaffCatalog.exam + StaffCatalog.finance + StaffCatalog.admin
+        else -> emptyList()
+    }.distinctBy { it.key }.let{modules->val tasks=access?.tasks?.map{it.code}.orEmpty();if(tasks.isEmpty()||role==AppRole.ADMIN)modules else modules.filter{module->moduleTaskPrefixes(module).any{prefix->tasks.any{it.startsWith(prefix)}}}} }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val useRail = widthSizeClass != WindowWidthSizeClass.COMPACT
@@ -55,7 +67,7 @@ import pk.vexel.medsims.BuildConfig
         navController.navigate(destination.route) { launchSingleTop = true; restoreState = true; popUpTo(navController.graph.findStartDestination().id) { saveState = true } }
     }
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Vexel MedSIMS") }) },
+        topBar = { Column{TopAppBar(title = { Text("Vexel MedSIMS") });if(impersonation!=null)Surface(color=MaterialTheme.colorScheme.errorContainer,modifier=Modifier.fillMaxWidth()){Text("Acting as ${impersonation.targetName} (${impersonation.targetRole}) • Operations → Impersonation to stop",Modifier.padding(10.dp),color=MaterialTheme.colorScheme.onErrorContainer)}} },
         bottomBar = {
             if (!useRail) {
                 NavigationBar {
@@ -99,6 +111,10 @@ import pk.vexel.medsims.BuildConfig
                     composable(Destination.StudentServices.route) { StudentServicesScreen(user) }
                 }
                 if (isFaculty) composable(Destination.FacultyAttendance.route) { FacultyAttendanceScreen() }
+                if (staffModules.isNotEmpty()) {
+                    composable(Destination.Operations.route) { StaffHomeScreen(user.role, staffModules) { navController.navigate("staff/${it.key}") } }
+                    composable("staff/{module}") { entry -> staffModules.firstOrNull { it.key == entry.arguments?.getString("module") }?.let { StaffModuleScreen(it) } }
+                }
                 composable(Destination.Profile.route) { ProfileScreen(user, logout, if (isStudent) ({ navController.navigate(Destination.StudentServices.route) }) else null, onUserUpdated) }
             }
         }
@@ -113,4 +129,18 @@ import pk.vexel.medsims.BuildConfig
             Text("This role's native workflows are being released in staged parity deliveries.", style = MaterialTheme.typography.bodyMedium)
         }
     }
+}
+
+private fun moduleTaskPrefixes(module:StaffModule):List<String> = when(module.key){
+    "students","placement","imports"->listOf("students.")
+    "people","contacts","addresses","identities"->listOf("people.")
+    "programs","batches","periods","groups","departments"->listOf("academics.")
+    "timetables","timetable-entries","timetable-generator"->listOf("timetable.")
+    "eligibility"->listOf("attendance.","students.")
+    "exams","exam-components"->listOf("exams.")
+    "results","result-components","corrections","transcripts"->listOf("results.")
+    "fee-types","fee-plans","vouchers","voucher-generator","payments","ledger","adjustments","policies","finance-reports"->listOf("finance.")
+    "audit"->listOf("audit.")
+    "roles","role-tasks","user-tasks"->listOf("core.")
+    else->listOf("admin.")
 }

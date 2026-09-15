@@ -11,9 +11,9 @@ of Android scope.
 |---|---|---|---|
 | Authentication | Login, refresh, logout, profile | FOUNDATION | Native secure session implemented; profile/password parity is registered for Student release |
 | Dashboard/notifications | Student dashboard, inbox, materials, fees, compliance | IMPLEMENTED | Document upload/download, statement PDF, authenticated file handling, system-viewer handoff, and tests are implemented |
-| Students/academics/people | Records, programmes, courses, sections | PLANNED | Future parity sprint |
-| Timetable/attendance | Timetable, marking, eligibility | IN PROGRESS | Student timetable and Faculty live attendance are implemented; eligibility remains planned |
-| Exams/results/transcripts | Gradebook, results, publication, transcripts | PLANNED | Server workflow remains authoritative |
-| Finance | Vouchers, payments, reports | PLANNED | No offline financial writes |
-| Admin/audit/settings | Users, roles, audit, configuration | PLANNED | Foundation only |
-| Learning/compliance/syllabus | Materials, requirements, syllabus | IN PROGRESS | Student materials/compliance implemented; Faculty management and syllabus remain planned |
+| Students/academics/people | Records, programmes, batches, groups and people subrecords | IMPLEMENTED | Searchable mobile list/detail editors with server-authoritative validation |
+| Timetable/attendance | Timetable, marking, eligibility | IMPLEMENTED | Student/faculty delivery plus staff timetable lifecycle and Coordinator eligibility |
+| Exams/results/transcripts | Exams, components, result lifecycle, corrections, transcripts | IMPLEMENTED | Sensitive transitions require explicit confirmation; server workflow remains authoritative |
+| Finance | Vouchers, payments, ledger, adjustments, reports | IMPLEMENTED | Immediate online writes with confirmations; no offline financial writes |
+| Admin/audit/settings | Dashboard, users, RBAC, audit/export, settings, impersonation | IMPLEMENTED | Secure token swap blocks nesting and provides a persistent acting-as banner |
+| Learning/compliance/syllabus | Materials, requirements, syllabus | IMPLEMENTED-WITH-GAPS | Student materials/compliance and Admin syllabus are implemented; Faculty material management remains the recorded Phase 2 gap |

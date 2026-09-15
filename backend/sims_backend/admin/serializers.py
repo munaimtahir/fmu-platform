@@ -2,11 +2,36 @@
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 User = get_user_model()
+
+MANAGED_ROLES = {
+    "REGISTRAR": "Registrar",
+    "COORDINATOR": "Coordinator",
+    "EXAMCELL": "ExamCell",
+    "FINANCE": "Finance",
+    "FACULTY": "Faculty",
+    "STUDENT": "Student",
+    "OFFICE_ASSISTANT": "OfficeAssistant",
+    "ADMIN": "Admin",
+}
+
+
+def _role_group(value):
+    """Resolve an API role label without silently discarding invalid input."""
+    normalized = str(value).strip().replace(" ", "_").upper()
+    if normalized == "OFFICEASSISTANT":
+        normalized = "OFFICE_ASSISTANT"
+    normalized = next((key for key in MANAGED_ROLES if key.replace("_", "") == normalized.replace("_", "")), normalized)
+    if normalized not in MANAGED_ROLES:
+        raise serializers.ValidationError({"role": f"Unsupported role: {value}"})
+    collapsed = normalized.replace("_", "")
+    group = next((item for item in Group.objects.all() if item.name.upper().replace(" ", "").replace("_", "") == collapsed), None)
+    if group is None:
+        raise serializers.ValidationError({"role": f"Role group is not configured: {MANAGED_ROLES[normalized]}"})
+    return group
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
@@ -46,12 +71,13 @@ class AdminUserSerializer(serializers.ModelSerializer):
         if obj.is_superuser:
             return "Admin"
         groups = list(obj.groups.values_list("name", flat=True))
-        for role in ["Registrar", "ExamCell", "Finance", "Faculty", "Student", "ADMIN", "Admin"]:
-            if role in groups or role.upper() in groups:
-                return role
+        upper_groups = {group.upper().replace(" ", "").replace("_", "") for group in groups}
+        for group_name, label in MANAGED_ROLES.items():
+            if group_name.replace("_", "") in upper_groups:
+                return label
         return "User"
 
-    @extend_schema_field(OpenApiTypes.OBJECT)
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
     def get_groups_list(self, obj):
         """Get list of group names."""
         return list(obj.groups.values_list("name", flat=True))
@@ -75,6 +101,10 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
             "role",
         ]
 
+    def validate_role(self, value):
+        _role_group(value)
+        return value
+
     def create(self, validated_data):
         """Create user with password and role."""
         role = validated_data.pop("role", None)
@@ -84,11 +114,7 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
 
         # Assign role if provided
         if role:
-            try:
-                group = Group.objects.get(name=role.upper())
-                user.groups.add(group)
-            except Group.DoesNotExist:
-                pass  # Role group doesn't exist, skip
+            user.groups.add(_role_group(role))
 
         return user
 
@@ -109,6 +135,10 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
             "role",
         ]
 
+    def validate_role(self, value):
+        _role_group(value)
+        return value
+
     def update(self, instance, validated_data):
         """Update user and role."""
         role = validated_data.pop("role", None)
@@ -120,13 +150,7 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
 
         # Update role if provided
         if role is not None:
-            # Remove all groups
-            instance.groups.clear()
-            # Add new role group
-            try:
-                group = Group.objects.get(name=role.upper())
-                instance.groups.add(group)
-            except Group.DoesNotExist:
-                pass
+            group = _role_group(role)
+            instance.groups.set([group])
 
         return instance

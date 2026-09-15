@@ -179,6 +179,8 @@ Version code:          6
 Release type:          Build + verify — intentionally not submitted
 AAB SHA-256:           311b6dbe2df91f8386a099718343a987f28066ea86e75b3a29117ac09fd96871
 AAB size:              4,568,671 bytes
+Native symbols SHA-256: 531cbd081aa36807593f82abe2d05b3dc447ea06786e1161ca1ac9cb4cb482e7
+Native symbols size:    18,832 bytes
 Build date:             2026-09-15
 Status:                 Signed release candidate; parity, lint, unit tests, debug/release
                         builds, 20 instrumented tests, and 269 backend tests passed.
@@ -190,4 +192,6 @@ universal APK installed on `emulator-5554`, reported version `1.2.0` / code `6`,
 remained running. Commit `5fb8d8b` was deployed to production after a verified database backup;
 public health, Faculty scoped reads, draft grade entry, component editing, result-publication denial,
 and learning-material lifecycle checks passed. The write acceptance transaction was rolled back and
-left no test records. Detailed evidence is in `RELEASE_CHECKLIST_1.2.0.md`.
+left no test records. `native-debug-symbols-play.zip` was regenerated from the four ABI libraries in
+the signed AAB, passed ZIP integrity validation, and matched every AAB library byte-for-byte. Detailed
+evidence is in `RELEASE_CHECKLIST_1.2.0.md`.

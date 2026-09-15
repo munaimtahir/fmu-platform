@@ -13,6 +13,7 @@
 - [x] Refreshed production Faculty acceptance smoke passed
 - [x] Signed `bundleRelease` generated and jarsigner-verified
 - [x] AAB SHA-256 and size recorded in `PLAY_RELEASE_HISTORY.md`
+- [x] Native debug-symbol ZIP regenerated from and verified against the signed AAB
 - [x] AAB-derived install/cold-launch smoke passed on API 36
 - Play Console upload and version bump intentionally not performed: version 1.2.0/code 6 remains unsubmitted per operator direction.
 

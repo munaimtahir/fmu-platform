@@ -215,3 +215,50 @@ class TestPaymentAccess:
 
         response = client.get(f"/api/finance/payments/{setup_data['payment1'].id}/")
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+class TestStudentFinanceSummaryAccess:
+    def test_student_can_retrieve_own_summary(self, setup_data):
+        client = APIClient()
+        client.force_authenticate(user=setup_data["user1"])
+
+        response = client.get(f"/api/finance/students/{setup_data['student1'].id}/")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["student_id"] == setup_data["student1"].id
+
+    def test_student_can_retrieve_own_statement(self, setup_data):
+        client = APIClient()
+        client.force_authenticate(user=setup_data["user1"])
+
+        response = client.get(f"/api/finance/students/{setup_data['student1'].id}/statement/")
+
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_student_can_download_own_statement_pdf(self, setup_data):
+        client = APIClient()
+        client.force_authenticate(user=setup_data["user1"])
+
+        response = client.get(f"/api/finance/students/{setup_data['student1'].id}/statement/pdf/")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response["Content-Type"] == "application/pdf"
+
+    def test_student_cannot_retrieve_another_students_summary(self, setup_data):
+        client = APIClient()
+        client.force_authenticate(user=setup_data["user1"])
+
+        response = client.get(f"/api/finance/students/{setup_data['student2'].id}/")
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_unlinked_student_cannot_retrieve_finance_summary(self, setup_data):
+        user = User.objects.create_user(username="unlinked-finance-student", password="password")
+        user.groups.add(Group.objects.get(name="STUDENT"))
+        client = APIClient()
+        client.force_authenticate(user=user)
+
+        response = client.get(f"/api/finance/students/{setup_data['student1'].id}/")
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN

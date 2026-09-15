@@ -432,6 +432,17 @@ class FinancePolicyViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
+class StudentFinanceSummaryPermission(PermissionTaskRequired):
+    """Allow student self-service reads; object ownership is checked by the view."""
+
+    def has_permission(self, request, view):
+        if getattr(view, "action", None) in {"retrieve", "statement", "statement_pdf"} and in_group(
+            request.user, "STUDENT"
+        ):
+            return True
+        return super().has_permission(request, view)
+
+
 @extend_schema_view(
     retrieve=extend_schema(responses=StudentFinanceSummarySerializer),
     statement=extend_schema(responses=OpenApiTypes.OBJECT),
@@ -439,12 +450,19 @@ class FinancePolicyViewSet(viewsets.ModelViewSet):
 )
 class StudentFinanceSummaryViewSet(viewsets.ViewSet):
     queryset = Student.objects.none()
-    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    permission_classes = [IsAuthenticated, StudentFinanceSummaryPermission]
     required_tasks = ["finance.summary.view"]
 
     def get_permissions(self):
         self.required_tasks = ["finance.summary.view"]
         return super().get_permissions()
+
+    @staticmethod
+    def _enforce_student_access(user, student):
+        if has_permission_task(user, "finance.summary.view"):
+            return
+        if not hasattr(user, "student") or user.student != student:
+            raise PermissionDenied("You can only view your own finance information.")
 
     def retrieve(self, request, pk=None):
         try:
@@ -452,11 +470,7 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
         except Student.DoesNotExist:
             return Response({"error": {"code": "STUDENT_NOT_FOUND", "message": "Student not found"}}, status=404)
 
-        user = request.user
-        # Object-level permission: Students can view own summary
-        if not has_permission_task(user, "finance.summary.view"):
-            if hasattr(user, "student") and user.student != student:
-                raise PermissionDenied("You can only view your own finance summary.")
+        self._enforce_student_access(request.user, student)
 
         from sims_backend.academics.models import AcademicPeriod
 
@@ -498,11 +512,7 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
         except Student.DoesNotExist:
             return Response({"error": {"code": "STUDENT_NOT_FOUND", "message": "Student not found"}}, status=404)
 
-        user = request.user
-        # Object-level permission: Students can view own statement
-        if not has_permission_task(user, "finance.summary.view"):
-            if hasattr(user, "student") and user.student != student:
-                raise PermissionDenied("You can only view your own statement.")
+        self._enforce_student_access(request.user, student)
 
         from sims_backend.academics.models import AcademicPeriod
 
@@ -524,11 +534,7 @@ class StudentFinanceSummaryViewSet(viewsets.ViewSet):
         except Student.DoesNotExist:
             return Response({"error": {"code": "STUDENT_NOT_FOUND", "message": "Student not found"}}, status=404)
 
-        user = request.user
-        # Object-level permission: Students can view own statement
-        if not has_permission_task(user, "finance.summary.view"):
-            if hasattr(user, "student") and user.student != student:
-                raise PermissionDenied("You can only view your own statement.")
+        self._enforce_student_access(request.user, student)
 
         from sims_backend.academics.models import AcademicPeriod
 

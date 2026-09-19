@@ -15,6 +15,8 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 from drf_spectacular.utils import OpenApiTypes, extend_schema
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
 
 from core.views import (
     ChangePasswordView,
@@ -145,11 +147,26 @@ def health_check(request):
     return JsonResponse(response_data, status=200)
 
 
+class ApiHealthView(APIView):
+    """Canonical API health/readiness endpoint."""
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        operation_id="health_retrieve",
+        tags=["health"],
+        responses={200: OpenApiTypes.OBJECT},
+    )
+    def get(self, request):
+        return health_check(request)
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health_check, name="health"),
     path("healthz/", health_check, name="healthz"),  # Alias for health check
-    path("api/health/", health_check, name="api_health"),  # Requirement alias
+    path("api/health/", ApiHealthView.as_view(), name="api_health"),  # Requirement alias
     # New unified auth endpoints (canonical)
     path("api/auth/login/", UnifiedLoginView.as_view(), name="auth_login"),
     path("api/auth/logout/", LogoutView.as_view(), name="auth_logout"),

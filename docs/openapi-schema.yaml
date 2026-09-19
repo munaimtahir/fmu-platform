@@ -7227,6 +7227,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/Voucher'
           description: ''
+  /api/health/:
+    get:
+      operationId: health_retrieve
+      description: Canonical API health/readiness endpoint.
+      tags:
+      - health
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/learning/audiences/:
     get:
       operationId: learning_audiences_list
@@ -10820,20 +10836,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TranscriptVerifyResponse'
-          description: ''
-  /api/health/:
-    get:
-      operationId: health_retrieve
-      description: Canonical health/readiness endpoint.
-      tags:
-      - health
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: {}
           description: ''
 components:
   schemas:

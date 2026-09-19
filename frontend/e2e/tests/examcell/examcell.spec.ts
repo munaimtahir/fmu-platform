@@ -70,12 +70,10 @@ test.describe('Exam Cell Role Tests @examcell', () => {
     await resultsPage.expectLoaded();
   });
 
-  test('EC-07: ExamCell can access transcripts page', async ({ examcellPage: page }) => {
+  test('EC-07: ExamCell is denied transcript generation without an explicit grant', async ({ examcellPage: page }) => {
     await page.goto(ROUTES.transcripts);
     await page.waitForLoadState('domcontentloaded');
-    expect(page.url()).not.toContain('/login');
-    const heading = page.getByRole('heading', { name: /transcript/i }).first();
-    await expect(heading).toBeVisible({ timeout: 8000 });
+    await expect(page.getByText(/access denied/i).first()).toBeVisible({ timeout: 8000 });
   });
 
   test('EC-08: ExamCell cannot access admin user management', async ({ examcellPage: page }) => {

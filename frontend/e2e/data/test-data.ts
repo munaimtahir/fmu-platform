@@ -150,6 +150,7 @@ export const ROUTES = {
   timetable: '/timetable',
   finance: {
     dashboard: '/finance',
+    feeTypes: '/finance/fee-types',
     feePlans: '/finance/fee-plans',
     me: '/finance/me',
   },

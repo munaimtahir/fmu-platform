@@ -10,9 +10,7 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 2
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "reporter": [
       [
@@ -43,9 +41,7 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "smoke",
         "name": "smoke",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -59,9 +55,7 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "auth",
         "name": "auth",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -75,9 +69,7 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "public",
         "name": "public",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -91,9 +83,7 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "admin",
         "name": "admin",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -107,9 +97,7 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "registrar",
         "name": "registrar",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -123,9 +111,7 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "faculty",
         "name": "faculty",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -139,9 +125,7 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "student",
         "name": "student",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -155,9 +139,7 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "examcell",
         "name": "examcell",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -171,9 +153,49 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
+        "id": "coordinator",
+        "name": "coordinator",
+        "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/coordinator/**/*.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "finance",
+        "name": "finance",
+        "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/finance/**/*.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "office",
+        "name": "office",
+        "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/tests/office/**/*.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
         "id": "rbac",
         "name": "rbac",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -187,9 +209,7 @@
         "outputDir": "/home/munaim/srv/apps/fmu-platform/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 2
-        },
+        "metadata": {},
         "id": "full",
         "name": "full",
         "testDir": "/home/munaim/srv/apps/fmu-platform/frontend/e2e",
@@ -235,22 +255,8 @@
                   "expectedStatus": "passed",
                   "projectId": "smoke",
                   "projectName": "smoke",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4094,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:10.479Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "d1b383f8f7fef7967321-d098db55729c65676b87",
@@ -271,22 +277,8 @@
                   "expectedStatus": "passed",
                   "projectId": "smoke",
                   "projectName": "smoke",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 3976,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:10.525Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "d1b383f8f7fef7967321-eb87185a276b21e5e8f7",
@@ -307,22 +299,8 @@
                   "expectedStatus": "passed",
                   "projectId": "smoke",
                   "projectName": "smoke",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 3921,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:14.816Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "d1b383f8f7fef7967321-298295742640326fd150",
@@ -343,22 +321,8 @@
                   "expectedStatus": "passed",
                   "projectId": "smoke",
                   "projectName": "smoke",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4278,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:14.835Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "d1b383f8f7fef7967321-6d5b42943cedd2dfb737",
@@ -379,22 +343,8 @@
                   "expectedStatus": "passed",
                   "projectId": "smoke",
                   "projectName": "smoke",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 3998,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:18.783Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "d1b383f8f7fef7967321-b91146c386a9e43ff602",
@@ -415,22 +365,8 @@
                   "expectedStatus": "passed",
                   "projectId": "smoke",
                   "projectName": "smoke",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1263,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:19.161Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "d1b383f8f7fef7967321-5f976a6951c407f7e8b1",
@@ -451,25 +387,165 @@
                   "expectedStatus": "passed",
                   "projectId": "smoke",
                   "projectName": "smoke",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1649,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:20.522Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "d1b383f8f7fef7967321-7cff6dc9cdb48aada649",
+              "file": "tests/smoke/smoke.spec.ts",
+              "line": 96,
+              "column": 3
+            },
+            {
+              "title": "SMOKE-01: Admin can log in and reach dashboard",
+              "ok": true,
+              "tags": [
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d1b383f8f7fef7967321-bcfba4ca8b1a0483d51a",
+              "file": "tests/smoke/smoke.spec.ts",
+              "line": 14,
+              "column": 3
+            },
+            {
+              "title": "SMOKE-02: Faculty can log in and reach dashboard",
+              "ok": true,
+              "tags": [
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d1b383f8f7fef7967321-d9df13593f0a755b6fe1",
+              "file": "tests/smoke/smoke.spec.ts",
+              "line": 22,
+              "column": 3
+            },
+            {
+              "title": "SMOKE-03: Student can log in and reach dashboard",
+              "ok": true,
+              "tags": [
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d1b383f8f7fef7967321-f4e3a3d6cad7bc4187e9",
+              "file": "tests/smoke/smoke.spec.ts",
+              "line": 30,
+              "column": 3
+            },
+            {
+              "title": "SMOKE-04: Attendance page loads for faculty",
+              "ok": true,
+              "tags": [
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d1b383f8f7fef7967321-3afe20bc00b8ea2519f2",
+              "file": "tests/smoke/smoke.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "SMOKE-05: Publish results page loads for examcell",
+              "ok": true,
+              "tags": [
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d1b383f8f7fef7967321-48245890f6fa74f508f5",
+              "file": "tests/smoke/smoke.spec.ts",
+              "line": 57,
+              "column": 3
+            },
+            {
+              "title": "SMOKE-06: Transcript verify page renders without auth",
+              "ok": true,
+              "tags": [
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d1b383f8f7fef7967321-68869eb78cd5f6208265",
+              "file": "tests/smoke/smoke.spec.ts",
+              "line": 79,
+              "column": 3
+            },
+            {
+              "title": "SMOKE-07: Unauthenticated user redirected from protected route",
+              "ok": true,
+              "tags": [
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d1b383f8f7fef7967321-14ffbdafed7fa44d67e7",
               "file": "tests/smoke/smoke.spec.ts",
               "line": 96,
               "column": 3
@@ -504,22 +580,8 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4623,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:24.081Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-587284a289cfac5e1505",
@@ -540,22 +602,8 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 4484,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:24.690Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-c36a10a9076e51b33536",
@@ -576,22 +624,8 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1667,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:29.041Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-f4997954903aaec20c61",
@@ -612,22 +646,8 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 2304,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:29.518Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-452c3f5a40b8490d5fe8",
@@ -648,22 +668,8 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 910,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:30.745Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-63c0f8617023515a3b13",
@@ -684,22 +690,8 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1227,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:31.682Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-c1b3d626f3cdd7064391",
@@ -720,22 +712,8 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 7199,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:31.871Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-20fad8e64a1411466d42",
@@ -756,22 +734,8 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4558,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:33.008Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-3df961984e3c92744652",
@@ -792,22 +756,8 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4622,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:37.605Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-9fe3823e5d1df1d16552",
@@ -828,27 +778,4265 @@
                   "expectedStatus": "passed",
                   "projectId": "auth",
                   "projectName": "auth",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 4135,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2026-04-21T23:07:39.148Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
+                  "results": [],
+                  "status": "skipped"
                 }
               ],
               "id": "783e5594b3e90f38c516-f73de9cf4571db081e9c",
               "file": "tests/auth/auth.spec.ts",
               "line": 147,
+              "column": 3
+            },
+            {
+              "title": "AUTH-01: Valid login with username navigates to dashboard",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-0fc35943803ee6c48858",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "AUTH-02: Valid login with email navigates to dashboard",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-4e60a91cd79414456055",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 29,
+              "column": 3
+            },
+            {
+              "title": "AUTH-03: Invalid credentials show error message",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-6d1c8a23f0b907f2ba87",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 41,
+              "column": 3
+            },
+            {
+              "title": "AUTH-04: Empty credentials show validation error",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-44dd2c00f9a8565d2170",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "AUTH-05: Protected route redirects to login when unauthenticated",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-6d9404c98dbbec162e4f",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 65,
+              "column": 3
+            },
+            {
+              "title": "AUTH-06: Admin-only route redirects student to login or forbidden",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-ec38c64514860039bf88",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 73,
+              "column": 3
+            },
+            {
+              "title": "AUTH-07: Logout clears session and redirects to login",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-23fe789d13941a2efb92",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 85,
+              "column": 3
+            },
+            {
+              "title": "AUTH-08: Session persists after page reload",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-26a7ff834fea9ee1aece",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 106,
+              "column": 3
+            },
+            {
+              "title": "AUTH-09: Student cannot access admin-only audit route",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-98f1f6771a00443fb8a8",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 125,
+              "column": 3
+            },
+            {
+              "title": "AUTH-10: Faculty cannot access student-specific dashboard",
+              "ok": true,
+              "tags": [
+                "auth"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "783e5594b3e90f38c516-00a40204006c5947be2d",
+              "file": "tests/auth/auth.spec.ts",
+              "line": 147,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/public/public.spec.ts",
+      "file": "tests/public/public.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Public Routes @public",
+          "file": "tests/public/public.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "PUB-01: Transcript verify page loads without authentication",
+              "ok": true,
+              "tags": [
+                "public"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "public",
+                  "projectName": "public",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0dc7bce8ab5c6554ff08-8cf302870bec59b5c6e5",
+              "file": "tests/public/public.spec.ts",
+              "line": 12,
+              "column": 3
+            },
+            {
+              "title": "PUB-02: Valid-format but nonexistent token shows friendly error",
+              "ok": true,
+              "tags": [
+                "public"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "public",
+                  "projectName": "public",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0dc7bce8ab5c6554ff08-e409ad04cc4f45d03abe",
+              "file": "tests/public/public.spec.ts",
+              "line": 22,
+              "column": 3
+            },
+            {
+              "title": "PUB-03: Completely invalid token shows error, not a crash",
+              "ok": true,
+              "tags": [
+                "public"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "public",
+                  "projectName": "public",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0dc7bce8ab5c6554ff08-a699feaf3fd2694304ef",
+              "file": "tests/public/public.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "PUB-04: Removed /apply route no longer serves an application form",
+              "ok": true,
+              "tags": [
+                "public"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "public",
+                  "projectName": "public",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0dc7bce8ab5c6554ff08-3bc92dbf401ea143376b",
+              "file": "tests/public/public.spec.ts",
+              "line": 42,
+              "column": 3
+            },
+            {
+              "title": "PUB-01: Transcript verify page loads without authentication",
+              "ok": true,
+              "tags": [
+                "public"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0dc7bce8ab5c6554ff08-acec048d831a39d19e3b",
+              "file": "tests/public/public.spec.ts",
+              "line": 12,
+              "column": 3
+            },
+            {
+              "title": "PUB-02: Valid-format but nonexistent token shows friendly error",
+              "ok": true,
+              "tags": [
+                "public"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0dc7bce8ab5c6554ff08-46f6fb6c1505f9780e2c",
+              "file": "tests/public/public.spec.ts",
+              "line": 22,
+              "column": 3
+            },
+            {
+              "title": "PUB-03: Completely invalid token shows error, not a crash",
+              "ok": true,
+              "tags": [
+                "public"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0dc7bce8ab5c6554ff08-a9ff21c7c828b4eb2142",
+              "file": "tests/public/public.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "PUB-04: Removed /apply route no longer serves an application form",
+              "ok": true,
+              "tags": [
+                "public"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0dc7bce8ab5c6554ff08-457ba0dad55be8d08e4f",
+              "file": "tests/public/public.spec.ts",
+              "line": 42,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/admin/admin.spec.ts",
+      "file": "tests/admin/admin.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Admin Role Tests @admin",
+          "file": "tests/admin/admin.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ADMIN-01: Admin sees admin-relevant navigation",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-8bdcdb901d38e6577037",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-02: Admin can open students list",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-30de079185f6bb6e7eaa",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-03: Admin can search students by name",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-7a193fdc78507995a33a",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-04: Admin can open create student form",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-3aba8d0c9be4dc218e99",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-05: Admin can access programs page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-767d00d39189ca486596",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 102,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-06: Admin can access batches page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-8bd7c3bd2054ac47388b",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 115,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-07: Admin can access sections and courses pages",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-224e1ac3766b9338f252",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-08: Admin can access attendance dashboard",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-8ac57e920b26ff38b30c",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 153,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-09: Admin can access attendance eligibility report",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-e390458789892a4a5c68",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 160,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-10: Admin can access results page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-9974dec50a82768accc7",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 170,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-11: Admin can access publish results page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-ef1dd79b3fc977aa4a14",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-12: Admin can access gradebook",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-b1d4f02f6429dcf8d6a0",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 184,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-13: Admin can access audit log viewer",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-89379fea67850fa5704e",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 194,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-14: Admin can filter audit logs",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-926b5aef2870d941b746",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 201,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-15: Admin can access user management",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-6f8828416ac9e62560c2",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 232,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-16: Admin can access transcripts page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-d8e2a9ace6088c91f85e",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 244,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-17: Admin can create a new student",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-55640541a14ed19dcc6c",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 261,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-18: Admin can create a new academic program",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin",
+                  "projectName": "admin",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-de3d2a80e858ff671bd5",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 282,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-01: Admin sees admin-relevant navigation",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-a29368e03d7e6dbddba2",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 21,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-02: Admin can open students list",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-b86958704117dc8d1016",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-03: Admin can search students by name",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-23c4bdcbd8879a9daa5c",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 51,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-04: Admin can open create student form",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-08ed2a8f5030af766c54",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-05: Admin can access programs page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-870bbbd370d924153b38",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 102,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-06: Admin can access batches page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-c1d50a4c4c11c67a0410",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 115,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-07: Admin can access sections and courses pages",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-cde26b0dc1a53186e045",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-08: Admin can access attendance dashboard",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-8684babe08b9961008ba",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 153,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-09: Admin can access attendance eligibility report",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-9cbd18d11be2a8719c49",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 160,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-10: Admin can access results page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-96be0ac8151973c4012c",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 170,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-11: Admin can access publish results page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-54e31034bb591dfb3520",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-12: Admin can access gradebook",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-b191c2ec5241ced3260f",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 184,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-13: Admin can access audit log viewer",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-f05e64d82511ad90e461",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 194,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-14: Admin can filter audit logs",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-6527d680f9037277fdfb",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 201,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-15: Admin can access user management",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-a1d5a49b219e4f6edac2",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 232,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-16: Admin can access transcripts page",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-200c76866901f14cabe2",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 244,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-17: Admin can create a new student",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-bffd3f4a0259773722f0",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 261,
+              "column": 3
+            },
+            {
+              "title": "ADMIN-18: Admin can create a new academic program",
+              "ok": true,
+              "tags": [
+                "admin"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db906f83936716295c2f-546d7bd5aa06612dc34c",
+              "file": "tests/admin/admin.spec.ts",
+              "line": 282,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/registrar/registrar.spec.ts",
+      "file": "tests/registrar/registrar.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Registrar Role Tests @registrar",
+          "file": "tests/registrar/registrar.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "REG-01: Registrar sees registrar-relevant navigation",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-f459bc21cdeaf106f80d",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "REG-02: Registrar can view students list",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-8a17aac911239f4a8e29",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "REG-03: Registrar can access programs page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-7de19f04f2cf27aedc4e",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 45,
+              "column": 3
+            },
+            {
+              "title": "REG-04: Registrar can access batches page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-57c8b7023b8b4b78979f",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 57,
+              "column": 3
+            },
+            {
+              "title": "REG-05: Registrar can access academic periods page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-52d0c7b13229f85e5d95",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "REG-06: Registrar can view attendance eligibility report",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-b452d3ac7d24445fb014",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 84,
+              "column": 3
+            },
+            {
+              "title": "REG-07: Registrar cannot access attendance input (Faculty-only)",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-a3b5edf252e3ec89871a",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 91,
+              "column": 3
+            },
+            {
+              "title": "REG-08: Registrar can access transcripts page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-245b5da0926bef4c3249",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 117,
+              "column": 3
+            },
+            {
+              "title": "REG-09: Registrar cannot access admin-only audit log",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-53eaf2545fe0ba53adaf",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 132,
+              "column": 3
+            },
+            {
+              "title": "REG-10: Registrar cannot access publish results page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "registrar",
+                  "projectName": "registrar",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-6e71fdb53b9d936ab3b9",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 146,
+              "column": 3
+            },
+            {
+              "title": "REG-01: Registrar sees registrar-relevant navigation",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-84a3f393bd77c077a98c",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "REG-02: Registrar can view students list",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-4784faa04f65c5853b75",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 31,
+              "column": 3
+            },
+            {
+              "title": "REG-03: Registrar can access programs page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-43e270581fecd5b6ca9a",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 45,
+              "column": 3
+            },
+            {
+              "title": "REG-04: Registrar can access batches page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-a3ffe9af3fa46ef2eb0e",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 57,
+              "column": 3
+            },
+            {
+              "title": "REG-05: Registrar can access academic periods page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-2ea18677a5f091cb23c1",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "REG-06: Registrar can view attendance eligibility report",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-81763ebde62921b9149b",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 84,
+              "column": 3
+            },
+            {
+              "title": "REG-07: Registrar cannot access attendance input (Faculty-only)",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-2855f2ee0874a045d033",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 91,
+              "column": 3
+            },
+            {
+              "title": "REG-08: Registrar can access transcripts page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-0f9a26bdaafa277ea83b",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 117,
+              "column": 3
+            },
+            {
+              "title": "REG-09: Registrar cannot access admin-only audit log",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-a779e9ccc794f3e1d85a",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 132,
+              "column": 3
+            },
+            {
+              "title": "REG-10: Registrar cannot access publish results page",
+              "ok": true,
+              "tags": [
+                "registrar"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "ef014a6b95124948144a-a1c23d620f7345fa68a1",
+              "file": "tests/registrar/registrar.spec.ts",
+              "line": 146,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/faculty/faculty.spec.ts",
+      "file": "tests/faculty/faculty.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Faculty Role Tests @faculty",
+          "file": "tests/faculty/faculty.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "FAC-01: Faculty sees faculty dashboard",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-3cc20687e2043fc0117d",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "FAC-02: Faculty can access sections page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-414f6637dad65adeb69a",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "FAC-03: Faculty can access courses page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-f9a28339b5c24a98ee0c",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 47,
+              "column": 3
+            },
+            {
+              "title": "FAC-04: Faculty can access attendance dashboard",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-8ab78175763574aafa4b",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "FAC-05: Faculty can access attendance input page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-f94d69449c0661574101",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "FAC-06: Faculty can access bulk attendance page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-a85b71d51f8bb82d3377",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 81,
+              "column": 3
+            },
+            {
+              "title": "FAC-07: Faculty cannot access eligibility report (Registrar/Admin only)",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-9c0da7724ab3f069016e",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "FAC-08: Faculty can access gradebook",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-78fb936015f67b5875a6",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "FAC-09: Faculty can access results page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-7ce4a8224c017a64add3",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 110,
+              "column": 3
+            },
+            {
+              "title": "FAC-10: Faculty can access exams page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-c5d7eecad0686941a8a2",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 117,
+              "column": 3
+            },
+            {
+              "title": "FAC-11: Faculty cannot access student list (Admin/Registrar only)",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-8df0f49856942478ce51",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "FAC-12: Faculty cannot access publish results (ExamCell/Admin only)",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-88c4e3f19496200390c9",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 139,
+              "column": 3
+            },
+            {
+              "title": "FAC-01: Faculty sees faculty dashboard",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-dae14091a4afd853ca2e",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "FAC-02: Faculty can access sections page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-994983aae3ead0c709fb",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 35,
+              "column": 3
+            },
+            {
+              "title": "FAC-03: Faculty can access courses page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-d19d19da8b013a2f5f8c",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 47,
+              "column": 3
+            },
+            {
+              "title": "FAC-04: Faculty can access attendance dashboard",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-102fa639c1d9fdae5803",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "FAC-05: Faculty can access attendance input page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-3d57ae0cead57e75d70d",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 69,
+              "column": 3
+            },
+            {
+              "title": "FAC-06: Faculty can access bulk attendance page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-666b061816ed8320b2e5",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 81,
+              "column": 3
+            },
+            {
+              "title": "FAC-07: Faculty cannot access eligibility report (Registrar/Admin only)",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-ee7d533f85ca568e63e1",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "FAC-08: Faculty can access gradebook",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-0e32f7900dce02f1a1fb",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "FAC-09: Faculty can access results page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-2779099958119e69f5df",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 110,
+              "column": 3
+            },
+            {
+              "title": "FAC-10: Faculty can access exams page",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-0514af34e0f821536fab",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 117,
+              "column": 3
+            },
+            {
+              "title": "FAC-11: Faculty cannot access student list (Admin/Registrar only)",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-4d8b89a2325d33a76811",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 127,
+              "column": 3
+            },
+            {
+              "title": "FAC-12: Faculty cannot access publish results (ExamCell/Admin only)",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3606360c81eef534de34-a0c5327c81446703acf1",
+              "file": "tests/faculty/faculty.spec.ts",
+              "line": 139,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/faculty/timetable.spec.ts",
+      "file": "tests/faculty/timetable.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Faculty Timetable Tests @faculty",
+          "file": "tests/faculty/timetable.spec.ts",
+          "line": 51,
+          "column": 6,
+          "specs": [
+            {
+              "title": "FAC-13: Faculty can access /timetable and select batch/period",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-a3853a10acc255e8a271",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "FAC-14: Faculty can add a normalized entry via EntryForm",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-48e10b64dd92470cbfc5",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 71,
+              "column": 3
+            },
+            {
+              "title": "FAC-15: Faculty can cancel an entry via EntriesPanel",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-d159207796a096f3c4a7",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 100,
+              "column": 3
+            },
+            {
+              "title": "FAC-16: Faculty can publish a draft week",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-da67e582e707e46c2b28",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 134,
+              "column": 3
+            },
+            {
+              "title": "FAC-17: /timetable is registered as an allowed faculty route",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "faculty",
+                  "projectName": "faculty",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-caf4df0b90a198dc0fe1",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 178,
+              "column": 3
+            },
+            {
+              "title": "FAC-13: Faculty can access /timetable and select batch/period",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-bd09dacbe9ecab197d3d",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 52,
+              "column": 3
+            },
+            {
+              "title": "FAC-14: Faculty can add a normalized entry via EntryForm",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-25f37115464ad0096ea5",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 71,
+              "column": 3
+            },
+            {
+              "title": "FAC-15: Faculty can cancel an entry via EntriesPanel",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-a9653c2b2ee93bffd078",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 100,
+              "column": 3
+            },
+            {
+              "title": "FAC-16: Faculty can publish a draft week",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-f5e9afce336cb4870df1",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 134,
+              "column": 3
+            },
+            {
+              "title": "FAC-17: /timetable is registered as an allowed faculty route",
+              "ok": true,
+              "tags": [
+                "faculty"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "42236803eae2f389c136-03ccbf421b060634a2ef",
+              "file": "tests/faculty/timetable.spec.ts",
+              "line": 178,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/student/student.spec.ts",
+      "file": "tests/student/student.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Student Role Tests @student",
+          "file": "tests/student/student.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "STU-01: Student lands on student dashboard",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-2a981f1b2206acf44ca6",
+              "file": "tests/student/student.spec.ts",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "STU-02: Student can access own results",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-d9d20bc7df61d1e28afd",
+              "file": "tests/student/student.spec.ts",
+              "line": 34,
+              "column": 3
+            },
+            {
+              "title": "STU-03: Student can access own gradebook",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-54f9309d365cc7e5b7e0",
+              "file": "tests/student/student.spec.ts",
+              "line": 49,
+              "column": 3
+            },
+            {
+              "title": "STU-04: Student can access finance/me page",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-1966e93f24bbc888693d",
+              "file": "tests/student/student.spec.ts",
+              "line": 63,
+              "column": 3
+            },
+            {
+              "title": "STU-05: Student can access profile page",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-341725df6b25a9a317e3",
+              "file": "tests/student/student.spec.ts",
+              "line": 77,
+              "column": 3
+            },
+            {
+              "title": "STU-06: Student can access transcripts page",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-f2f527c7d7f079213cfc",
+              "file": "tests/student/student.spec.ts",
+              "line": 89,
+              "column": 3
+            },
+            {
+              "title": "STU-07: Student cannot access admin audit log",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-2a15746357c7b02e4462",
+              "file": "tests/student/student.spec.ts",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "STU-08: Student cannot access students management list",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-3b7cc07ef52ef322d2b4",
+              "file": "tests/student/student.spec.ts",
+              "line": 117,
+              "column": 3
+            },
+            {
+              "title": "STU-09: Student cannot access attendance input (faculty tool)",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-d59be385e08f76a61bf5",
+              "file": "tests/student/student.spec.ts",
+              "line": 129,
+              "column": 3
+            },
+            {
+              "title": "STU-10: Student cannot access publish results page",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-e84be3fc8c0fe41483e9",
+              "file": "tests/student/student.spec.ts",
+              "line": 141,
+              "column": 3
+            },
+            {
+              "title": "STU-01: Student lands on student dashboard",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-307c861eddb32bd79dd0",
+              "file": "tests/student/student.spec.ts",
+              "line": 20,
+              "column": 3
+            },
+            {
+              "title": "STU-02: Student can access own results",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-46c4b37e774651e05b26",
+              "file": "tests/student/student.spec.ts",
+              "line": 34,
+              "column": 3
+            },
+            {
+              "title": "STU-03: Student can access own gradebook",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-79c64447af64bb65fc60",
+              "file": "tests/student/student.spec.ts",
+              "line": 49,
+              "column": 3
+            },
+            {
+              "title": "STU-04: Student can access finance/me page",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-4eec54056575bc2fbe70",
+              "file": "tests/student/student.spec.ts",
+              "line": 63,
+              "column": 3
+            },
+            {
+              "title": "STU-05: Student can access profile page",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-71816411ed9f3996e58a",
+              "file": "tests/student/student.spec.ts",
+              "line": 77,
+              "column": 3
+            },
+            {
+              "title": "STU-06: Student can access transcripts page",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-8806aab29b884e267794",
+              "file": "tests/student/student.spec.ts",
+              "line": 89,
+              "column": 3
+            },
+            {
+              "title": "STU-07: Student cannot access admin audit log",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-cab6483492271fe7690a",
+              "file": "tests/student/student.spec.ts",
+              "line": 105,
+              "column": 3
+            },
+            {
+              "title": "STU-08: Student cannot access students management list",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-ad98bf0455f819a13216",
+              "file": "tests/student/student.spec.ts",
+              "line": 117,
+              "column": 3
+            },
+            {
+              "title": "STU-09: Student cannot access attendance input (faculty tool)",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-1901a1b6e093fb6d3bbb",
+              "file": "tests/student/student.spec.ts",
+              "line": 129,
+              "column": 3
+            },
+            {
+              "title": "STU-10: Student cannot access publish results page",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "3078308231e13261bb74-226179250fb6ab435f43",
+              "file": "tests/student/student.spec.ts",
+              "line": 141,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/student/timetable.spec.ts",
+      "file": "tests/student/timetable.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Student Timetable Tests @student",
+          "file": "tests/student/timetable.spec.ts",
+          "line": 26,
+          "column": 6,
+          "specs": [
+            {
+              "title": "STU-11: Student sees My Timetable with Today tab active by default",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-9b2c37a146f5759ba4e9",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "STU-12: Today tab shows the empty state (seeded entries exclude today)",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-9c7f2ba3567c49fc50bd",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 40,
+              "column": 3
+            },
+            {
+              "title": "STU-13: This Week tab shows the published week entries",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-de7de38453d691470497",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "STU-14: Previous/Next week navigation shows the \"no published schedule\" empty state",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-9f90bbb1e1f1890c2cbc",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "STU-15: Shows an error alert when the timetable API fails",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-9943473b82cde67dce02",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 87,
+              "column": 3
+            },
+            {
+              "title": "STU-16: /timetable is registered as an allowed student route",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "student",
+                  "projectName": "student",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-4d06d1a263c23f19c3c1",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "STU-11: Student sees My Timetable with Today tab active by default",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-298940f79186d0dd7f18",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "STU-12: Today tab shows the empty state (seeded entries exclude today)",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-c85c457f2f907fe3c356",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 40,
+              "column": 3
+            },
+            {
+              "title": "STU-13: This Week tab shows the published week entries",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-d8dfafd004324f763cda",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "STU-14: Previous/Next week navigation shows the \"no published schedule\" empty state",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-b625f0c79f74d58bb8a8",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 61,
+              "column": 3
+            },
+            {
+              "title": "STU-15: Shows an error alert when the timetable API fails",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-c9ce34e56e028a2e7d7a",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 87,
+              "column": 3
+            },
+            {
+              "title": "STU-16: /timetable is registered as an allowed student route",
+              "ok": true,
+              "tags": [
+                "student"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "461e75833ed6867b3123-f331fac9f5cdd27173f7",
+              "file": "tests/student/timetable.spec.ts",
+              "line": 103,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/examcell/examcell.spec.ts",
+      "file": "tests/examcell/examcell.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Exam Cell Role Tests @examcell",
+          "file": "tests/examcell/examcell.spec.ts",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "EC-01: ExamCell sees exam cell navigation",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "examcell",
+                  "projectName": "examcell",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-b8dc804a4fff776606a0",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 15,
+              "column": 3
+            },
+            {
+              "title": "EC-02: ExamCell can open publish results page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "examcell",
+                  "projectName": "examcell",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-36aceca5db63da38ad26",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 28,
+              "column": 3
+            },
+            {
+              "title": "EC-03: ExamCell can see draft results on publish page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "examcell",
+                  "projectName": "examcell",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-afbd3c6c9ac0d7fa6a3a",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "EC-04: Publish button is visible on publish results page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "examcell",
+                  "projectName": "examcell",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-1243c757a6dda03d03bb",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "EC-05: ExamCell can access results page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "examcell",
+                  "projectName": "examcell",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-c8261fd2c60170ed10a4",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 74,
+              "column": 3
+            },
+            {
+              "title": "EC-06: ExamCell can access exams page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "examcell",
+                  "projectName": "examcell",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-3a854cdea588d4e325b6",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "EC-07: ExamCell can access transcripts page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "examcell",
+                  "projectName": "examcell",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-98c6721e9e2d432fb2fd",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 95,
+              "column": 3
+            },
+            {
+              "title": "EC-08: ExamCell cannot access admin user management",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "examcell",
+                  "projectName": "examcell",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-7eebd564557b9daad6ea",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 108,
+              "column": 3
+            },
+            {
+              "title": "EC-01: ExamCell sees exam cell navigation",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-eb48fc3c8604285b3b4d",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 15,
+              "column": 3
+            },
+            {
+              "title": "EC-02: ExamCell can open publish results page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-23c6cf5a71255354c43d",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 28,
+              "column": 3
+            },
+            {
+              "title": "EC-03: ExamCell can see draft results on publish page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-3137ecc3dcf3ac617165",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 43,
+              "column": 3
+            },
+            {
+              "title": "EC-04: Publish button is visible on publish results page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-b711afeaf183f52849f0",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 56,
+              "column": 3
+            },
+            {
+              "title": "EC-05: ExamCell can access results page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-588e1873698c52b9fec9",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 74,
+              "column": 3
+            },
+            {
+              "title": "EC-06: ExamCell can access exams page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-738015e57558b587a0da",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 88,
+              "column": 3
+            },
+            {
+              "title": "EC-07: ExamCell can access transcripts page",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-a37fabbbc36b1542d636",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 95,
+              "column": 3
+            },
+            {
+              "title": "EC-08: ExamCell cannot access admin user management",
+              "ok": true,
+              "tags": [
+                "examcell"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "09c5d33c2292854711e8-562f334524087b1d0867",
+              "file": "tests/examcell/examcell.spec.ts",
+              "line": 108,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/coordinator/coordinator.spec.ts",
+      "file": "tests/coordinator/coordinator.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Coordinator role smoke @coordinator",
+          "file": "tests/coordinator/coordinator.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "COORD-01: coordinator lands on the coordinator dashboard",
+              "ok": true,
+              "tags": [
+                "coordinator"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "coordinator",
+                  "projectName": "coordinator",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1391bd89c8dd471455d2-f2f4e900ba4284eb0bf9",
+              "file": "tests/coordinator/coordinator.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "COORD-02: coordinator can read students and cannot open admin users",
+              "ok": true,
+              "tags": [
+                "coordinator"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "coordinator",
+                  "projectName": "coordinator",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1391bd89c8dd471455d2-3f89a0893d02ff7323f5",
+              "file": "tests/coordinator/coordinator.spec.ts",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "COORD-01: coordinator lands on the coordinator dashboard",
+              "ok": true,
+              "tags": [
+                "coordinator"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1391bd89c8dd471455d2-16214ce3edf3eeba09bc",
+              "file": "tests/coordinator/coordinator.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "COORD-02: coordinator can read students and cannot open admin users",
+              "ok": true,
+              "tags": [
+                "coordinator"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1391bd89c8dd471455d2-f6c6ca85966dc2547e96",
+              "file": "tests/coordinator/coordinator.spec.ts",
+              "line": 13,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/finance/finance.spec.ts",
+      "file": "tests/finance/finance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Finance role smoke @finance",
+          "file": "tests/finance/finance.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "FIN-01: finance user lands on finance dashboard",
+              "ok": true,
+              "tags": [
+                "finance"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "finance",
+                  "projectName": "finance",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "012945c853c200e7d13f-09286fc72d1c833362d7",
+              "file": "tests/finance/finance.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "FIN-02: finance user can read fee types and sees the permitted create action",
+              "ok": true,
+              "tags": [
+                "finance"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "finance",
+                  "projectName": "finance",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "012945c853c200e7d13f-d2ecd3dccc19be54b31a",
+              "file": "tests/finance/finance.spec.ts",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "FIN-01: finance user lands on finance dashboard",
+              "ok": true,
+              "tags": [
+                "finance"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "012945c853c200e7d13f-60ad5273017ee7a70ce7",
+              "file": "tests/finance/finance.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "FIN-02: finance user can read fee types and sees the permitted create action",
+              "ok": true,
+              "tags": [
+                "finance"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "012945c853c200e7d13f-f19c54c6b948b6e31e5b",
+              "file": "tests/finance/finance.spec.ts",
+              "line": 13,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/office/office.spec.ts",
+      "file": "tests/office/office.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Office assistant role smoke @office",
+          "file": "tests/office/office.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "OFFICE-01: office assistant lands on the office dashboard",
+              "ok": true,
+              "tags": [
+                "office"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "office",
+                  "projectName": "office",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fba0eec549e7b432c9f-0d8e7a54fb091a71e97b",
+              "file": "tests/office/office.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "OFFICE-02: office assistant can read students and is denied admin users",
+              "ok": true,
+              "tags": [
+                "office"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "office",
+                  "projectName": "office",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fba0eec549e7b432c9f-2e5d46e01ca958acb46f",
+              "file": "tests/office/office.spec.ts",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "OFFICE-01: office assistant lands on the office dashboard",
+              "ok": true,
+              "tags": [
+                "office"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fba0eec549e7b432c9f-6dbaf5bf2748d417c1d0",
+              "file": "tests/office/office.spec.ts",
+              "line": 4,
+              "column": 3
+            },
+            {
+              "title": "OFFICE-02: office assistant can read students and is denied admin users",
+              "ok": true,
+              "tags": [
+                "office"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "7fba0eec549e7b432c9f-9d415877684ae2d654e1",
+              "file": "tests/office/office.spec.ts",
+              "line": 13,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "tests/rbac/rbac.spec.ts",
+      "file": "tests/rbac/rbac.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "RBAC Negative Tests @rbac",
+          "file": "tests/rbac/rbac.spec.ts",
+          "line": 16,
+          "column": 6,
+          "specs": [
+            {
+              "title": "RBAC-01: Student blocked from admin user management",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "rbac",
+                  "projectName": "rbac",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-1aee736f045d69ef403d",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 19,
+              "column": 3
+            },
+            {
+              "title": "RBAC-02: Student blocked from analytics dashboard",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "rbac",
+                  "projectName": "rbac",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-d6f1bf877eee057e3501",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "RBAC-03: Faculty blocked from admin audit log",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "rbac",
+                  "projectName": "rbac",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-c26cf8d6c2a7cab03d95",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 53,
+              "column": 3
+            },
+            {
+              "title": "RBAC-04: Faculty blocked from student management list",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "rbac",
+                  "projectName": "rbac",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-fb87a81178548c1004bc",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 67,
+              "column": 3
+            },
+            {
+              "title": "RBAC-05: Unauthenticated user cannot access any protected route",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "rbac",
+                  "projectName": "rbac",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-88053294bd0c9e4ac957",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 84,
+              "column": 3
+            },
+            {
+              "title": "RBAC-06: ExamCell can see result publishing controls",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "rbac",
+                  "projectName": "rbac",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-2e926c9dbcbf4bc77ac5",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 98,
+              "column": 3
+            },
+            {
+              "title": "RBAC-07: Student cannot see publish/freeze controls on results page",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "rbac",
+                  "projectName": "rbac",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-4831438effbf6698585b",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 115,
+              "column": 3
+            },
+            {
+              "title": "RBAC-08: Admin has access to all expected management pages",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "rbac",
+                  "projectName": "rbac",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-ae0013c16699a388278a",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 138,
+              "column": 3
+            },
+            {
+              "title": "RBAC-01: Student blocked from admin user management",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-14d0cc210433eeb70792",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 19,
+              "column": 3
+            },
+            {
+              "title": "RBAC-02: Student blocked from analytics dashboard",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-b7b89e645b6112e8b17c",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 36,
+              "column": 3
+            },
+            {
+              "title": "RBAC-03: Faculty blocked from admin audit log",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-35207bb9fbb306a26703",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 53,
+              "column": 3
+            },
+            {
+              "title": "RBAC-04: Faculty blocked from student management list",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-4e9243c4e88934f81fff",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 67,
+              "column": 3
+            },
+            {
+              "title": "RBAC-05: Unauthenticated user cannot access any protected route",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-34bebbffabdd8548be50",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 84,
+              "column": 3
+            },
+            {
+              "title": "RBAC-06: ExamCell can see result publishing controls",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-c86ad9d8cfbc3cb2d23a",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 98,
+              "column": 3
+            },
+            {
+              "title": "RBAC-07: Student cannot see publish/freeze controls on results page",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-3886ed83c6f05d5258f1",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 115,
+              "column": 3
+            },
+            {
+              "title": "RBAC-08: Admin has access to all expected management pages",
+              "ok": true,
+              "tags": [
+                "rbac"
+              ],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "full",
+                  "projectName": "full",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4f87675b93d06f776068-0bacd2b68368a61ce26a",
+              "file": "tests/rbac/rbac.spec.ts",
+              "line": 138,
               "column": 3
             }
           ]
@@ -858,10 +5046,10 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-04-21T23:06:59.051Z",
-    "duration": 44390.035,
-    "expected": 17,
-    "skipped": 0,
+    "startTime": "2026-09-19T21:59:34.142Z",
+    "duration": 3880.5179999999996,
+    "expected": 0,
+    "skipped": 208,
     "unexpected": 0,
     "flaky": 0
   }

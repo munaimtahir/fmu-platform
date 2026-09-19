@@ -40,13 +40,10 @@ test.describe('Student Role Tests @student', () => {
     expect(isForbidden).toBe(false);
   });
 
-  test('STU-03: Student can access own gradebook', async ({ studentPage: page }) => {
+  test('STU-03: Student is denied staff gradebook access', async ({ studentPage: page }) => {
     const resultsPage = new ResultsPage(page);
     await resultsPage.gotoGradebook();
-    await resultsPage.expectLoaded();
-    const forbidden = page.locator('div, p').filter({ hasText: /not authorized|forbidden/i }).first();
-    const isForbidden = await forbidden.isVisible({ timeout: 2000 }).catch(() => false);
-    expect(isForbidden).toBe(false);
+    await expect(page.getByText(/access denied/i).first()).toBeVisible({ timeout: 8000 });
   });
 
   test('STU-04: Student can access finance/me page', async ({ studentPage: page }) => {

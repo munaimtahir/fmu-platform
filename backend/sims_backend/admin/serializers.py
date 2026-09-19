@@ -77,7 +77,13 @@ class AdminUserSerializer(serializers.ModelSerializer):
                 return label
         return "User"
 
-    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
+    @extend_schema_field(
+        {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Get list of group names.",
+        }
+    )
     def get_groups_list(self, obj):
         """Get list of group names."""
         return list(obj.groups.values_list("name", flat=True))

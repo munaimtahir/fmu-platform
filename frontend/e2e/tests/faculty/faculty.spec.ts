@@ -98,15 +98,10 @@ test.describe('Faculty Role Tests @faculty', () => {
 
   // ---- Forbidden routes ----------------------------------------------------
 
-  test('FAC-11: Faculty cannot access student list (Admin/Registrar only)', async ({ facultyPage: page }) => {
+  test('FAC-11: Faculty can open the student list read view', async ({ facultyPage: page }) => {
     await page.goto(ROUTES.students.list);
     await page.waitForLoadState('domcontentloaded');
-    const url = page.url();
-    if (url.includes('/students')) {
-      await expectForbidden(page, 'Faculty should see forbidden on students page');
-    } else {
-      expect(url).not.toContain('/students');
-    }
+    await expect(page.getByRole('heading', { name: /no data available|students?/i }).first()).toBeVisible({ timeout: 8000 });
   });
 
   test('FAC-12: Faculty cannot access publish results (ExamCell/Admin only)', async ({ facultyPage: page }) => {

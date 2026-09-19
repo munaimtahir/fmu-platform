@@ -14,7 +14,7 @@ import { academicsService } from '@/services/academics'
 import { batchesService } from '@/services/batches'
 import { coursesService } from '@/services/courses'
 import { programsService } from '@/services/programs'
-import { sectionsService } from '@/services/sections'
+import { sectionsService, type AcademicSection } from '@/services/sections'
 import { learningService, type AudienceScope, type LearningMaterial, type MaterialAudience } from '@/services/learning'
 
 type ScopeKey = 'program' | 'batch' | 'term' | 'course' | 'section'
@@ -26,14 +26,14 @@ function useScopeOptions() {
   const batches = useQuery({ queryKey: ['audience-batches'], queryFn: () => batchesService.getAll() })
   const terms = useQuery({ queryKey: ['audience-terms'], queryFn: () => academicsService.getAcademicPeriods() })
   const courses = useQuery({ queryKey: ['audience-courses'], queryFn: () => coursesService.getAll() })
-  const sections = useQuery({ queryKey: ['audience-sections'], queryFn: () => sectionsService.list() })
+  const sections = useQuery<Awaited<ReturnType<typeof sectionsService.list>>, Error>({ queryKey: ['audience-sections'], queryFn: () => sectionsService.list() })
 
   const maps: Record<ScopeKey, Array<{ value: number; label: string }>> = {
     program: (programs.data?.results ?? []).map((p) => ({ value: p.id, label: p.name })),
     batch: (batches.data?.results ?? []).map((b) => ({ value: b.id, label: b.program_name ? `${b.name} (${b.program_name})` : b.name })),
     term: (terms.data ?? []).map((t) => ({ value: t.id, label: t.name })),
     course: (courses.data?.results ?? []).map((c) => ({ value: c.id, label: `${c.code} – ${c.name}` })),
-    section: (sections.data?.results ?? []).map((s) => ({ value: s.id, label: `${s.course_code} ${s.name} (${s.academic_period_name})` })),
+    section: (sections.data?.results ?? []).map((s: AcademicSection) => ({ value: s.id, label: `${s.course_code} ${s.name} (${s.academic_period_name})` })),
   }
   return { maps, isLoading: [programs, batches, terms, courses, sections].some((q) => q.isLoading) }
 }

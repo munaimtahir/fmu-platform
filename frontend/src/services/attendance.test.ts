@@ -85,7 +85,7 @@ describe('attendanceService (Session-Based)', () => {
 
       // Should call POST /api/attendance/sessions/{id}/mark (session-based endpoint)
       expect(api.post).toHaveBeenCalledWith(
-        `/api/attendance/sessions/${sessionId}/mark`,
+        `/api/attendance/sessions/${sessionId}/mark/`,
         attendanceData
       )
 
@@ -115,7 +115,7 @@ describe('attendanceService (Session-Based)', () => {
       await attendanceService.markAttendance(sessionId, attendanceData)
 
       expect(api.post).toHaveBeenCalledWith(
-        `/api/attendance/sessions/${sessionId}/mark`,
+        `/api/attendance/sessions/${sessionId}/mark/`,
         attendanceData
       )
     })

@@ -9,6 +9,17 @@ import api from '@/api/axios'
 import { warnOnInvalidResponse, validatePaginatedResponse, validateResultHeaderResponse } from '@/api/responseGuards'
 import { PaginatedResponse } from '@/types'
 
+export type ResultStatus = 'DRAFT' | 'VERIFIED' | 'PUBLISHED' | 'FROZEN'
+export type ResultOutcome = 'PASS' | 'FAIL' | 'PENDING'
+
+/** Fields a result header may be created or edited with (outcome is computed by the backend). */
+export interface ResultHeaderInput {
+  exam: number
+  student: number
+  total_obtained?: string | number
+  total_max?: string | number
+}
+
 export interface ResultHeader {
   id: number
   exam: number
@@ -18,8 +29,8 @@ export interface ResultHeader {
   student_reg_no?: string
   total_obtained: string | number
   total_max: string | number
-  final_outcome: 'PASS' | 'FAIL' | 'PENDING'
-  status: 'DRAFT' | 'VERIFIED' | 'PUBLISHED' | 'FROZEN'
+  final_outcome: ResultOutcome
+  status: ResultStatus
   component_entries?: ResultComponent[]
   created_at?: string
   updated_at?: string
@@ -32,7 +43,7 @@ export interface ResultComponent {
   exam_component_name?: string
   exam_component_max_marks?: string | number
   marks_obtained: string | number
-  component_outcome?: string
+  component_outcome?: 'PASS' | 'FAIL' | 'NA' | string
 }
 
 export const resultsService = {
@@ -41,8 +52,9 @@ export const resultsService = {
     search?: string
     exam?: number
     student?: number
-    status?: ResultHeader['status']
-    final_outcome?: ResultHeader['final_outcome']
+    status?: ResultStatus
+    final_outcome?: ResultOutcome
+    ordering?: string
   }): Promise<PaginatedResponse<ResultHeader>> {
     const response = await api.get<PaginatedResponse<ResultHeader>>('/api/results/', { params })
     // Lightweight runtime guard (dev-only warnings)
@@ -56,6 +68,29 @@ export const resultsService = {
 
   async getById(id: number): Promise<ResultHeader> {
     const response = await api.get<ResultHeader>(`/api/results/${id}/`)
+    return response.data
+  },
+
+  /** The signed-in student's own published or frozen results (unpaginated). */
+  async getMine(): Promise<ResultHeader[]> {
+    const response = await api.get<ResultHeader[]>('/api/results/me/')
+    return response.data
+  },
+
+  /** Every result for one exam the caller may see (unpaginated). */
+  async getByExam(examId: number): Promise<ResultHeader[]> {
+    const response = await api.get<ResultHeader[]>(`/api/results/exams/${examId}/`)
+    return response.data
+  },
+
+  async create(data: ResultHeaderInput): Promise<ResultHeader> {
+    const response = await api.post<ResultHeader>('/api/results/', data)
+    return response.data
+  },
+
+  /** Edit totals of a DRAFT result; the backend recomputes the outcome. */
+  async update(id: number, data: Partial<ResultHeaderInput>): Promise<ResultHeader> {
+    const response = await api.patch<ResultHeader>(`/api/results/${id}/`, data)
     return response.data
   },
 

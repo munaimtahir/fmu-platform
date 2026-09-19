@@ -41,13 +41,11 @@ export const CollectionReportPage: React.FC = () => {
     }
 
     try {
-      const blob = await financeService.exportCollectionCSV(dateRange.start, dateRange.end)
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `collection_${dateRange.start}_${dateRange.end}.csv`
-      a.click()
-      window.URL.revokeObjectURL(url)
+      await financeService.downloadCollectionCSV(
+        dateRange.start,
+        dateRange.end,
+        `collection_${dateRange.start}_${dateRange.end}.csv`
+      )
     } catch (err) {
       alert('Failed to export CSV')
       console.error('Error exporting CSV:', err)

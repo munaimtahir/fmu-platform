@@ -5,8 +5,21 @@
  * Note: Attendance is tracked per Session (from timetable), not Section (from courses)
  */
 import api from '@/api/axios'
+import { downloadFile } from '@/lib/download'
 import { warnOnInvalidResponse, validatePaginatedResponse, validateAttendanceResponse } from '@/api/responseGuards'
 import { Attendance, PaginatedResponse } from '@/types'
+
+export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'LEAVE'
+
+export const ATTENDANCE_STATUSES: AttendanceStatus[] = ['PRESENT', 'ABSENT', 'LATE', 'LEAVE']
+
+export interface EligibilityResult {
+  eligible: boolean
+  attendance_percentage: number
+  threshold: number
+  student_id: number
+  section_id: number
+}
 
 export const attendanceService = {
   /**
@@ -44,7 +57,7 @@ export const attendanceService = {
     }>
   }): Promise<{ created: number; updated: number; total: number }> {
     const response = await api.post<{ created: number; updated: number; total: number }>(
-      `/api/attendance/sessions/${sessionId}/mark`,
+      `/api/attendance/sessions/${sessionId}/mark/`,
       data
     )
     return response.data
@@ -78,6 +91,48 @@ export const attendanceService = {
     percentage: number
   }> {
     const response = await api.get('/api/attendance/summary/', { params })
+    return response.data
+  },
+
+  /**
+   * Get one attendance record
+   */
+  async getById(id: number): Promise<Attendance> {
+    const response = await api.get<Attendance>(`/api/attendance/${id}/`)
+    return response.data
+  },
+
+  /**
+   * Correct the status of one record.  Allowed for holders of attendance.attendances.edit
+   * and for the faculty member who teaches the record's session.
+   */
+  async updateStatus(id: number, status: AttendanceStatus): Promise<Attendance> {
+    const response = await api.patch<Attendance>(`/api/attendance/${id}/`, { status })
+    return response.data
+  },
+
+  /**
+   * Delete one record (same authorization as `updateStatus`).
+   */
+  async remove(id: number): Promise<void> {
+    await api.delete(`/api/attendance/${id}/`)
+  },
+
+  /**
+   * Download attendance records as CSV, honouring the same filters as the list.
+   * The backend caps the export at 10,000 rows.
+   */
+  async exportCsv(params?: { session?: number; student?: number; status?: AttendanceStatus }): Promise<string> {
+    return downloadFile('/api/attendance/export/', { params, filename: 'attendance_export.csv' })
+  },
+
+  /**
+   * Eligibility of one student in one section against an attendance threshold (percent).
+   */
+  async getEligibility(params: { studentId: number; sectionId: number; threshold?: number }): Promise<EligibilityResult> {
+    const response = await api.get<EligibilityResult>('/api/attendance/eligibility/', {
+      params: { student_id: params.studentId, section_id: params.sectionId, threshold: params.threshold },
+    })
     return response.data
   },
 }

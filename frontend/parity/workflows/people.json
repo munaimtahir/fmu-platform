@@ -1,0 +1,209 @@
+{
+  "workflows": [
+    {
+      "id": "people",
+      "roles": [
+        "Admin",
+        "Registrar"
+      ],
+      "screen": "/people; /people/:id",
+      "apis": [
+        "/api/people/addresses/",
+        "/api/people/addresses/{id}/",
+        "/api/people/contact-info/",
+        "/api/people/contact-info/{id}/",
+        "/api/people/identity-documents/",
+        "/api/people/identity-documents/{id}/",
+        "/api/people/persons/",
+        "/api/people/persons/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete person",
+        "manage contact info, addresses, identity documents",
+        "upload photo"
+      ],
+      "services": [
+        "services/people.ts"
+      ],
+      "pages": [
+        "pages/people/PeopleListPage.tsx",
+        "pages/people/PersonDetailPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "people.persons.view",
+        "people.persons.create",
+        "people.persons.update",
+        "people.persons.delete"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "students-directory",
+      "roles": [
+        "Admin",
+        "Registrar",
+        "Faculty",
+        "Coordinator"
+      ],
+      "screen": "/students; /students/:id",
+      "apis": [
+        "/api/students/",
+        "/api/students/{id}/",
+        "/api/students/stats/"
+      ],
+      "writes": [
+        "create/edit student"
+      ],
+      "services": [
+        "services/students.ts"
+      ],
+      "pages": [
+        "features/students/StudentsPage.tsx",
+        "pages/students/StudentDetailPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "students.students.view",
+        "students.students.create",
+        "students.students.update"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "student-placement",
+      "roles": [
+        "Coordinator",
+        "Admin",
+        "Registrar"
+      ],
+      "screen": "/students/:id",
+      "apis": [
+        "/api/students/{id}/placement/"
+      ],
+      "writes": [
+        "set placement"
+      ],
+      "services": [],
+      "pages": [
+        "pages/students/StudentDetailPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "students.students.manage_placement"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "student-leave-periods",
+      "roles": [
+        "Registrar",
+        "Admin"
+      ],
+      "screen": "/students/:id",
+      "apis": [
+        "/api/leave-periods/",
+        "/api/leave-periods/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete leave period"
+      ],
+      "services": [
+        "services/leavePeriods.ts"
+      ],
+      "pages": [
+        "pages/students/StudentDetailPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "students.leave_periods.view",
+        "students.leave_periods.create",
+        "students.leave_periods.update"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "student-self",
+      "roles": [
+        "Student"
+      ],
+      "screen": "/dashboard/student",
+      "apis": [
+        "/api/students/me/"
+      ],
+      "writes": [],
+      "services": [],
+      "pages": [
+        "pages/dashboards/StudentDashboard.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    },
+    {
+      "id": "compliance-student",
+      "roles": [
+        "Student"
+      ],
+      "screen": "/my-compliance",
+      "apis": [
+        "/api/compliance/my-compliance/",
+        "/api/compliance/my-compliance/{id}/",
+        "/api/compliance/my-compliance/{id}/submit/"
+      ],
+      "writes": [
+        "submit requirement (text or file)"
+      ],
+      "services": [
+        "services/compliance.ts"
+      ],
+      "pages": [
+        "pages/compliance/MyCompliancePage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    },
+    {
+      "id": "compliance-admin",
+      "roles": [
+        "Admin",
+        "Registrar"
+      ],
+      "screen": "/compliance",
+      "apis": [
+        "/api/compliance/admin-compliance/",
+        "/api/compliance/admin-compliance/assign_to_student/",
+        "/api/compliance/admin-compliance/review_queue/",
+        "/api/compliance/admin-compliance/{id}/",
+        "/api/compliance/admin-compliance/{id}/reject/",
+        "/api/compliance/admin-compliance/{id}/verify/",
+        "/api/compliance/definitions/",
+        "/api/compliance/definitions/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete definition",
+        "assign to student",
+        "verify",
+        "reject"
+      ],
+      "services": [
+        "services/compliance.ts"
+      ],
+      "pages": [
+        "pages/compliance/ComplianceAdminPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "compliance.definitions.view",
+        "compliance.definitions.create",
+        "compliance.definitions.update",
+        "compliance.definitions.delete",
+        "compliance.requirements.view",
+        "compliance.requirements.assign",
+        "compliance.requirements.review"
+      ],
+      "status": "implemented"
+    }
+  ]
+}

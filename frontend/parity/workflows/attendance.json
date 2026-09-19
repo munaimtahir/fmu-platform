@@ -1,0 +1,118 @@
+{
+  "workflows": [
+    {
+      "id": "attendance-records",
+      "roles": [
+        "Admin",
+        "Faculty",
+        "Registrar"
+      ],
+      "screen": "/attendance",
+      "apis": [
+        "/api/attendance/",
+        "/api/attendance/{id}/",
+        "/api/attendance/sessions/{session_id}/mark/",
+        "/api/attendance/summary/",
+        "/api/attendance/export/"
+      ],
+      "writes": [
+        "mark attendance",
+        "edit record",
+        "delete record",
+        "export"
+      ],
+      "services": [
+        "services/attendance.ts"
+      ],
+      "pages": [
+        "pages/attendance/AttendanceDashboard.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "attendance.attendances.view",
+        "attendance.attendances.edit"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "attendance-eligibility",
+      "roles": [
+        "Admin",
+        "Registrar"
+      ],
+      "screen": "/attendance/eligibility",
+      "apis": [
+        "/api/attendance/eligibility/"
+      ],
+      "writes": [],
+      "services": [],
+      "pages": [
+        "pages/attendance/EligibilityReport.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "attendance.attendances.view"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "attendance-input",
+      "roles": [
+        "Admin",
+        "Faculty",
+        "Coordinator"
+      ],
+      "screen": "/attendance/input; /attendance/bulk",
+      "apis": [
+        "/api/attendance-input/live/roster/",
+        "/api/attendance-input/live/submit/",
+        "/api/attendance-input/csv/commit/",
+        "/api/attendance-input/csv/dry-run/",
+        "/api/attendance-input/sheet/commit/",
+        "/api/attendance-input/sheet/dry-run/",
+        "/api/attendance-input/sheet/template/"
+      ],
+      "writes": [
+        "live roster submit",
+        "csv dry-run and commit",
+        "scanned sheet dry-run and commit"
+      ],
+      "services": [
+        "services/attendanceInputs.ts"
+      ],
+      "pages": [
+        "pages/attendance/AttendanceInputPage.tsx",
+        "features/attendance/BulkAttendancePage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "attendance.attendances.edit"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "attendance-biometric",
+      "roles": [
+        "Admin"
+      ],
+      "screen": "/attendance/input (integration panel)",
+      "apis": [
+        "/api/attendance-input/biometric/punches/"
+      ],
+      "writes": [
+        "ingest biometric punches"
+      ],
+      "services": [
+        "services/attendanceInputs.ts"
+      ],
+      "pages": [
+        "pages/attendance/AttendanceInputPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "attendance.biometric.ingest"
+      ],
+      "status": "implemented"
+    }
+  ]
+}

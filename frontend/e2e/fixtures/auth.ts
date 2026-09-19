@@ -11,7 +11,7 @@
  *   });
  */
 
-import { test as base } from '@playwright/test';
+import { test as base, type Page } from '@playwright/test';
 import { fileURLToPath } from 'url';
 import * as path from 'path';
 import { AUTH_STATE_FILES } from '../data/test-data';
@@ -24,6 +24,9 @@ type AuthFixtures = {
   facultyPage: Page;
   studentPage: Page;
   examcellPage: Page;
+  coordinatorPage: Page;
+  financePage: Page;
+  officePage: Page;
 };
 
 /** Resolve auth state file from a relative path */
@@ -66,6 +69,29 @@ export const test = base.extend<AuthFixtures>({
 
   examcellPage: async ({ browser }, use) => {
     const stateFile = authStatePath(AUTH_STATE_FILES.examcell);
+    const context = await browser.newContext({ storageState: stateFile });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+  coordinatorPage: async ({ browser }, use) => {
+    const stateFile = authStatePath(AUTH_STATE_FILES.coordinator);
+    const context = await browser.newContext({ storageState: stateFile });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+
+  financePage: async ({ browser }, use) => {
+    const stateFile = authStatePath(AUTH_STATE_FILES.finance);
+    const context = await browser.newContext({ storageState: stateFile });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+
+  officePage: async ({ browser }, use) => {
+    const stateFile = authStatePath(AUTH_STATE_FILES.office);
     const context = await browser.newContext({ storageState: stateFile });
     const page = await context.newPage();
     await use(page);

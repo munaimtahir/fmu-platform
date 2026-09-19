@@ -12,6 +12,9 @@ export interface AcademicPeriod {
   parent_period_name?: string
   start_date?: string | null
   end_date?: string | null
+  /** Not yet serialized by the backend; used when present. */
+  status?: 'OPEN' | 'CLOSED'
+  is_enrollment_open?: boolean
 }
 
 export interface Group {
@@ -95,6 +98,22 @@ export const academicsService = {
   },
 
   /**
+   * Open an academic period for enrollment and academic writes
+   */
+  async openAcademicPeriod(id: number): Promise<AcademicPeriod> {
+    const response = await api.post<AcademicPeriod>(`/api/academics/academic-periods/${id}/open/`)
+    return response.data
+  },
+
+  /**
+   * Close an academic period, blocking enrollment and academic writes
+   */
+  async closeAcademicPeriod(id: number): Promise<AcademicPeriod> {
+    const response = await api.post<AcademicPeriod>(`/api/academics/academic-periods/${id}/close/`)
+    return response.data
+  },
+
+  /**
    * Get all groups
    */
   async getGroups(params?: { batch?: number }): Promise<Group[]> {
@@ -142,46 +161,34 @@ export const academicsService = {
   },
 
   /**
-   * Get faculty users (users in Faculty group)
-   * Note: Since there's no dedicated users API, we'll fetch from existing sessions
-   * to get faculty IDs, or allow manual entry. For now, return empty array.
-   * In production, create a dedicated /api/users/ endpoint filtered by group.
+   * Faculty who already teach a session.  There is no faculty-directory endpoint for
+   * non-admin roles, so the list is derived from existing timetable sessions.
    */
   async getFacultyUsers(): Promise<FacultyUser[]> {
     try {
-      // Try to get users with Faculty group from a potential users endpoint
-      // If it doesn't exist, we'll handle it in the form
-      const response = await api.get<PaginatedResponse<FacultyUser>>('/api/users/', {
-        params: { groups: 'Faculty' },
+      const sessionsResponse = await api.get<PaginatedResponse<any>>('/api/timetable/sessions/', {
+        params: { page_size: 1000 },
       })
-      return response.data.results || response.data
+      const sessions = sessionsResponse.data.results || []
+      const facultyMap = new Map<number, FacultyUser>()
+
+      sessions.forEach((session: any) => {
+        if (session.faculty && !facultyMap.has(session.faculty)) {
+          facultyMap.set(session.faculty, {
+            id: session.faculty,
+            username: session.faculty_name || `Faculty ${session.faculty}`,
+            email: '',
+            first_name: session.faculty_name?.split(' ')[0] || '',
+            last_name: session.faculty_name?.split(' ').slice(1).join(' ') || '',
+            full_name: session.faculty_name,
+          })
+        }
+      })
+
+      return Array.from(facultyMap.values())
     } catch (error) {
-      // Fallback: Try to get faculty from existing sessions
-      try {
-        const sessionsResponse = await api.get<PaginatedResponse<any>>('/api/timetable/sessions/', {
-          params: { page_size: 1000 },
-        })
-        const sessions = sessionsResponse.data.results || []
-        const facultyMap = new Map<number, FacultyUser>()
-        
-        sessions.forEach((session: any) => {
-          if (session.faculty && !facultyMap.has(session.faculty)) {
-            facultyMap.set(session.faculty, {
-              id: session.faculty,
-              username: session.faculty_name || `Faculty ${session.faculty}`,
-              email: '',
-              first_name: session.faculty_name?.split(' ')[0] || '',
-              last_name: session.faculty_name?.split(' ').slice(1).join(' ') || '',
-              full_name: session.faculty_name,
-            })
-          }
-        })
-        
-        return Array.from(facultyMap.values())
-      } catch (fallbackError) {
-        console.warn('Could not fetch faculty users:', fallbackError)
-        return []
-      }
+      console.warn('Could not fetch faculty users:', error)
+      return []
     }
   },
 }

@@ -8,17 +8,52 @@ from typing import TYPE_CHECKING
 
 from rest_framework.permissions import BasePermission
 
+from core.rbac_catalog import (
+    BUILTIN_ADMIN_ALWAYS_PREFIXES,
+    BUILTIN_ROLE_PREFIXES,
+    DOMAIN_ROLE_GROUPS,
+    SYSTEM_ROLES,
+    TASK_CODES,
+    builtin_prefix_grants,
+)
+
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
 
 
+def get_user_group_names(user: User) -> set[str]:
+    """Upper-cased Django Group names for ``user`` (group spellings vary in case)."""
+    try:
+        return {name.upper() for name in user.groups.values_list("name", flat=True)}
+    except (AttributeError, TypeError):
+        return set()
+
+
+def _builtin_allows(group_names: set[str], task_code: str) -> bool:
+    """Built-in role grants, evaluated from a pre-fetched set of group names."""
+    if "ADMIN" in group_names:
+        if not group_names.intersection(DOMAIN_ROLE_GROUPS):
+            return True
+        if task_code.startswith(BUILTIN_ADMIN_ALWAYS_PREFIXES):
+            return True
+
+    return any(role in group_names and builtin_prefix_grants(role, task_code) for role in BUILTIN_ROLE_PREFIXES)
+
+
+def _has_builtin_role_task(user: User, task_code: str) -> bool:
+    return _builtin_allows(get_user_group_names(user), task_code)
+
+
 def has_permission_task(user: User, task_code: str) -> bool:
     """
-    Check if user has a permission task either via:
-    1. Direct user assignment
-    2. Role assignment (user belongs to a role with the task)
+    Check if user has a permission task via any of:
+    1. Superuser status
+    2. Built-in role grants (``core.rbac_catalog.BUILTIN_ROLE_PREFIXES``)
+    3. Direct user assignment
+    4. Role assignment (user belongs to a group whose name matches a Role)
 
-    Superusers always have all permissions.
+    The built-in grants are always consulted, so populating the task tables
+    can only add access, never remove it.
     """
     if not user or not user.is_authenticated:
         return False
@@ -26,132 +61,30 @@ def has_permission_task(user: User, task_code: str) -> bool:
     if user.is_superuser:
         return True
 
-    from core.models import PermissionTask, Role, RoleTaskAssignment, UserTaskAssignment
-
-    # Built-in role fallback for critical permissions. The task table remains
-    # canonical when populated, but seeded/local environments must not lose all
-    # API access when task rows are absent.
-    fallback = _has_builtin_role_task(user, task_code)
-
-    # Check direct user assignment
-    try:
-        task = PermissionTask.objects.get(code=task_code)
-        if UserTaskAssignment.objects.filter(user=user, task=task).exists():
-            return True
-    except PermissionTask.DoesNotExist:
-        return fallback
-
-    # Check role assignments
-    # Get user's roles (from Django Groups, mapped to our Role model)
-    user_roles = get_user_roles(user)
-
-    if not user_roles:
-        return False
-
-    role_names = [role.name for role in user_roles]
-    roles = Role.objects.filter(name__in=role_names)
-
-    return RoleTaskAssignment.objects.filter(role__in=roles, task=task).exists() or fallback
-
-
-def _user_in_group(user: User, group_name: str) -> bool:
-    try:
-        return bool(user.groups.filter(name__iexact=group_name).exists())
-    except (AttributeError, TypeError):
-        return False
-
-
-def _has_builtin_role_task(user: User, task_code: str) -> bool:
-    """Conservative fallback RBAC map for seeded environments without task rows."""
-    if _user_in_group(user, "ADMIN") and not any(
-        _user_in_group(user, role)
-        for role in ["REGISTRAR", "EXAMCELL", "FACULTY", "FINANCE", "STUDENT", "COORDINATOR", "OFFICE_ASSISTANT"]
-    ):
+    group_names = get_user_group_names(user)
+    if _builtin_allows(group_names, task_code):
         return True
 
-    role_task_prefixes = {
-        "REGISTRAR": [
-            # Registrar owns authoritative student, person, academic-lifecycle and
-            # timetable records.  Prefixes deliberately mirror task-code namespaces;
-            # API viewsets still enforce action and object-level constraints.
-            "students.",
-            "people.",
-            "academics.",
-            "timetable.",
-            # Compliance requirements are administered by Registrar (and Admin,
-            # via the ADMIN branch above).  No other built-in role gets these.
-            "compliance.",
-        ],
-        "FACULTY": [
-            "academics.courses.view",
-            "academics.sections.view",
-            "students.students.view",
-            # Faculty need to browse batches/periods/groups read-only to
-            # drive the /timetable page (batch + academic period selectors,
-            # and the EntryForm's group dropdown) — without these, the
-            # shipped timetable editor is unusable for Faculty even though
-            # they are its primary intended user alongside Admin/Coordinator.
-            "academics.batches.view",
-            "academics.terms.view",
-            "academics.groups.view",
-            "results.result_headers.view",
-            "results.result_headers.create",
-            "results.result_headers.update",
-            "results.result_components.view",
-            "results.result_components.create",
-            "results.result_components.update",
-            "results.result_components.delete",
-            "exams.exams.view",
-            "exams.components.view",
-            # Faculty can manage their own sessions/draft timetables/entries
-            # (object-level ownership is still enforced inside the view/
-            # action bodies), but cannot hard-delete entries.
-            "timetable.sessions.view",
-            "timetable.sessions.create",
-            "timetable.sessions.update",
-            "timetable.sessions.delete",
-            "timetable.weekly.view",
-            "timetable.weekly.create",
-            "timetable.weekly.update",
-            "timetable.weekly.manage",
-            "timetable.entries.view",
-            "timetable.entries.create",
-            "timetable.entries.update",
-            "timetable.entries.cancel",
-        ],
-        "EXAMCELL": [
-            "exams.",
-            "results.",
-        ],
-        "FINANCE": [
-            "finance.",
-        ],
-        "COORDINATOR": [
-            # Coordinator is a designated timetable manager per RBAC matrix,
-            # and (like Faculty) needs read-only batch/period/group access
-            # to drive the /timetable page's selectors.
-            "timetable.",
-            "academics.batches.view",
-            "academics.terms.view",
-            "academics.groups.view",
-            "students.students.view",
-            "students.students.manage_placement",
-        ],
-        "STUDENT": [
-            # Students may only ever read published schedules; queryset-level
-            # filtering (in_group checks in timetable views) still restricts
-            # them to published data regardless of this task grant.
-            "timetable.sessions.view",
-            "timetable.weekly.view",
-            "timetable.entries.view",
-        ],
-    }
+    from core.models import RoleTaskAssignment, UserTaskAssignment
 
-    for role, allowed in role_task_prefixes.items():
-        if _user_in_group(user, role) and any(task_code == item or task_code.startswith(item) for item in allowed):
-            return True
+    if UserTaskAssignment.objects.filter(user=user, task__code=task_code).exists():
+        return True
 
-    return False
+    role_ids = _role_ids_for_groups(group_names)
+    if not role_ids:
+        return False
+    return RoleTaskAssignment.objects.filter(role_id__in=role_ids, task__code=task_code).exists()
+
+
+def _role_ids_for_groups(group_names: set[str]) -> list[int]:
+    from django.db.models.functions import Lower
+
+    from core.models import Role
+
+    if not group_names:
+        return []
+    lowered = [name.lower() for name in group_names]
+    return list(Role.objects.annotate(name_lower=Lower("name")).filter(name_lower__in=lowered).values_list("id", flat=True))
 
 
 def has_any_permission_task(user: User, task_codes: list[str]) -> bool:
@@ -167,15 +100,65 @@ def has_all_permission_tasks(user: User, task_codes: list[str]) -> bool:
 def get_user_roles(user: User) -> list:
     """
     Get Role objects for a user based on their Django Group memberships.
+
+    Group and Role names are matched case-insensitively (groups exist as both
+    ``STUDENT`` and ``Student`` in real data).
     """
     from core.models import Role
 
     if not user or not user.is_authenticated:
         return []
 
-    # Map Django Groups to Role model
-    group_names = user.groups.values_list("name", flat=True)
-    return list(Role.objects.filter(name__in=group_names))
+    role_ids = _role_ids_for_groups(get_user_group_names(user))
+    return list(Role.objects.filter(id__in=role_ids))
+
+
+def get_effective_roles(user: User) -> list[dict]:
+    """Roles for the access context: Role rows plus canonical roles implied by groups.
+
+    Canonical roles without a Role row (e.g. before the catalog is seeded) are
+    returned with ``id`` None so callers always see a complete list.
+    """
+    if not user or not user.is_authenticated:
+        return []
+
+    group_names = get_user_group_names(user)
+    if user.is_superuser:
+        group_names = group_names | {"ADMIN"}
+
+    rows = {r.name.upper(): r for r in get_user_roles(user)}
+    if user.is_superuser:
+        from core.models import Role
+
+        admin_role = Role.objects.filter(name__iexact="ADMIN").first()
+        if admin_role:
+            rows["ADMIN"] = admin_role
+
+    roles = [{"id": r.id, "name": r.name, "description": r.description} for r in rows.values()]
+    for canonical, description in SYSTEM_ROLES.items():
+        if canonical in group_names and canonical not in rows:
+            roles.append({"id": None, "name": canonical, "description": description})
+    return sorted(roles, key=lambda r: r["name"])
+
+
+def get_effective_task_codes(user: User) -> set[str]:
+    """Every task code the user holds: direct, via roles, built-in grants, or superuser."""
+    if not user or not user.is_authenticated:
+        return set()
+
+    from core.models import PermissionTask, RoleTaskAssignment, UserTaskAssignment
+
+    known_codes = set(PermissionTask.objects.values_list("code", flat=True)) | set(TASK_CODES)
+    if user.is_superuser:
+        return known_codes
+
+    group_names = get_user_group_names(user)
+    codes = set(UserTaskAssignment.objects.filter(user=user).values_list("task__code", flat=True))
+    role_ids = _role_ids_for_groups(group_names)
+    if role_ids:
+        codes |= set(RoleTaskAssignment.objects.filter(role_id__in=role_ids).values_list("task__code", flat=True))
+    codes |= {code for code in known_codes if _builtin_allows(group_names, code)}
+    return codes
 
 
 class PermissionTaskRequired(BasePermission):

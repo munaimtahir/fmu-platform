@@ -1,0 +1,73 @@
+{
+  "workflows": [
+    {
+      "id": "learning-materials",
+      "roles": [
+        "Faculty",
+        "Admin"
+      ],
+      "screen": "/learning/manage",
+      "apis": [
+        "/api/learning/materials/",
+        "/api/learning/materials/{id}/",
+        "/api/learning/materials/{id}/archive/",
+        "/api/learning/materials/{id}/audiences/",
+        "/api/learning/audiences/{id}/",
+        "/api/learning/audiences/",
+        "/api/learning/materials/{id}/publish/"
+      ],
+      "writes": [
+        "create/edit/delete material",
+        "schedule",
+        "manage audience",
+        "publish",
+        "archive"
+      ],
+      "services": [
+        "services/learning.ts"
+      ],
+      "pages": [
+        "pages/learning/LearningMaterialsPage.tsx"
+      ],
+      "tests": [
+        "pages/learning/LearningMaterialsPage.test.tsx"
+      ],
+      "permissions": [
+        "learning.materials.view",
+        "learning.materials.create",
+        "learning.materials.update",
+        "learning.materials.delete",
+        "learning.materials.publish",
+        "learning.materials.archive",
+        "learning.materials.manage_audience"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "learning-feed",
+      "roles": [
+        "Student"
+      ],
+      "screen": "/learning",
+      "apis": [
+        "/api/learning/student-feed/"
+      ],
+      "writes": [
+        "download material"
+      ],
+      "services": [
+        "services/learning.ts"
+      ],
+      "pages": [
+        "pages/learning/LearningFeedPage.tsx"
+      ],
+      "tests": [
+        "pages/learning/LearningFeedPage.test.tsx"
+      ],
+      "permissions": [
+        "learning.feed.view"
+      ],
+      "status": "implemented"
+    }
+  ]
+}

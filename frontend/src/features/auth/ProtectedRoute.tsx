@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './useAuth'
+import { useAuthStore } from './authStore'
+import { canAccess } from './access'
 import { Spinner } from '@/components/ui/Spinner'
-import { canAccessRoute } from '@/config/navConfig'
+import { getRouteAccess } from '@/config/routeAccess'
 
 // Hoisted to module scope: creating this inside the component body would
 // construct a brand-new lazy component on every render, causing React to
@@ -19,29 +21,29 @@ const RouteFallback = () => (
 
 export interface ProtectedRouteProps {
   children: React.ReactNode
-  allowedRoles?: string[]
-  path?: string // Optional path for route policy checking
+  /** The route's react-router path pattern; must be registered in `config/routeAccess.ts`. */
+  path: string
 }
 
 /**
- * ProtectedRoute - Route guard that ensures user is authenticated and authorized
- * Redirects to login if not authenticated (401)
- * Shows unauthorized page if user lacks required role (403)
+ * Route guard: authenticated, then authorized by the route's registered access rule.
+ * - Not signed in: redirect to /login (401).
+ * - Signed in but lacking the required tasks/roles, or route not registered: Unauthorized page (403).
+ *   Unregistered routes fail closed so a new route can never ship open by accident.
  */
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  allowedRoles,
-  path 
-}) => {
-  const { user, isAuthenticated, isLoading, initialize } = useAuth()
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, path }) => {
+  const { isAuthenticated, isLoading, initialize } = useAuth()
+  const roles = useAuthStore((state) => state.roles)
+  const tasks = useAuthStore((state) => state.tasks)
+  const accessLoaded = useAuthStore((state) => state.accessLoaded)
   const location = useLocation()
 
   useEffect(() => {
-    // Initialize auth state on mount
+    // Initialize auth state on mount (no-op once the session and access context are loaded)
     initialize()
   }, [initialize])
 
-  if (isLoading) {
+  if (isLoading || (isAuthenticated && !accessLoaded)) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
         <div className="text-center">
@@ -57,21 +59,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // Check role-based access
-  // user.role is a STRING (Admin, Faculty, Student, Registrar, ExamCell, Finance, User)
-  // First check explicit allowedRoles prop, then check route policy if path provided
-  const routePath = path || location.pathname
-  let hasAccess = true
-
-  if (allowedRoles && allowedRoles.length > 0) {
-    // Explicit role check from route definition (string comparison)
-    hasAccess = user?.role ? allowedRoles.includes(user.role) : false
-  } else if (path || location.pathname) {
-    // Use route policy from navConfig (string comparison)
-    hasAccess = canAccessRoute(user?.role, routePath)
+  const access = getRouteAccess(path)
+  if (!access && import.meta.env.DEV) {
+    console.error(`Route "${path}" is not registered in config/routeAccess.ts; denying access.`)
   }
 
-  if (!hasAccess) {
+  if (!canAccess(access, { roles, tasks })) {
     // 403: Show unauthorized page (stays logged in but blocked)
     return (
       <React.Suspense fallback={<RouteFallback />}>

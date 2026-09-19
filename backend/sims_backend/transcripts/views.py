@@ -16,6 +16,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from core.permissions import has_permission_task
 from sims_backend.common_permissions import in_group
 from sims_backend.finance.services import finance_gate_checks
 from sims_backend.results.models import ResultHeader
@@ -160,11 +161,13 @@ def generate_transcript_pdf(student: Student) -> io.BytesIO:
     return buffer
 
 
-def _transcript_access_denied(user, student):
+def _transcript_access_denied(user, student, *, wants_email=False):
     """Return a 403 Response if `user` may not access `student`'s transcript, else None.
 
-    Students may access only their own transcript. Admin, Registrar and Finance
-    users (and superusers) may access any transcript for administrative purposes.
+    Students may access only their own transcript.  Everyone else needs the
+    ``transcripts.transcripts.generate`` task (and ``.email`` to email it).
+    Admin, Registrar and Finance hold these by default; other roles only when
+    the tasks are explicitly assigned.
     """
     if in_group(user, "STUDENT"):
         if getattr(user, "student", None) != student:
@@ -174,16 +177,14 @@ def _transcript_access_denied(user, student):
             )
         return None
 
-    has_admin_access = (
-        in_group(user, "FINANCE")
-        or in_group(user, "ADMIN")
-        or in_group(user, "REGISTRAR")
-        or in_group(user, "Registrar")
-        or user.is_superuser
-    )
-    if not has_admin_access:
+    if not has_permission_task(user, "transcripts.transcripts.generate"):
         return Response(
             {"error": {"code": "FORBIDDEN", "message": "You do not have permission to view this transcript"}},
+            status=403,
+        )
+    if wants_email and not has_permission_task(user, "transcripts.transcripts.email"):
+        return Response(
+            {"error": {"code": "FORBIDDEN", "message": "You do not have permission to email transcripts"}},
             status=403,
         )
     return None
@@ -264,7 +265,7 @@ def enqueue_transcript_generation(request):
     except Student.DoesNotExist:
         return Response({"error": {"code": 404, "message": "Student not found"}}, status=404)
 
-    denied = _transcript_access_denied(request.user, student)
+    denied = _transcript_access_denied(request.user, student, wants_email=bool(email))
     if denied:
         return denied
 

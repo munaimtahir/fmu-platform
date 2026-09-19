@@ -194,6 +194,10 @@ class PaymentSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class VoucherCancelSerializer(serializers.Serializer):
+    reason = serializers.CharField(allow_blank=False, trim_whitespace=True, max_length=500)
+
+
 class PaymentVerifySerializer(serializers.Serializer):
     approve = serializers.BooleanField(default=True)
     notes = serializers.CharField(required=False, allow_blank=True)

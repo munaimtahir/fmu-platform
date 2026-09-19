@@ -5,7 +5,23 @@
  */
 import api from '@/api/axios'
 import { warnOnInvalidResponse, validatePaginatedResponse, validateStudentResponse } from '@/api/responseGuards'
-import { Student, PaginatedResponse } from '@/types'
+import { Student, PaginatedResponse, FinanceSummary } from '@/types'
+
+/** Full student record as returned by `/api/students/{id}/` (adds the linked person and graduation years). */
+export interface StudentDetail extends Student {
+  person: number | null
+  person_name?: string
+  user: number | null
+  enrollment_year: number | null
+  expected_graduation_year: number | null
+  actual_graduation_year: number | null
+}
+
+export interface StudentPlacementPayload {
+  program: number
+  batch: number
+  group: number
+}
 
 export const studentsService = {
   /**
@@ -58,6 +74,33 @@ export const studentsService = {
    */
   async delete(id: number): Promise<void> {
     await api.delete(`/api/students/${id}/`)
+  },
+
+  /**
+   * Full record including the linked person and graduation years.
+   */
+  async getDetail(id: number): Promise<StudentDetail> {
+    const response = await api.get<StudentDetail>(`/api/students/${id}/`)
+    return response.data
+  },
+
+  /**
+   * Change Program/Batch/Group (task: students.students.manage_placement).
+   * The backend rejects a batch outside the program or a group outside the batch.
+   */
+  async updatePlacement(id: number, payload: StudentPlacementPayload): Promise<StudentDetail> {
+    const response = await api.patch<StudentDetail>(`/api/students/${id}/placement/`, payload)
+    return response.data
+  },
+
+  /**
+   * Outstanding balance and gating for one student (task: finance.summary.view; students may read their own).
+   */
+  async getFinanceSummary(id: number, termId?: number): Promise<FinanceSummary> {
+    const response = await api.get<FinanceSummary>(`/api/finance/students/${id}/`, {
+      params: termId ? { term: termId } : undefined,
+    })
+    return response.data
   },
 
   /**

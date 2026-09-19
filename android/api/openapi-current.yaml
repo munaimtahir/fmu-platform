@@ -7103,6 +7103,47 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/finance/vouchers/{id}/cancel/:
+    post:
+      operationId: finance_vouchers_cancel_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this voucher.
+        required: true
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoucherCancel'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VoucherCancel'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VoucherCancel'
+        required: true
+      security:
+      - ImpersonationJWTAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Voucher'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/finance/vouchers/{id}/pdf/:
     get:
       operationId: finance_vouchers_pdf_retrieve
@@ -18407,6 +18448,14 @@ components:
       - total_amount
       - updated_at
       - voucher_no
+    VoucherCancel:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+      required:
+      - reason
     VoucherItem:
       type: object
       properties:

@@ -41,10 +41,16 @@ export const USERS = {
     role: 'Coordinator',
     email: 'pilot_coordinator@local.test',
   },
+  finance: {
+    username: 'pilot_finance',
+    password: 'password123',
+    role: 'Finance',
+    email: 'pilot_finance@local.test',
+  },
   office: {
     username: 'pilot_office',
     password: 'password123',
-    role: 'Office Asst',
+    role: 'OfficeAssistant',
     email: 'pilot_office@local.test',
   },
 } as const;
@@ -58,7 +64,22 @@ export const AUTH_STATE_FILES = {
   faculty: 'auth/.auth/faculty.json',
   student: 'auth/.auth/student.json',
   examcell: 'auth/.auth/examcell.json',
+  coordinator: 'auth/.auth/coordinator.json',
+  finance: 'auth/.auth/finance.json',
+  office: 'auth/.auth/office.json',
 } as const;
+
+/** Where each role lands after login (explicit map in src/features/auth/access.ts). */
+export const LANDING_PATH: Record<RoleName, string> = {
+  admin: '/dashboard/admin',
+  registrar: '/dashboard/registrar',
+  faculty: '/dashboard/faculty',
+  student: '/dashboard/student',
+  examcell: '/dashboard/examcell',
+  coordinator: '/dashboard/coordinator',
+  finance: '/finance',
+  office: '/dashboard/office-assistant',
+};
 
 /** 
  * Academic data seeded by baseline (currently Zero-Data).
@@ -78,7 +99,6 @@ export const SEED_DATA = {
 export const ROUTES = {
   public: {
     login: '/login',
-    apply: '/apply',
     transcriptVerify: (token: string) => `/verify/${token}`,
   },
   protected: {
@@ -88,6 +108,9 @@ export const ROUTES = {
     facultyDashboard: '/dashboard/faculty',
     studentDashboard: '/dashboard/student',
     examcellDashboard: '/dashboard/examcell',
+    coordinatorDashboard: '/dashboard/coordinator',
+    officeAssistantDashboard: '/dashboard/office-assistant',
+    finance: '/finance',
   },
   students: {
     list: '/students',

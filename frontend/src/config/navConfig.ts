@@ -1,18 +1,16 @@
 /**
- * Navigation configuration with grouped structure
- * Defines sidebar groups, submenus, and role-based access
+ * Sidebar structure.  Visibility is NOT declared here: each entry is shown when
+ * the user can open its route, using the rules in `config/routeAccess.ts`.
  */
 
 export interface NavSubItem {
   label: string
   path: string
-  roles?: string[]
 }
 
 export interface NavGroup {
   label: string
   icon: string
-  roles?: string[]
   items: NavSubItem[]
 }
 
@@ -20,196 +18,112 @@ export interface NavItem {
   label: string
   path: string
   icon: string
-  roles?: string[]
 }
 
 export type NavigationItem = NavItem | NavGroup
 
-/**
- * Check if navigation item is a group
- */
 export function isNavGroup(item: NavigationItem): item is NavGroup {
   return 'items' in item
 }
 
-/**
- * Navigation configuration
- * Groups are collapsible, single items are direct links
- */
 export const navigationConfig: NavigationItem[] = [
-  // Dashboard (single item)
-  {
-    label: 'Dashboard',
-    path: '/dashboard',
-    icon: '📊',
-    roles: [],
-  },
-  {
-    label: 'Announcements / Notifications',
-    path: '/notifications',
-    icon: '🔔',
-    roles: [],
-  },
-  // Analytics (single item)
-  {
-    label: 'Analytics',
-    path: '/analytics',
-    icon: '📈',
-    roles: ['Admin'],
-  },
-  // Students group
+  { label: 'Dashboard', path: '/dashboard', icon: '📊' },
+  { label: 'Announcements / Notifications', path: '/notifications', icon: '🔔' },
+  { label: 'Analytics', path: '/analytics', icon: '📈' },
   {
     label: 'Students',
     icon: '👥',
-    roles: ['Admin', 'Registrar'],
     items: [
-      { label: 'Students', path: '/students', roles: ['Admin', 'Registrar'] },
-      { label: 'Courses', path: '/courses', roles: ['Admin', 'Registrar', 'Faculty'] },
-      { label: 'Sections', path: '/sections', roles: ['Admin', 'Registrar', 'Faculty'] },
-      { label: 'Programs', path: '/academics/programs', roles: ['Admin', 'Registrar', 'Coordinator'] },
-      { label: 'Batches', path: '/academics/batches', roles: ['Admin', 'Registrar'] },
-      { label: 'Academic Periods', path: '/academics/periods', roles: ['Admin', 'Registrar'] },
-      { label: 'Groups', path: '/academics/groups', roles: ['Admin', 'Registrar'] },
-      { label: 'Departments', path: '/academics/departments', roles: ['Admin', 'Registrar'] },
+      { label: 'People', path: '/people' },
+      { label: 'Students', path: '/students' },
+      { label: 'Compliance', path: '/compliance' },
+      { label: 'My Compliance', path: '/my-compliance' },
     ],
   },
-  // Timetable group
+  {
+    label: 'Academics',
+    icon: '🎓',
+    items: [
+      { label: 'Courses', path: '/courses' },
+      { label: 'Sections', path: '/sections' },
+      { label: 'Programs', path: '/academics/programs' },
+      { label: 'Batches', path: '/academics/batches' },
+      { label: 'Academic Periods', path: '/academics/periods' },
+      { label: 'Groups', path: '/academics/groups' },
+      { label: 'Departments', path: '/academics/departments' },
+    ],
+  },
   {
     label: 'Timetable',
     icon: '📅',
-    roles: ['Admin', 'Faculty', 'Registrar', 'Coordinator', 'Student'],
-    items: [
-      { label: 'Timetable', path: '/timetable', roles: ['Admin', 'Faculty', 'Registrar', 'Coordinator', 'Student'] },
-    ],
+    items: [{ label: 'Timetable', path: '/timetable' }],
   },
-  // Attendance group
   {
     label: 'Attendance',
     icon: '✅',
-    roles: ['Admin', 'Faculty'],
     items: [
-      { label: 'Attendance', path: '/attendance', roles: ['Admin', 'Faculty'] },
-      { label: 'Bulk Attendance', path: '/attendance/bulk', roles: ['Admin', 'Faculty'] },
-      { label: 'Eligibility Report', path: '/attendance/eligibility', roles: ['Admin', 'Registrar'] },
+      { label: 'Attendance', path: '/attendance' },
+      { label: 'Attendance Input', path: '/attendance/input' },
+      { label: 'Bulk Attendance', path: '/attendance/bulk' },
+      { label: 'Eligibility Report', path: '/attendance/eligibility' },
     ],
   },
-  // Exams & Results group
+  {
+    label: 'Learning',
+    icon: '📚',
+    items: [
+      { label: 'Learning Materials', path: '/learning/manage' },
+      { label: 'My Learning', path: '/learning' },
+    ],
+  },
   {
     label: 'Exams & Results',
     icon: '📋',
-    roles: ['Admin', 'Faculty', 'Student', 'ExamCell'],
     items: [
-      { label: 'Exams', path: '/exams', roles: ['Admin', 'Faculty', 'ExamCell'] },
-      { label: 'Results', path: '/results', roles: ['Admin', 'Faculty', 'Student', 'ExamCell'] },
-      { label: 'Publish Results', path: '/examcell/publish', roles: ['Admin', 'ExamCell'] },
-      { label: 'Transcripts', path: '/transcripts', roles: ['Admin', 'Registrar', 'Student', 'ExamCell'] },
+      { label: 'Exams', path: '/exams' },
+      { label: 'Gradebook', path: '/gradebook' },
+      { label: 'Results', path: '/results' },
+      { label: 'Result Corrections', path: '/results/corrections' },
+      { label: 'Publish Results', path: '/examcell/publish' },
+      { label: 'Transcripts', path: '/transcripts' },
     ],
   },
-  // Finance group
   {
     label: 'Finance',
     icon: '💰',
-    roles: ['Admin', 'Finance', 'Student'],
     items: [
-      { label: 'Finance Dashboard', path: '/finance', roles: ['Admin', 'Finance'] },
-      { label: 'Fee Plans', path: '/finance/fee-plans', roles: ['Admin', 'Finance'] },
-      { label: 'Voucher Generation', path: '/finance/vouchers', roles: ['Admin', 'Finance'] },
-      { label: 'Vouchers List', path: '/finance/vouchers/list', roles: ['Admin', 'Finance'] },
-      { label: 'Payments', path: '/finance/payments', roles: ['Admin', 'Finance'] },
-      { label: 'Collection Report', path: '/finance/reports/collection', roles: ['Admin', 'Finance'] },
-      { label: 'Defaulters Report', path: '/finance/reports/defaulters', roles: ['Admin', 'Finance'] },
-      { label: 'Aging Report', path: '/finance/reports/aging', roles: ['Admin', 'Finance'] },
-      { label: 'Student Statement', path: '/finance/reports/statement', roles: ['Admin', 'Finance', 'Student'] },
-      { label: 'My Fees', path: '/finance/me', roles: ['Student'] },
+      { label: 'Finance Dashboard', path: '/finance' },
+      { label: 'Fee Types', path: '/finance/fee-types' },
+      { label: 'Fee Plans', path: '/finance/fee-plans' },
+      { label: 'Voucher Generation', path: '/finance/vouchers' },
+      { label: 'Vouchers List', path: '/finance/vouchers/list' },
+      { label: 'Payments', path: '/finance/payments' },
+      { label: 'Ledger', path: '/finance/ledger' },
+      { label: 'Adjustments', path: '/finance/adjustments' },
+      { label: 'Finance Policies', path: '/finance/policies' },
+      { label: 'Collection Report', path: '/finance/reports/collection' },
+      { label: 'Defaulters Report', path: '/finance/reports/defaulters' },
+      { label: 'Aging Report', path: '/finance/reports/aging' },
+      { label: 'Student Statement', path: '/finance/reports/statement' },
+      { label: 'My Fees', path: '/finance/me' },
     ],
   },
-  // Administration group
+  {
+    label: 'Communication',
+    icon: '📣',
+    items: [{ label: 'Notification Administration', path: '/notifications/manage' }],
+  },
   {
     label: 'Administration',
     icon: '⚙️',
-    roles: ['Admin'],
     items: [
-      { label: 'Users', path: '/system/users', roles: ['Admin'] },
-      { label: 'Roles & Permissions', path: '/system/roles', roles: ['Admin'] },
-      { label: 'Audit Logs', path: '/system/audit', roles: ['Admin'] },
-      { label: 'Student Import', path: '/system/students/import', roles: ['Admin', 'Coordinator'] },
+      { label: 'Users', path: '/system/users' },
+      { label: 'Roles & Permissions', path: '/system/roles' },
+      { label: 'Audit Logs', path: '/system/audit' },
+      { label: 'Student Import', path: '/system/students/import' },
+      { label: 'Faculty Import', path: '/system/faculty/import' },
+      { label: 'Syllabus', path: '/system/syllabus' },
+      { label: 'Settings', path: '/system/settings' },
     ],
   },
 ]
-
-/**
- * Route policy map: route path -> allowed roles, derived from
- * `navigationConfig` so role permissions live in exactly one place.
- *
- * Previously this map was maintained by hand, separately from
- * navigationConfig, and had drifted out of sync - e.g. `/academics/programs`
- * allowed Coordinator in the sidebar but not in the route guard, so a
- * Coordinator could see the nav link but get bounced to /unauthorized.
- * Deriving it removes that class of bug.
- *
- * A route that exists only as a guard (not shown in the sidebar, e.g.
- * `/profile`) is added via EXTRA_ROUTE_POLICY below.
- */
-function flattenNavRoutePolicy(items: NavigationItem[]): Record<string, string[]> {
-  const policy: Record<string, string[]> = {}
-  for (const item of items) {
-    if (isNavGroup(item)) {
-      for (const sub of item.items) {
-        policy[sub.path] = sub.roles || []
-      }
-    } else {
-      policy[item.path] = item.roles || []
-    }
-  }
-  return policy
-}
-
-const EXTRA_ROUTE_POLICY: Record<string, string[]> = {
-  '/profile': [],
-}
-
-export const routePolicy: Record<string, string[]> = {
-  ...flattenNavRoutePolicy(navigationConfig),
-  ...EXTRA_ROUTE_POLICY,
-}
-
-/**
- * Legacy routes removed - all legacy modules have been permanently deleted
- * See docs/legacy/LEGACY_DEFINITION.md for details
- */
-export const LEGACY_ROUTES: Set<string> = new Set([])
-
-/**
- * Check if a route is a legacy route (always returns false now)
- */
-export function isLegacyRoute(_routePath: string): boolean {
-  return false  // All legacy routes have been removed
-}
-
-/**
- * Check if a user role can access a route
- */
-export function canAccessRoute(userRole: string | undefined, routePath: string): boolean {
-  // Find matching route policy (supports prefix matching)
-  const matchingPolicy = Object.entries(routePolicy).find(([pattern]) =>
-    routePath === pattern || routePath.startsWith(`${pattern}/`)
-  )
-
-  if (!matchingPolicy) {
-    // If no policy found, allow access (default permissive for backward compatibility)
-    return true
-  }
-
-  const allowedRoles = matchingPolicy[1]
-
-  // Empty array means all authenticated users can access
-  if (allowedRoles.length === 0) {
-    return true
-  }
-
-  if (!userRole) {
-    return false
-  }
-
-  return allowedRoles.includes(userRole)
-}

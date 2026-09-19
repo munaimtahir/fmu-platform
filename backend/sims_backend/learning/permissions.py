@@ -4,14 +4,6 @@ from sims_backend.common_permissions import in_group
 from sims_backend.learning.models import LearningMaterial
 
 
-class IsAdminOrFaculty(BasePermission):
-    def has_permission(self, request, view) -> bool:
-        user = request.user
-        if not user or not user.is_authenticated:
-            return False
-        return bool(user.is_superuser or in_group(user, "ADMIN") or in_group(user, "FACULTY"))
-
-
 class LearningMaterialObjectPermission(BasePermission):
     def has_object_permission(self, request, view, obj: LearningMaterial) -> bool:
         user = request.user
@@ -30,11 +22,3 @@ class LearningMaterialObjectPermission(BasePermission):
         if request.method in SAFE_METHODS:
             return True
         return False
-
-
-class IsStudentOnly(BasePermission):
-    def has_permission(self, request, view) -> bool:
-        user = request.user
-        if not user or not user.is_authenticated:
-            return False
-        return bool(in_group(user, "STUDENT"))

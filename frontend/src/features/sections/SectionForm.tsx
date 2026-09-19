@@ -13,7 +13,8 @@ import { sectionsService } from '@/services'
 import { coursesService } from '@/services'
 import { academicsService } from '@/services/academics'
 import { academicPeriodsKey, coursesKey } from '@/utils/queryKeys'
-import { Section } from '@/types'
+import type { AcademicSection } from '@/services/sections'
+import { apiErrorMessage } from '@/lib/apiErrors'
 
 const sectionSchema = z.object({
   course: z.number().min(1, 'Course is required'),
@@ -27,7 +28,7 @@ const sectionSchema = z.object({
 type SectionFormData = z.infer<typeof sectionSchema>
 
 interface SectionFormProps {
-  section?: Section | null
+  section?: AcademicSection | null
   onClose: () => void
   onSuccess: () => void
 }
@@ -50,14 +51,23 @@ export function SectionForm({ section, onClose, onSuccess }: SectionFormProps) {
     watch,
   } = useForm<SectionFormData>({
     resolver: zodResolver(sectionSchema),
-    defaultValues: section || {
-      course: 0,
-      academic_period: 0,
-      name: '',
-      faculty: undefined,
-      group: undefined,
-      capacity: 30,
-    },
+    defaultValues: section
+      ? {
+          course: section.course,
+          academic_period: section.academic_period,
+          name: section.name,
+          faculty: section.faculty ?? undefined,
+          group: section.group ?? undefined,
+          capacity: section.capacity,
+        }
+      : {
+          course: 0,
+          academic_period: 0,
+          name: '',
+          faculty: undefined,
+          group: undefined,
+          capacity: 30,
+        },
   })
 
   const mutation = useMutation({
@@ -82,9 +92,8 @@ export function SectionForm({ section, onClose, onSuccess }: SectionFormProps) {
       toast.success(section ? 'Section updated successfully' : 'Section created successfully')
       onSuccess()
     },
-    onError: (error: any) => {
-      const errorMessage = error?.response?.data?.error?.message || error?.response?.data?.detail || 'Failed to save section'
-      toast.error(errorMessage)
+    onError: (error: unknown) => {
+      toast.error(apiErrorMessage(error, 'Failed to save section'))
     },
   })
 

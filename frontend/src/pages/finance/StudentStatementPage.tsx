@@ -61,17 +61,12 @@ export const StudentStatementPage: React.FC = () => {
     }
 
     try {
-      const blob = await financeService.downloadStatementPDF(
-        studentId,
-        selectedTerm ? parseInt(selectedTerm) : undefined
-      )
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
       const termName = statement?.term_name || 'all'
-      a.download = `statement_${statement?.student_reg_no || studentId}_${termName}.pdf`
-      a.click()
-      window.URL.revokeObjectURL(url)
+      await financeService.downloadStatementPdf(
+        studentId,
+        selectedTerm ? parseInt(selectedTerm) : undefined,
+        `statement_${statement?.student_reg_no || studentId}_${termName}.pdf`
+      )
     } catch (err) {
       alert('Failed to download PDF')
       console.error('Error downloading PDF:', err)

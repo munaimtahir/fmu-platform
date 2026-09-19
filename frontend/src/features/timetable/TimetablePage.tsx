@@ -10,11 +10,15 @@ import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { Badge } from '@/components/ui/Badge'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { useAuth } from '@/features/auth/useAuth'
+import { useCapabilities } from '@/features/auth/useCapabilities'
+import { apiErrorMessage } from '@/lib/apiErrors'
 import { weeklyTimetableService, academicsService, batchesService } from '@/services'
 import { academicPeriodsKey } from '@/utils/queryKeys'
 import { StudentTimetableView } from './StudentTimetableView'
 import { EntriesPanel } from './EntriesPanel'
+import { SessionsPanel } from './SessionsPanel'
 
 // NOTE (Workstream B / legacy TimetableCell retirement): the legacy free-text
 // line1/2/3 grid editor (TimetableEditor/TimetableTableView) has been
@@ -23,19 +27,26 @@ import { EntriesPanel } from './EntriesPanel'
 // EntriesPanel/EntryForm below.
 
 type ViewMode = 'list' | 'view'
+type PageTab = 'weekly' | 'sessions'
+type ConfirmKind = 'publish' | 'unpublish'
 
 export function TimetablePage() {
   const queryClient = useQueryClient()
   const { user } = useAuth()
-  const isFaculty = user?.role === 'Faculty'
+  const { can, hasRole } = useCapabilities()
   const isStudent = user?.role === 'Student'
-  const canEdit = isFaculty || user?.role === 'Admin' || user?.role === 'Coordinator'
+  const canManageWeekly = can('timetable.weekly.manage')
+  // The backend only lets Admin/Coordinator revert a published week to draft.
+  const canUnpublish = canManageWeekly && hasRole('Admin', 'Coordinator')
+  const canViewSessions = can('timetable.sessions.view')
 
   // State management
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [filterBatch, setFilterBatch] = useState<string>('')
   const [filterAcademicPeriod, setFilterAcademicPeriod] = useState<string>('')
   const [selectedTimetableId, setSelectedTimetableId] = useState<number | null>(null)
+  const [tab, setTab] = useState<PageTab>('weekly')
+  const [confirming, setConfirming] = useState<ConfirmKind | null>(null)
 
   // Fetch dropdown data
   const { data: batchesData } = useQuery({
@@ -87,13 +98,12 @@ export function TimetablePage() {
       queryClient.invalidateQueries({ queryKey: ['weekly-timetables'] })
       toast.success(`Generated ${data.created_count} weekly templates. ${data.existing_count} already existed.`)
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.detail || error?.message || 'Failed to generate templates'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(apiErrorMessage(error, 'Failed to generate templates'))
     },
   })
 
-  // Publish mutation with validation
+  // Publish mutation; failures (e.g. INVALID_PERIOD_COUNT) are shown by the confirm dialog
   const publishMutation = useMutation({
     mutationFn: (id: number) => weeklyTimetableService.publish(id),
     onSuccess: () => {
@@ -102,16 +112,15 @@ export function TimetablePage() {
       setViewMode('list')
       toast.success('Timetable published successfully')
     },
-    onError: (error: any) => {
-      if (error?.response?.data?.error?.code === 'INVALID_PERIOD_COUNT') {
-        const days = error.response.data.error.days_with_wrong_count || []
-        toast.error(`Cannot publish: ${error.response.data.error.message}. Days: ${days.join(', ')}`, {
-          duration: 8000,
-        })
-      } else {
-        const message = error?.response?.data?.detail || error?.message || 'Failed to publish timetable'
-        toast.error(message)
-      }
+  })
+
+  const unpublishMutation = useMutation({
+    mutationFn: (id: number) => weeklyTimetableService.unpublish(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['weekly-timetables'] })
+      queryClient.invalidateQueries({ queryKey: ['weekly-timetable'] })
+      setViewMode('list')
+      toast.success('Timetable returned to draft')
     },
   })
 
@@ -191,9 +200,7 @@ export function TimetablePage() {
       return
     }
 
-    if (window.confirm('Are you sure you want to publish this timetable? It has exactly 3 periods per day as required.')) {
-      publishMutation.mutate(fullTimetable.id)
-    }
+    setConfirming('publish')
   }
 
   // Handle cancel
@@ -243,8 +250,37 @@ export function TimetablePage() {
     
       <div className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-h1">Weekly Timetable</h1>
+          <h1 className="text-h1">{tab === 'sessions' ? 'Timetable Sessions' : 'Weekly Timetable'}</h1>
         </div>
+
+        {canViewSessions && (
+          <div className="mb-6 flex gap-2" role="tablist" aria-label="Timetable sections">
+            <Button
+              role="tab"
+              aria-selected={tab === 'weekly'}
+              variant={tab === 'weekly' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setTab('weekly')}
+            >
+              Weekly Timetable
+            </Button>
+            <Button
+              role="tab"
+              aria-selected={tab === 'sessions'}
+              data-testid="timetable-sessions-tab"
+              variant={tab === 'sessions' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setTab('sessions')}
+            >
+              Sessions
+            </Button>
+          </div>
+        )}
+
+        {tab === 'sessions' && canViewSessions ? (
+          <SessionsPanel />
+        ) : (
+        <>
 
         {/* Selection: Batch → Academic Period */}
         <div className="mb-6 space-y-4">
@@ -417,7 +453,7 @@ export function TimetablePage() {
                   Week of {format(parseISO(fullTimetable.week_start_date), 'MMM dd')} - {format(parseISO(fullTimetable.week_end_date || fullTimetable.week_start_date), 'MMM dd, yyyy')}
                 </span>
               </div>
-              {canEdit && fullTimetable.status === 'draft' && (
+              {canManageWeekly && fullTimetable.status === 'draft' && (
                 <div className="flex gap-2">
                   <Button
                     data-testid="timetable-publish-button"
@@ -429,16 +465,49 @@ export function TimetablePage() {
                   </Button>
                 </div>
               )}
+              {canUnpublish && fullTimetable.status === 'published' && (
+                <div className="flex gap-2">
+                  <Button
+                    data-testid="timetable-unpublish-button"
+                    onClick={() => setConfirming('unpublish')}
+                    variant="secondary"
+                    disabled={unpublishMutation.isPending}
+                  >
+                    {unpublishMutation.isPending ? 'Unpublishing...' : 'Unpublish'}
+                  </Button>
+                </div>
+              )}
             </div>
             <EntriesPanel
               weeklyTimetableId={fullTimetable.id}
               batchId={fullTimetable.batch}
               academicPeriodId={fullTimetable.academic_period}
-              canEdit={canEdit}
               isDraft={fullTimetable.status === 'draft'}
             />
           </>
         ) : null}
+        </>
+        )}
+
+        {confirming === 'publish' && fullTimetable && (
+          <ConfirmDialog
+            title="Publish timetable"
+            message="Publish this week? It has exactly 3 periods per day as required, and students will see it immediately."
+            confirmLabel="Publish"
+            onConfirm={() => publishMutation.mutateAsync(fullTimetable.id)}
+            onClose={() => setConfirming(null)}
+          />
+        )}
+        {confirming === 'unpublish' && fullTimetable && (
+          <ConfirmDialog
+            title="Unpublish timetable"
+            message="Return this week to draft? Students will no longer see it until it is published again."
+            confirmLabel="Unpublish"
+            variant="danger"
+            onConfirm={() => unpublishMutation.mutateAsync(fullTimetable.id)}
+            onClose={() => setConfirming(null)}
+          />
+        )}
       </div>
     
   )

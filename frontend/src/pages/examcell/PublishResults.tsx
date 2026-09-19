@@ -1,14 +1,22 @@
 import { useMemo, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import { Button } from '@/components/ui/Button'
+import { Link } from 'react-router-dom'
 import { Card } from '@/components/ui/Card'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
-import { Alert } from '@/components/ui/Alert'
+import type { PaginationState } from '@/components/ui/DataTable/types'
 import { Select } from '@/components/ui/Select'
 import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { resultsService, type ResultHeader } from '@/services/results'
+import { ErrorState } from '@/components/shared/ErrorState'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
+import { apiErrorMessage } from '@/lib/apiErrors'
+import { pageCount as computePageCount } from '@/lib/pagination'
+import { resultsService, type ResultHeader, type ResultStatus } from '@/services/results'
+import { ResultWorkflowActions } from '@/pages/results/ResultWorkflowActions'
+
+const PAGE_SIZE = 50
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All statuses' },
@@ -18,75 +26,24 @@ const STATUS_OPTIONS = [
   { value: 'FROZEN', label: 'Frozen' },
 ]
 
-function getErrorMessage(error: unknown, fallback: string) {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'response' in error &&
-    typeof (error as { response?: { data?: unknown } }).response?.data === 'object'
-  ) {
-    const data = (error as { response: { data: { error?: { message?: string } | string } } }).response.data
-    if (typeof data.error === 'string') return data.error
-    if (data.error?.message) return data.error.message
-  }
-  return fallback
-}
-
 export function PublishResults() {
-  const queryClient = useQueryClient()
-  const [status, setStatus] = useState<ResultHeader['status'] | ''>('DRAFT')
+  const [status, setStatus] = useState<ResultStatus | ''>('DRAFT')
   const [search, setSearch] = useState('')
-  const [success, setSuccess] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: PAGE_SIZE })
+  const debouncedSearch = useDebouncedValue(search)
 
   const query = useQuery({
-    queryKey: ['publish-results', status, search],
+    queryKey: ['publish-results', status, debouncedSearch, pagination.pageIndex],
     queryFn: () =>
       resultsService.getAll({
+        page: pagination.pageIndex + 1,
         status: status || undefined,
-        search: search || undefined,
+        search: debouncedSearch || undefined,
       }),
   })
 
-  const workflowMutation = useMutation({
-    mutationFn: async ({ id, action }: { id: number; action: 'verify' | 'publish' | 'freeze' }) => {
-      if (action === 'verify') return resultsService.verify(id)
-      if (action === 'publish') return resultsService.publish(id)
-      return resultsService.freeze(id)
-    },
-    onSuccess: (result, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['publish-results'] })
-      setError(null)
-      setSuccess(`Result ${result.student_reg_no || result.id} ${variables.action}ed successfully.`)
-    },
-    onError: (err, variables) => {
-      setSuccess(null)
-      setError(getErrorMessage(err, `Failed to ${variables.action} result`))
-    },
-  })
-
-  const results = query.data?.results || []
-
-  const counts = useMemo(
-    () => ({
-      draft: results.filter((result) => result.status === 'DRAFT').length,
-      verified: results.filter((result) => result.status === 'VERIFIED').length,
-      published: results.filter((result) => result.status === 'PUBLISHED').length,
-      frozen: results.filter((result) => result.status === 'FROZEN').length,
-    }),
-    [results]
-  )
-
-  const runAction = (id: number, action: 'verify' | 'publish' | 'freeze') => {
-    const labels = {
-      verify: 'verify this result',
-      publish: 'publish this result',
-      freeze: 'freeze this result',
-    }
-    if (window.confirm(`Are you sure you want to ${labels[action]}?`)) {
-      workflowMutation.mutate({ id, action })
-    }
-  }
+  const results = query.data?.results ?? []
+  const totalCount = query.data?.count ?? 0
 
   const columns = useMemo<ColumnDef<ResultHeader>[]>(
     () => [
@@ -108,32 +65,17 @@ export function PublishResults() {
       {
         id: 'actions',
         header: 'Actions',
-        cell: ({ row }) => {
-          const result = row.original
-          return (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={workflowMutation.isPending || !['DRAFT', 'VERIFIED'].includes(result.status)}
-                onClick={() => runAction(result.id, 'publish')}
-              >
-                Publish
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                disabled={workflowMutation.isPending || result.status !== 'PUBLISHED'}
-                onClick={() => runAction(result.id, 'freeze')}
-              >
-                Freeze
-              </Button>
-            </div>
-          )
-        },
+        cell: ({ row }) => (
+          <div className="flex flex-wrap items-center gap-3">
+            <Link className="text-sm text-primary-600 hover:underline" to={`/results/${row.original.id}`}>
+              Details
+            </Link>
+            <ResultWorkflowActions result={row.original} />
+          </div>
+        ),
       },
     ],
-    [workflowMutation.isPending]
+    []
   )
 
   return (
@@ -141,26 +83,30 @@ export function PublishResults() {
       <div>
         <h1 className="text-h1">Publish Results</h1>
         <p className="text-sm text-ink-secondary mt-1">
-          Publish or freeze individual result headers using the canonical result workflow.
+          Verify, publish or freeze result headers. Each step asks for confirmation and is recorded.
         </p>
       </div>
-
-      {error && <Alert variant="error">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
 
       <Card>
         <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Select
             label="Status"
             value={status}
-            onChange={(value) => setStatus(value as ResultHeader['status'] | '')}
+            searchable={false}
+            onChange={(value) => {
+              setStatus(value as ResultStatus | '')
+              setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+            }}
             options={STATUS_OPTIONS}
           />
           <Input
             label="Search"
             placeholder="Student, reg no, or exam"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value)
+              setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+            }}
           />
           <div className="flex items-end">
             <Button variant="secondary" onClick={() => query.refetch()} disabled={query.isFetching}>
@@ -170,17 +116,24 @@ export function PublishResults() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Draft</div><div className="text-h1 text-warning">{counts.draft}</div></div></Card>
-        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Verified</div><div className="text-h1 text-sky-600">{counts.verified}</div></div></Card>
-        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Published</div><div className="text-h1 text-success">{counts.published}</div></div></Card>
-        <Card><div className="p-4"><div className="text-sm text-ink-secondary">Frozen</div><div className="text-h1 text-info">{counts.frozen}</div></div></Card>
-      </div>
-
       <Card>
         <div className="p-4">
-          <h2 className="text-h3 mb-4">Result Headers</h2>
-          <DataTable data={results} columns={columns} isLoading={query.isLoading} />
+          <h2 className="text-h3 mb-4">Result Headers ({totalCount})</h2>
+          {query.error ? (
+            <ErrorState message={apiErrorMessage(query.error, 'Failed to load results')} onRetry={() => query.refetch()} />
+          ) : (
+            <DataTable
+              data={results}
+              columns={columns}
+              isLoading={query.isLoading}
+              enableFiltering={false}
+              manualPagination
+              pageCount={computePageCount(totalCount, PAGE_SIZE)}
+              totalCount={totalCount}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+            />
+          )}
         </div>
       </Card>
     </div>

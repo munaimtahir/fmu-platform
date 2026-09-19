@@ -1,0 +1,224 @@
+{
+  "workflows": [
+    {
+      "id": "academics-programs",
+      "roles": [
+        "Admin",
+        "Registrar"
+      ],
+      "screen": "/academics/programs",
+      "apis": [
+        "/api/academics/programs/",
+        "/api/academics/programs/{id}/",
+        "/api/academics/programs/{id}/finalize/",
+        "/api/academics/programs/{id}/generate-periods/"
+      ],
+      "writes": [
+        "create/edit program",
+        "finalize",
+        "generate periods"
+      ],
+      "services": [
+        "services/academicsNew.ts",
+        "services/finance.ts",
+        "services/programs.ts"
+      ],
+      "pages": [
+        "pages/academics/ProgramsListPage.tsx",
+        "pages/academics/ProgramDetailPage.tsx",
+        "pages/academics/ProgramFormPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "academics.programs.view",
+        "academics.programs.create",
+        "academics.programs.update"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "academics-structure",
+      "roles": [
+        "Admin",
+        "Registrar"
+      ],
+      "screen": "/academics/batches; /academics/groups; /academics/departments",
+      "apis": [
+        "/api/academics/batches/",
+        "/api/academics/batches/{id}/",
+        "/api/academics/groups/",
+        "/api/academics/groups/{id}/",
+        "/api/academics/departments/",
+        "/api/academics/departments/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete batch, group, department"
+      ],
+      "services": [
+        "services/batches.ts",
+        "services/academics.ts",
+        "services/academicsNew.ts"
+      ],
+      "pages": [
+        "pages/academics/BatchesPage.tsx",
+        "pages/academics/GroupsPage.tsx",
+        "pages/academics/DepartmentsPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "academics.batches.view",
+        "academics.groups.view",
+        "academics.departments.view"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "academics-periods",
+      "roles": [
+        "Admin",
+        "Registrar"
+      ],
+      "screen": "/academics/periods",
+      "apis": [
+        "/api/academics/academic-periods/",
+        "/api/academics/academic-periods/{id}/",
+        "/api/academics/academic-periods/{id}/close/",
+        "/api/academics/academic-periods/{id}/open/",
+        "/api/academics/periods/",
+        "/api/academics/periods/{id}/",
+        "/api/academics/periods/{id}/students/"
+      ],
+      "writes": [
+        "create/edit period",
+        "open period",
+        "close period"
+      ],
+      "services": [
+        "services/academics.ts",
+        "services/finance.ts",
+        "services/academicsNew.ts"
+      ],
+      "pages": [
+        "pages/academics/AcademicPeriodsPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "academics.terms.view",
+        "academics.terms.create",
+        "academics.terms.update",
+        "academics.terms.manage"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "academics-courses-sections",
+      "roles": [
+        "Admin",
+        "Registrar",
+        "Faculty"
+      ],
+      "screen": "/courses; /sections; /sections/:id",
+      "apis": [
+        "/api/academics/courses/",
+        "/api/academics/courses/{id}/",
+        "/api/academics/sections/",
+        "/api/academics/sections/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete course and section"
+      ],
+      "services": [
+        "services/courses.ts",
+        "services/sections.ts"
+      ],
+      "pages": [
+        "features/courses/CoursesPage.tsx",
+        "features/sections/SectionsPage.tsx",
+        "features/sections/SectionDetailPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "academics.courses.view",
+        "academics.sections.view"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "academics-syllabus-structure",
+      "roles": [
+        "Admin",
+        "Registrar"
+      ],
+      "screen": "/academics/programs/:id (tracks, blocks, modules)",
+      "apis": [
+        "/api/academics/tracks/",
+        "/api/academics/tracks/{id}/",
+        "/api/academics/blocks/",
+        "/api/academics/blocks/{id}/",
+        "/api/academics/modules/",
+        "/api/academics/modules/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete track, block, module"
+      ],
+      "services": [
+        "services/academicsNew.ts"
+      ],
+      "pages": [
+        "features/academics/TracksManagement.tsx",
+        "features/academics/BlocksView.tsx",
+        "features/academics/ModulesList.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    },
+    {
+      "id": "timetable",
+      "roles": [
+        "Admin",
+        "Registrar",
+        "Coordinator",
+        "Faculty",
+        "Student"
+      ],
+      "screen": "/timetable",
+      "apis": [
+        "/api/timetable/entries/",
+        "/api/timetable/entries/{id}/",
+        "/api/timetable/entries/{id}/cancel/",
+        "/api/timetable/sessions/",
+        "/api/timetable/sessions/{id}/",
+        "/api/timetable/weekly-timetables/",
+        "/api/timetable/weekly-timetables/generate_weekly_templates/",
+        "/api/timetable/weekly-timetables/{id}/",
+        "/api/timetable/weekly-timetables/{id}/publish/",
+        "/api/timetable/weekly-timetables/{id}/unpublish/",
+        "/api/mobile/student/timetable/"
+      ],
+      "writes": [
+        "create/edit/delete session",
+        "generate weekly timetable",
+        "publish",
+        "unpublish",
+        "create/edit/delete/cancel entry"
+      ],
+      "services": [
+        "services/weeklyTimetable.ts",
+        "services/academics.ts",
+        "services/sessions.ts"
+      ],
+      "pages": [
+        "features/timetable/TimetablePage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "timetable.sessions.view",
+        "timetable.weekly.view",
+        "timetable.entries.view",
+        "timetable.entries.cancel"
+      ],
+      "status": "implemented"
+    }
+  ]
+}

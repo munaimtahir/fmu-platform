@@ -23,9 +23,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from sims_backend.academics.models import Batch, Group, Program
 from sims_backend.attendance.models import Attendance
 from sims_backend.common_permissions import in_group
+from sims_backend.compliance.models import RequirementInstance
 from sims_backend.exams.models import Exam
 from sims_backend.finance.models import LedgerEntry, Payment, Voucher
-from sims_backend.results.models import ResultHeader
+from sims_backend.results.models import ResultCorrectionRequest, ResultHeader
 from sims_backend.students.models import Student
 from sims_backend.timetable.models import Session
 
@@ -355,6 +356,31 @@ def dashboard_stats(request):
             "finance_outstanding": float(debit_total - credit_total),
             "paid_vouchers": Voucher.objects.filter(status="paid").count(),
             "overdue_vouchers": Voucher.objects.filter(status="overdue").count(),
+        }
+    elif in_group(user, "REGISTRAR"):
+        stats = {
+            "active_students": Student.objects.filter(status=Student.STATUS_ACTIVE).count(),
+            "students_on_leave": Student.objects.filter(status=Student.STATUS_ON_LEAVE).count(),
+            "total_programs": Program.objects.filter(is_active=True).count(),
+            "total_batches": Batch.objects.count(),
+            "pending_compliance_reviews": RequirementInstance.objects.filter(
+                status=RequirementInstance.STATUS_SUBMITTED
+            ).count(),
+            "pending_result_corrections": ResultCorrectionRequest.objects.filter(
+                status=ResultCorrectionRequest.STATUS_PENDING
+            ).count(),
+        }
+    elif in_group(user, "EXAMCELL"):
+        stats = {
+            "total_exams": Exam.objects.count(),
+            "unpublished_exams": Exam.objects.filter(published=False).count(),
+            "draft_results": ResultHeader.objects.filter(status=ResultHeader.STATUS_DRAFT).count(),
+            "verified_results": ResultHeader.objects.filter(status=ResultHeader.STATUS_VERIFIED).count(),
+            "published_results": ResultHeader.objects.filter(status=ResultHeader.STATUS_PUBLISHED).count(),
+            "frozen_results": ResultHeader.objects.filter(status=ResultHeader.STATUS_FROZEN).count(),
+            "pending_result_corrections": ResultCorrectionRequest.objects.filter(
+                status=ResultCorrectionRequest.STATUS_PENDING
+            ).count(),
         }
     elif in_group(user, "STUDENT"):
         # Student sees their own stats

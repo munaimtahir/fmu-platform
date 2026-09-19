@@ -10,15 +10,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.permissions import PermissionTaskRequired
 from sims_backend.academics.models import AcademicPeriod, Section
 from sims_backend.common_permissions import in_group
 from sims_backend.learning.mixins import AudiencePermissionMixin
 from sims_backend.learning.models import LearningMaterial, LearningMaterialAudience
-from sims_backend.learning.permissions import (
-    IsAdminOrFaculty,
-    IsStudentOnly,
-    LearningMaterialObjectPermission,
-)
+from sims_backend.learning.permissions import LearningMaterialObjectPermission
 from sims_backend.learning.serializers import (
     LearningMaterialAudienceSerializer,
     LearningMaterialSerializer,
@@ -29,11 +26,32 @@ from sims_backend.students.models import Student
 class LearningMaterialViewSet(AudiencePermissionMixin, viewsets.ModelViewSet):
     queryset = LearningMaterial.objects.select_related("created_by").prefetch_related("audiences")
     serializer_class = LearningMaterialSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrFaculty, LearningMaterialObjectPermission]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired, LearningMaterialObjectPermission]
+    required_tasks = ["learning.materials.view"]
     filterset_fields = ["status", "kind", "created_by"]
     search_fields = ["title", "description"]
     ordering_fields = ["created_at", "published_at"]
     ordering = ["-created_at"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["learning.materials.view"]
+        elif self.action == "create":
+            self.required_tasks = ["learning.materials.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["learning.materials.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["learning.materials.delete"]
+        elif self.action == "publish":
+            self.required_tasks = ["learning.materials.publish"]
+        elif self.action == "archive":
+            self.required_tasks = ["learning.materials.archive"]
+        elif self.action == "audiences":
+            if self.request.method == "GET":
+                self.required_tasks = ["learning.materials.view"]
+            else:
+                self.required_tasks = ["learning.materials.manage_audience"]
+        return super().get_permissions()
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -130,8 +148,16 @@ class LearningMaterialAudienceViewSet(AudiencePermissionMixin, viewsets.ModelVie
         "section",
     )
     serializer_class = LearningMaterialAudienceSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrFaculty]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["learning.materials.view"]
     http_method_names = ["get", "post", "delete", "head", "options"]
+
+    def get_permissions(self):
+        if self.action in ["create", "destroy"]:
+            self.required_tasks = ["learning.materials.manage_audience"]
+        else:
+            self.required_tasks = ["learning.materials.view"]
+        return super().get_permissions()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -158,7 +184,8 @@ class LearningMaterialAudienceViewSet(AudiencePermissionMixin, viewsets.ModelVie
 
 
 class LearningStudentFeedAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsStudentOnly]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["learning.feed.view"]
 
     @extend_schema(responses=LearningMaterialSerializer(many=True))
     def get(self, request):

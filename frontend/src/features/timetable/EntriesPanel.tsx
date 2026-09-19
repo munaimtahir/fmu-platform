@@ -1,12 +1,17 @@
 /**
  * Lists normalized TimetableEntry rows for a weekly timetable and, for
  * draft timetables the current user can edit, offers an EntryForm to add
- * more. Prefers "cancel" over destructive delete for auditability.
+ * more, edit, cancel or delete. Cancelling is preferred over deleting for
+ * auditability; both ask for confirmation.
  */
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Badge, BadgeVariant } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { useCapabilities } from '@/features/auth/useCapabilities'
 import { timetableEntryService } from '@/services'
 import { TimetableEntry } from '@/types'
 import { EntryForm } from './EntryForm'
@@ -23,26 +28,35 @@ interface EntriesPanelProps {
   weeklyTimetableId: number
   batchId: number
   academicPeriodId: number
-  canEdit: boolean
   isDraft: boolean
 }
 
-export function EntriesPanel({ weeklyTimetableId, batchId, academicPeriodId, canEdit, isDraft }: EntriesPanelProps) {
+type Pending = { kind: 'cancel' | 'delete'; entry: TimetableEntry }
+
+export function EntriesPanel({ weeklyTimetableId, batchId, academicPeriodId, isDraft }: EntriesPanelProps) {
   const queryClient = useQueryClient()
+  const { can } = useCapabilities()
+  const [editing, setEditing] = useState<TimetableEntry | null>(null)
+  const [pending, setPending] = useState<Pending | null>(null)
+
+  const canCreate = isDraft && can('timetable.entries.create')
+  const canUpdate = isDraft && can('timetable.entries.update')
+  const canCancel = isDraft && can('timetable.entries.cancel')
+  const canDelete = isDraft && can('timetable.entries.delete')
 
   const { data: entries = [], isLoading } = useQuery({
     queryKey: ['timetable-entries', weeklyTimetableId],
     queryFn: () => timetableEntryService.getAll({ weekly_timetable: weeklyTimetableId, ordering: 'day_of_week,start_time' }),
   })
 
-  const cancelMutation = useMutation({
-    mutationFn: (id: number) => timetableEntryService.cancel(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['timetable-entries', weeklyTimetableId] })
-      toast.success('Entry cancelled')
+  const actionMutation = useMutation({
+    mutationFn: async ({ kind, entry }: Pending) => {
+      if (kind === 'cancel') await timetableEntryService.cancel(entry.id)
+      else await timetableEntryService.delete(entry.id)
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.detail || 'Failed to cancel entry')
+    onSuccess: (_result, { kind }) => {
+      queryClient.invalidateQueries({ queryKey: ['timetable-entries', weeklyTimetableId] })
+      toast.success(kind === 'cancel' ? 'Entry cancelled' : 'Entry deleted')
     },
   })
 
@@ -90,15 +104,34 @@ export function EntriesPanel({ weeklyTimetableId, batchId, academicPeriodId, can
                 >
                   {entry.status}
                 </Badge>
-                {canEdit && isDraft && entry.status !== 'CANCELLED' && (
+                {canUpdate && entry.status !== 'CANCELLED' && (
+                  <Button
+                    data-testid={`entry-row-${entry.id}-edit-button`}
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setEditing(entry)}
+                  >
+                    Edit
+                  </Button>
+                )}
+                {canCancel && entry.status !== 'CANCELLED' && (
                   <Button
                     data-testid={`entry-row-${entry.id}-cancel-button`}
                     size="sm"
                     variant="ghost"
-                    onClick={() => cancelMutation.mutate(entry.id)}
-                    disabled={cancelMutation.isPending}
+                    onClick={() => setPending({ kind: 'cancel', entry })}
                   >
                     Cancel
+                  </Button>
+                )}
+                {canDelete && (
+                  <Button
+                    data-testid={`entry-row-${entry.id}-delete-button`}
+                    size="sm"
+                    variant="danger"
+                    onClick={() => setPending({ kind: 'delete', entry })}
+                  >
+                    Delete
                   </Button>
                 )}
               </div>
@@ -107,8 +140,36 @@ export function EntriesPanel({ weeklyTimetableId, batchId, academicPeriodId, can
         </div>
       )}
 
-      {canEdit && isDraft && (
+      {canCreate && (
         <EntryForm weeklyTimetableId={weeklyTimetableId} batchId={batchId} academicPeriodId={academicPeriodId} />
+      )}
+
+      {editing && (
+        <Modal title="Edit Entry" size="lg" onClose={() => setEditing(null)}>
+          <EntryForm
+            weeklyTimetableId={weeklyTimetableId}
+            batchId={batchId}
+            academicPeriodId={academicPeriodId}
+            entry={editing}
+            onDone={() => setEditing(null)}
+          />
+        </Modal>
+      )}
+
+      {pending && (
+        <ConfirmDialog
+          title={pending.kind === 'cancel' ? 'Cancel entry' : 'Delete entry'}
+          message={
+            pending.kind === 'cancel'
+              ? `Cancel ${pending.entry.course_code ?? 'this'} ${pending.entry.course_name ?? 'entry'} on ${DAY_NAMES[pending.entry.day_of_week]}? It stays on record as cancelled.`
+              : `Permanently delete ${pending.entry.course_code ?? 'this'} ${pending.entry.course_name ?? 'entry'} on ${DAY_NAMES[pending.entry.day_of_week]}? This cannot be undone.`
+          }
+          confirmLabel={pending.kind === 'cancel' ? 'Cancel entry' : 'Delete entry'}
+          cancelLabel="Keep entry"
+          variant="danger"
+          onConfirm={() => actionMutation.mutateAsync(pending)}
+          onClose={() => setPending(null)}
+        />
       )}
     </div>
   )

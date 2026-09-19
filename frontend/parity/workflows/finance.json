@@ -1,0 +1,271 @@
+{
+  "workflows": [
+    {
+      "id": "finance-fee-types",
+      "roles": [
+        "Finance",
+        "Admin"
+      ],
+      "screen": "/finance/fee-types",
+      "apis": [
+        "/api/finance/fee-types/",
+        "/api/finance/fee-types/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete fee type"
+      ],
+      "services": [
+        "services/finance.ts"
+      ],
+      "pages": [
+        "pages/finance/FeeTypesPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "finance.fee_types.view",
+        "finance.fee_types.create",
+        "finance.fee_types.update",
+        "finance.fee_types.delete"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "finance-fee-plans",
+      "roles": [
+        "Finance",
+        "Admin"
+      ],
+      "screen": "/finance/fee-plans",
+      "apis": [
+        "/api/finance/fee-plans/",
+        "/api/finance/fee-plans/{id}/"
+      ],
+      "writes": [
+        "create/edit/deactivate/delete fee plan"
+      ],
+      "services": [
+        "services/finance.ts"
+      ],
+      "pages": [
+        "pages/finance/FeePlansPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "finance.fee_plans.view",
+        "finance.fee_plans.create",
+        "finance.fee_plans.update",
+        "finance.fee_plans.delete"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "finance-vouchers",
+      "roles": [
+        "Finance",
+        "Admin"
+      ],
+      "screen": "/finance/vouchers; /finance/vouchers/list; /finance/vouchers/:id",
+      "apis": [
+        "/api/finance/vouchers/",
+        "/api/finance/vouchers/generate/",
+        "/api/finance/vouchers/{id}/",
+        "/api/finance/vouchers/{id}/cancel/",
+        "/api/finance/vouchers/{id}/pdf/",
+        "/api/finance/vouchers/{id}/reconcile/"
+      ],
+      "writes": [
+        "generate",
+        "reconcile",
+        "cancel",
+        "download PDF"
+      ],
+      "services": [
+        "services/finance.ts"
+      ],
+      "pages": [
+        "pages/finance/VoucherGenerationPage.tsx",
+        "pages/finance/VouchersPage.tsx",
+        "pages/finance/VoucherDetailPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "finance.vouchers.view",
+        "finance.vouchers.generate",
+        "finance.vouchers.reconcile",
+        "finance.vouchers.cancel"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "finance-payments",
+      "roles": [
+        "Finance",
+        "Admin"
+      ],
+      "screen": "/finance/payments",
+      "apis": [
+        "/api/finance/payments/",
+        "/api/finance/payments/{id}/",
+        "/api/finance/payments/{id}/pdf/",
+        "/api/finance/payments/{id}/reverse/",
+        "/api/finance/payments/{id}/verify/"
+      ],
+      "writes": [
+        "record",
+        "verify",
+        "reverse",
+        "download receipt"
+      ],
+      "services": [
+        "services/finance.ts"
+      ],
+      "pages": [
+        "pages/finance/PaymentsPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "finance.payments.view",
+        "finance.payments.create",
+        "finance.payments.verify",
+        "finance.payments.reverse"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "finance-ledger",
+      "roles": [
+        "Finance",
+        "Admin"
+      ],
+      "screen": "/finance/ledger",
+      "apis": [
+        "/api/finance/ledger/",
+        "/api/finance/ledger/{id}/"
+      ],
+      "writes": [],
+      "services": [],
+      "pages": [
+        "pages/finance/LedgerPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "finance.ledger_entries.view"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "finance-adjustments",
+      "roles": [
+        "Finance",
+        "Admin"
+      ],
+      "screen": "/finance/adjustments",
+      "apis": [
+        "/api/finance/adjustments/",
+        "/api/finance/adjustments/{id}/",
+        "/api/finance/adjustments/{id}/approve/"
+      ],
+      "writes": [
+        "create/edit adjustment",
+        "approve"
+      ],
+      "services": [],
+      "pages": [
+        "pages/finance/AdjustmentsPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "finance.adjustments.view",
+        "finance.adjustments.create",
+        "finance.adjustments.update",
+        "finance.adjustments.approve"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "finance-policies",
+      "roles": [
+        "Finance",
+        "Admin"
+      ],
+      "screen": "/finance/policies",
+      "apis": [
+        "/api/finance/policies/",
+        "/api/finance/policies/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete policy"
+      ],
+      "services": [],
+      "pages": [
+        "pages/finance/FinancePoliciesPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "finance.policies.view",
+        "finance.policies.create",
+        "finance.policies.update"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "finance-reports",
+      "roles": [
+        "Finance",
+        "Admin"
+      ],
+      "screen": "/finance; /finance/reports/*",
+      "apis": [
+        "/api/finance/reports/aging/",
+        "/api/finance/reports/collection/",
+        "/api/finance/reports/defaulters/"
+      ],
+      "writes": [
+        "export CSV"
+      ],
+      "services": [
+        "services/finance.ts"
+      ],
+      "pages": [
+        "pages/finance/FinanceDashboard.tsx",
+        "pages/finance/DefaultersReportPage.tsx",
+        "pages/finance/CollectionReportPage.tsx",
+        "pages/finance/AgingReportPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "finance.reports.view"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "finance-student-statement",
+      "roles": [
+        "Student",
+        "Finance",
+        "Admin"
+      ],
+      "screen": "/finance/me; /finance/reports/statement",
+      "apis": [
+        "/api/finance/students/{id}/",
+        "/api/finance/students/{id}/statement/",
+        "/api/finance/students/{id}/statement/pdf/"
+      ],
+      "writes": [
+        "download statement PDF"
+      ],
+      "services": [
+        "services/finance.ts"
+      ],
+      "pages": [
+        "pages/finance/StudentFinancePage.tsx",
+        "pages/finance/StudentStatementPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "finance.reports.view"
+      ],
+      "status": "implemented"
+    }
+  ]
+}

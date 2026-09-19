@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "schema": "../docs/openapi-schema.yaml",
+  "policy": {
+    "included_roles": [
+      "Admin",
+      "Registrar",
+      "Coordinator",
+      "Faculty",
+      "ExamCell",
+      "Finance",
+      "Student",
+      "OfficeAssistant"
+    ],
+    "excluded_workflows": [
+      "public student intake (backend-only; the web admissions flow was removed)",
+      "internal demo and style-guide routes"
+    ]
+  },
+  "exclusions": [
+    {
+      "match": "exact",
+      "path": "/api/mobile/student/home/",
+      "reason": "mobile-only home summary consumed by the Android app"
+    },
+    {
+      "match": "exact",
+      "path": "/api/health/",
+      "reason": "operational health check, not a business workflow",
+      "allow_frontend": true
+    },
+    {
+      "match": "exact",
+      "path": "/api/auth/token/",
+      "reason": "deprecated auth alias; the web app uses /api/auth/login/"
+    },
+    {
+      "match": "exact",
+      "path": "/api/auth/token/refresh/",
+      "reason": "deprecated auth alias; the web app uses /api/auth/refresh/"
+    }
+  ]
+}

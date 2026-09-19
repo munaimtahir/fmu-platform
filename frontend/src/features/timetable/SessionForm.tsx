@@ -15,6 +15,7 @@ import { sessionsService, academicsService } from '@/services'
 import { academicPeriodsKey, groupsKey, departmentsKey } from '@/utils/queryKeys'
 import { Session } from '@/types'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
+import { apiErrorMessage } from '@/lib/apiErrors'
 
 const sessionSchema = z.object({
   academic_period: z.string().min(1, 'Academic period is required'),
@@ -125,9 +126,8 @@ export function SessionForm({ session, onClose, onSuccess }: SessionFormProps) {
       toast.success(session ? 'Session updated successfully' : 'Session created successfully')
       onSuccess()
     },
-    onError: (error: any) => {
-      const errorMessage = error?.response?.data?.detail || error?.message || 'Failed to save session'
-      toast.error(errorMessage)
+    onError: (error: unknown) => {
+      toast.error(apiErrorMessage(error, 'Failed to save session'))
     },
   })
 

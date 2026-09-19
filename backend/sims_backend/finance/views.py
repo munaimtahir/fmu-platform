@@ -34,12 +34,14 @@ from sims_backend.finance.serializers import (
     PaymentSerializer,
     PaymentVerifySerializer,
     StudentFinanceSummarySerializer,
+    VoucherCancelSerializer,
     VoucherGenerationRequestSerializer,
     VoucherSerializer,
 )
 from sims_backend.finance.services import (
     aging_report,
     approve_adjustment,
+    cancel_voucher,
     collection_report,
     create_voucher_from_feeplan,
     defaulters,
@@ -130,6 +132,8 @@ class VoucherViewSet(viewsets.ModelViewSet):
             self.required_tasks = ["finance.vouchers.generate"]
         elif self.action == "reconcile":
             self.required_tasks = ["finance.vouchers.reconcile"]
+        elif self.action == "cancel":
+            self.required_tasks = ["finance.vouchers.cancel"]
         return super().get_permissions()
 
     def get_queryset(self):
@@ -220,6 +224,44 @@ class VoucherViewSet(viewsets.ModelViewSet):
     def reconcile(self, request, pk=None):
         voucher = self.get_object()
         reconcile_voucher_status(voucher)
+        return Response(VoucherSerializer(voucher).data)
+
+    @extend_schema(
+        request=VoucherCancelSerializer,
+        responses={200: VoucherSerializer, 400: OpenApiTypes.OBJECT},
+    )
+    @action(detail=True, methods=["post"], url_path="cancel")
+    def cancel(self, request, pk=None):
+        voucher = self.get_object()
+        serializer = VoucherCancelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if voucher.status == Voucher.STATUS_CANCELLED:
+            return Response(
+                {"error": {"code": "ALREADY_CANCELLED", "message": "Voucher is already cancelled."}},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Payment reversals are recorded with a "[REVERSED]" note marker; cancelling while a
+        # verified payment is still live would credit the ledger twice.
+        live_payments = [
+            p
+            for p in voucher.payments.filter(status=Payment.STATUS_VERIFIED)
+            if "[REVERSED]" not in (p.notes or "")
+        ]
+        if live_payments:
+            return Response(
+                {
+                    "error": {
+                        "code": "PAYMENTS_EXIST",
+                        "message": "Reverse the verified payments on this voucher before cancelling it.",
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cancel_voucher(voucher, request.user, serializer.validated_data["reason"])
+        voucher.refresh_from_db()
         return Response(VoucherSerializer(voucher).data)
 
 

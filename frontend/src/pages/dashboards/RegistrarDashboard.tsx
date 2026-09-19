@@ -1,96 +1,24 @@
-import { Card } from '@/components/ui/Card'
-import { StatusBadge } from '@/components/ui/StatusBadge'
-import { useAuth } from '@/features/auth/useAuth'
+import { StatsDashboard, type QuickLink, type StatDefinition } from './StatsDashboard'
 
-export const RegistrarDashboard = () => {
-  const { user } = useAuth()
+const STATS: StatDefinition[] = [
+  { key: 'active_students', label: 'Active Students', icon: '👥' },
+  { key: 'students_on_leave', label: 'Students on Leave', icon: '🏖️' },
+  { key: 'pending_compliance_reviews', label: 'Compliance Awaiting Review', icon: '📎' },
+  { key: 'pending_result_corrections', label: 'Pending Result Corrections', icon: '✏️' },
+  { key: 'total_programs', label: 'Active Programs', icon: '🎓' },
+  { key: 'total_batches', label: 'Batches', icon: '🗂️' },
+]
 
-  return (
-    
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-h1 text-ink-primary mb-2">
-            Registrar Dashboard
-          </h1>
-          <p className="text-ink-secondary">
-            Welcome, {user?.full_name || 'Registrar'}. Manage student records and enrollments.
-          </p>
-        </div>
+const LINKS: QuickLink[] = [
+  { label: 'Students', path: '/students', description: 'Search and manage student records' },
+  { label: 'People', path: '/people', description: 'Person master records and documents' },
+  { label: 'Compliance review', path: '/compliance', description: 'Verify or reject submitted requirements' },
+  { label: 'Result corrections', path: '/results/corrections', description: 'Review correction requests' },
+  { label: 'Academic periods', path: '/academics/periods', description: 'Open and close academic periods' },
+  { label: 'Eligibility report', path: '/attendance/eligibility', description: 'Attendance eligibility by section' },
+  { label: 'Notifications', path: '/notifications/manage', description: 'Compose and send announcements' },
+]
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-ink-secondary mb-1">Pending Registrations</p>
-                <p className="text-h2 text-ink-primary">24</p>
-              </div>
-              <div className="w-12 h-12 bg-warning-subtle rounded-lg flex items-center justify-center text-2xl">
-                ⏳
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-ink-secondary mb-1">Active Students</p>
-                <p className="text-h2 text-ink-primary">1,189</p>
-              </div>
-              <div className="w-12 h-12 bg-info-subtle rounded-lg flex items-center justify-center text-2xl">
-                👥
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-ink-secondary mb-1">Course Enrollments</p>
-                <p className="text-h2 text-ink-primary">3,456</p>
-              </div>
-              <div className="w-12 h-12 bg-success-subtle rounded-lg flex items-center justify-center text-2xl">
-                📝
-              </div>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-ink-secondary mb-1">Records Updated</p>
-                <p className="text-h2 text-ink-primary">89</p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-2xl">
-                📋
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Recent Activity */}
-        <Card>
-          <h2 className="text-h3 text-ink-primary mb-4">
-            Recent Student Registrations
-          </h2>
-          <div className="space-y-3">
-            {[
-              { id: 'S2024001', name: 'Alice Johnson', program: 'Computer Science', status: 'pending' },
-              { id: 'S2024002', name: 'Bob Williams', program: 'Engineering', status: 'approved' },
-              { id: 'S2024003', name: 'Carol Davis', program: 'Mathematics', status: 'pending' },
-            ].map((student, index) => (
-              <div key={index} className="flex items-center justify-between py-3 border-b border-neutral-subtle last:border-0">
-                <div>
-                  <p className="text-sm font-medium text-ink-primary">{student.name}</p>
-                  <p className="text-xs text-ink-muted">{student.id} • {student.program}</p>
-                </div>
-                <StatusBadge domain="student" status={student.status} />
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-    
-  )
-}
+export const RegistrarDashboard = () => (
+  <StatsDashboard title="Registrar Dashboard" subtitle="Manage student records, compliance and academic periods." stats={STATS} links={LINKS} />
+)

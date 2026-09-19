@@ -27,13 +27,15 @@ import type { LoginCredentials, User } from './types'
  * }
  */
 export function useAuth() {
-  const { user, isAuthenticated, isLoading, setUser, logout: clearAuth, initialize } = useAuthStore()
+  const { user, isAuthenticated, isLoading, setUser, loadAccess, logout: clearAuth, initialize } = useAuthStore()
 
   const login = async (credentials: LoginCredentials): Promise<User> => {
     const response = await apiLogin(credentials)
 
-    // Set user directly from login response
+    // Set user directly from login response, then load the effective access context so the
+    // post-login redirect and task-gated navigation see the right capabilities.
     setUser(response.user)
+    await loadAccess()
 
     return response.user
   }

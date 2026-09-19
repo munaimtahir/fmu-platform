@@ -2,7 +2,7 @@
  * Global test setup — runs once before all tests.
  *
  * Responsibilities:
- * 1. Generate and save auth storage states for all 5 roles.
+ * 1. Generate and save auth storage states for all 8 roles.
  *    These are then reused by test projects via storageState.
  */
 
@@ -36,8 +36,8 @@ async function saveAuthState(
     await page.fill('input[name="password"]', password);
     await page.click('button[type="submit"]');
 
-    // Wait for dashboard
-    await page.waitForURL(/\/dashboard/, { timeout: 20000 });
+    // Wait for the role landing page (Finance lands on /finance, everyone else on /dashboard/<role>)
+    await page.waitForURL(/\/(dashboard|finance)/, { timeout: 20000 });
 
     // Ensure auth state dir exists
     const dir = path.dirname(stateFile);
@@ -60,7 +60,7 @@ export default async function globalSetup(_config: FullConfig): Promise<void> {
   console.log('\n🔧 Global Setup: Preparing auth states for Frozen Pilot Baseline...\n');
 
   // Step 1: Generate auth storage states for all roles
-  const roles: RoleName[] = ['admin', 'registrar', 'faculty', 'student', 'examcell'];
+  const roles = Object.keys(USERS) as RoleName[];
 
   for (const role of roles) {
     const user = USERS[role];

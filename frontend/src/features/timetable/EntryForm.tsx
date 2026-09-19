@@ -13,6 +13,8 @@ import api from '@/api/axios'
 import { academicsService, timetableEntryService } from '@/services'
 import { groupsKey } from '@/utils/queryKeys'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
+import { apiErrorMessage } from '@/lib/apiErrors'
+import type { TimetableEntry } from '@/types'
 
 // The shared `sectionsService`/`Section` type target a stale, mismatched
 // shape (course/term/teacher/capacity) that doesn't match the actual
@@ -39,20 +41,25 @@ interface EntryFormProps {
   weeklyTimetableId: number
   batchId: number
   academicPeriodId: number
+  /** When set the form edits this entry instead of creating a new one. */
+  entry?: TimetableEntry
+  /** Called after a successful save (edit mode uses this to close the dialog). */
+  onDone?: () => void
 }
 
-export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: EntryFormProps) {
+export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId, entry, onDone }: EntryFormProps) {
   const queryClient = useQueryClient()
-  const [sectionId, setSectionId] = useState('')
-  const [groupId, setGroupId] = useState('')
-  const [dayOfWeek, setDayOfWeek] = useState('0')
-  const [startTime, setStartTime] = useState('09:00')
-  const [endTime, setEndTime] = useState('10:00')
-  const [room, setRoom] = useState('')
+  const isEdit = !!entry
+  const [sectionId, setSectionId] = useState(entry ? String(entry.section) : '')
+  const [groupId, setGroupId] = useState(entry?.group ? String(entry.group) : '')
+  const [dayOfWeek, setDayOfWeek] = useState(entry ? String(entry.day_of_week) : '0')
+  const [startTime, setStartTime] = useState(entry ? entry.start_time.slice(0, 5) : '09:00')
+  const [endTime, setEndTime] = useState(entry ? entry.end_time.slice(0, 5) : '10:00')
+  const [room, setRoom] = useState(entry?.room ?? '')
 
-  // Warn on navigating away with an in-progress (not yet submitted) entry —
+  // Warn on navigating away with an in-progress (not yet submitted) new entry —
   // section/group selected or a room typed in, beyond the day/time defaults.
-  useUnsavedChangesWarning(!!sectionId || !!groupId || room.trim() !== '')
+  useUnsavedChangesWarning(!isEdit && (!!sectionId || !!groupId || room.trim() !== ''))
 
   const { data: sections = [] } = useQuery({
     queryKey: ['academic-sections', academicPeriodId],
@@ -69,27 +76,31 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
     queryFn: () => academicsService.getGroups({ batch: batchId }),
   })
 
-  const createMutation = useMutation({
-    mutationFn: () =>
-      timetableEntryService.create({
-        weekly_timetable: weeklyTimetableId,
+  const saveMutation = useMutation({
+    mutationFn: () => {
+      const payload = {
         section: parseInt(sectionId, 10),
         group: groupId ? parseInt(groupId, 10) : null,
         day_of_week: parseInt(dayOfWeek, 10),
         start_time: startTime,
         end_time: endTime,
         room: room || undefined,
-      }),
+      }
+      return entry
+        ? timetableEntryService.update(entry.id, { ...payload, room })
+        : timetableEntryService.create({ weekly_timetable: weeklyTimetableId, ...payload })
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timetable-entries', weeklyTimetableId] })
-      toast.success('Entry added')
-      setSectionId('')
-      setRoom('')
+      toast.success(isEdit ? 'Entry updated' : 'Entry added')
+      if (!isEdit) {
+        setSectionId('')
+        setRoom('')
+      }
+      onDone?.()
     },
-    onError: (error: any) => {
-      const detail = error?.response?.data
-      const message = Array.isArray(detail) ? detail.join(', ') : detail?.detail || error?.message || 'Failed to add entry'
-      toast.error(message)
+    onError: (error: unknown) => {
+      toast.error(apiErrorMessage(error, isEdit ? 'Failed to update entry' : 'Failed to add entry'))
     },
   })
 
@@ -112,7 +123,7 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
           toast.error('Select a section')
           return
         }
-        createMutation.mutate()
+        saveMutation.mutate()
       }}
     >
       <div className="md:col-span-2">
@@ -162,9 +173,14 @@ export function EntryForm({ weeklyTimetableId, batchId, academicPeriodId }: Entr
         />
       </div>
       <div className="md:col-span-6">
-        <Button data-testid="entry-form-submit-button" type="submit" size="sm" disabled={createMutation.isPending}>
-          {createMutation.isPending ? 'Adding...' : 'Add Entry'}
+        <Button data-testid="entry-form-submit-button" type="submit" size="sm" disabled={saveMutation.isPending}>
+          {saveMutation.isPending ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Entry'}
         </Button>
+        {isEdit && (
+          <Button type="button" size="sm" variant="ghost" className="ml-2" onClick={onDone}>
+            Cancel
+          </Button>
+        )}
       </div>
     </form>
   )

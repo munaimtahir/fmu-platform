@@ -25,7 +25,7 @@ export const programsService = {
    * Get a single program by ID
    */
   async getById(id: number): Promise<Program> {
-    const response = await api.get<Program>(`/api/programs/${id}/`)
+    const response = await api.get<Program>(`/api/academics/programs/${id}/`)
     return response.data
   },
 

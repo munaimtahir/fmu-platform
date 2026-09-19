@@ -26,7 +26,7 @@ export const ImpersonationDialog: React.FC<ImpersonationDialogProps> = ({
   const [isSearching, setIsSearching] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { setUser, setImpersonation } = useAuthStore()
+  const { setUser, setImpersonation, loadAccess } = useAuthStore()
 
   // Debounced search
   useEffect(() => {
@@ -71,6 +71,8 @@ export const ImpersonationDialog: React.FC<ImpersonationDialogProps> = ({
           target: targetUserFull,
           expiresAt: Date.now() + response.expires_in * 1000,
         })
+        // The impersonated user's effective tasks replace the admin's.
+        await loadAccess()
       }
       
       onClose()

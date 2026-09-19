@@ -66,17 +66,14 @@ export const DefaultersReportPage: React.FC = () => {
     }
 
     try {
-      const blob = await financeService.exportDefaultersCSV({
-        program_id: filters.program_id ? parseInt(filters.program_id) : undefined,
-        term_id: parseInt(filters.term_id),
-        min_outstanding: parseFloat(filters.min_outstanding) || 0,
-      })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `defaulters_${filters.term_id}_${new Date().toISOString().split('T')[0]}.csv`
-      a.click()
-      window.URL.revokeObjectURL(url)
+      await financeService.downloadDefaultersCSV(
+        {
+          program_id: filters.program_id ? parseInt(filters.program_id) : undefined,
+          term_id: parseInt(filters.term_id),
+          min_outstanding: parseFloat(filters.min_outstanding) || 0,
+        },
+        `defaulters_${filters.term_id}_${new Date().toISOString().split('T')[0]}.csv`
+      )
     } catch (err) {
       alert('Failed to export CSV')
       console.error('Error exporting CSV:', err)

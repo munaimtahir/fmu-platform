@@ -16,6 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.permissions import PermissionTaskRequired
 from sims_backend.attendance.models import (
     Attendance,
     AttendanceInputJob,
@@ -401,7 +402,8 @@ class TickSheetCommitAPIView(APIView):
 
 
 class BiometricPunchAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["attendance.biometric.ingest"]
 
     @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):

@@ -28,11 +28,16 @@
     "e2e:faculty": "playwright test --project=faculty",
     "e2e:student": "playwright test --project=student",
     "e2e:examcell": "playwright test --project=examcell",
+    "e2e:coordinator": "playwright test --project=coordinator",
+    "e2e:finance": "playwright test --project=finance",
+    "e2e:office": "playwright test --project=office",
     "e2e:rbac": "playwright test --project=rbac",
     "e2e:public": "playwright test --project=public",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "parity": "python3 scripts/check_web_parity.py",
+    "parity:strict": "python3 scripts/check_web_parity.py --strict"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

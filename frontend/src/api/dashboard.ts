@@ -5,7 +5,7 @@ import api from './axios'
  * The properties are optional as they vary depending on the user's role.
  */
 export interface DashboardStats {
-  // Admin/Registrar stats (from backend)
+  // Admin/Coordinator/Office assistant stats (from backend)
   total_students?: number
   total_programs?: number
   total_batches?: number
@@ -17,7 +17,18 @@ export interface DashboardStats {
   total_vouchers?: number
   verified_payments?: number
   finance_outstanding?: number
-  
+
+  // Registrar stats (from backend)
+  active_students?: number
+  students_on_leave?: number
+  pending_compliance_reviews?: number
+  pending_result_corrections?: number
+
+  // Exam cell stats (from backend)
+  unpublished_exams?: number
+  verified_results?: number
+  frozen_results?: number
+
   // Faculty stats (from backend)
   my_sessions?: number
   my_students?: number

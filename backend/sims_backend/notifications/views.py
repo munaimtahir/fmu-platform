@@ -5,11 +5,12 @@ from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from sims_backend.common_permissions import IsNotificationAdmin, IsStudentOrNotificationAdmin
+from core.permissions import PermissionTaskRequired, has_permission_task
 from sims_backend.notifications.jobs import expand_audience_and_create_inbox
 from sims_backend.notifications.models import Notification, NotificationInbox
 from sims_backend.notifications.serializers import (
@@ -35,11 +36,21 @@ class NotificationAdminViewSet(
     viewsets.GenericViewSet,
 ):
     queryset = Notification.objects.all().select_related("created_by")
-    permission_classes = [IsAuthenticated, IsNotificationAdmin]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["notifications.admin.view"]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = NotificationFilter
     ordering_fields = ["created_at", "publish_at"]
     ordering = ["-created_at"]
+
+    def get_permissions(self):
+        if self.action == "create":
+            self.required_tasks = ["notifications.admin.create"]
+        elif self.action == "send_notification":
+            self.required_tasks = ["notifications.admin.send"]
+        else:
+            self.required_tasks = ["notifications.admin.view"]
+        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -47,9 +58,11 @@ class NotificationAdminViewSet(
         return NotificationSerializer
 
     def perform_create(self, serializer):
+        send_now = self.request.data.get("send_now") in [True, "true", "True", "1", 1]
+        if send_now and not has_permission_task(self.request.user, "notifications.admin.send"):
+            raise PermissionDenied("You do not have permission to send notifications.")
         notification = serializer.save()
-        send_now = self.request.data.get("send_now")
-        if send_now in [True, "true", "True", "1", 1]:
+        if send_now:
             notification.mark_queued()
             queue = django_rq.get_queue("default")
             queue.enqueue(expand_audience_and_create_inbox, notification.id)
@@ -76,7 +89,15 @@ class NotificationAdminViewSet(
 
 class NotificationInboxViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = NotificationInboxSerializer
-    permission_classes = [IsAuthenticated, IsStudentOrNotificationAdmin]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["notifications.inbox.view"]
+
+    def get_permissions(self):
+        if self.action in ["mark_read", "mark_all_read"]:
+            self.required_tasks = ["notifications.inbox.update"]
+        else:
+            self.required_tasks = ["notifications.inbox.view"]
+        return super().get_permissions()
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):

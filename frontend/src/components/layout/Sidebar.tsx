@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/features/auth/useAuth'
-import { navigationConfig, isNavGroup, type NavigationItem, type NavGroup, type NavItem } from '@/config/navConfig'
+import { useCapabilities } from '@/features/auth/useCapabilities'
+import { navigationConfig, isNavGroup, type NavGroup, type NavItem } from '@/config/navConfig'
+import { getRouteAccess } from '@/config/routeAccess'
 import { useUnreadNotificationsCount } from '@/hooks'
 import { branding } from '@/config/branding'
 
@@ -9,28 +11,6 @@ interface SidebarProps {
   isOpen: boolean
   onToggle: () => void
   isMobile?: boolean
-}
-
-/**
- * Check if user can access navigation item based on roles
- */
-function canAccessItem(item: NavigationItem, userRole: string | undefined): boolean {
-  const roles = isNavGroup(item) ? item.roles : item.roles
-  
-  if (!roles || roles.length === 0) return true
-  if (!userRole) return false
-  return roles.includes(userRole)
-}
-
-/**
- * Check if any subitem in a group is accessible
- */
-function hasAccessibleSubItems(group: NavGroup, userRole: string | undefined): boolean {
-  return group.items.some(item => {
-    if (!item.roles || item.roles.length === 0) return true
-    if (!userRole) return false
-    return item.roles.includes(userRole)
-  })
 }
 
 /**
@@ -46,7 +26,8 @@ function isActivePath(currentPath: string, targetPath: string): boolean {
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = false }) => {
   const location = useLocation()
   const { user } = useAuth()
-  const userRole = user?.role
+  const { allows } = useCapabilities()
+  const canOpen = (path: string) => allows(getRouteAccess(path))
   const unreadCount = useUnreadNotificationsCount()
 
   // Load expanded groups from localStorage
@@ -91,13 +72,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
     })
   }
 
-  const filteredItems = navigationConfig.filter(item => {
-    if (isNavGroup(item)) {
-      // Show group if user can access it or any of its subitems
-      return canAccessItem(item, userRole) || hasAccessibleSubItems(item, userRole)
-    }
-    return canAccessItem(item, userRole)
-  })
+  const filteredItems = navigationConfig
+    .map((item) =>
+      isNavGroup(item) ? { ...item, items: item.items.filter((sub) => canOpen(sub.path)) } : item
+    )
+    .filter((item) => (isNavGroup(item) ? item.items.length > 0 : canOpen(item.path)))
 
   const renderNavItem = (item: NavItem) => {
     const isActive = isActivePath(location.pathname, item.path)
@@ -141,17 +120,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
       isActivePath(location.pathname, item.path)
     )
     
-    // Filter subitems by role
-    const accessibleSubItems = group.items.filter(item => {
-      if (!item.roles || item.roles.length === 0) return true
-      if (!userRole) return false
-      return item.roles.includes(userRole)
-    })
-
-    if (accessibleSubItems.length === 0) {
-      return null
-    }
-
     return (
       <li key={group.label}>
         {/* Group Header */}
@@ -187,7 +155,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, isMobile = f
         {/* Submenu */}
         {isOpen && isExpanded && (
           <ul className="mt-1 ml-4 space-y-1 border-l-2 border-gray-700 pl-4">
-            {accessibleSubItems.map((subItem) => {
+            {group.items.map((subItem) => {
               const isActive = isActivePath(location.pathname, subItem.path)
               
               return (

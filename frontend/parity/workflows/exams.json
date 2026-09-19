@@ -1,0 +1,213 @@
+{
+  "workflows": [
+    {
+      "id": "exams",
+      "roles": [
+        "ExamCell",
+        "Admin",
+        "Faculty"
+      ],
+      "screen": "/exams",
+      "apis": [
+        "/api/exams/",
+        "/api/exams/{id}/",
+        "/api/exams/{id}/publish/",
+        "/api/exam-components/",
+        "/api/exam-components/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete exam and component",
+        "publish exam"
+      ],
+      "services": [
+        "services/exams.ts"
+      ],
+      "pages": [
+        "pages/exams/ExamsPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "exams.exams.view",
+        "exams.exams.create",
+        "exams.exams.update",
+        "exams.exams.delete",
+        "exams.exams.publish",
+        "exams.components.view",
+        "exams.components.create",
+        "exams.components.update",
+        "exams.components.delete"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "gradebook",
+      "roles": [
+        "Faculty",
+        "ExamCell",
+        "Admin"
+      ],
+      "screen": "/gradebook",
+      "apis": [
+        "/api/result-components/",
+        "/api/result-components/{id}/"
+      ],
+      "writes": [
+        "enter/edit/delete draft component marks"
+      ],
+      "services": [
+        "services/gradebook.ts",
+        "services/results.ts"
+      ],
+      "pages": [
+        "pages/results/GradebookPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "results.result_components.view",
+        "results.result_components.create",
+        "results.result_components.update",
+        "results.result_components.delete"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "results-workflow",
+      "roles": [
+        "ExamCell",
+        "Admin",
+        "Faculty"
+      ],
+      "screen": "/results; /results/:id; /examcell/publish",
+      "apis": [
+        "/api/results/",
+        "/api/results/{id}/",
+        "/api/results/{id}/verify/",
+        "/api/results/{id}/publish/",
+        "/api/results/{id}/freeze/",
+        "/api/results/exams/{exam_id}/"
+      ],
+      "writes": [
+        "verify",
+        "publish",
+        "freeze"
+      ],
+      "services": [
+        "services/results.ts"
+      ],
+      "pages": [
+        "pages/results/ResultsPage.tsx",
+        "pages/results/ResultDetailPage.tsx",
+        "pages/examcell/PublishResults.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "results.result_headers.view",
+        "results.result_headers.verify",
+        "results.result_headers.publish",
+        "results.result_headers.freeze"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "results-student",
+      "roles": [
+        "Student"
+      ],
+      "screen": "/results",
+      "apis": [
+        "/api/results/me/"
+      ],
+      "writes": [],
+      "services": [],
+      "pages": [
+        "pages/results/ResultsPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    },
+    {
+      "id": "result-corrections",
+      "roles": [
+        "Faculty",
+        "ExamCell",
+        "Admin"
+      ],
+      "screen": "/results/corrections",
+      "apis": [
+        "/api/result-corrections/",
+        "/api/result-corrections/{id}/",
+        "/api/result-corrections/{id}/apply/",
+        "/api/result-corrections/{id}/review/"
+      ],
+      "writes": [
+        "request correction",
+        "review",
+        "apply"
+      ],
+      "services": [
+        "services/resultCorrections.ts"
+      ],
+      "pages": [
+        "pages/results/ResultCorrectionsPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "results.result_corrections.create",
+        "results.result_corrections.review"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "transcripts",
+      "roles": [
+        "Admin",
+        "Registrar",
+        "Finance",
+        "ExamCell",
+        "Student"
+      ],
+      "screen": "/transcripts",
+      "apis": [
+        "/api/transcripts/{student_id}/",
+        "/api/transcripts/enqueue/"
+      ],
+      "writes": [
+        "generate PDF",
+        "email transcript"
+      ],
+      "services": [
+        "services/transcripts.ts"
+      ],
+      "pages": [
+        "pages/transcripts/TranscriptsPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "transcripts.transcripts.generate",
+        "transcripts.transcripts.email"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "transcript-verify",
+      "roles": [
+        "Public"
+      ],
+      "screen": "/verify/:token",
+      "apis": [
+        "/api/transcripts/verify/{token}/"
+      ],
+      "writes": [],
+      "services": [
+        "services/transcripts.ts"
+      ],
+      "pages": [
+        "pages/verify/TranscriptVerify.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    }
+  ]
+}

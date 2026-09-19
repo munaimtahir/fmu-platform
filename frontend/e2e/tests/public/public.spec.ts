@@ -37,16 +37,11 @@ test.describe('Public Routes @public', () => {
     expect(page.url()).not.toContain('/login');
   });
 
-  test('PUB-04: Apply / student application page loads without auth', async ({ page }) => {
+  test('PUB-04: Removed /apply route no longer serves an application form', async ({ page }) => {
     await page.goto('/apply');
     await page.waitForLoadState('domcontentloaded');
-    // Should load the student application form
-    expect(page.url()).not.toContain('/login');
-    // Should show a form
-    const content = page.locator('form').first();
-    await expect(content).toBeVisible({ timeout: 8000 });
-    // Should show inactive banner
-    const banner = page.locator(':text("Online Submission Inactive")').first();
-    await expect(banner).toBeVisible();
+    // Unknown URLs are protected: signed-out visitors are sent to login, never shown a form.
+    await expect(page).toHaveURL(/\/login/, { timeout: 8000 });
+    await expect(page.locator(':text("Online Submission Inactive")')).toHaveCount(0);
   });
 });

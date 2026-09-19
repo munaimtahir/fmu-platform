@@ -14,6 +14,7 @@ import * as path from 'path';
  *   faculty    — faculty role tests
  *   student    — student role tests
  *   examcell   — exam cell role tests
+ *   coordinator, finance, office — the remaining role landings and workflows
  *   public     — unauthenticated public route tests
  *   rbac       — RBAC negative + workflow state machine tests
  *   full       — all of the above (alias used for nightly)
@@ -40,6 +41,9 @@ const AUTH = {
   faculty: path.join(__dirname, 'e2e/auth/.auth/faculty.json'),
   student: path.join(__dirname, 'e2e/auth/.auth/student.json'),
   examcell: path.join(__dirname, 'e2e/auth/.auth/examcell.json'),
+  coordinator: path.join(__dirname, 'e2e/auth/.auth/coordinator.json'),
+  finance: path.join(__dirname, 'e2e/auth/.auth/finance.json'),
+  office: path.join(__dirname, 'e2e/auth/.auth/office.json'),
 };
 
 export default defineConfig({
@@ -176,6 +180,37 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: BASE_URL,
         storageState: AUTH.examcell,
+      },
+    },
+
+
+    {
+      name: 'coordinator',
+      testMatch: '**/tests/coordinator/**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: BASE_URL,
+        storageState: AUTH.coordinator,
+      },
+    },
+
+    {
+      name: 'finance',
+      testMatch: '**/tests/finance/**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: BASE_URL,
+        storageState: AUTH.finance,
+      },
+    },
+
+    {
+      name: 'office',
+      testMatch: '**/tests/office/**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: BASE_URL,
+        storageState: AUTH.office,
       },
     },
 

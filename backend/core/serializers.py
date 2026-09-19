@@ -371,30 +371,26 @@ class UserMeSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.ListField(child=serializers.DictField()))
     def get_roles(self, obj):
-        """Get user's roles."""
-        from core.permissions import get_user_roles
+        """Effective roles: Role rows matched to groups plus canonical roles implied by groups."""
+        from core.permissions import get_effective_roles
 
-        roles = get_user_roles(obj)
-        return [{"id": r.id, "name": r.name, "description": r.description} for r in roles]
+        return get_effective_roles(obj)
 
     @extend_schema_field(serializers.ListField(child=serializers.DictField()))
     def get_tasks(self, obj):
-        """Get user's permission tasks (both direct and via roles)."""
-        from core.models import PermissionTask, RoleTaskAssignment, UserTaskAssignment
-        from core.permissions import get_user_roles
+        """Effective permission tasks: direct, via roles, built-in grants, or superuser."""
+        from core.models import PermissionTask
+        from core.permissions import get_effective_task_codes
+        from core.rbac_catalog import task_module, task_name
 
-        # Direct assignments
-        direct_tasks = UserTaskAssignment.objects.filter(user=obj).values_list("task__code", flat=True)
-
-        # Role-based assignments
-        user_roles = get_user_roles(obj)
-        role_task_codes = RoleTaskAssignment.objects.filter(role__in=user_roles).values_list("task__code", flat=True)
-
-        # Combine and get unique tasks
-        all_task_codes = set(direct_tasks) | set(role_task_codes)
-        tasks = PermissionTask.objects.filter(code__in=all_task_codes)
-
-        return [{"id": t.id, "code": t.code, "name": t.name, "module": t.module} for t in tasks]
+        codes = get_effective_task_codes(obj)
+        rows = {t.code: t for t in PermissionTask.objects.filter(code__in=codes)}
+        return [
+            {"id": rows[c].id, "code": c, "name": rows[c].name, "module": rows[c].module}
+            if c in rows
+            else {"id": None, "code": c, "name": task_name(c), "module": task_module(c)}
+            for c in sorted(codes)
+        ]
 
     @extend_schema_field(serializers.DictField(allow_null=True))
     def get_profile(self, obj):

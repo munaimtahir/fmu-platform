@@ -1,0 +1,210 @@
+{
+  "workflows": [
+    {
+      "id": "admin-users",
+      "roles": [
+        "Admin"
+      ],
+      "screen": "/system/users",
+      "apis": [
+        "/api/admin/users/",
+        "/api/admin/users/search/",
+        "/api/admin/users/{id}/",
+        "/api/admin/users/{id}/activate/",
+        "/api/admin/users/{id}/deactivate/",
+        "/api/admin/users/{id}/reset-password/",
+        "/api/admin/impersonation/start/",
+        "/api/admin/impersonation/stop/"
+      ],
+      "writes": [
+        "create/edit user",
+        "activate",
+        "deactivate",
+        "reset password",
+        "impersonate"
+      ],
+      "services": [
+        "api/users.ts",
+        "api/impersonation.ts"
+      ],
+      "pages": [
+        "pages/admin/UsersPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    },
+    {
+      "id": "admin-settings",
+      "roles": [
+        "Admin"
+      ],
+      "screen": "/system/settings",
+      "apis": [
+        "/api/admin/settings/",
+        "/api/admin/settings/allowed_keys/",
+        "/api/admin/settings/{key}/"
+      ],
+      "writes": [
+        "update setting"
+      ],
+      "services": [
+        "api/settings.ts"
+      ],
+      "pages": [
+        "pages/admin/AdminSettingsPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    },
+    {
+      "id": "admin-syllabus",
+      "roles": [
+        "Admin"
+      ],
+      "screen": "/system/syllabus",
+      "apis": [
+        "/api/admin/syllabus/",
+        "/api/admin/syllabus/reorder/",
+        "/api/admin/syllabus/{id}/"
+      ],
+      "writes": [
+        "create/edit/reorder syllabus"
+      ],
+      "services": [
+        "api/syllabus.ts"
+      ],
+      "pages": [
+        "pages/admin/SyllabusManagerPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    },
+    {
+      "id": "student-import",
+      "roles": [
+        "Admin",
+        "Coordinator"
+      ],
+      "screen": "/system/students/import",
+      "apis": [
+        "/api/admin/students/import/commit/",
+        "/api/admin/students/import/jobs/",
+        "/api/admin/students/import/preview/",
+        "/api/admin/students/import/template/",
+        "/api/admin/students/import/{id}/detail/",
+        "/api/admin/students/import/{id}/errors.csv/"
+      ],
+      "writes": [
+        "preview import",
+        "commit import",
+        "download errors"
+      ],
+      "services": [
+        "api/studentImport.ts"
+      ],
+      "pages": [
+        "pages/admin/StudentsImportPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    },
+    {
+      "id": "faculty-import",
+      "roles": [
+        "Admin",
+        "Coordinator"
+      ],
+      "screen": "/system/faculty/import",
+      "apis": [
+        "/api/admin/faculty/import/commit/",
+        "/api/admin/faculty/import/jobs/",
+        "/api/admin/faculty/import/preview/",
+        "/api/admin/faculty/import/template/",
+        "/api/admin/faculty/import/{id}/detail/",
+        "/api/admin/faculty/import/{id}/errors.csv/"
+      ],
+      "writes": [
+        "preview import",
+        "commit import",
+        "download errors"
+      ],
+      "services": [
+        "api/facultyImport.ts"
+      ],
+      "pages": [
+        "pages/admin/FacultyImportPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [],
+      "status": "implemented"
+    },
+    {
+      "id": "audit-log",
+      "roles": [
+        "Admin"
+      ],
+      "screen": "/system/audit",
+      "apis": [
+        "/api/audit/",
+        "/api/audit/export/",
+        "/api/audit/{id}/"
+      ],
+      "writes": [
+        "export audit log"
+      ],
+      "services": [],
+      "pages": [
+        "pages/admin/AuditLog.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "audit.events.view",
+        "audit.events.export"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "rbac",
+      "roles": [
+        "Admin"
+      ],
+      "screen": "/system/roles",
+      "apis": [
+        "/api/core/roles/",
+        "/api/core/roles/{id}/",
+        "/api/core/permission-tasks/",
+        "/api/core/permission-tasks/{id}/",
+        "/api/core/role-task-assignments/",
+        "/api/core/role-task-assignments/{id}/",
+        "/api/core/user-task-assignments/",
+        "/api/core/user-task-assignments/{id}/"
+      ],
+      "writes": [
+        "create/edit/delete role",
+        "assign tasks to role",
+        "assign tasks to user"
+      ],
+      "services": [
+        "services/rbac.ts"
+      ],
+      "pages": [
+        "pages/admin/RolesPage.tsx"
+      ],
+      "tests": ["workflowSmoke.test.tsx"],
+      "permissions": [
+        "core.roles.view",
+        "core.roles.create",
+        "core.roles.update",
+        "core.roles.delete",
+        "core.permission_tasks.view",
+        "core.role_task_assignments.view",
+        "core.user_task_assignments.view"
+      ],
+      "status": "implemented"
+    }
+  ]
+}

@@ -43,15 +43,10 @@ export const AgingReportPage: React.FC = () => {
 
   const handleExportCSV = async () => {
     try {
-      const blob = await financeService.exportAgingCSV(
-        selectedTerm ? parseInt(selectedTerm) : undefined
+      await financeService.downloadAgingCSV(
+        selectedTerm ? parseInt(selectedTerm) : undefined,
+        `aging_report_${selectedTerm || 'all'}_${new Date().toISOString().split('T')[0]}.csv`
       )
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `aging_report_${selectedTerm || 'all'}_${new Date().toISOString().split('T')[0]}.csv`
-      a.click()
-      window.URL.revokeObjectURL(url)
     } catch (err) {
       alert('Failed to export CSV')
       console.error('Error exporting CSV:', err)

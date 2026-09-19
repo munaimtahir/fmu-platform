@@ -1,170 +1,170 @@
-import React, { useEffect, useState } from 'react'
-import { Card } from '@/components/ui/Card'
-import { DataTable } from '@/components/ui/DataTable/DataTable'
-import { ColumnDef } from '@tanstack/react-table'
-import { financeService } from '@/services'
-import type { Voucher } from '@/types'
+import React, { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
+import type { ColumnDef } from '@tanstack/react-table'
+import toast from 'react-hot-toast'
+import { PageShell } from '@/components/shared/PageShell'
+import { Can } from '@/components/shared/Can'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { Button } from '@/components/ui/Button'
-import { Alert } from '@/components/ui/Alert'
-import { Modal } from '@/components/ui/Modal'
-import { TextArea } from '@/components/ui/TextArea'
+import { Card } from '@/components/ui/Card'
+import { Input } from '@/components/ui/Input'
+import { Select, type SelectOption } from '@/components/ui/Select'
 import { StatusBadge } from '@/components/ui/StatusBadge'
-import { Heading, Text } from '@/components/ui/Typography'
+import { useDebouncedValue } from '@/hooks/useDebouncedValue'
+import { parseApiError } from '@/lib/apiErrors'
+import { formatDate, formatMoney } from '@/features/finance/financeFormat'
+import { useTermOptions } from '@/features/finance/FinanceLookups'
+import { FilterBar, PagedTable } from '@/features/finance/PagedTable'
+import { financeService } from '@/services/finance'
+import type { Voucher } from '@/types'
+
+export const VOUCHERS_QUERY_KEY = ['finance', 'vouchers'] as const
+
+export const VOUCHER_STATUS_OPTIONS: SelectOption[] = [
+  { value: '', label: 'All statuses' },
+  { value: 'generated', label: 'Generated' },
+  { value: 'partially_paid', label: 'Partially paid' },
+  { value: 'paid', label: 'Paid' },
+  { value: 'overdue', label: 'Overdue' },
+  { value: 'cancelled', label: 'Cancelled' },
+]
 
 export const VouchersPage: React.FC = () => {
-  const [vouchers, setVouchers] = useState<Voucher[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [cancellingId, setCancellingId] = useState<number | null>(null)
-  const [showCancelModal, setShowCancelModal] = useState<number | null>(null)
-  const [cancelReason, setCancelReason] = useState('')
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { options: termOptions } = useTermOptions()
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('')
+  const [term, setTerm] = useState('')
+  const debouncedSearch = useDebouncedValue(search.trim(), 300)
+  const [cancelling, setCancelling] = useState<Voucher | null>(null)
 
-  useEffect(() => {
-    loadVouchers()
-  }, [])
-
-  const loadVouchers = async () => {
-    setLoading(true)
-    try {
-      const data = await financeService.listVouchers()
-      setVouchers(data)
-      setError(null)
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to load vouchers')
-      console.error('Error loading vouchers:', err)
-    } finally {
-      setLoading(false)
-    }
+  const filters = {
+    page,
+    search: debouncedSearch || undefined,
+    status: status || undefined,
+    term: term ? Number(term) : undefined,
   }
+  const query = useQuery({
+    queryKey: [...VOUCHERS_QUERY_KEY, filters],
+    queryFn: () => financeService.listVouchersPage(filters),
+  })
 
-  const handleCancel = async (voucherId: number) => {
-    if (!cancelReason.trim()) {
-      alert('Please provide a reason for cancellation')
-      return
-    }
-
-    setCancellingId(voucherId)
-    try {
-      await financeService.cancelVoucher(voucherId, cancelReason)
-      setShowCancelModal(null)
-      setCancelReason('')
-      await loadVouchers()
-      alert('Voucher cancelled successfully')
-    } catch (err: any) {
-      alert(err.response?.data?.error?.message || 'Failed to cancel voucher')
-      console.error('Error cancelling voucher:', err)
-    } finally {
-      setCancellingId(null)
-    }
+  const resetPage = <T,>(setter: (value: T) => void) => (value: T) => {
+    setter(value)
+    setPage(1)
   }
 
   const columns: ColumnDef<Voucher>[] = [
+    { accessorKey: 'voucher_no', header: 'Voucher no.' },
     {
-      accessorKey: 'voucher_no',
-      header: 'Voucher No',
-    },
-    {
-      accessorKey: 'student_name',
+      id: 'student',
       header: 'Student',
+      cell: ({ row }) => `${row.original.student_reg_no ?? ''} ${row.original.student_name ?? ''}`.trim() || `#${row.original.student}`,
     },
-    {
-      accessorKey: 'term_name',
-      header: 'Term',
-    },
+    { accessorKey: 'term_name', header: 'Term' },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => <StatusBadge domain="finance" status={row.getValue('status')} />,
+      cell: ({ row }) => <StatusBadge domain="finance" status={row.original.status} />,
     },
-    {
-      accessorKey: 'total_amount',
-      header: 'Amount',
-      cell: ({ row }) => `${parseFloat(row.getValue('total_amount')).toFixed(2)} PKR`,
-    },
-    {
-      accessorKey: 'due_date',
-      header: 'Due Date',
-      cell: ({ row }) => new Date(row.getValue('due_date')).toLocaleDateString(),
-    },
+    { accessorKey: 'total_amount', header: 'Amount', cell: ({ row }) => formatMoney(row.original.total_amount) },
+    { accessorKey: 'due_date', header: 'Due date', cell: ({ row }) => formatDate(row.original.due_date) },
     {
       id: 'actions',
       header: 'Actions',
       cell: ({ row }) => {
         const voucher = row.original
-        if (voucher.status === 'cancelled' || voucher.status === 'paid') return null
         return (
-          <Button
-            size="sm"
-            variant="danger"
-            onClick={() => setShowCancelModal(voucher.id)}
-          >
-            Cancel
-          </Button>
+          <div className="flex gap-2" onClick={(event) => event.stopPropagation()}>
+            <Button size="sm" variant="secondary" onClick={() => navigate(`/finance/vouchers/${voucher.id}`)}>
+              View
+            </Button>
+            {voucher.status !== 'cancelled' && voucher.status !== 'paid' && (
+              <Can tasks={['finance.vouchers.cancel']}>
+                <Button size="sm" variant="danger" onClick={() => setCancelling(voucher)}>
+                  Cancel
+                </Button>
+              </Can>
+            )}
+          </div>
         )
       },
     },
   ]
 
   return (
-    
-      <div className="space-y-6">
-        <div>
-          <Heading level={1}>Vouchers</Heading>
-          <Text tone="secondary">View and manage vouchers.</Text>
+    <PageShell title="Vouchers" description="Fee vouchers issued to students.">
+      <Card>
+        <div className="p-4">
+          <FilterBar>
+            <Input
+              id="vouchers-search"
+              label="Search"
+              placeholder="Voucher no., reg. no. or name"
+              value={search}
+              onChange={(e) => resetPage(setSearch)(e.target.value)}
+            />
+            <Select
+              id="vouchers-status"
+              label="Status"
+              options={VOUCHER_STATUS_OPTIONS}
+              value={status}
+              onChange={resetPage(setStatus)}
+              searchable={false}
+            />
+            <Select
+              id="vouchers-term"
+              label="Academic period"
+              options={[{ value: '', label: 'All periods' }, ...termOptions]}
+              value={term}
+              onChange={resetPage(setTerm)}
+            />
+          </FilterBar>
         </div>
+        <PagedTable
+          data={query.data?.results ?? []}
+          columns={columns}
+          page={page}
+          total={query.data?.count ?? 0}
+          onPageChange={setPage}
+          isLoading={query.isLoading}
+          errorMessage={query.isError ? parseApiError(query.error).message : null}
+          onRetry={() => query.refetch()}
+          onRowClick={(voucher) => navigate(`/finance/vouchers/${voucher.id}`)}
+        />
+      </Card>
 
-        {error && <Alert variant="error">{error}</Alert>}
-
-        <Card>
-          <DataTable
-            data={vouchers}
-            columns={columns}
-            enableSorting
-            enableFiltering
-            enablePagination
-            isLoading={loading}
-          />
-        </Card>
-
-        {showCancelModal && (
-          <Modal
-            title="Cancel Voucher"
-            onClose={() => {
-              setShowCancelModal(null)
-              setCancelReason('')
-            }}
-          >
-            <div className="space-y-4">
-              <TextArea
-                id="cancel-voucher-reason"
-                label="Reason"
-                required
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                rows={3}
-              />
-              <div className="flex gap-2 justify-end">
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setShowCancelModal(null)
-                    setCancelReason('')
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={() => handleCancel(showCancelModal)}
-                  disabled={cancellingId === showCancelModal || !cancelReason.trim()}
-                >
-                  {cancellingId === showCancelModal ? 'Cancelling...' : 'Confirm Cancellation'}
-                </Button>
-              </div>
-            </div>
-          </Modal>
-        )}
-      </div>
-
+      {cancelling && (
+        <ConfirmDialog
+          title="Cancel voucher"
+          message={
+            <>
+              Cancel voucher <strong>{cancelling.voucher_no}</strong>? The amount is credited back to the student's
+              ledger. This cannot be undone.
+            </>
+          }
+          confirmLabel="Cancel voucher"
+          variant="danger"
+          requireReason
+          onConfirm={async (reason) => {
+            try {
+              await financeService.cancelVoucher(cancelling.id, reason ?? '')
+            } catch (err) {
+              if (parseApiError(err).code === 'ALREADY_CANCELLED') {
+                queryClient.invalidateQueries({ queryKey: VOUCHERS_QUERY_KEY })
+              }
+              throw err
+            }
+            queryClient.invalidateQueries({ queryKey: VOUCHERS_QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: ['finance', 'ledger'] })
+            toast.success('Voucher cancelled')
+          }}
+          onClose={() => setCancelling(null)}
+        />
+      )}
+    </PageShell>
   )
 }

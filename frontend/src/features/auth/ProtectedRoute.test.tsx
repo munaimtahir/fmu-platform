@@ -1,89 +1,93 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
-import { render, screen } from '@testing-library/react'
+
+vi.mock('@/api/axios', () => ({
+  getAccessToken: vi.fn(() => null),
+  clearTokens: vi.fn(),
+  isImpersonating: vi.fn(() => false),
+  restoreAdminTokens: vi.fn(),
+}))
+vi.mock('@/api/auth', () => ({ getCurrentUser: vi.fn() }))
+vi.mock('@/api/access', () => ({ getAccessContext: vi.fn() }))
+vi.mock('@/api/impersonation', () => ({ stopImpersonation: vi.fn() }))
+
 import { ProtectedRoute } from './ProtectedRoute'
 import { useAuthStore } from './authStore'
+import type { RoleName } from './access'
 
-// Mock component for testing
-const TestComponent = () => <div>Protected Content</div>
-const LoginComponent = () => <div>Login Page</div>
+const user = { id: 1, username: 'u', email: 'u@e.edu', full_name: 'U', role: 'Registrar', is_active: true }
+
+function signIn(roles: RoleName[], tasks: string[], accessLoaded = true) {
+  useAuthStore.setState({ user, isAuthenticated: true, isLoading: false, roles, tasks, accessLoaded })
+}
+
+function renderAt(path: string, guardPath: string) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route path="/login" element={<div>Login Page</div>} />
+        <Route
+          path={path}
+          element={
+            <ProtectedRoute path={guardPath}>
+              <div>Protected Content</div>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </MemoryRouter>
+  )
+}
 
 describe('ProtectedRoute', () => {
   beforeEach(() => {
-    // Reset auth store before each test
-    const { logout } = useAuthStore.getState()
-    logout()
+    useAuthStore.getState().logout()
   })
 
-  it('should redirect to login when not authenticated', async () => {
-    const { result } = renderHook(() => useAuthStore())
-    
-    // Ensure user is not authenticated
-    expect(result.current.isAuthenticated).toBe(false)
-
-    render(
-      <MemoryRouter initialEntries={['/protected']}>
-        <Routes>
-          <Route path="/login" element={<LoginComponent />} />
-          <Route
-            path="/protected"
-            element={
-              <ProtectedRoute>
-                <TestComponent />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </MemoryRouter>
-    )
-
-    // Should show loading initially, then redirect to login
-    await waitFor(() => {
-      expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
-      // Login page or loading state should be shown
-    })
+  it('redirects to login when not authenticated', async () => {
+    renderAt('/students', '/students')
+    await waitFor(() => expect(screen.getByText('Login Page')).toBeInTheDocument())
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
   })
 
-  it('should render children when authenticated', async () => {
-    // Manually set authenticated state
-    const { setUser } = useAuthStore.getState()
-    setUser({
-      id: 1,
-      email: 'test@example.com',
-      firstName: 'Test',
-      lastName: 'User',
-      roles: ['student'],
-    })
+  it('waits for the access context instead of rendering or denying early', () => {
+    signIn([], [], false)
+    renderAt('/students', '/students')
+    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
+    expect(screen.queryByText('Access Denied')).not.toBeInTheDocument()
+  })
 
-    const { result } = renderHook(() => useAuthStore())
+  it('renders children when the user holds a required task', async () => {
+    signIn(['Registrar'], ['students.students.view'])
+    renderAt('/students', '/students')
+    expect(await screen.findByText('Protected Content')).toBeInTheDocument()
+  })
 
-    // Initialize to load auth state. This is async and updates store state,
-    // so it must be awaited inside act() - otherwise React warns that a
-    // state update (from ProtectedRoute's own effect calling initialize()
-    // again, or from this call resolving mid-render) happened outside act().
-    await act(async () => {
-      await result.current.initialize()
-    })
+  it('shows Access Denied when the user lacks the required task', async () => {
+    signIn(['Faculty'], ['exams.exams.view'])
+    renderAt('/finance/payments', '/finance/payments')
+    expect(await screen.findByText('Access Denied', { selector: 'h2' })).toBeInTheDocument()
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
+  })
 
-    render(
-      <MemoryRouter initialEntries={['/protected']}>
-        <Routes>
-          <Route path="/login" element={<LoginComponent />} />
-          <Route
-            path="/protected"
-            element={
-              <ProtectedRoute>
-                <TestComponent />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </MemoryRouter>
-    )
+  it('allows a self-service route by role', async () => {
+    signIn(['Student'], [])
+    renderAt('/my-compliance', '/my-compliance')
+    expect(await screen.findByText('Protected Content')).toBeInTheDocument()
+  })
 
-    await waitFor(() => {
-      expect(screen.getByText('Protected Content')).toBeInTheDocument()
-    })
+  it('denies a route that is not registered (fails closed)', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    signIn(['Admin'], ['students.students.view'])
+    renderAt('/not-registered', '/not-registered')
+    expect(await screen.findByText('Access Denied', { selector: 'h2' })).toBeInTheDocument()
+  })
+
+  it('lets any signed-in user open an unrestricted route', async () => {
+    signIn([], [])
+    renderAt('/profile', '/profile')
+    expect(await screen.findByText('Protected Content')).toBeInTheDocument()
   })
 })

@@ -3,6 +3,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from core.permissions import PermissionTaskRequired
 from sims_backend.students.models import Student
 
 from .models import ComplianceActionLog, RequirementDefinition, RequirementInstance, RequirementSubmission
@@ -64,14 +65,25 @@ class StudentComplianceViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class AdminComplianceViewSet(viewsets.ModelViewSet):
-    """
-    Viewset for REGISTRAR/ADMIN to manage requirements.
-    Should be protected by appropriate permissions (e.g. 'compliance.manage').
-    """
+    """Viewset for REGISTRAR/ADMIN to review, verify, reject and assign requirements."""
 
     queryset = RequirementInstance.objects.all()
     serializer_class = RequirementInstanceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["compliance.requirements.view"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve", "review_queue"]:
+            self.required_tasks = ["compliance.requirements.view"]
+        elif self.action == "assign_to_student":
+            self.required_tasks = ["compliance.requirements.assign"]
+        elif self.action in ["verify", "reject"]:
+            self.required_tasks = ["compliance.requirements.review"]
+        elif self.action == "create":
+            self.required_tasks = ["compliance.requirements.assign"]
+        elif self.action in ["update", "partial_update", "destroy"]:
+            self.required_tasks = ["compliance.requirements.manage"]
+        return super().get_permissions()
 
     def get_queryset(self):
         # Basic filtering
@@ -147,4 +159,16 @@ class AdminComplianceViewSet(viewsets.ModelViewSet):
 class RequirementDefinitionViewSet(viewsets.ModelViewSet):
     queryset = RequirementDefinition.objects.all()
     serializer_class = RequirementDefinitionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["compliance.definitions.view"]
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            self.required_tasks = ["compliance.definitions.view"]
+        elif self.action == "create":
+            self.required_tasks = ["compliance.definitions.create"]
+        elif self.action in ["update", "partial_update"]:
+            self.required_tasks = ["compliance.definitions.update"]
+        elif self.action == "destroy":
+            self.required_tasks = ["compliance.definitions.delete"]
+        return super().get_permissions()

@@ -78,6 +78,9 @@ def _has_builtin_role_task(user: User, task_code: str) -> bool:
             "people.",
             "academics.",
             "timetable.",
+            # Compliance requirements are administered by Registrar (and Admin,
+            # via the ADMIN branch above).  No other built-in role gets these.
+            "compliance.",
         ],
         "FACULTY": [
             "academics.courses.view",

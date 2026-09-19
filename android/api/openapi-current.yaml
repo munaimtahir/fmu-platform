@@ -4045,9 +4045,8 @@ paths:
   /api/compliance/admin-compliance/:
     get:
       operationId: compliance_admin_compliance_list
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       parameters:
       - name: ordering
         required: false
@@ -4081,9 +4080,8 @@ paths:
           description: ''
     post:
       operationId: compliance_admin_compliance_create
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       tags:
       - compliance
       requestBody:
@@ -4110,9 +4108,8 @@ paths:
   /api/compliance/admin-compliance/{id}/:
     get:
       operationId: compliance_admin_compliance_retrieve
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       parameters:
       - in: path
         name: id
@@ -4134,9 +4131,8 @@ paths:
           description: ''
     put:
       operationId: compliance_admin_compliance_update
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       parameters:
       - in: path
         name: id
@@ -4169,9 +4165,8 @@ paths:
           description: ''
     patch:
       operationId: compliance_admin_compliance_partial_update
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       parameters:
       - in: path
         name: id
@@ -4204,9 +4199,8 @@ paths:
           description: ''
     delete:
       operationId: compliance_admin_compliance_destroy
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       parameters:
       - in: path
         name: id
@@ -4225,9 +4219,8 @@ paths:
   /api/compliance/admin-compliance/{id}/reject/:
     post:
       operationId: compliance_admin_compliance_reject_create
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       parameters:
       - in: path
         name: id
@@ -4261,9 +4254,8 @@ paths:
   /api/compliance/admin-compliance/{id}/verify/:
     post:
       operationId: compliance_admin_compliance_verify_create
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       parameters:
       - in: path
         name: id
@@ -4297,9 +4289,8 @@ paths:
   /api/compliance/admin-compliance/assign_to_student/:
     post:
       operationId: compliance_admin_compliance_assign_to_student_create
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       tags:
       - compliance
       requestBody:
@@ -4326,9 +4317,8 @@ paths:
   /api/compliance/admin-compliance/review_queue/:
     get:
       operationId: compliance_admin_compliance_review_queue_retrieve
-      description: |-
-        Viewset for REGISTRAR/ADMIN to manage requirements.
-        Should be protected by appropriate permissions (e.g. 'compliance.manage').
+      description: Viewset for REGISTRAR/ADMIN to review, verify, reject and assign
+        requirements.
       tags:
       - compliance
       security:

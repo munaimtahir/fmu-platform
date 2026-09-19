@@ -160,6 +160,35 @@ def generate_transcript_pdf(student: Student) -> io.BytesIO:
     return buffer
 
 
+def _transcript_access_denied(user, student):
+    """Return a 403 Response if `user` may not access `student`'s transcript, else None.
+
+    Students may access only their own transcript. Admin, Registrar and Finance
+    users (and superusers) may access any transcript for administrative purposes.
+    """
+    if in_group(user, "STUDENT"):
+        if getattr(user, "student", None) != student:
+            return Response(
+                {"error": {"code": "FORBIDDEN", "message": "You can only access your own transcript"}},
+                status=403,
+            )
+        return None
+
+    has_admin_access = (
+        in_group(user, "FINANCE")
+        or in_group(user, "ADMIN")
+        or in_group(user, "REGISTRAR")
+        or in_group(user, "Registrar")
+        or user.is_superuser
+    )
+    if not has_admin_access:
+        return Response(
+            {"error": {"code": "FORBIDDEN", "message": "You do not have permission to view this transcript"}},
+            status=403,
+        )
+    return None
+
+
 @extend_schema(responses={200: OpenApiTypes.BINARY, 403: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -170,30 +199,9 @@ def get_transcript(request, student_id: int):
     except Student.DoesNotExist:
         return Response({"error": {"code": 404, "message": "Student not found"}}, status=404)
 
-    # Check permissions: students can only view their own transcript
-    # Admin/Registrar/Finance users can view any student's transcript for administrative purposes.
-    user = request.user
-    is_student = in_group(user, "STUDENT")
-    has_admin_access = (
-        in_group(user, "FINANCE")
-        or in_group(user, "ADMIN")
-        or in_group(user, "REGISTRAR")
-        or in_group(user, "Registrar")
-        or user.is_superuser
-    )
-
-    if is_student:
-        if getattr(user, "student", None) != student:
-            return Response(
-                {"error": {"code": "FORBIDDEN", "message": "You can only access your own transcript"}},
-                status=403,
-            )
-    elif not has_admin_access:
-        # Non-student users must have an administrative transcript role.
-        return Response(
-            {"error": {"code": "FORBIDDEN", "message": "You do not have permission to view this transcript"}},
-            status=403,
-        )
+    denied = _transcript_access_denied(request.user, student)
+    if denied:
+        return denied
 
     gate = finance_gate_checks(student, None)
     gating = gate.get("gating", {})
@@ -256,11 +264,9 @@ def enqueue_transcript_generation(request):
     except Student.DoesNotExist:
         return Response({"error": {"code": 404, "message": "Student not found"}}, status=404)
 
-    if in_group(request.user, "STUDENT") and getattr(request.user, "student", None) != student:
-        return Response(
-            {"error": {"code": "FORBIDDEN", "message": "You can only access your own transcript"}},
-            status=403,
-        )
+    denied = _transcript_access_denied(request.user, student)
+    if denied:
+        return denied
 
     gate = finance_gate_checks(student, None)
     gating = gate.get("gating", {})

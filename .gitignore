@@ -224,6 +224,7 @@ backend/tests_disabled/
 !.env.example
 
 # Security: Database dumps / backups
+backups/
 *.dump
 *.sql
 *.bak

@@ -37,7 +37,9 @@ async function saveAuthState(
     await page.click('button[type="submit"]');
 
     // Wait for the role landing page (Finance lands on /finance, everyone else on /dashboard/<role>)
-    await page.waitForURL(/\/(dashboard|finance)/, { timeout: 20000 });
+    // The live pilot deployment may spend several seconds loading the effective
+    // RBAC context before DashboardHome can resolve the role landing path.
+    await page.waitForURL(/\/(dashboard|finance)/, { timeout: 45000 });
 
     // Ensure auth state dir exists
     const dir = path.dirname(stateFile);

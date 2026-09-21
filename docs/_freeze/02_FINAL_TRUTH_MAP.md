@@ -41,10 +41,10 @@ This document is the authoritative source for the system state during the freeze
 ## 5. Documentation Truth
 - **Canonical Docs (Authoritative)**:
   - `docs/_freeze/*.md` (This pack)
-  - `docs/_cleanup/*.md` (Baseline history)
+  - `archive/docs-history/2026-09-21/_cleanup/*.md` (Baseline history)
   - `docs/_stabilization/*.md` (Stabilization details)
   - `README.md` (Root overview)
 - **Historical Docs (Non-Authoritative)**:
-  - `docs/verification/*` (Pre-reset reports)
-  - `docs/legacy/*` (Removed module info)
-  - `docs/reports/*` (Old audit reports)
+  - `archive/docs-history/2026-09-21/verification/*` (Pre-reset reports)
+  - `archive/docs-history/2026-09-21/legacy/*` (Removed module info)
+  - `archive/docs-history/2026-09-21/reports/*` (Old audit reports)

@@ -13,11 +13,15 @@
     | `DB_PORT` | string | `5432` | yes | backend | Database port |
     | `REDIS_HOST` | string | `localhost` | yes | backend | Redis host for RQ |
     | `REDIS_PORT` | string | `6379` | yes | backend | Redis port |
+    | `REDIS_URL` | url | constructed from `REDIS_HOST`/`REDIS_PORT` | no | backend | Redis cache URL; database 1 is used for shared throttle counters |
+    | `METRICS_TOKEN` | string | _none_ | yes for metrics | backend | Secret bearer token required to scrape `GET /metrics`; keep out of source control |
+    | `API_ANON_THROTTLE` | rate | `60/min` | no | backend | Anonymous API request rate |
+    | `API_USER_THROTTLE` | rate | `600/hour` | no | backend | Authenticated API request rate |
     | `EMAIL_BACKEND` | string | `console` | no | backend | Email backend type |
     | `EMAIL_HOST` | string | `smtp.gmail.com` | no | backend | SMTP host |
-    | `EMAIL_USER` | string | _none_ | no | backend | SMTP user |
-    | `EMAIL_PASS` | string | _none_ | no | backend | SMTP password |
-    | `CORS_ALLOWED_ORIGINS` | csv | `http://172.235.33.181,http://172.235.33.181:81,http://104.64.0.164,http://104.64.0.164:81,http://172.237.71.40,http://172.237.71.40:81,http://localhost,http://localhost:81,http://127.0.0.1,http://127.0.0.1:81` | yes | backend | CORS allow-list |
+    | `EMAIL_HOST_USER` | string | _none_ | no | backend | SMTP user |
+    | `EMAIL_HOST_PASSWORD` | string | _none_ | no | backend | SMTP password |
+    | `CORS_ALLOWED_ORIGINS` | csv | `http://localhost:5173` | yes | backend | Development allow-list; production must be `https://sims.vexel.pk` only |
     | `VITE_API_BASE_URL` | url | `http://localhost:8000` | yes | frontend | Backend API URL |
 
     - Keep secrets out of the repo. Use `.env` locally; use Docker/CI secrets in prod.

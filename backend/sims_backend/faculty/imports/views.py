@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from core.throttling import SensitiveActionThrottle
 from sims_backend.common_permissions import IsAdminOrCoordinator
 from sims_backend.faculty.imports.models import FacultyImportJob
 from sims_backend.faculty.imports.serializers import (
@@ -34,6 +35,11 @@ class FacultyImportViewSet(viewsets.ViewSet):
     """
 
     permission_classes = [IsAuthenticated, IsAdminOrCoordinator]
+
+    def get_throttles(self):
+        if self.action in {"preview", "commit"}:
+            return [SensitiveActionThrottle()]
+        return super().get_throttles()
     queryset = FacultyImportJob.objects.none()
 
     @action(detail=False, methods=["post"], url_path="preview")

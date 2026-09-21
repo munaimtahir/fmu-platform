@@ -1,6 +1,6 @@
 # Known Limitations
 
-**Last Updated:** 2026-01-03  
+**Last Updated:** 2026-09-20
 **Purpose:** Document current system limitations, workarounds, and known issues for developers and operators.
 
 ---
@@ -34,13 +34,8 @@
 
 ### Missing Frontend Pages
 
-- ⚠️ **Finance Reports UI** - Backend APIs are ready, but frontend pages not implemented
-  - **Missing Pages:**
-    - Defaulters report page
-    - Collection report page
-    - Aging report page
-    - Student statement page (backend PDF generation available)
-  - **Status:** Backend fully functional, frontend pending
+- ✅ **Finance Reports UI** - Defaulters, collection, aging, and student-statement pages are
+  implemented. This entry replaces the stale pre-parity claim.
 
 - ⚠️ **Transcript Preview UI** - Backend supports transcript generation, but UI preview not implemented
   - **Impact:** Users cannot preview transcripts before downloading
@@ -71,10 +66,8 @@
 
 ### Result Immutability
 
-- ⚠️ **Published Results Can Be Field-Updated** - Status changes are blocked, but field updates allowed
-  - **Location:** Result model/views
-  - **Impact:** Data integrity risk - published results should be immutable
-  - **Status:** Partial enforcement, needs full immutability for published status
+- ✅ **Published Results Are Immutable** - Result headers and components can be edited or deleted
+  only while the header is editable; later statuses require the correction workflow.
 
 ### Attendance Input Tests
 
@@ -111,10 +104,9 @@
 
 ### Rate Limiting
 
-- ⚠️ **No Rate Limiting Implemented** - API endpoints have no rate limiting
-  - **Impact:** Vulnerability to abuse/DoS
-  - **Recommendation:** Implement rate limiting before production
-  - **Status:** Security enhancement needed
+- ✅ **Redis-backed API throttling** - Anonymous, authenticated, login, refresh, password-change,
+  and sensitive-operation rates are configured. A process-local fallback keeps the core API
+  available during a Redis outage, with temporarily non-global counters.
 
 ### API Documentation
 
@@ -149,7 +141,7 @@
 - ✅ **Result Uniqueness** - Properly enforced
 - ✅ **Foreign Key Integrity** - Correctly configured
 - ✅ **Audit Log Immutability** - Enforced
-- ⚠️ **Result Immutability** - Partially enforced (see Backend Limitations)
+- ✅ **Result Immutability** - Enforced for non-editable result statuses
 
 ---
 
@@ -177,7 +169,7 @@
 - ✅ **JWT Authentication** - Implemented and working
 - ✅ **Role-Based Access Control** - Properly enforced
 - ✅ **Audit Logging** - Comprehensive coverage
-- ⚠️ **Rate Limiting** - Not implemented (see Backend Limitations)
+- ✅ **Rate Limiting** - Redis-backed throttles protect authentication and costly mutations
 
 ### Data Privacy
 
@@ -238,12 +230,10 @@
 
 ### ⚠️ Should Address Before Production
 
-1. **Rate Limiting** - Implement API rate limiting
-2. **Dashboard Data Integration** - Fix hardcoded data in Student/Faculty dashboards (Admin dashboard now uses real data)
-3. **Result Immutability** - Full enforcement for published results
-4. **Test Coverage** - Improve test coverage to meet target (80%)
-5. **Frontend Finance Reports** - Complete frontend UI for finance reports
-6. **Email Testing** - Test email delivery in production-like environment
+1. **Dashboard Data Integration** - Fix hardcoded data in Student/Faculty dashboards (Admin dashboard now uses real data)
+2. **Test Coverage** - Improve test coverage to meet target (80%)
+3. **Email Testing** - Test email delivery in production-like environment
+4. **Metrics Rollout** - Set and protect `METRICS_TOKEN`, then configure the Prometheus scrape target
 
 ### 🔄 Ongoing Enhancements
 
@@ -261,7 +251,7 @@
 
 - **Frontend Build:** Use Docker containers (`docker-compose build frontend`)
 - **Backend Linting:** Use Docker containers (`docker-compose exec backend ruff check .`)
-- **Database Access:** Use `docker-compose exec db psql -U fmu_platform -d fmu_platform`
+- **Database Access:** Use the VM's `vexel_medsims_db` container and credentials from its runtime environment; never place passwords in commands or documentation.
 
 ### Testing
 
@@ -282,13 +272,13 @@
 - ✅ **Health Endpoint** - `/api/health/` provides comprehensive health status
 - ✅ **Database Check** - Included in health endpoint
 - ✅ **Migration Check** - Included in health endpoint
-- ⚠️ **Redis Check** - Optional, doesn't affect readiness status
+- ✅ **Redis Check** - Marks overall health as degraded; queue-dependent writes return a structured 503
 
 ### Metrics
 
-- ⚠️ **No Metrics Collection** - No Prometheus/StatsD integration
-  - **Recommendation:** Add metrics collection for production monitoring
-  - **Status:** Enhancement opportunity
+- ✅ **Prometheus endpoint** - `GET /metrics` emits route-safe request latency and RQ availability/
+  queue-depth metrics. It is disabled until `METRICS_TOKEN` is set and requires
+  `Authorization: Bearer <METRICS_TOKEN>`.
 
 ---
 

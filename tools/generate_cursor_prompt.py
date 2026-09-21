@@ -64,13 +64,12 @@ PRIMARY GOALS (Definition of Done)
    - Updated coverage matrices + playbook + final report.
 
 FILES TO CREATE/UPDATE (MANDATORY OUTPUTS)
-- docs/diagnostics/POST_RECOVERY_AUDIT.md
-- docs/verification/BACKEND_TEST_RESULTS.md
-- docs/verification/E2E_TEST_RESULTS.md
-- docs/verification/FRONTEND_COVERAGE_MATRIX.md (update to 100%)
-- docs/verification/BACKEND_CRUD_MATRIX.md (update, confirm 201/200s)
-- docs/verification/VERIFICATION_PLAYBOOK.md (final)
-- docs/reports/FINAL_SYSTEM_STATUS.md
+- PRODUCTION_READINESS_TASKS.md
+- docs/TESTS.md
+- docs/E2E_PLAYWRIGHT.md
+- docs/KNOWN_LIMITATIONS.md
+- docs/OPERATIONS.md
+- docs/PRODUCTION_RUNBOOK.md
 - scripts/smoke_test.sh (or scripts/smoke_test.py)
 - e2e/ (Playwright tests) OR cypress/ (if repo already uses Cypress)
 
@@ -79,7 +78,7 @@ PHASE 1 — BASELINE CHECKS (NO CODE CHANGES)
    - Identify Django settings, INSTALLED_APPS, API routers, key models in academics + students.
    - Identify frontend routing and API client location.
    - Identify existing test framework (pytest vs unittest), existing e2e setup (if any).
-   - Document findings in docs/diagnostics/POST_RECOVERY_AUDIT.md (Section: Inventory).
+   - Document findings in PRODUCTION_READINESS_TASKS.md and docs/KNOWN_LIMITATIONS.md.
 
 2) Running stack sanity:
    - Provide commands and results:
@@ -97,7 +96,7 @@ Goal: make backend tests green and admin stable.
    - Fix them properly (rename files, update imports, split modules) so discovery works.
 
 2) Run backend tests:
-   - Run the full suite and capture output in docs/verification/BACKEND_TEST_RESULTS.md.
+   - Run the full suite and record the result in PRODUCTION_READINESS_TASKS.md.
    - If tests fail:
      - Fix failures from highest leverage to lowest.
      - Add missing fixtures where needed.
@@ -119,7 +118,7 @@ Goal: ensure backend provides stable API contract.
 1) Build or update docs/api/API_MAP.md (if it exists) or create it if not.
    - Enumerate resources, endpoints, auth required, expected payload fields.
 
-2) Update docs/verification/BACKEND_CRUD_MATRIX.md:
+2) Update docs/API.md and PRODUCTION_READINESS_TASKS.md:
    - For each canonical resource (Programs, Periods, Tracks, Blocks, Modules, Students):
      - list endpoint works (200)
      - create works (201)
@@ -131,7 +130,7 @@ PHASE 4 — FRONTEND: COMPLETE ACADEMICS HIERARCHY UI
 Goal: Frontend screens exist and work for Academics hierarchy.
 
 1) Generate/update a Frontend Coverage Matrix:
-   - docs/verification/FRONTEND_COVERAGE_MATRIX.md
+   - PRODUCTION_READINESS_TASKS.md
    - For each resource: list/create/edit/detail implemented? yes/no.
 
 2) Implement missing pages and routing:
@@ -157,7 +156,7 @@ Goal: Frontend screens exist and work for Academics hierarchy.
 
 5) Legacy modules:
    - Ensure nav does not show legacy modules unless explicitly enabled by config.
-   - Document how toggles work in docs/diagnostics/POST_RECOVERY_AUDIT.md.
+   - Document how toggles work in docs/KNOWN_LIMITATIONS.md.
 
 PHASE 5 — E2E TESTING (PLAYWRIGHT PREFERRED)
 Goal: real regression coverage.
@@ -183,7 +182,7 @@ Goal: real regression coverage.
    - Store screenshots/videos on failure if configured.
 
 4) Write results:
-   - docs/verification/E2E_TEST_RESULTS.md
+   - docs/E2E_PLAYWRIGHT.md
    - Include command used and summary.
 
 PHASE 6 — SMOKE TEST SCRIPT (OPS SAFETY)
@@ -198,10 +197,10 @@ Goal: one-command check before/after deploy.
    - Optionally do a create/delete cycle in a safe way (or only in dev mode)
    - Exit non-zero on any failure
 
-2) Document usage in docs/verification/VERIFICATION_PLAYBOOK.md.
+2) Document usage in docs/PRODUCTION_RUNBOOK.md.
 
 PHASE 7 — FINAL PLAYBOOK + REPORT + COMMITS
-1) docs/verification/VERIFICATION_PLAYBOOK.md:
+1) docs/PRODUCTION_RUNBOOK.md:
    - Step-by-step manual verification:
      - Admin program page loads
      - Create Program/Student in UI
@@ -211,7 +210,7 @@ PHASE 7 — FINAL PLAYBOOK + REPORT + COMMITS
      - E2E pass
      - Smoke test pass
 
-2) docs/reports/FINAL_SYSTEM_STATUS.md:
+2) PRODUCTION_READINESS_TASKS.md:
    - What's fixed
    - What's verified
    - What remains (if any)

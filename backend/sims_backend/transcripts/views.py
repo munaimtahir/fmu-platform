@@ -1,6 +1,5 @@
 import io
 
-import django_rq
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.http import FileResponse
 from django.utils import timezone
@@ -12,11 +11,13 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from rest_framework import serializers
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from core.async_ops import AsyncUnavailableError, default_queue
 from core.permissions import has_permission_task
+from core.throttling import SensitiveActionThrottle
 from sims_backend.common_permissions import in_group
 from sims_backend.finance.services import finance_gate_checks
 from sims_backend.results.models import ResultHeader
@@ -243,6 +244,7 @@ def verify_transcript(request, token: str):
 @extend_schema(request=TRANSCRIPT_ENQUEUE_REQUEST, responses={202: TRANSCRIPT_ENQUEUE_RESPONSE, 400: OpenApiTypes.OBJECT, 403: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT})
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
+@throttle_classes([SensitiveActionThrottle])
 def enqueue_transcript_generation(request):
     """
     Enqueue transcript generation as a background job.
@@ -285,7 +287,10 @@ def enqueue_transcript_generation(request):
         )
 
     # Enqueue the job
-    queue = django_rq.get_queue("default")
+    try:
+        queue = default_queue()
+    except AsyncUnavailableError as exc:
+        return Response({"error": {"code": "ASYNC_UNAVAILABLE", "message": str(exc)}}, status=503)
     from .jobs import generate_and_email_transcript
 
     job = queue.enqueue(generate_and_email_transcript, student_id, email)

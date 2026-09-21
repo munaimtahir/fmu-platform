@@ -1,6 +1,11 @@
 # Pending Work: final verification handoff
 
-Last updated: 2026-09-19 UTC
+> **Historical handoff snapshot.** The web-parity work described below has since been incorporated
+> into `main`; retain this file for traceability, not as current delivery status. Use
+> `python3 frontend/scripts/check_web_parity.py --strict` for the current web-parity gate.
+
+Handoff document. Last updated 2026-09-19 (session stopped by API rate limits, not by a blocker).
+Read this top to bottom before touching anything. It is written so a new agent can continue exactly where work stopped.
 
 ## Completed
 

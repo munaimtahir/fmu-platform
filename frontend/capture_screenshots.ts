@@ -7,7 +7,7 @@ import { chromium } from '@playwright/test';
   // 1. Login Page
   await page.goto('http://localhost:5173/login');
   await page.waitForTimeout(2000);
-  await page.screenshot({ path: '../docs/verification/artifacts/screenshots/login_page.png' });
+  await page.screenshot({ path: 'test-results/screenshots/login_page.png' });
   console.log('Captured login_page.png');
 
   // Login flow
@@ -19,11 +19,11 @@ import { chromium } from '@playwright/test';
   try {
       await page.waitForURL('**/dashboard', { timeout: 15000 });
       await page.waitForTimeout(3000); // Wait for animations
-      await page.screenshot({ path: '../docs/verification/artifacts/screenshots/admin_dashboard.png' });
+      await page.screenshot({ path: 'test-results/screenshots/admin_dashboard.png' });
       console.log('Captured admin_dashboard.png');
   } catch (e) {
       console.error('Failed to login or load dashboard', e);
-      await page.screenshot({ path: '../docs/verification/artifacts/screenshots/login_failure.png' });
+      await page.screenshot({ path: 'test-results/screenshots/login_failure.png' });
   }
 
   // Navigate to other pages if login succeeded
@@ -31,25 +31,25 @@ import { chromium } from '@playwright/test';
       // Academics
       await page.goto('http://localhost:5173/academics');
       await page.waitForTimeout(3000);
-      await page.screenshot({ path: '../docs/verification/artifacts/screenshots/academics_page.png' });
+      await page.screenshot({ path: 'test-results/screenshots/academics_page.png' });
       console.log('Captured academics_page.png');
 
       // Students
       await page.goto('http://localhost:5173/students');
       await page.waitForTimeout(3000);
-      await page.screenshot({ path: '../docs/verification/artifacts/screenshots/students_list.png' });
+      await page.screenshot({ path: 'test-results/screenshots/students_list.png' });
       console.log('Captured students_list.png');
 
       // Admin Users
       await page.goto('http://localhost:5173/admin/users');
        await page.waitForTimeout(3000);
-      await page.screenshot({ path: '../docs/verification/artifacts/screenshots/admin_users.png' });
+      await page.screenshot({ path: 'test-results/screenshots/admin_users.png' });
       console.log('Captured admin_users.png');
 
       // Admin Settings
       await page.goto('http://localhost:5173/admin/settings');
        await page.waitForTimeout(3000);
-      await page.screenshot({ path: '../docs/verification/artifacts/screenshots/admin_settings.png' });
+      await page.screenshot({ path: 'test-results/screenshots/admin_settings.png' });
       console.log('Captured admin_settings.png');
   }
 

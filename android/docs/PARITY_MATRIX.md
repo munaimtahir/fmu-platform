@@ -7,6 +7,10 @@ fails when the Android schema copy drifts from the backend schema or when a regi
 is stale. Public intake, QR verification, and internal demo/style-guide routes are explicitly out
 of Android scope.
 
+The register validates the defined Android release scope; it is not a claim of complete web-product
+parity. In particular, Office Assistant has no dedicated Android workflow yet, and several
+Registrar, Coordinator, Faculty, and Admin web operations remain scheduled mobile work.
+
 | Domain | Web capability | Android status | Notes |
 |---|---|---|---|
 | Authentication | Login, refresh, logout, profile | FOUNDATION | Native secure session implemented; profile/password parity is registered for Student release |

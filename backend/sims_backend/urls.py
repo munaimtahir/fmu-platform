@@ -9,15 +9,16 @@ from django.contrib import admin
 from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
+from drf_spectacular.utils import OpenApiTypes, extend_schema
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-from drf_spectacular.utils import OpenApiTypes, extend_schema
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
+from core.metrics import metrics_view
 from core.views import (
     ChangePasswordView,
     EmailTokenObtainPairView,
@@ -167,6 +168,7 @@ urlpatterns = [
     path("health/", health_check, name="health"),
     path("healthz/", health_check, name="healthz"),  # Alias for health check
     path("api/health/", ApiHealthView.as_view(), name="api_health"),  # Requirement alias
+    path("metrics", metrics_view, name="metrics"),
     # New unified auth endpoints (canonical)
     path("api/auth/login/", UnifiedLoginView.as_view(), name="auth_login"),
     path("api/auth/logout/", LogoutView.as_view(), name="auth_logout"),
@@ -216,7 +218,7 @@ urlpatterns = [
     path("", include("sims_backend.learning.urls")),
     # Mobile Student Read API Freeze 01
     path("api/mobile/", include("sims_backend.mobile.urls")),
-    # Legacy apps removed - see docs/legacy/LEGACY_DEFINITION.md
+    # Legacy apps removed; historical details are archived outside the active docs tree.
 ]
 
 # Static files in DEBUG mode

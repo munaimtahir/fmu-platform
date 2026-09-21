@@ -1,5 +1,4 @@
 import django_filters
-import django_rq
 from django.db import models, transaction
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,7 +9,9 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from core.async_ops import AsyncServiceUnavailable, AsyncUnavailableError, default_queue
 from core.permissions import PermissionTaskRequired, has_permission_task
+from core.throttling import SensitiveActionThrottle
 from sims_backend.notifications.jobs import expand_audience_and_create_inbox
 from sims_backend.notifications.models import Notification, NotificationInbox
 from sims_backend.notifications.serializers import (
@@ -57,14 +58,25 @@ class NotificationAdminViewSet(
             return NotificationCreateSerializer
         return NotificationSerializer
 
+    def get_throttles(self):
+        if self.action in {"create", "send_notification"}:
+            return [SensitiveActionThrottle()]
+        return super().get_throttles()
+
     def perform_create(self, serializer):
         send_now = self.request.data.get("send_now") in [True, "true", "True", "1", 1]
         if send_now and not has_permission_task(self.request.user, "notifications.admin.send"):
             raise PermissionDenied("You do not have permission to send notifications.")
+        queue = None
+        if send_now:
+            try:
+                queue = default_queue()
+            except AsyncUnavailableError as exc:
+                raise AsyncServiceUnavailable(str(exc)) from exc
         notification = serializer.save()
         if send_now:
             notification.mark_queued()
-            queue = django_rq.get_queue("default")
+            assert queue is not None
             queue.enqueue(expand_audience_and_create_inbox, notification.id)
 
     @action(detail=True, methods=["post"], url_path="send")
@@ -76,9 +88,13 @@ class NotificationAdminViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        try:
+            queue = default_queue()
+        except AsyncUnavailableError as exc:
+            return Response({"error": {"code": "ASYNC_UNAVAILABLE", "message": str(exc)}}, status=503)
+
         with transaction.atomic():
             notification.mark_queued()
-            queue = django_rq.get_queue("default")
             job = queue.enqueue(expand_audience_and_create_inbox, notification.id)
 
         return Response(

@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.permissions import PermissionTaskRequired
+from core.throttling import SensitiveActionThrottle
 from sims_backend.attendance.models import (
     Attendance,
     AttendanceInputJob,
@@ -98,6 +99,7 @@ class LiveRosterAPIView(APIView):
 
 class LiveSubmitAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [SensitiveActionThrottle]
 
     @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
@@ -149,6 +151,7 @@ class LiveSubmitAPIView(APIView):
 class CSVDryRunAPIView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
+    throttle_classes = [SensitiveActionThrottle]
 
     @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
@@ -210,6 +213,7 @@ class CSVDryRunAPIView(APIView):
 
 class CSVCommitAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [SensitiveActionThrottle]
 
     @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
@@ -311,6 +315,7 @@ class TickSheetTemplateAPIView(APIView):
 class TickSheetDryRunAPIView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
+    throttle_classes = [SensitiveActionThrottle]
 
     @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
@@ -368,6 +373,7 @@ class TickSheetDryRunAPIView(APIView):
 
 class TickSheetCommitAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [SensitiveActionThrottle]
 
     @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)
     def post(self, request, *args, **kwargs):
@@ -403,6 +409,7 @@ class TickSheetCommitAPIView(APIView):
 
 class BiometricPunchAPIView(APIView):
     permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    throttle_classes = [SensitiveActionThrottle]
     required_tasks = ["attendance.biometric.ingest"]
 
     @extend_schema(request=OpenApiTypes.OBJECT, responses=OpenApiTypes.OBJECT)

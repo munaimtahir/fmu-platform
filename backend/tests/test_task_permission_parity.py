@@ -142,11 +142,18 @@ class TestTranscriptTasks:
         class _Job:
             id = "job-1"
 
+        class _Connection:
+            @staticmethod
+            def ping():
+                return True
+
         class _Queue:
+            connection = _Connection()
+
             def enqueue(self, *args, **kwargs):
                 return _Job()
 
-        monkeypatch.setattr("sims_backend.transcripts.views.django_rq.get_queue", lambda name: _Queue())
+        monkeypatch.setattr("core.async_ops.django_rq.get_queue", lambda name: _Queue())
         monkeypatch.setattr(
             "sims_backend.transcripts.views.finance_gate_checks",
             lambda student, _term: {"gating": {"can_view_transcript": True}},

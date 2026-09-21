@@ -76,7 +76,7 @@ The platform identity is Vexel MedSIMS. Each deployment configures its own insti
 
 ### Infrastructure
 - **Containerization**: Docker + Docker Compose
-- **Web Server**: Nginx (reverse proxy, static file serving)
+- **Web Server**: Caddy on the production host, serving the frontend and proxying the backend
 - **CI/CD**: GitHub Actions
 - **Security Scanning**: CodeQL
 - **Code Quality**: Ruff, MyPy, ESLint
@@ -107,7 +107,7 @@ fmu-platform/
 │   └── vite.config.ts    # Vite configuration
 ├── docs/                 # System documentation
 │   ├── API.md            # API documentation
-│   ├── ARCHITECTURE.md   # System architecture
+│   ├── docs_platform/     # Current platform architecture and governance
 │   ├── BLUEPRINT_LOCKED.md # System design authority
 │   ├── CANONICAL_MODULES.md # Module definitions
 │   └── DATAMODEL.md      # Database schema
@@ -207,16 +207,16 @@ Comprehensive documentation is available in the `docs/` directory:
 
 ### Core Documents
 - **[APP_DESCRIPTION.md](docs/APP_DESCRIPTION.md)**: Plain-language system description
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)**: System architecture and technology stack
+- **[Platform architecture](docs_platform/Platform-Constitution.md)**: Current platform architecture and governance
 - **[BLUEPRINT_LOCKED.md](docs/BLUEPRINT_LOCKED.md)**: Locked system blueprint (authority document)
 - **[CANONICAL_MODULES.md](docs/CANONICAL_MODULES.md)**: Canonical vs legacy modules
 - **[DATAMODEL.md](docs/DATAMODEL.md)**: Database schema and entity relationships
 - **[API.md](docs/API.md)**: API documentation and endpoints
 
 ### Additional Resources
-- **[CI-CD.md](docs/CI-CD.md)**: CI/CD pipeline documentation
+- **[Documentation index](docs/README.md)**: Current setup, operations, architecture, API, testing, and release guidance
 - **[CHANGELOG.md](docs/CHANGELOG.md)**: Version history and changes
-- **Admin Report**: See `docs/admin-report/` for detailed system overview and screen documentation
+- **Current documentation**: See `docs/README.md` for authoritative setup, operations, architecture, API, testing, and release guidance. Historical admin reports are archived under `archive/docs-history/2026-09-21/`.
 
 ### Code Documentation
 The codebase includes:

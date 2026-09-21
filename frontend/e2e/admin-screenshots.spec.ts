@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const SCREENSHOT_DIR = path.join(process.cwd(), 'docs/admin-runtime-report/screenshots');
+const SCREENSHOT_DIR = path.join(process.cwd(), 'test-results/admin-screenshots');
 
 // Ensure screenshot directory exists
 if (!fs.existsSync(SCREENSHOT_DIR)) {

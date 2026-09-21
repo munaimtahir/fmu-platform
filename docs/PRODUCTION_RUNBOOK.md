@@ -46,34 +46,27 @@ npm run dev
 ## Server Run Steps
 
 ### Deployment
-1.  **Clone Repository**:
-    ```bash
-    git clone <repo_url>
-    cd <repo_dir>
-    ```
+Production is deployed from the VM checkout at
+`/home/munaim/srv/apps/fmu-platform` using `docker-compose.yml` and the VM's
+ignored `.env`. Do not use `docker-compose.prod.yml`; it is not the production
+stack.
 
-2.  **Configuration**:
-    - Ensure `.env` is populated with production secrets.
-    - **CRITICAL ENV VARS**:
-        - `DJANGO_SECRET_KEY`: Long random string.
-        - `DJANGO_DEBUG`: `False`.
-        - `POSTGRES_PASSWORD`: Secure password.
-        - `DJANGO_ALLOWED_HOSTS`: Comma-separated domain list.
+Before deployment, follow the preflight, verified-backup, rollback-image, and
+approval requirements below, then run:
 
-3.  **Start Services**:
-    ```bash
-    docker compose -f docker-compose.prod.yml up -d --build
-    ```
+```bash
+git status --short --branch
+git log -1 --oneline
+docker compose -f docker-compose.yml ps
+curl -fsS -H 'X-Forwarded-Proto: https' http://127.0.0.1:18010/api/health/
+./both.sh
+docker compose -f docker-compose.yml build worker
+docker compose -f docker-compose.yml up -d worker
+```
 
-4.  **Database Migration**:
-    ```bash
-    docker compose -f docker-compose.prod.yml exec backend python manage.py migrate
-    ```
-
-5.  **Static Files**:
-    ```bash
-    docker compose -f docker-compose.prod.yml exec backend python manage.py collectstatic --noinput
-    ```
+The deploy operator must verify the public health endpoint, deployed SHA,
+frontend, backend, worker, logs, and permission-task count before declaring
+success.
 
 ## Health Checks
 - **API Health**: `GET /api/health/` -> `{"status": "ok", ...}`

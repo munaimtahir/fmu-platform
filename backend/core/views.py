@@ -45,6 +45,7 @@ from .serializers import (
     UserSerializer,
     UserTaskAssignmentSerializer,
 )
+from .throttling import LoginRateThrottle, PasswordChangeThrottle, RefreshRateThrottle
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +81,7 @@ class UnifiedLoginView(APIView):
     permission_classes = [AllowAny]
     authentication_classes: list[BaseAuthentication] = []
     parser_classes = [JSONParser]
+    throttle_classes = [LoginRateThrottle]
 
     @extend_schema(request=UnifiedLoginSerializer, responses={200: AUTH_LOGIN_RESPONSE, 400: AUTH_ERROR_RESPONSE, 401: AUTH_ERROR_RESPONSE})
     def post(self, request):
@@ -170,6 +172,7 @@ class TokenRefreshView(APIView):
 
     permission_classes = [AllowAny]
     authentication_classes: list[BaseAuthentication] = []
+    throttle_classes = [RefreshRateThrottle]
 
     @extend_schema(request=TokenRefreshSerializer, responses={200: TOKEN_REFRESH_RESPONSE, 401: AUTH_ERROR_RESPONSE})
     def post(self, request):
@@ -244,6 +247,7 @@ class ChangePasswordView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    throttle_classes = [PasswordChangeThrottle]
 
     @extend_schema(request=PasswordChangeSerializer, responses={200: MESSAGE_RESPONSE, 400: OpenApiTypes.OBJECT})
     def post(self, request):

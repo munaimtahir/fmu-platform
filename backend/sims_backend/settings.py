@@ -107,13 +107,14 @@ INSTALLED_APPS = [
     "sims_backend.settings_app",
     "sims_backend.learning",
     "sims_backend.mobile",
-    # Legacy apps removed - see docs/legacy/LEGACY_DEFINITION.md
+    # Legacy apps removed; see docs/KNOWN_LIMITATIONS.md for current scope.
     "apps.intake",
 ]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "core.metrics.MetricsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -260,6 +261,32 @@ RQ_QUEUES = {
     },
 }
 
+# A shared Redis cache makes DRF throttle counters consistent across web workers.
+# Tests can override this with LocMemCache without requiring an external Redis.
+DEFAULT_REDIS_URL = f"redis://{os.getenv('REDIS_HOST', 'localhost')}:{os.getenv('REDIS_PORT', '6379')}/1"
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.getenv("REDIS_URL", DEFAULT_REDIS_URL),
+        "OPTIONS": {"socket_connect_timeout": 1, "socket_timeout": 1},
+    }
+}
+
+REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {
+    "anon": os.getenv("API_ANON_THROTTLE", "60/min"),
+    "user": os.getenv("API_USER_THROTTLE", "600/hour"),
+    "login": os.getenv("API_LOGIN_THROTTLE", "5/min"),
+    "refresh": os.getenv("API_REFRESH_THROTTLE", "30/min"),
+    "password_change": os.getenv("API_PASSWORD_CHANGE_THROTTLE", "10/hour"),
+    "sensitive_action": os.getenv("API_SENSITIVE_ACTION_THROTTLE", "10/hour"),
+}
+REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = (
+    "core.throttling.ResilientAnonRateThrottle",
+    "core.throttling.ResilientUserRateThrottle",
+)
+
+METRICS_TOKEN = os.getenv("METRICS_TOKEN", "")
+
 # Email Settings
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
@@ -272,11 +299,14 @@ DEFAULT_FROM_EMAIL = os.getenv(
     EMAIL_HOST_USER or f"{BRANDING['institution_short_name']} via {BRANDING['platform_name']} <noreply@{BRANDING['institution_email_domain']}>",
 )
 
+if os.getenv("DJANGO_ENV", "development").lower() == "production" and EMAIL_BACKEND.endswith("console.EmailBackend"):
+    raise ImproperlyConfigured("Production requires a real SMTP EMAIL_BACKEND.")
+
 # -------------------------------------------------------------------
 # Legacy Module Configuration - REMOVED
 # -------------------------------------------------------------------
 # Legacy modules (admissions, enrollment, assessments, requests, documents, notifications)
-# have been permanently removed. See docs/legacy/LEGACY_DEFINITION.md for details.
+# have been permanently removed. See docs/KNOWN_LIMITATIONS.md for current scope.
 
 # Jazzmin Admin Theme Configuration
 # Django-jazzmin automatically discovers these settings from this module

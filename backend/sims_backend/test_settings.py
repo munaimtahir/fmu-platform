@@ -15,6 +15,25 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "test-throttles",
+    }
+}
+
+# Request-rate limits are integration controls. Keeping them disabled in the
+# shared test settings prevents independent test clients from consuming each
+# other's counters; throttle classes themselves are covered directly.
+REST_FRAMEWORK = {
+    **base_settings.REST_FRAMEWORK,
+    "DEFAULT_THROTTLE_CLASSES": [],
+    "DEFAULT_THROTTLE_RATES": {
+        **base_settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"],
+        "sensitive_action": "10000/day",
+    },
+}
+
 # Faster password hashing for tests
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",

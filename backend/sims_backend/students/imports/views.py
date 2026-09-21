@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from core.throttling import SensitiveActionThrottle
 from sims_backend.common_permissions import IsAdminOrCoordinator
 from sims_backend.students.imports.models import ImportJob
 from sims_backend.students.imports.serializers import (
@@ -35,6 +36,11 @@ class StudentImportViewSet(viewsets.ViewSet):
 
     permission_classes = [IsAuthenticated, IsAdminOrCoordinator]
     queryset = ImportJob.objects.none()
+
+    def get_throttles(self):
+        if self.action in {"preview", "commit"}:
+            return [SensitiveActionThrottle()]
+        return super().get_throttles()
 
     @action(detail=False, methods=["post"], url_path="preview")
     def preview(self, request):

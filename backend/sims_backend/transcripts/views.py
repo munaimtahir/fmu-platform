@@ -78,7 +78,7 @@ def generate_transcript_pdf(student: Student) -> io.BytesIO:
 
     # Student information
     student_info = [
-        ["Student Name:", student.name],
+        ["Student Name:", student.display_name],
         ["Registration No:", student.reg_no],
         ["Program:", student.program],
         ["Status:", student.status],

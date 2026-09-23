@@ -31,11 +31,9 @@ class Person(TimeStampedModel):
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        on_delete=models.PROTECT,
         related_name="person",
-        help_text="Linked user account (optional)",
+        help_text="Canonical account linked to this identity",
     )
     first_name = models.CharField(
         max_length=100,
@@ -215,6 +213,22 @@ class Address(TimeStampedModel):
 
     def __str__(self) -> str:
         return f"{self.get_type_display()}: {self.city}, {self.country}"
+
+
+class EmergencyContact(TimeStampedModel):
+    """Primary guardian or emergency contact used during student onboarding."""
+
+    person = models.OneToOneField(
+        Person,
+        on_delete=models.CASCADE,
+        related_name="emergency_contact",
+    )
+    name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=20)
+    relationship = models.CharField(max_length=100, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.person.full_name}: {self.name}"
 
 
 class IdentityDocument(TimeStampedModel):

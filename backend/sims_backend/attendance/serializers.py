@@ -5,7 +5,7 @@ from sims_backend.attendance.models import Attendance
 
 class AttendanceSerializer(serializers.ModelSerializer):
     student_reg_no = serializers.CharField(source="student.reg_no", read_only=True)
-    student_name = serializers.CharField(source="student.name", read_only=True)
+    student_name = serializers.CharField(source="student.display_name", read_only=True)
     session_department = serializers.CharField(source="session.department.name", read_only=True)
     marked_by_username = serializers.CharField(source="marked_by.username", read_only=True)
 

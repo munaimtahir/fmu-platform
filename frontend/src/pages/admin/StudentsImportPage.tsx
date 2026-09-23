@@ -4,50 +4,42 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Alert } from '@/components/ui/Alert'
 import { Spinner } from '@/components/ui/Spinner'
+import { Modal } from '@/components/ui/Modal'
+import { Can } from '@/components/shared/Can'
 import { ImportUploader } from '@/components/admin/import/ImportUploader'
 import { ImportPreviewTable } from '@/components/admin/import/ImportPreviewTable'
 import { ImportHistoryTable } from '@/components/admin/import/ImportHistoryTable'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import {
   previewImport as previewStudentImport,
   commitImport as commitStudentImport,
   downloadTemplate as downloadStudentTemplate,
   downloadErrorReport as downloadStudentErrorReport,
+  getImportJob,
 } from '@/api/studentImport'
-import {
-  previewImport as previewFacultyImport,
-  commitImport as commitFacultyImport,
-  downloadTemplate as downloadFacultyTemplate,
-  downloadErrorReport as downloadFacultyErrorReport,
-} from '@/api/facultyImport'
-import type {
-  PreviewResponse as StudentPreviewResponse,
-  ImportMode,
-} from '@/types/studentImport'
-import type {
-  PreviewResponse as FacultyPreviewResponse,
-} from '@/types/facultyImport'
+import type { PreviewResponse as StudentPreviewResponse, ImportJob } from '@/types/studentImport'
 
 type ViewMode = 'upload' | 'preview' | 'history'
-type ImportType = 'student' | 'faculty'
 
 export function StudentsImportPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('upload')
-  const [importType, setImportType] = useState<ImportType>('student')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [previewData, setPreviewData] = useState<StudentPreviewResponse | FacultyPreviewResponse | null>(null)
+  const [previewData, setPreviewData] = useState<StudentPreviewResponse | null>(null)
   const [importJobId, setImportJobId] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [showCommitConfirmation, setShowCommitConfirmation] = useState(false)
+  const [detail, setDetail] = useState<ImportJob | null>(null)
 
-  const handlePreview = async (file: File, mode: ImportMode, autoCreate: boolean = false) => {
+  const handlePreview = async (file: File) => {
     setLoading(true)
     setError(null)
     setSuccess(null)
 
     try {
-      const result = importType === 'student'
-        ? await previewStudentImport(file, mode, autoCreate)
-        : await previewFacultyImport(file, mode)
+      const result = await previewStudentImport(file)
+      setSelectedFile(file)
       setPreviewData(result)
       setImportJobId(result.import_job_id)
       setViewMode('preview')
@@ -61,22 +53,19 @@ export function StudentsImportPage() {
   }
 
   const handleCommit = async () => {
-    if (!importJobId) return
+    if (!importJobId || !selectedFile) return
 
     setLoading(true)
     setError(null)
     setSuccess(null)
 
     try {
-      const result = importType === 'student'
-        ? await commitStudentImport(importJobId, true)
-        : await commitFacultyImport(importJobId, true)
-      setSuccess(
-        `Import completed! Created: ${result.created_count}, Updated: ${result.updated_count}, Failed: ${result.failed_count}`
-      )
+      const result = await commitStudentImport(importJobId, selectedFile, true)
+      setSuccess(`Import completed! Created: ${result.created_count}, Unchanged: ${result.unchanged_count}, Failed: ${result.failed_count}`)
       setViewMode('history')
       setPreviewData(null)
       setImportJobId(null)
+      setSelectedFile(null)
     } catch (err: any) {
       setError(
         err.response?.data?.error || err.message || 'Failed to commit import'
@@ -88,15 +77,11 @@ export function StudentsImportPage() {
 
   const handleDownloadTemplate = async () => {
     try {
-      const blob = importType === 'student'
-        ? await downloadStudentTemplate()
-        : await downloadFacultyTemplate()
+      const blob = await downloadStudentTemplate()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = importType === 'student'
-        ? 'students_import_template.csv'
-        : 'faculty_import_template.csv'
+      a.download = 'students_import_template.csv'
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -108,9 +93,7 @@ export function StudentsImportPage() {
 
   const handleDownloadErrors = async (jobId: string) => {
     try {
-      const blob = importType === 'student'
-        ? await downloadStudentErrorReport(jobId)
-        : await downloadFacultyErrorReport(jobId)
+      const blob = await downloadStudentErrorReport(jobId)
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -128,14 +111,15 @@ export function StudentsImportPage() {
     setViewMode('upload')
     setPreviewData(null)
     setImportJobId(null)
+    setSelectedFile(null)
     setError(null)
     setSuccess(null)
   }
 
   return (
     <PageShell
-      title="Bulk CSV Import"
-      description="Import students or faculty in bulk from a CSV file."
+      title="Student CSV Import"
+      description="Provision student accounts from a validated, create-only CSV file."
       actions={
         <Button
           onClick={() => setViewMode('history')}
@@ -146,46 +130,6 @@ export function StudentsImportPage() {
       }
     >
       <div className="space-y-6">
-        {/* Import Type Selection */}
-        {viewMode === 'upload' && (
-          <div className="flex gap-4 mb-6" role="group" aria-label="Import type">
-            <button
-              type="button"
-              aria-pressed={importType === 'student'}
-              onClick={() => {
-                setImportType('student')
-                setPreviewData(null)
-                setImportJobId(null)
-                setError(null)
-                setSuccess(null)
-              }}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${importType === 'student'
-                ? 'bg-primary text-white'
-                : 'bg-surface-border text-ink-secondary hover:bg-surface-border'
-                }`}
-            >
-              Student CSV Import
-            </button>
-            <button
-              type="button"
-              aria-pressed={importType === 'faculty'}
-              onClick={() => {
-                setImportType('faculty')
-                setPreviewData(null)
-                setImportJobId(null)
-                setError(null)
-                setSuccess(null)
-              }}
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${importType === 'faculty'
-                ? 'bg-primary text-white'
-                : 'bg-surface-border text-ink-secondary hover:bg-surface-border'
-                }`}
-            >
-              Faculty CSV Import
-            </button>
-          </div>
-        )}
-
         {error && (
           <Alert variant="error" >
             {error}
@@ -202,21 +146,18 @@ export function StudentsImportPage() {
           <Card>
             <div className="mb-4">
               <h2 className="text-h2 mb-2">
-                {importType === 'student' ? 'Student CSV Import' : 'Faculty CSV Import'}
+                Student CSV Import
               </h2>
               <p className="text-ink-secondary">
-                {importType === 'student'
-                  ? 'Upload a CSV file with student data. The file will be validated before import. User accounts will be automatically created with passwords.'
-                  : 'Upload a CSV file with faculty data. The file will be validated before import. User accounts will be automatically created with passwords.'}
+                Upload the approved student list. Preview is read-only and temporary passwords are never returned or stored as plaintext.
               </p>
             </div>
-            <ImportUploader
+            <Can tasks={['students.imports.execute']}><ImportUploader
               onPreview={handlePreview}
               loading={loading}
               onReset={handleReset}
               onDownloadTemplate={handleDownloadTemplate}
-              importType={importType}
-            />
+            /></Can>
           </Card>
         )}
 
@@ -225,7 +166,7 @@ export function StudentsImportPage() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-h2">
-                  {importType === 'student' ? 'Student' : 'Faculty'} Import Preview
+                  Student Import Preview
                 </h2>
                 <Button onClick={handleReset} variant="secondary">
                   Upload New File
@@ -264,7 +205,7 @@ export function StudentsImportPage() {
                   Cancel
                 </Button>
                 <Button
-                  onClick={handleCommit}
+                  onClick={() => setShowCommitConfirmation(true)}
                   disabled={loading || previewData.valid_rows === 0}
                   variant="primary"
                 >
@@ -286,14 +227,22 @@ export function StudentsImportPage() {
               </div>
               <ImportHistoryTable
                 onDownloadErrors={handleDownloadErrors}
-                onViewDetails={(jobId) => {
-                  // Could navigate to detail view
-                  console.log('View details for job:', jobId)
+                onViewDetails={async (jobId) => {
+                  try { setDetail(await getImportJob(jobId)) } catch { setError('Failed to load import details') }
                 }}
-                importType={importType}
               />
             </div>
           </Card>
+        )}
+        {detail && <Modal title={`Import ${detail.original_filename}`} onClose={() => setDetail(null)}><dl className="grid grid-cols-2 gap-3 text-sm"><dt>Status</dt><dd>{detail.status}</dd><dt>Created</dt><dd>{detail.created_count}</dd><dt>Unchanged</dt><dd>{detail.unchanged_count}</dd><dt>Failed</dt><dd>{detail.failed_count}</dd><dt>Preview expires</dt><dd>{new Date(detail.expires_at).toLocaleString()}</dd><dt>Started by</dt><dd>{detail.created_by_username}</dd></dl>{detail.summary && <pre className="mt-4 overflow-auto rounded bg-surface-subtle p-3 text-xs">{JSON.stringify(detail.summary, null, 2)}</pre>}</Modal>}
+        {showCommitConfirmation && previewData && (
+          <ConfirmDialog
+            title="Commit student import"
+            message={`Create ${previewData.summary.create_count ?? 0} student account(s) from this file? Valid rows will be committed even if other rows are rejected.`}
+            confirmLabel="Commit import"
+            onConfirm={handleCommit}
+            onClose={() => setShowCommitConfirmation(false)}
+          />
         )}
       </div>
     </PageShell>

@@ -60,13 +60,13 @@ def setup_data(db):
 
     user1 = User.objects.create_user(username="student1", password="password")
     user1.groups.add(Group.objects.get(name="STUDENT"))
-    student1 = Student.objects.create(
+    student1 = make_student(
         user=user1, reg_no="REG-001", name="Student One", program=program, batch=batch, group=acad_group
     )
 
     user2 = User.objects.create_user(username="student2", password="password")
     user2.groups.add(Group.objects.get(name="STUDENT"))
-    student2 = Student.objects.create(
+    student2 = make_student(
         user=user2, reg_no="REG-002", name="Student Two", program=program, batch=batch, group=acad_group
     )
 
@@ -262,3 +262,5 @@ class TestStudentFinanceSummaryAccess:
         response = client.get(f"/api/finance/students/{setup_data['student1'].id}/")
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+from sims_backend.students.test_factories import make_student

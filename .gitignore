@@ -45,6 +45,9 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+coverage.json
+coverage/
+frontend/coverage/
 *.cover
 *.py.cover
 .hypothesis/
@@ -249,3 +252,4 @@ docs/admin-runtime-report/screenshots/*.png
 *.keystore
 keystore.properties
 signing.properties
+backend/private_media/

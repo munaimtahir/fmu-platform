@@ -26,6 +26,7 @@ from sims_backend.finance.models import FeePlan, FeeType, Voucher
 from sims_backend.finance.services import create_voucher_from_feeplan
 from sims_backend.results.models import ResultComponentEntry, ResultHeader
 from sims_backend.students.models import Student
+from sims_backend.students.onboarding import ProvisioningData, provision_student
 from sims_backend.timetable.models import Session
 
 User = get_user_model()
@@ -37,7 +38,7 @@ class DemoScenarioGenerator:
 
     # Constants
     DEFAULT_GRADUATING_YEARS_AHEAD = 5  # For MBBS programs
-    DEMO_PASSWORD_SUFFIX = "demo123"  # Consistent password for all demo users
+    DEMO_PASSWORD_SUFFIX = "Demo-Student-9482!"  # Consistent password for all demo users
     DEMO_FACULTY_PASSWORD = "faculty123"  # Password for demo faculty users
 
     def __init__(self, stdout=None):
@@ -204,7 +205,7 @@ class DemoScenarioGenerator:
         """Create demo students with user accounts - creates canonical students records"""
         students = []
         student_logins = []
-        student_group, _ = AuthGroup.objects.get_or_create(name="Student")
+        AuthGroup.objects.get_or_create(name="STUDENT")
 
         current_year = date.today().year
 
@@ -213,44 +214,36 @@ class DemoScenarioGenerator:
             first_name = fake.first_name()
             last_name = fake.last_name()
             name = f"{first_name} {last_name}"
-            username = f"{self.demo_prefix.lower()}student{i + 1:03d}"
-            email = f"{username}@{INSTITUTION_EMAIL_DOMAIN}"
+            email = f"{reg_no.lower()}@{INSTITUTION_EMAIL_DOMAIN}"
             password = self.DEMO_PASSWORD_SUFFIX
 
             # Assign to group (round-robin)
             group = groups[i % len(groups)] if groups else None
-
-            # Create user account
-            if not User.objects.filter(username=username).exists():
-                user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                    first_name=first_name,
-                    last_name=last_name,
-                )
-                user.groups.add(student_group)
 
             dob = fake.date_of_birth(minimum_age=18, maximum_age=25)
             # Generate phone number in Pakistan format (13 chars: +92 + 10 digits)
             phone = fake.numerify(text="+92##########")
 
             # Create canonical student record
-            student, _ = Student.objects.get_or_create(
-                reg_no=reg_no,
-                defaults={
-                    "name": name,
-                    "program": program,
-                    "batch": batch,
-                    "group": group,
-                    "status": Student.STATUS_ACTIVE,
-                    "enrollment_year": current_year,
-                    "expected_graduation_year": current_year + self.DEFAULT_GRADUATING_YEARS_AHEAD,
-                    "email": email,
-                    "phone": phone,
-                    "date_of_birth": dob,
-                },
-            )
+            student = Student.objects.filter(reg_no=reg_no).first()
+            if student is None:
+                student = provision_student(
+                    ProvisioningData(
+                        registration_number=reg_no,
+                        first_name=first_name,
+                        last_name=last_name,
+                        initial_password=password,
+                        program=program,
+                        batch=batch,
+                        group=group,
+                        email=email,
+                        mobile_number=phone,
+                        date_of_birth=dob,
+                    )
+                )
+                student.enrollment_year = current_year
+                student.expected_graduation_year = current_year + self.DEFAULT_GRADUATING_YEARS_AHEAD
+                student.save(update_fields=["enrollment_year", "expected_graduation_year", "updated_at"])
 
             # Return Student instances for use in attendance/results
             students.append(student)
@@ -258,7 +251,7 @@ class DemoScenarioGenerator:
                 {
                     "reg_no": reg_no,
                     "name": name,
-                    "username": username,
+                    "username": reg_no,
                     "email": email,
                     "password": password,
                 }

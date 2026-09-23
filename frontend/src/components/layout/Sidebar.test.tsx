@@ -94,12 +94,17 @@ describe('Sidebar capability filtering', () => {
     expect(link('Audit Logs')).toBeInTheDocument()
     expect(link('Settings')).toBeInTheDocument()
     expect(link('Syllabus')).toBeInTheDocument()
-    expect(link('Student Import')).toBeInTheDocument()
+    expect(link('Student Import')).not.toBeInTheDocument()
   })
 
   it('hides ExamCell transcripts unless the task is explicitly held', () => {
     renderSidebar('ExamCell', ['ExamCell'], ['exams.exams.view', 'results.result_headers.view'])
     expect(link('Transcripts')).not.toBeInTheDocument()
+  })
+
+  it('shows student import when the import task is granted', () => {
+    renderSidebar('Coordinator', ['Coordinator'], ['students.imports.view'])
+    expect(link('Student Import')).toBeInTheDocument()
   })
 
   it('shows transcripts to an ExamCell user who holds the generate task', () => {

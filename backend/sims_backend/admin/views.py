@@ -1,10 +1,11 @@
 """Admin control plane views."""
 
-import secrets
-import string
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from drf_spectacular.utils import OpenApiTypes, extend_schema
@@ -25,6 +26,15 @@ from sims_backend.common_permissions import IsAdmin
 from sims_backend.students.models import Student
 
 User = get_user_model()
+
+
+def _set_account_active(user, active):
+    user.is_active = active
+    user.save(update_fields=["is_active"])
+    student = getattr(user, "student", None)
+    if student is not None:
+        student.status = Student.STATUS_ACTIVE if active else Student.STATUS_INACTIVE
+        student.save(update_fields=["status", "updated_at"])
 
 
 @extend_schema(responses=OpenApiTypes.OBJECT)
@@ -162,6 +172,8 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        if "is_active" in request.data and hasattr(user, "student"):
+            _set_account_active(user, bool(user.is_active))
 
         # Log audit
         AuditLog.objects.create(
@@ -187,6 +199,12 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
 
+        if hasattr(instance, "student") and "username" in request.data and request.data["username"] != instance.username:
+            return Response(
+                {"username": "A linked student's username is the immutable registration number"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Guardrail: Cannot deactivate last admin
         if not request.data.get("is_active", True) and instance.is_superuser:
             admin_count = User.objects.filter(is_superuser=True, is_active=True).count()
@@ -201,6 +219,8 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         user = serializer.save()
 
         # Log audit
+        if "is_active" in serializer.validated_data and hasattr(user, "student"):
+            _set_account_active(user, user.is_active)
         AuditLog.objects.create(
             actor=request.user,
             method=request.method,
@@ -228,8 +248,7 @@ class AdminUserViewSet(viewsets.ModelViewSet):
                 )
 
         # Soft delete by deactivating
-        instance.is_active = False
-        instance.save()
+        _set_account_active(instance, False)
 
         # Log audit
         AuditLog.objects.create(
@@ -246,16 +265,29 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=["post"], url_path="reset-password")
+    @transaction.atomic
     def reset_password(self, request, pk=None):
-        """Reset user password and return temporary password."""
+        """Set a staff-supplied temporary password without echoing it."""
         user = self.get_object()
-
-        # Generate temporary password
-        alphabet = string.ascii_letters + string.digits
-        temp_password = "".join(secrets.choice(alphabet) for _ in range(12))
-
+        user = get_user_model().objects.select_for_update().get(pk=user.pk)
+        temp_password = request.data.get("temporary_password", "")
+        confirmation = request.data.get("temporary_password_confirm", "")
+        if not temp_password or temp_password != confirmation:
+            return Response(
+                {"temporary_password_confirm": "Temporary passwords must be present and match"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            validate_password(temp_password, user)
+        except ValidationError as exc:
+            return Response({"temporary_password": exc.messages}, status=status.HTTP_400_BAD_REQUEST)
         user.set_password(temp_password)
         user.save()
+        if hasattr(user, "student"):
+            student = user.student
+            student.password_change_required = True
+            student.credential_version += 1
+            student.save(update_fields=["password_change_required", "credential_version", "updated_at"])
 
         # Log audit
         AuditLog.objects.create(
@@ -272,8 +304,7 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         return Response(
             {
                 "success": True,
-                "temporary_password": temp_password,
-                "message": "Password reset successfully. Share this temporary password with the user.",
+                "message": "Password reset successfully. Use the approved offline credential-delivery process.",
             }
         )
 
@@ -281,8 +312,7 @@ class AdminUserViewSet(viewsets.ModelViewSet):
     def activate(self, request, pk=None):
         """Activate a user."""
         user = self.get_object()
-        user.is_active = True
-        user.save()
+        _set_account_active(user, True)
 
         # Log audit
         AuditLog.objects.create(
@@ -312,8 +342,7 @@ class AdminUserViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        user.is_active = False
-        user.save()
+        _set_account_active(user, False)
 
         # Log audit
         AuditLog.objects.create(

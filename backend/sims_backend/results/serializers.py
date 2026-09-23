@@ -31,7 +31,7 @@ class ResultComponentEntrySerializer(serializers.ModelSerializer):
 
 class ResultHeaderSerializer(serializers.ModelSerializer):
     student_reg_no = serializers.CharField(source="student.reg_no", read_only=True)
-    student_name = serializers.CharField(source="student.name", read_only=True)
+    student_name = serializers.CharField(source="student.display_name", read_only=True)
     exam_title = serializers.CharField(source="exam.title", read_only=True)
     component_entries = ResultComponentEntrySerializer(many=True, read_only=True)
 

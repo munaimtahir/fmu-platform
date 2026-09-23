@@ -17,6 +17,20 @@ from .serializers import (
 )
 
 
+class StudentContactProtectionMixin:
+    def perform_destroy(self, instance):
+        from rest_framework.exceptions import ValidationError
+        if hasattr(instance.person, "student"):
+            raise ValidationError("Use the student profile workflow to change student contact records")
+        super().perform_destroy(instance)
+
+    def perform_update(self, serializer):
+        from rest_framework.exceptions import ValidationError
+        if hasattr(serializer.instance.person, "student"):
+            raise ValidationError("Student contact records cannot be relinked or edited here")
+        super().perform_update(serializer)
+
+
 class PersonFilter(filters.FilterSet):
     """Filter for Person model."""
 
@@ -78,8 +92,14 @@ class PersonViewSet(viewsets.ModelViewSet):
             return qs.filter(id=user.person.id)
         return qs.none()
 
+    def perform_destroy(self, instance):
+        if hasattr(instance, "student"):
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("Student identity records cannot be deleted")
+        super().perform_destroy(instance)
 
-class ContactInfoViewSet(viewsets.ModelViewSet):
+
+class ContactInfoViewSet(StudentContactProtectionMixin, viewsets.ModelViewSet):
     """ViewSet for ContactInfo model."""
 
     queryset = ContactInfo.objects.all().select_related("person")
@@ -100,7 +120,7 @@ class ContactInfoViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
-class AddressViewSet(viewsets.ModelViewSet):
+class AddressViewSet(StudentContactProtectionMixin, viewsets.ModelViewSet):
     """ViewSet for Address model."""
 
     queryset = Address.objects.all().select_related("person")
@@ -121,7 +141,7 @@ class AddressViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
-class IdentityDocumentViewSet(viewsets.ModelViewSet):
+class IdentityDocumentViewSet(StudentContactProtectionMixin, viewsets.ModelViewSet):
     """ViewSet for IdentityDocument model."""
 
     queryset = IdentityDocument.objects.all().select_related("person")

@@ -59,7 +59,7 @@ def build_roster_for_session(*, session: Session, default_status: str = STATUS_P
             {
                 "student_id": student.id,
                 "reg_no": student.reg_no,
-                "name": student.name,
+                "name": student.display_name,
                 "status": status_map.get(student.id),
                 "default_status": default_status,
             }

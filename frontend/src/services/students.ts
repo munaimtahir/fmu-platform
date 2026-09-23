@@ -6,6 +6,7 @@
 import api from '@/api/axios'
 import { warnOnInvalidResponse, validatePaginatedResponse, validateStudentResponse } from '@/api/responseGuards'
 import { Student, PaginatedResponse, FinanceSummary } from '@/types'
+import type { OnboardingPayload, OnboardingProfile } from './onboarding'
 
 /** Full student record as returned by `/api/students/{id}/` (adds the linked person and graduation years). */
 export interface StudentDetail extends Student {
@@ -20,7 +21,7 @@ export interface StudentDetail extends Student {
 export interface StudentPlacementPayload {
   program: number
   batch: number
-  group: number
+  group: number | null
 }
 
 export const studentsService = {
@@ -32,6 +33,7 @@ export const studentsService = {
     search?: string
     program?: string
     status?: string
+    onboarding_state?: string
   }): Promise<PaginatedResponse<Student>> {
     const response = await api.get<PaginatedResponse<Student>>('/api/students/', {
       params,
@@ -54,29 +56,6 @@ export const studentsService = {
   },
 
   /**
-   * Create a new student
-   */
-  async create(data: Omit<Student, 'id'>): Promise<Student> {
-    const response = await api.post<Student>('/api/students/', data)
-    return response.data
-  },
-
-  /**
-   * Update an existing student
-   */
-  async update(id: number, data: Partial<Student>): Promise<Student> {
-    const response = await api.patch<Student>(`/api/students/${id}/`, data)
-    return response.data
-  },
-
-  /**
-   * Delete a student
-   */
-  async delete(id: number): Promise<void> {
-    await api.delete(`/api/students/${id}/`)
-  },
-
-  /**
    * Full record including the linked person and graduation years.
    */
   async getDetail(id: number): Promise<StudentDetail> {
@@ -90,6 +69,21 @@ export const studentsService = {
    */
   async updatePlacement(id: number, payload: StudentPlacementPayload): Promise<StudentDetail> {
     const response = await api.patch<StudentDetail>(`/api/students/${id}/placement/`, payload)
+    return response.data
+  },
+
+  async getOnboarding(id: number): Promise<OnboardingPayload> {
+    const response = await api.get<OnboardingPayload>(`/api/students/${id}/onboarding/`)
+    return response.data
+  },
+
+  async updateProfile(id: number, payload: Partial<OnboardingProfile>): Promise<OnboardingPayload> {
+    const response = await api.patch<OnboardingPayload>(`/api/students/${id}/profile/`, payload)
+    return response.data
+  },
+
+  async updateStatus(id: number, status: Student['status']): Promise<StudentDetail> {
+    const response = await api.patch<StudentDetail>(`/api/students/${id}/status/`, { status })
     return response.data
   },
 

@@ -44,7 +44,7 @@ class StudentHomeView(APIView):
         if student is None:
             return _not_a_student_response()
 
-        display_name = student.name or (student.person.full_name if student.person else student.reg_no)
+        display_name = student.display_name
 
         attendance_qs = Attendance.objects.filter(student=student)
         total = attendance_qs.count()

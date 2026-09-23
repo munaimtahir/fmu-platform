@@ -33,7 +33,7 @@ class StudentTimetableViewTestCase(APITestCase):
         self.department = Department.objects.create(name="Anatomy")
         self.course = Course.objects.create(code="ANAT-101", name="Human Anatomy", department=self.department)
 
-        self.student = Student.objects.create(
+        self.student = make_student(
             user=self.student_user,
             reg_no="TT-001",
             name="TT Student",
@@ -41,7 +41,7 @@ class StudentTimetableViewTestCase(APITestCase):
             batch=self.batch,
             group=self.group_a,
         )
-        self.other_student = Student.objects.create(
+        self.other_student = make_student(
             user=self.other_student_user,
             reg_no="TT-002",
             name="TT Other Student",
@@ -203,3 +203,5 @@ class StudentTimetableViewTestCase(APITestCase):
         generator = SchemaGenerator()
         schema = generator.get_schema(request=None, public=True)
         self.assertIn("/api/mobile/student/timetable/", schema["paths"])
+
+from sims_backend.students.test_factories import make_student

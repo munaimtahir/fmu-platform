@@ -397,12 +397,18 @@ def defaulters(program: Program | None, term, min_outstanding: Decimal) -> list[
                 {
                     "student_id": student.id,
                     "reg_no": student.reg_no,
-                    "name": student.name,
+                    "name": student.display_name,
                     "outstanding": outstanding,
                     "overdue_days": overdue_days,
                     "latest_voucher_no": latest_voucher.voucher_no if latest_voucher else None,
-                    "phone": getattr(student, "phone", "") or "",
-                    "email": student.email or "",
+                    "phone": next(
+                        (item.value for item in student.person.contact_info.all() if item.type == "phone" and item.is_primary),
+                        "",
+                    ),
+                    "email": next(
+                        (item.value for item in student.person.contact_info.all() if item.type == "email" and item.is_primary),
+                        "",
+                    ),
                 }
             )
     return rows
@@ -539,7 +545,7 @@ def student_statement(student: Student, term=None) -> dict:
 
     return {
         "student_id": student.id,
-        "student_name": student.name,
+        "student_name": student.display_name,
         "student_reg_no": student.reg_no,
         "term_id": term.id if term else None,
         "term_name": term.name if term else "All Time",

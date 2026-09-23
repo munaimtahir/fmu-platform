@@ -16,6 +16,7 @@ from sims_backend.academics.models import AcademicPeriod, Batch, Department, Gro
 from sims_backend.finance.models import FeePlan, FeeType, FinancePolicy, Payment, Voucher
 from sims_backend.finance.services import create_voucher_from_feeplan, post_payment, verify_payment
 from sims_backend.students.models import Student
+from sims_backend.students.onboarding import ProvisioningData, provision_student
 from sims_backend.timetable.models import Session
 
 User = get_user_model()
@@ -462,7 +463,7 @@ class Command(BaseCommand):
 
         students = []
         student_logins = []
-        student_group, _ = AuthGroup.objects.get_or_create(name="Student")
+        AuthGroup.objects.get_or_create(name="STUDENT")
 
         # Get batches for MBBS program (use first program if MBBS not found)
         mbbs_program = next((p for p in programs if "MBBS" in p.name), programs[0])
@@ -487,27 +488,33 @@ class Command(BaseCommand):
         for username_key, reg_no, first_name, last_name, demo_type in demo_students_config:
             user = users.get(username_key)
             if user and mbbs_batches and mbbs_groups:
-                student, created = Student.objects.get_or_create(
-                    reg_no=reg_no,
-                    defaults={
-                        "name": f"{first_name} {last_name}",
-                        "program": mbbs_program,
-                        "batch": mbbs_batches[0],
-                        "group": mbbs_groups[0],
-                        "status": Student.STATUS_ACTIVE,
-                        "email": user.email,
-                        "user": user,
-                    },
-                )
+                email = user.email
+                if not hasattr(user, "student") and not hasattr(user, "person"):
+                    user.delete()
+                student = Student.objects.filter(reg_no=reg_no).first()
+                if student is None:
+                    student = provision_student(
+                        ProvisioningData(
+                            registration_number=reg_no,
+                            first_name=first_name,
+                            last_name=last_name,
+                            initial_password="Demo-Student-9482!",
+                            program=mbbs_program,
+                            batch=mbbs_batches[0],
+                            group=mbbs_groups[0],
+                            email=email,
+                        )
+                    )
+                users[username_key] = student.user
                 students.append(student)
                 demo_students_map[username_key] = student
                 student_logins.append(
                     {
                         "reg_no": reg_no,
-                        "name": student.name,
-                        "username": user.username,
-                        "email": user.email,
-                        "password": "student123",
+                        "name": student.display_name,
+                        "username": student.user.username,
+                        "email": email,
+                        "password": "Demo-Student-9482!",
                     }
                 )
                 self.stdout.write(f"  ✓ Created {demo_type} student: {reg_no}")
@@ -518,46 +525,35 @@ class Command(BaseCommand):
             first_name = fake.first_name()
             last_name = fake.last_name()
             name = f"{first_name} {last_name}"
-            username = f"student{reg_no.replace('-', '').lower()}"
-            email = f"{username}@{INSTITUTION_EMAIL_DOMAIN}"
-            password = f"student{reg_no.split('-')[0]}"
-
-            # Create user account
-            if not User.objects.filter(username=username).exists():
-                user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                    first_name=first_name,
-                    last_name=last_name,
-                )
-                user.groups.add(student_group)
-            else:
-                user = User.objects.get(username=username)
+            email = f"{reg_no.lower()}@{INSTITUTION_EMAIL_DOMAIN}"
+            password = "Demo-Student-9482!"
 
             # Assign to batch and group (round-robin)
             batch = mbbs_batches[i % len(mbbs_batches)]
             group = [g for g in mbbs_groups if g.batch == batch][(i // len(mbbs_batches)) % 2]
 
-            student, created = Student.objects.get_or_create(
-                reg_no=reg_no,
-                defaults={
-                    "name": name,
-                    "program": mbbs_program,
-                    "batch": batch,
-                    "group": group,
-                    "status": Student.STATUS_ACTIVE,
-                    "email": email,
-                    "phone": fake.phone_number()[:20],
-                    "date_of_birth": fake.date_of_birth(minimum_age=18, maximum_age=25),
-                },
-            )
+            student = Student.objects.filter(reg_no=reg_no).first()
+            if student is None:
+                student = provision_student(
+                    ProvisioningData(
+                        registration_number=reg_no,
+                        first_name=first_name,
+                        last_name=last_name,
+                        initial_password=password,
+                        program=mbbs_program,
+                        batch=batch,
+                        group=group,
+                        email=email,
+                        mobile_number=fake.phone_number()[:20],
+                        date_of_birth=fake.date_of_birth(minimum_age=18, maximum_age=25),
+                    )
+                )
             students.append(student)
             student_logins.append(
                 {
                     "reg_no": reg_no,
                     "name": name,
-                    "username": username,
+                    "username": reg_no,
                     "email": email,
                     "password": password,
                 }

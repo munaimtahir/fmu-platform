@@ -4,14 +4,17 @@ This module provides unified authentication serializers that support login
 via either username or email using a single `identifier` field.
 """
 
+import unicodedata
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import update_last_login
+from django.contrib.auth.password_validation import validate_password
+from django.db import transaction
 from django.db.models import Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -34,6 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
     student_id = serializers.SerializerMethodField()
+    password_change_required = serializers.SerializerMethodField()
 
     def get_student_id(self, obj) -> int | None:
         """Get student ID if user has an associated student record."""
@@ -46,13 +50,25 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "full_name", "role", "student_id", "is_active"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "full_name",
+            "role",
+            "student_id",
+            "password_change_required",
+            "is_active",
+        ]
         read_only_fields = fields
 
     def get_full_name(self, obj) -> str:
         """Get user's full name."""
         full_name = f"{obj.first_name} {obj.last_name}".strip()
         return full_name if full_name else obj.username
+
+    def get_password_change_required(self, obj) -> bool:
+        return bool(getattr(getattr(obj, "student", None), "password_change_required", False))
 
     def get_role(self, obj) -> str:
         """Get user's primary role based on groups.
@@ -109,7 +125,9 @@ class UnifiedLoginSerializer(serializers.Serializer):
 
         Looks up user by either username or email using the identifier field.
         """
-        identifier = attrs.get("identifier", "").strip()
+        identifier = unicodedata.normalize("NFKC", attrs.get("identifier", "")).strip()
+        if "@" not in identifier:
+            identifier = identifier.upper()
         password = attrs.get("password", "")
 
         if not identifier or not password:
@@ -163,6 +181,8 @@ class UnifiedLoginSerializer(serializers.Serializer):
 
         # Generate tokens
         refresh = RefreshToken.for_user(user)
+        if hasattr(user, "student"):
+            refresh["student_credential_version"] = user.student.credential_version
 
         attrs["user"] = user
         attrs["tokens"] = {
@@ -184,6 +204,11 @@ class TokenRefreshSerializer(serializers.Serializer):
 
         try:
             refresh = RefreshToken(refresh_token)
+            user = User.objects.filter(pk=refresh.get(api_settings.USER_ID_CLAIM)).first()
+            if user and hasattr(user, "student"):
+                token_version = refresh.get("student_credential_version")
+                if token_version is None or token_version != user.student.credential_version:
+                    raise AuthenticationFailed("Student credentials have changed")
             data = {
                 "access": str(refresh.access_token),
             }
@@ -204,56 +229,6 @@ class TokenRefreshSerializer(serializers.Serializer):
                     }
                 }
             )
-
-
-# Legacy serializer for backward compatibility (deprecated)
-class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """
-    DEPRECATED: Use UnifiedLoginSerializer instead.
-
-    A custom token obtain pair serializer that uses email instead of username.
-    Kept for backward compatibility during transition period.
-    """
-
-    username_field = "email"
-
-    def validate(self, attrs):
-        """
-        Validates the user's credentials and generates JWT tokens.
-        """
-        email = attrs.get("email")
-        password = attrs.get("password")
-
-        if email and password:
-            # Find user by email
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                raise AuthenticationFailed("No active account found with the given credentials")
-
-            # Check password
-            if not user.check_password(password):
-                raise AuthenticationFailed("No active account found with the given credentials")
-
-            # Check if user is active
-            if not user.is_active:
-                raise AuthenticationFailed("No active account found with the given credentials")
-
-            # Update last login
-            if api_settings.UPDATE_LAST_LOGIN:
-                update_last_login(None, user)
-
-            # Generate tokens
-            refresh = self.get_token(user)
-
-            data = {
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-            }
-
-            return data
-        else:
-            raise AuthenticationFailed("Must include 'email' and 'password'.")
 
 
 # Core module serializers for RBAC system
@@ -445,13 +420,24 @@ class PasswordChangeSerializer(serializers.Serializer):
                     }
                 }
             )
+        validate_password(attrs["new_password"], self.context["request"].user)
+        if self.context["request"].user.check_password(attrs["new_password"]):
+            raise serializers.ValidationError({"new_password": "Choose a password different from the current password"})
         return attrs
 
+    @transaction.atomic
     def save(self):
         """Update user password."""
-        user = self.context["request"].user
+        user = User.objects.select_for_update().get(pk=self.context["request"].user.pk)
+        if not user.check_password(self.validated_data["old_password"]):
+            raise serializers.ValidationError({"old_password": "Password changed during this request; sign in again"})
         user.set_password(self.validated_data["new_password"])
         user.save()
+        if hasattr(user, "student"):
+            student = user.student
+            student.password_change_required = False
+            student.credential_version += 1
+            student.save(update_fields=["password_change_required", "credential_version", "updated_at"])
         return user
 
 
@@ -474,6 +460,13 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             if User.objects.filter(email=value).exclude(id=user.id).exists():
                 raise serializers.ValidationError("A user with this email already exists.")
         return value
+
+    def validate(self, attrs):
+        if hasattr(self.instance, "student") and attrs:
+            raise serializers.ValidationError(
+                "Student identity and contact information must be updated through profile onboarding"
+            )
+        return attrs
 
     def update(self, instance, validated_data):
         """Update user profile."""

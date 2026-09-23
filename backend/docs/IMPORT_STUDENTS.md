@@ -1,319 +1,97 @@
-# Student CSV Bulk Import Guide
+# Student provisioning and onboarding
 
-## Overview
+Student import is create-only. It provisions the linked User, Person and Student,
+STUDENT membership, placement and applicable document requirements atomically per
+row. There is no UPSERT, generated-password mode or academic auto-creation.
 
-The Student CSV Bulk Import system allows administrators to import multiple students at once using a CSV file. The system uses a two-phase workflow:
+## Staff workflow
 
-1. **Preview Phase**: Upload CSV and validate without writing to database
-2. **Commit Phase**: Commit validated rows to database
+1. Create active Programs and Batches in Academics; Groups are optional.
+2. Create active onboarding document definitions in Compliance and assign global,
+   Program or Batch scopes in **Onboarding rules**. Applicable scopes are additive.
+3. Open Student Import (`/system/students/import`), download the current template,
+   fill it locally and preview the CSV.
+4. Check row errors and commit. The browser resends the original file; its hash
+   must match the preview. Valid rows succeed independently of invalid rows.
+5. Review history/details and download the password-free error report if needed.
+6. Communicate registration numbers and temporary passwords through the approved
+   offline channel. The application never returns passwords.
 
-## Features
+Required columns: `first_name,last_name,registration_number,program_id,batch_id,initial_password`.
 
-- **Two-phase workflow**: Preview before committing
-- **Comprehensive validation**: Row-level error reporting
-- **Import modes**: Create-only (default) or Upsert (update existing)
-- **Auto-create missing entities**: Automatically create Programs, Batches, and Groups if they don't exist
-- **Duplicate detection**: File hash-based duplicate prevention
-- **FK resolution**: Automatic resolution of Program, Batch, and Group by name
-- **Error reporting**: Downloadable CSV with error messages
-- **Audit trail**: ImportJob model tracks all imports
-- **Automatic user account creation**: Creates login accounts for all imported students
+Optional columns: `middle_name,group_id,email,mobile_number,date_of_birth,gender`.
+Use the downloaded template's column order. Dates use `YYYY-MM-DD`. IDs must
+identify existing, compatible academic records. Registration numbers are normalized
+to uppercase and serve as usernames. Passwords must pass Django validators.
 
-## CSV Format
+Rows are CREATE, UNCHANGED (matching linked identity and placement), or REJECT.
+Re-import never overwrites existing records. Retrying a committed job returns its
+saved result. Only its creator may commit it.
 
-### Required Columns
+## Follow-through
 
-- `reg_no` (string, max 32 chars, unique): Student registration number
-- `name` (string, max 255 chars): Full name of the student
-- `program_name` (string): Program name (e.g., "MBBS", "BDS")
-- `batch_name` (string): Batch name (e.g., "2024 Batch")
-- `group_name` (string): Group name (e.g., "Group A")
-- `status` (string): Student status - one of: `active`, `inactive`, `graduated`, `suspended`
+First login requires replacing the temporary password before accessing student
+APIs. Profile Onboarding then supports section-by-section saves, required document
+uploads/replacements and reviewer feedback. Incomplete profiles show a dashboard
+reminder but do not lock the application. Submitted or verified required documents
+satisfy onboarding; rejected ones do not.
 
-### Optional Columns
+Staff use onboarding filters and student detail summaries, with dedicated profile
+correction, placement and status controls. Admin password reset requires a supplied
+and confirmed temporary password, invalidates old tokens and preserves progress.
+Compliance provides verification, rejection and protected downloads. Archiving
+rules removes applicability without deleting submission history.
 
-- `email` (string): Student email address
-- `phone` (string, max 20 chars): Student phone number
-- `date_of_birth` (string, format: YYYY-MM-DD): Date of birth
-- `password` (string): Custom password for user account. If not provided or empty, password will be auto-generated as `student{graduation_year}` (e.g., `student2029`)
+## API
 
-### Example CSV
+All import routes are under `/api/admin/students/import/`:
 
-```csv
-reg_no,name,program_name,batch_name,group_name,status,email,phone,date_of_birth,password
-STU001,John Doe,MBBS,2024 Batch,Group A,active,john.doe@example.com,+1234567890,2000-01-15,
-STU002,Jane Smith,MBBS,2024 Batch,Group A,active,jane.smith@example.com,+1234567891,2000-02-20,custompass123
+| Method and suffix | Input / result |
+| --- | --- |
+| GET `template/` | Current CSV template |
+| POST `preview/` | Multipart `file`; sanitized preview and job ID |
+| POST `commit/` | Multipart `file`, `import_job_id`, `confirm=true`; created/unchanged/failed counts |
+| GET `jobs/` | Import history |
+| GET `{id}/detail/` | Job details |
+| GET `{id}/errors.csv/` | Protected, password-free error CSV |
+
+Tasks: `students.imports.view` for history/template/downloads and
+`students.imports.execute` for preview/commit. Default Admin, Registrar and
+Coordinator grants include import access. Monitoring requires
+`students.onboarding.view`; corrections and placement have separate tasks.
+
+## Storage and retention
+
+Source CSVs are never retained. Preview metadata and error reports omit passwords.
+Previews expire after 24 hours; error files expire after 30 days. Job metadata is
+retained. Default and production Compose stacks run an hourly `import-retention`
+service. On non-Compose installations schedule daily or hourly:
+
+```sh
+python manage.py purge_student_import_artifacts
 ```
 
-**Note**: Leave `password` empty to auto-generate (format: `student{graduation_year}`), or provide a custom password.
+Documents and error files use `PRIVATE_MEDIA_ROOT` (default `backend/private_media`),
+separate from public media. Never expose this directory through the web server.
+Back it up with the database and preserve its service-account permissions and
+Compose mount. Downloads require owner or authorized staff access. Uploads accept
+PDF/JPEG/PNG up to 10 MB with extension, MIME and signature validation.
 
-## API Endpoints
+## Verification and deployment
 
-All endpoints require authentication and Admin or Coordinator permissions.
+Run backend pytest suites and frontend type-check, lint, tests and build. From
+`frontend`, run the isolated real-backend browser workflow:
 
-### 1. Download Template
-
-**GET** `/api/admin/students/import/template/`
-
-Downloads a CSV template with headers and example row.
-
-**Response**: CSV file download
-
-### 2. Preview Import
-
-**POST** `/api/admin/students/import/preview/`
-
-Upload CSV file and get validation preview.
-
-**Request** (multipart/form-data):
-- `file`: CSV file
-- `mode`: `CREATE_ONLY` (default) or `UPSERT`
-- `auto_create`: `true` or `false` (default: `false`) - Automatically create missing Programs, Batches, and Groups
-
-**Response**:
-```json
-{
-  "import_job_id": "uuid",
-  "total_rows": 10,
-  "valid_rows": 8,
-  "invalid_rows": 2,
-  "duplicate_file_warning": false,
-  "preview_rows": [
-    {
-      "row_number": 2,
-      "action": "CREATE",
-      "errors": [],
-      "data": {...}
-    }
-  ],
-  "summary": {
-    "create_count": 8,
-    "update_count": 0,
-    "skip_count": 2
-  }
-}
+```sh
+npm run e2e:onboarding
 ```
 
-### 3. Commit Import
-
-**POST** `/api/admin/students/import/commit/`
-
-Commit validated rows to database.
-
-**Request**:
-```json
-{
-  "import_job_id": "uuid",
-  "confirm": true
-}
-```
-
-**Response**:
-```json
-{
-  "import_job_id": "uuid",
-  "status": "COMMITTED",
-  "created_count": 8,
-  "updated_count": 0,
-  "failed_count": 2,
-  "has_error_report": true
-}
-```
-
-### 4. List Import Jobs
-
-**GET** `/api/admin/students/import/jobs/`
-
-List all import jobs for the current user.
-
-**Response**: Array of ImportJob objects
-
-### 5. Get Import Job Details
-
-**GET** `/api/admin/students/import/{id}/detail/`
-
-Get details of a specific import job.
-
-**Response**: ImportJob object
-
-### 6. Download Error Report
-
-**GET** `/api/admin/students/import/{id}/errors.csv/`
-
-Download CSV file with invalid rows and error messages.
-
-**Response**: CSV file download
-
-## Import Modes
-
-### CREATE_ONLY (Default)
-
-- Creates new students only
-- Rejects rows where `reg_no` already exists in database
-- Use this mode for initial imports
-
-### UPSERT
-
-- Creates new students if `reg_no` doesn't exist
-- Updates existing students if `reg_no` already exists
-- Use this mode to update existing records
-
-## Auto-Create Missing Entities
-
-When `auto_create=true` is enabled, the import system will automatically create missing Programs, Batches, and Groups if they don't exist in the database.
-
-### How It Works
-
-1. **Program Auto-Creation**: If a program name (e.g., "MBBS") doesn't exist, it will be created with:
-   - Name: As specified in CSV
-   - Structure Type: YEARLY (default)
-   - Status: Active
-
-2. **Batch Auto-Creation**: If a batch name (e.g., "2029 Batch") doesn't exist under the program, it will be created with:
-   - Name: As specified in CSV
-   - Graduation Year: Extracted from batch name (e.g., "2029 Batch" → 2029)
-   - If year cannot be extracted, it uses program duration to calculate:
-     - MBBS: 5 years
-     - BDS: 5 years
-     - BSc: 4 years
-     - MSc: 2 years
-     - Default: 5 years
-   - Status: Active
-
-3. **Group Auto-Creation**: If a group name (e.g., "Group A") doesn't exist under the batch, it will be created with:
-   - Name: As specified in CSV
-   - Linked to the batch
-
-### Batch Name Formats Supported
-
-The system can extract graduation year from various batch name formats:
-- `"2029 Batch"` → 2029
-- `"2024 Batch"` → 2024
-- `"Batch 2031"` → 2031
-- `"Fall 2024"` → 2024
-- `"2029"` → 2029
-- `"Class of 2029"` → 2029
-
-### When to Use Auto-Create
-
-- **Recommended**: When importing data for new programs, batches, or groups that haven't been set up yet
-- **Not Recommended**: When you want strict validation and prefer to manually create entities first
-
-### Notes
-
-- Auto-created entities are marked as active by default
-- Auto-creation messages appear in the preview as informational messages (not errors)
-- The same `auto_create` setting must be used in both preview and commit phases
-
-## Validation Rules
-
-### Required Fields
-
-All required fields must be present and non-empty:
-- `reg_no`, `name`, `program_name`, `batch_name`, `group_name`, `status`
-
-### Field Validation
-
-- **reg_no**: Max 32 characters, must be unique (within file and database)
-- **name**: Max 255 characters
-- **phone**: Max 20 characters
-- **email**: Must be valid email format
-- **date_of_birth**: Must be in YYYY-MM-DD format
-- **status**: Must be one of: `active`, `inactive`, `graduated`, `suspended`
-
-### Foreign Key Resolution
-
-- **Program**: Resolved by `program_name` (case-insensitive)
-- **Batch**: Resolved by `batch_name` within the specified Program (case-insensitive)
-- **Group**: Resolved by `group_name` within the specified Batch (case-insensitive)
-
-If any FK cannot be resolved, the row is marked as invalid with a clear error message.
-
-### Duplicate Detection
-
-- Duplicates within the file are detected and marked as errors
-- In CREATE_ONLY mode, existing students in database are rejected
-- File hash is computed to warn about duplicate file uploads
-
-## Error Handling
-
-### Row-Level Errors
-
-Each invalid row includes:
-- `row_number`: Row number in CSV (1-indexed, excluding header)
-- `errors`: Array of `{column, message}` objects
-- `action`: `SKIP` (for invalid rows)
-
-### Error CSV
-
-After commit, if there are invalid rows, an error CSV is generated with:
-- All original columns
-- Additional `error_message` column with concatenated error messages
-
-## Best Practices
-
-1. **Always preview first**: Review validation results before committing
-2. **Use template**: Download the template to ensure correct format
-3. **Check FK values**: Ensure Program, Batch, and Group names exist in the system
-4. **Handle duplicates**: Use UPSERT mode if you need to update existing records
-5. **Review errors**: Download error CSV to fix and re-import failed rows
-6. **Test with small files**: Start with a small CSV to verify the process
-
-## Troubleshooting
-
-### "Unknown program_name"
-
-- Verify the program exists in the system
-- Check for typos or case sensitivity (resolution is case-insensitive)
-- Ensure the program name matches exactly
-
-### "Batch not found under Program"
-
-- Verify the batch exists and belongs to the specified program
-- Check batch name spelling
-
-### "Group not found under Batch"
-
-- Verify the group exists and belongs to the specified batch
-- Check group name spelling
-
-### "Student with reg_no already exists"
-
-- Use UPSERT mode if you want to update existing students
-- Or change the reg_no if creating a new student
-
-### "Invalid date format"
-
-- Date must be in YYYY-MM-DD format (e.g., 2000-01-15)
-- Leading zeros are required for month and day
-
-## Security
-
-- All endpoints require Admin or Coordinator permissions
-- File uploads are validated and sanitized
-- CSV injection protection is applied to error reports
-- File hash prevents accidental duplicate imports
-
-## User Account Creation
-
-When students are imported via CSV, the system automatically creates user accounts for them:
-
-- **Username**: Generated from registration number (sanitized, lowercase)
-- **Email**: Uses provided email from CSV, or generates `{username}@sims.edu` if not provided
-- **Password**: Generated based on batch start year (format: `student{year}`) or extracted from reg_no
-- **Role**: Automatically assigned to "STUDENT" group
-- **Linking**: User account is automatically linked to the Student record
-
-**Password Format Examples:**
-- Batch year 2024: `student2024`
-- Reg_no "2024-MBBS-001": `student2024`
-- Reg_no "STU001": `studentstu001`
-
-**Note**: If a user account already exists with the generated username, it will be reused and linked to the student record. The password will not be changed for existing accounts.
-
-## Limitations
-
-- Maximum file size: Configurable (default: reasonable limits)
-- Maximum rows: No hard limit, but large files may take time to process
-- Transaction: Entire commit runs in a single transaction (all-or-nothing for valid rows)
-- User account creation: If user creation fails, the student record is still created but without a linked account (can be created manually later)
+The browser harness migrates a temporary database without resetting developer or
+deployment data. Deployment requires migrations, RBAC task seeding, private-storage
+permissions and a deployed smoke test. No backward-compatibility migration or
+production-data backfill is required for this pre-production application.
+
+The **Student Onboarding Acceptance** GitHub workflow runs backend onboarding
+tests and the isolated browser scenario when manually triggered. It retains
+screenshots and failure traces as artifacts. See the implementation plan's
+deployment checklist before treating local acceptance as deployed acceptance.

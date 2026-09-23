@@ -3,6 +3,7 @@ Tests for seed_demo_scenarios management command.
 """
 
 from io import StringIO
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import TestCase
@@ -63,7 +64,8 @@ class SeedDemoScenariosTests(TestCase):
             )
             self.assertGreater(results.count(), 0)
 
-    def test_low_attendance_bucket(self):
+    @patch("core.demo_scenarios.random.random", return_value=0.70)
+    def test_low_attendance_bucket(self, random_value):
         """Test that LOW_ATTENDANCE_AT_RISK bucket has attendance below 75%"""
         call_command("seed_demo_scenarios", "--students", "20", stdout=StringIO())
 
@@ -71,21 +73,16 @@ class SeedDemoScenariosTests(TestCase):
         students = list(Student.objects.filter(reg_no__startswith="DEMO_").order_by("reg_no")[7:10])
         self.assertEqual(len(students), 3)
 
-        # Check attendance percentage - should be around 65% but with randomness
+        # A controlled draw above 0.65 must produce absent records for this bucket.
         for student in students:
-            total_attendance = Attendance.objects.filter(student=student).count()
-            if total_attendance > 0:
-                present_count = Attendance.objects.filter(
-                    student=student,
-                    status=Attendance.STATUS_PRESENT,
-                ).count()
-                attendance_percentage = (present_count / total_attendance) * 100
-                # Due to randomness, we check that it's generally low (< 85%)
-                self.assertLess(attendance_percentage, 85)
+            records = Attendance.objects.filter(student=student)
+            self.assertGreater(records.count(), 0)
+            self.assertFalse(records.filter(status=Attendance.STATUS_PRESENT).exists())
+        self.assertTrue(random_value.called)
 
     def test_enrollments_created(self):
         """Test that students are enrolled in sections - LEGACY TEST DISABLED (enrollment module removed)"""
         # Legacy enrollment module removed - enrollment tracking should be handled via students app
         call_command("seed_demo_scenarios", "--students", "20", stdout=StringIO())
         # Test disabled - no enrollment module to test
-        self.assertTrue(True)  # Placeholder assertion
+        self.assertEqual(Student.objects.filter(reg_no__startswith="DEMO_").count(), 20)

@@ -221,7 +221,7 @@ class AttendanceViewSet(viewsets.ModelViewSet):
                 [
                     attendance.id,
                     attendance.student.reg_no,
-                    attendance.student.name,
+                    attendance.student.display_name,
                     str(attendance.session),
                     attendance.status,
                     attendance.marked_by.username if attendance.marked_by else "",

@@ -11,6 +11,8 @@ const PublicRouteFallback = () => (
 )
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
+const MandatoryPasswordChangePage = lazy(() => import('@/features/auth/MandatoryPasswordChangePage').then((m) => ({ default: m.MandatoryPasswordChangePage })))
+const StudentOnboardingPage = lazy(() => import('@/pages/students/StudentOnboardingPage').then((m) => ({ default: m.StudentOnboardingPage })))
 const TranscriptVerify = lazy(() => import('@/pages/verify/TranscriptVerify').then((m) => ({ default: m.TranscriptVerify })))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
 const DashboardHome = lazy(() => import('@/pages/DashboardHome').then((m) => ({ default: m.DashboardHome })))
@@ -112,6 +114,14 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: '/change-password-required',
+    element: (
+      <ProtectedRoute path="/change-password-required">
+        <MandatoryPasswordChangePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
     // Layout route: renders the shared sidebar/topbar/breadcrumbs chrome once
     // and mounts the active page into its <Outlet/>.
     element: <DashboardLayout />,
@@ -153,6 +163,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute path="/dashboard/student">
             <StudentDashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/student/onboarding',
+        element: (
+          <ProtectedRoute path="/student/onboarding">
+            <StudentOnboardingPage />
           </ProtectedRoute>
         ),
       },

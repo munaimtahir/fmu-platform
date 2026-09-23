@@ -5,6 +5,11 @@ from rest_framework import serializers
 from .models import Address, ContactInfo, IdentityDocument, Person
 
 
+def _student_person_error(person):
+    if person is not None and hasattr(person, "student"):
+        raise serializers.ValidationError("Student records must be changed through the student profile workflow")
+
+
 class ContactInfoSerializer(serializers.ModelSerializer):
     """Serializer for ContactInfo model."""
 
@@ -12,6 +17,10 @@ class ContactInfoSerializer(serializers.ModelSerializer):
         model = ContactInfo
         fields = ["id", "person", "type", "value", "label", "is_primary", "is_verified", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        _student_person_error(attrs.get("person", getattr(self.instance, "person", None)))
+        return attrs
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -34,6 +43,10 @@ class AddressSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
+    def validate(self, attrs):
+        _student_person_error(attrs.get("person", getattr(self.instance, "person", None)))
+        return attrs
+
 
 class IdentityDocumentSerializer(serializers.ModelSerializer):
     """Serializer for IdentityDocument model."""
@@ -54,6 +67,10 @@ class IdentityDocumentSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "is_verified", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        _student_person_error(attrs.get("person", getattr(self.instance, "person", None)))
+        return attrs
 
 
 class PersonSerializer(serializers.ModelSerializer):
@@ -84,6 +101,14 @@ class PersonSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "full_name", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        if self.instance is not None:
+            _student_person_error(self.instance)
+        user = attrs.get("user")
+        if user is not None and hasattr(user, "student"):
+            raise serializers.ValidationError("A student's Person is created only during provisioning")
+        return attrs
 
 
 class PersonListSerializer(serializers.ModelSerializer):

@@ -49,6 +49,7 @@ services:
     volumes:
       - ./backend/staticfiles:/app/staticfiles
       - ./backend/media:/app/media
+      - ./backend/private_media:/app/private_media
     ports:
       - "127.0.0.1:18010:8000"
     restart: unless-stopped
@@ -69,7 +70,23 @@ services:
     volumes:
       - ./backend/staticfiles:/app/staticfiles
       - ./backend/media:/app/media
+      - ./backend/private_media:/app/private_media
     command: ["python", "manage.py", "rqworker", "default"]
+    restart: unless-stopped
+
+  import-retention:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      APP_VERSION: ${APP_VERSION:?APP_VERSION must be set to the deployed revision}
+    depends_on:
+      - backend
+    volumes:
+      - ./backend/private_media:/app/private_media
+    command: ["python", "manage.py", "run_student_import_retention"]
     restart: unless-stopped
 
   frontend:

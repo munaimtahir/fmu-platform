@@ -38,7 +38,6 @@ export interface UpdateUserData {
 
 export interface ResetPasswordResponse {
   success: boolean
-  temporary_password: string
   message: string
 }
 
@@ -91,8 +90,11 @@ export const usersApi = {
   /**
    * Reset user password
    */
-  async resetPassword(id: number): Promise<ResetPasswordResponse> {
-    const response = await api.post<ResetPasswordResponse>(`/api/admin/users/${id}/reset-password/`)
+  async resetPassword(id: number, temporaryPassword: string): Promise<ResetPasswordResponse> {
+    const response = await api.post<ResetPasswordResponse>(`/api/admin/users/${id}/reset-password/`, {
+      temporary_password: temporaryPassword,
+      temporary_password_confirm: temporaryPassword,
+    })
     return response.data
   },
 

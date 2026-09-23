@@ -39,6 +39,7 @@ from django.db import transaction
 
 from sims_backend.academics.models import AcademicPeriod, Batch, Course, Department, Group, Program, Section
 from sims_backend.students.models import Student
+from sims_backend.students.onboarding import ProvisioningData, provision_student
 from sims_backend.timetable.models import TimetableEntry, WeeklyTimetable
 
 User = get_user_model()
@@ -67,7 +68,7 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         faculty_group, _ = AuthGroup.objects.get_or_create(name="FACULTY")
-        student_group, _ = AuthGroup.objects.get_or_create(name="STUDENT")
+        AuthGroup.objects.get_or_create(name="STUDENT")
 
         pilot_faculty = self._get_or_create_user(
             username="pilot_faculty",
@@ -76,14 +77,6 @@ class Command(BaseCommand):
             last_name="Faculty",
             group=faculty_group,
         )
-        pilot_student_user = self._get_or_create_user(
-            username="pilot_student",
-            email="pilot_student@local.test",
-            first_name="Pilot",
-            last_name="Student",
-            group=student_group,
-        )
-
         program, _ = Program.objects.get_or_create(
             name="Timetable E2E Program",
             defaults={"description": "Program used only by Playwright timetable e2e specs", "is_active": True},
@@ -130,25 +123,20 @@ class Command(BaseCommand):
             section.group = group
             section.save(update_fields=["faculty", "group"])
 
-        student, created = Student.objects.get_or_create(
-            reg_no="TTD-E2E-001",
-            defaults={
-                "user": pilot_student_user,
-                "name": pilot_student_user.get_full_name() or pilot_student_user.username,
-                "program": program,
-                "batch": batch,
-                "group": group,
-                "status": Student.STATUS_ACTIVE,
-                "email": pilot_student_user.email,
-            },
-        )
-        if not created and (student.user_id != pilot_student_user.id or student.batch_id != batch.id):
-            student.user = pilot_student_user
-            student.program = program
-            student.batch = batch
-            student.group = group
-            student.save(update_fields=["user", "program", "batch", "group"])
-
+        student = Student.objects.filter(reg_no="TTD-E2E-001").first()
+        if student is None:
+            student = provision_student(
+                ProvisioningData(
+                    registration_number="TTD-E2E-001",
+                    first_name="Pilot",
+                    last_name="Student",
+                    initial_password="Pilot-Student-9482!",
+                    program=program,
+                    batch=batch,
+                    group=group,
+                    email="pilot_student@local.test",
+                )
+            )
         entries_week_start = _monday_of(today) + timedelta(weeks=1)
         publish_week_start = _monday_of(today) + timedelta(weeks=2)
         published_week_start = _monday_of(today)

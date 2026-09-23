@@ -3,6 +3,7 @@ Unit tests for workflow state transitions.
 """
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from rest_framework.exceptions import PermissionDenied
 
@@ -17,12 +18,12 @@ class WorkflowTransitionTest(TestCase):
     def setUp(self):
         """Set up test users."""
         self.admin_user = User.objects.create_user(username="admin", email="admin@test.com", password="testpass")
-        self.admin_user.groups.create(name="ADMIN")
+        self.admin_user.groups.add(Group.objects.get_or_create(name="ADMIN")[0])
 
         self.office_assistant = User.objects.create_user(
             username="office", email="office@test.com", password="testpass"
         )
-        self.office_assistant.groups.create(name="OFFICE_ASSISTANT")
+        self.office_assistant.groups.add(Group.objects.get_or_create(name="OFFICE_ASSISTANT")[0])
 
     def test_same_state_transition(self):
         """Test that transitioning to the same state is allowed."""

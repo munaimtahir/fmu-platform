@@ -63,7 +63,7 @@ def setup_attendance_test_data(db):
     # Create 20 students
     students = []
     for i in range(1, 21):
-        student = Student.objects.create(
+        student = make_student(
             reg_no=f"STU-{i:04d}",
             name=f"Student {i}",
             program=prog,
@@ -473,7 +473,7 @@ def test_csv_dry_run_student_not_enrolled(api_client, setup_attendance_test_data
 
     # Create a student in a different group
     other_group = AcadGroup.objects.create(name="B", batch=data["batch"])
-    other_student = Student.objects.create(
+    other_student = make_student(
         reg_no="OTHER-001",
         name="Other Student",
         program=data["prog"],
@@ -788,3 +788,5 @@ def test_no_pii_in_csv_errors(api_client, setup_attendance_test_data):
         assert "row" in error or "message" in error
         # Should not contain full CSV row data
         assert "UNKNOWN-9999,A" not in str(error)  # Full row should not be in error
+
+from sims_backend.students.test_factories import make_student

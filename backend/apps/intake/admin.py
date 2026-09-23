@@ -2,9 +2,7 @@
 Admin configuration for Student Intake submissions.
 """
 
-from django.contrib import admin, messages
-from django.db import transaction
-from django.utils import timezone
+from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import StudentIntakeSubmission
@@ -117,7 +115,7 @@ class StudentIntakeSubmissionAdmin(admin.ModelAdmin):
         ),
     )
 
-    actions = ["approve_and_create_student"]
+    actions = None
 
     def mobile_display(self, obj):
         """Display mobile number (redacted for privacy)."""
@@ -168,143 +166,6 @@ class StudentIntakeSubmissionAdmin(admin.ModelAdmin):
         return "Save the submission first to check for duplicates."
 
     duplicate_check_display.short_description = "Duplicate Check"
-
-    def approve_and_create_student(self, request, queryset):
-        """Admin action to approve submissions and create Student records.
-
-        Allowed roles: ADMIN, COORDINATOR, OFFICE_ASSISTANT
-        """
-        # Check user permissions
-        # Allowed roles: ADMIN, COORDINATOR, OFFICE_ASSISTANT
-        user = request.user
-        allowed_roles = ["ADMIN", "COORDINATOR", "OFFICE_ASSISTANT"]
-
-        # Check if user has admin role or is superuser
-        # Note: If COORDINATOR or OFFICE_ASSISTANT roles don't exist in User model yet,
-        # they can be added to User.ROLE_CHOICES and this will automatically work
-        if not (user.is_superuser or (hasattr(user, "role") and user.role in allowed_roles)):
-            self.message_user(
-                request,
-                "You do not have permission to approve submissions. Required roles: ADMIN, COORDINATOR, or OFFICE_ASSISTANT.",
-                level=messages.ERROR,
-            )
-            return
-
-        approved_count = 0
-        blocked_count = 0
-        error_count = 0
-
-        for submission in queryset:
-            if submission.status == "APPROVED":
-                continue
-
-            try:
-                with transaction.atomic():
-                    # Check for duplicates
-                    duplicates = submission.check_duplicates()
-                    has_duplicates = any(duplicates.values())
-
-                    if has_duplicates and not submission.force_approve:
-                        # Block approval, set to NEEDS_REVIEW
-                        submission.status = "NEEDS_REVIEW"
-                        duplicate_details = []
-                        if duplicates["cnic"]:
-                            duplicate_details.append(f"CNIC: {', '.join(duplicates['cnic'])}")
-                        if duplicates["mobile"]:
-                            duplicate_details.append(f"Mobile: {', '.join(duplicates['mobile'])}")
-                        if duplicates["email"]:
-                            duplicate_details.append(f"Email: {', '.join(duplicates['email'])}")
-                        if duplicates["mdcat"]:
-                            duplicate_details.append(f"MDCAT: {', '.join(duplicates['mdcat'])}")
-
-                        submission.staff_notes = (
-                            f"{submission.staff_notes}\n\n" if submission.staff_notes else ""
-                        ) + f"Blocked approval due to duplicates: {'; '.join(duplicate_details)}"
-                        submission.save()
-                        blocked_count += 1
-                        continue
-
-                    # Create Student record
-                    try:
-                        from sims_backend.students.models import Student
-
-                        student = Student.objects.create(
-                            full_name=submission.full_name,
-                            father_name=submission.father_name,
-                            gender=submission.gender,
-                            date_of_birth=submission.date_of_birth,
-                            cnic_or_bform=submission.cnic_or_bform,
-                            mobile=submission.mobile,
-                            email=submission.email,
-                            address=submission.address,
-                            guardian_name=submission.guardian_name,
-                            guardian_relation=submission.guardian_relation,
-                            guardian_phone_whatsapp=submission.guardian_phone_whatsapp,
-                            mdcat_roll_number=submission.mdcat_roll_number,
-                            merit_number=submission.merit_number,
-                            merit_percentage=submission.merit_percentage,
-                            last_qualification=submission.last_qualification,
-                            institute_name=submission.institute_name,
-                            board_or_university=submission.board_or_university,
-                            passing_year=submission.passing_year,
-                            total_marks_or_grade=submission.total_marks_or_grade,
-                            obtained_marks_or_grade=submission.obtained_marks_or_grade,
-                            subjects=submission.subjects,
-                            # Note: Documents are not copied to Student model in this phase
-                            # Program/Batch/Group are NOT assigned in this phase
-                        )
-
-                        # Link student to submission
-                        submission.created_student = student
-                        submission.status = "APPROVED"
-                        submission.approved_by = user
-                        submission.approved_at = timezone.now()
-                        submission.save()
-
-                        approved_count += 1
-
-                    except ImportError:
-                        # Student model doesn't exist yet
-                        self.message_user(
-                            request,
-                            f"Student model not found. Cannot create Student record for {submission.submission_id}.",
-                            level=messages.WARNING,
-                        )
-                        # Still mark as approved if force_approve is set
-                        if submission.force_approve:
-                            submission.status = "APPROVED"
-                            submission.approved_by = user
-                            submission.approved_at = timezone.now()
-                            submission.save()
-                            approved_count += 1
-                        else:
-                            error_count += 1
-
-            except Exception as e:
-                error_count += 1
-                self.message_user(
-                    request, f"Error processing {submission.submission_id}: {str(e)}", level=messages.ERROR
-                )
-
-        # Summary message
-        if approved_count > 0:
-            self.message_user(
-                request,
-                f"Successfully approved {approved_count} submission(s) and created Student record(s).",
-                level=messages.SUCCESS,
-            )
-        if blocked_count > 0:
-            self.message_user(
-                request,
-                f"Blocked {blocked_count} submission(s) due to duplicates. Set status to NEEDS_REVIEW.",
-                level=messages.WARNING,
-            )
-        if error_count > 0:
-            self.message_user(
-                request, f"Encountered errors processing {error_count} submission(s).", level=messages.ERROR
-            )
-
-    approve_and_create_student.short_description = "Approve & Create Student"
 
     def get_queryset(self, request):
         """Optimize queryset with select_related."""

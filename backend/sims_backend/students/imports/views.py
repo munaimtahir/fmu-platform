@@ -1,5 +1,6 @@
 """ViewSet for Student CSV import API"""
 
+from django.core.exceptions import ValidationError
 from drf_spectacular.utils import OpenApiTypes, extend_schema, extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -7,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core.throttling import SensitiveActionThrottle
-from sims_backend.common_permissions import IsAdminOrCoordinator
+from core.permissions import PermissionTaskRequired
 from sims_backend.students.imports.models import ImportJob
 from sims_backend.students.imports.serializers import (
     CommitRequestSerializer,
@@ -34,8 +35,15 @@ class StudentImportViewSet(viewsets.ViewSet):
     Requires Admin or Coordinator permissions.
     """
 
-    permission_classes = [IsAuthenticated, IsAdminOrCoordinator]
+    permission_classes = [IsAuthenticated, PermissionTaskRequired]
+    required_tasks = ["students.imports.view"]
     queryset = ImportJob.objects.none()
+
+    def get_permissions(self):
+        self.required_tasks = [
+            "students.imports.execute" if self.action in {"preview", "commit"} else "students.imports.view"
+        ]
+        return super().get_permissions()
 
     def get_throttles(self):
         if self.action in {"preview", "commit"}:
@@ -52,17 +60,14 @@ class StudentImportViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
 
         file = serializer.validated_data["file"]
-        mode = serializer.validated_data.get("mode", ImportJob.MODE_CREATE_ONLY)
-        auto_create = serializer.validated_data.get("auto_create", False)
-
         try:
-            result = StudentImportService.preview(file, request.user, mode, auto_create=auto_create)
+            result = StudentImportService.preview(file, request.user)
             response_serializer = PreviewResponseSerializer(result)
             return Response(response_serializer.data, status=status.HTTP_200_OK)
-        except ValueError as e:
+        except (ValueError, ValidationError) as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": f"Unexpected error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            return Response({"error": "Import preview failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=["post"], url_path="commit")
     def commit(self, request):
@@ -75,19 +80,19 @@ class StudentImportViewSet(viewsets.ViewSet):
 
         import_job_id = serializer.validated_data["import_job_id"]
         confirm = serializer.validated_data.get("confirm", False)
-        auto_create = serializer.validated_data.get("auto_create", None)  # None means use from ImportJob
+        file = serializer.validated_data["file"]
 
         if not confirm:
             return Response({"error": "confirm must be True to commit import"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            result = StudentImportService.commit(str(import_job_id), request.user, auto_create=auto_create)
+            result = StudentImportService.commit(str(import_job_id), file, request.user)
             response_serializer = CommitResponseSerializer(result)
             return Response(response_serializer.data, status=status.HTTP_200_OK)
-        except ValueError as e:
+        except (ValueError, ValidationError) as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": f"Unexpected error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            return Response({"error": "Import commit failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=["get"], url_path="template")
     def template(self, request):

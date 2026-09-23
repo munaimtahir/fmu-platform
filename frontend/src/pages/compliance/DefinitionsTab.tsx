@@ -29,12 +29,14 @@ const DefinitionForm: React.FC<{ definition?: RequirementDefinition; onClose: ()
   const [description, setDescription] = useState(definition?.description ?? '')
   const [type, setType] = useState<RequirementType>(definition?.requirement_type ?? 'document')
   const [midSession, setMidSession] = useState(definition?.is_mid_session ?? false)
+  const [active, setActive] = useState(definition?.is_active ?? true)
+  const [onboardingRequired, setOnboardingRequired] = useState(definition?.is_onboarding_required ?? true)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
 
   const mutation = useMutation({
     mutationFn: () => {
-      const payload = { title: title.trim(), description: description.trim(), requirement_type: type, is_mid_session: midSession }
+      const payload = { title: title.trim(), description: description.trim(), requirement_type: type, is_mid_session: midSession, is_active: active, is_onboarding_required: type === 'document' && onboardingRequired }
       return definition ? complianceService.updateDefinition(definition.id, payload) : complianceService.createDefinition(payload)
     },
     onSuccess: () => {
@@ -71,6 +73,12 @@ const DefinitionForm: React.FC<{ definition?: RequirementDefinition; onClose: ()
           <input type="checkbox" checked={midSession} onChange={(e) => setMidSession(e.target.checked)} />
           Assigned mid-session
         </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} /> Active
+        </label>
+        {type === 'document' && <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={onboardingRequired} onChange={(e) => setOnboardingRequired(e.target.checked)} /> Available for onboarding scopes
+        </label>}
         <div className="flex justify-end gap-3">
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
@@ -114,14 +122,16 @@ export const DefinitionsTab: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Badge variant="secondary">{definition.requirement_type === 'document' ? 'Document' : 'Profile field'}</Badge>
                 {definition.is_mid_session && <Badge variant="info">Mid-session</Badge>}
+                {!definition.is_active && <Badge variant="warning">Archived</Badge>}
+                {definition.is_onboarding_required && <Badge variant="success">Onboarding</Badge>}
                 <Can tasks={['compliance.definitions.update']}>
                   <Button size="sm" variant="ghost" onClick={() => setEditing(definition)} aria-label={`Edit ${definition.title}`}>
                     Edit
                   </Button>
                 </Can>
                 <Can tasks={['compliance.definitions.delete']}>
-                  <Button size="sm" variant="danger" onClick={() => setDeleting(definition)} aria-label={`Delete ${definition.title}`}>
-                    Delete
+                  <Button size="sm" variant="danger" onClick={() => setDeleting(definition)} aria-label={`Archive ${definition.title}`}>
+                    Archive
                   </Button>
                 </Can>
               </div>
@@ -134,13 +144,13 @@ export const DefinitionsTab: React.FC = () => {
       {editing && <DefinitionForm definition={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
       {deleting && (
         <ConfirmDialog
-          title="Delete definition"
-          message={`Delete "${deleting.title}"? Every student assignment of this requirement, with its submissions, will be deleted too.`}
-          confirmLabel="Delete definition"
+          title="Archive definition"
+          message={`Archive "${deleting.title}"? Existing assignments and submissions will be preserved.`}
+          confirmLabel="Archive definition"
           variant="danger"
           onConfirm={async () => {
             await complianceService.deleteDefinition(deleting.id)
-            toast.success('Definition deleted')
+            toast.success('Definition archived')
             queryClient.invalidateQueries({ queryKey: ['compliance'] })
           }}
           onClose={() => setDeleting(null)}

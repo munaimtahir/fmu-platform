@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db import models
 
 from core.models import TimeStampedModel
+from sims_backend.private_storage import PrivateMediaStorage
 
 
 class ImportJob(TimeStampedModel):
@@ -22,14 +23,6 @@ class ImportJob(TimeStampedModel):
         (STATUS_FAILED, "Failed"),
     ]
 
-    MODE_CREATE_ONLY = "CREATE_ONLY"
-    MODE_UPSERT = "UPSERT"
-
-    MODE_CHOICES = [
-        (MODE_CREATE_ONLY, "Create Only"),
-        (MODE_UPSERT, "Upsert"),
-    ]
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -42,29 +35,18 @@ class ImportJob(TimeStampedModel):
         blank=True,
         help_text="Timestamp when import was completed or failed",
     )
+    expires_at = models.DateTimeField(
+        help_text="Preview expiry after which the source file must be previewed again",
+    )
     status = models.CharField(
         max_length=32,
         choices=STATUS_CHOICES,
         default=STATUS_PENDING,
         help_text="Current status of the import job",
     )
-    mode = models.CharField(
-        max_length=32,
-        choices=MODE_CHOICES,
-        default=MODE_CREATE_ONLY,
-        help_text="Import mode: create-only or upsert",
-    )
-    auto_create = models.BooleanField(
-        default=False,
-        help_text="Automatically create missing Programs, Batches, and Groups",
-    )
     original_filename = models.CharField(
         max_length=255,
         help_text="Original filename of the uploaded CSV",
-    )
-    file = models.FileField(
-        upload_to="imports/students/%Y/%m/%d/",
-        help_text="Uploaded CSV file",
     )
     file_hash = models.CharField(
         max_length=64,
@@ -86,9 +68,9 @@ class ImportJob(TimeStampedModel):
         default=0,
         help_text="Number of students created during commit",
     )
-    updated_count = models.PositiveIntegerField(
+    unchanged_count = models.PositiveIntegerField(
         default=0,
-        help_text="Number of students updated during commit (upsert mode)",
+        help_text="Number of rows that exactly matched an existing provisioned student",
     )
     failed_count = models.PositiveIntegerField(
         default=0,
@@ -96,6 +78,7 @@ class ImportJob(TimeStampedModel):
     )
     error_report_file = models.FileField(
         upload_to="imports/students/errors/%Y/%m/%d/",
+        storage=PrivateMediaStorage(),
         null=True,
         blank=True,
         help_text="CSV file containing invalid rows with error messages",
@@ -110,7 +93,7 @@ class ImportJob(TimeStampedModel):
         ordering = ["-created_at"]
         indexes = [
             models.Index(fields=["status", "created_at"]),
-            models.Index(fields=["file_hash", "mode"]),
+            models.Index(fields=["file_hash"]),
             models.Index(fields=["created_by"]),
         ]
 

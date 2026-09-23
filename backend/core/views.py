@@ -18,7 +18,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from sims_backend.academics.models import Batch, Group, Program
 from sims_backend.attendance.models import Attendance
@@ -33,7 +32,6 @@ from sims_backend.timetable.models import Session
 from .permissions import PermissionTaskRequired
 from .serializers import (
     AUTH_ERROR_CODES,
-    EmailTokenObtainPairSerializer,
     PasswordChangeSerializer,
     PermissionTaskSerializer,
     ProfileUpdateSerializer,
@@ -249,28 +247,26 @@ class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
     throttle_classes = [PasswordChangeThrottle]
 
-    @extend_schema(request=PasswordChangeSerializer, responses={200: MESSAGE_RESPONSE, 400: OpenApiTypes.OBJECT})
+    @extend_schema(request=PasswordChangeSerializer, responses={200: OpenApiTypes.OBJECT, 400: OpenApiTypes.OBJECT})
     def post(self, request):
         """Change user password."""
         serializer = PasswordChangeSerializer(data=request.data, context={"request": request})
 
         if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Password changed successfully."}, status=status.HTTP_200_OK)
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            if hasattr(user, "student"):
+                refresh["student_credential_version"] = user.student.credential_version
+            return Response(
+                {
+                    "message": "Password changed successfully.",
+                    "user": UserSerializer(user).data,
+                    "tokens": {"access": str(refresh.access_token), "refresh": str(refresh)},
+                },
+                status=status.HTTP_200_OK,
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# Legacy view for backward compatibility (deprecated)
-class EmailTokenObtainPairView(TokenObtainPairView):
-    """
-    DEPRECATED: Use UnifiedLoginView at /api/auth/login instead.
-
-    A custom token obtain pair view that authenticates with email and password.
-    Kept for backward compatibility during transition period.
-    """
-
-    serializer_class = EmailTokenObtainPairSerializer  # type: ignore[assignment]
 
 
 @extend_schema(responses={200: OpenApiTypes.OBJECT})
@@ -414,7 +410,7 @@ def dashboard_stats(request):
             ).count()
 
             stats = {
-                "student_name": student.name,
+                "student_name": student.display_name,
                 "reg_no": student.reg_no,
                 "program": student.program.name,
                 "batch": student.batch.name,

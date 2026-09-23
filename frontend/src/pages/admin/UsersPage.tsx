@@ -22,7 +22,7 @@ import toast from 'react-hot-toast'
 import { usersApi, type AdminUser, type CreateUserData, type UpdateUserData } from '@/api/users'
 import { USER_ROLE_OPTIONS, roleValueFromLabel } from './userRoles'
 
-type PendingAction = { kind: 'deactivate' | 'delete' | 'reset'; user: AdminUser }
+type PendingAction = { kind: 'deactivate' | 'delete'; user: AdminUser }
 
 const EMPTY_FORM_DATA: CreateUserData = {
   username: '',
@@ -31,7 +31,7 @@ const EMPTY_FORM_DATA: CreateUserData = {
   last_name: '',
   password: '',
   is_active: true,
-  role: 'STUDENT',
+  role: 'REGISTRAR',
 }
 
 /**
@@ -44,8 +44,9 @@ export const UsersPage: React.FC = () => {
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState<CreateUserData>(EMPTY_FORM_DATA)
-  const [tempPassword, setTempPassword] = useState<string | null>(null)
-  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [resetUser, setResetUser] = useState<AdminUser | null>(null)
+  const [temporaryPassword, setTemporaryPassword] = useState('')
+  const [temporaryPasswordConfirm, setTemporaryPasswordConfirm] = useState('')
   const [pending, setPending] = useState<PendingAction | null>(null)
 
   useUnsavedChangesWarning(showForm)
@@ -77,6 +78,7 @@ export const UsersPage: React.FC = () => {
   const saveMutation = useMutation({
     mutationFn: (data: CreateUserData | UpdateUserData) => {
       if (editingUser) {
+        if (editingUser.role === 'Student') return usersApi.update(editingUser.id, { is_active: data.is_active })
         return usersApi.update(editingUser.id, data as UpdateUserData)
       }
       return usersApi.create(data as CreateUserData)
@@ -100,10 +102,12 @@ export const UsersPage: React.FC = () => {
 
   // Reset password mutation
   const resetPasswordMutation = useMutation({
-    mutationFn: (id: number) => usersApi.resetPassword(id),
-    onSuccess: (data) => {
-      setTempPassword(data.temporary_password)
-      setShowPasswordModal(true)
+    mutationFn: ({ id, password }: { id: number; password: string }) => usersApi.resetPassword(id, password),
+    onSuccess: () => {
+      setResetUser(null)
+      setTemporaryPassword('')
+      setTemporaryPasswordConfirm('')
+      toast.success('Temporary password set. Share it through the approved offline channel.')
       queryClient.invalidateQueries({ queryKey: ['admin-users'] })
     },
   })
@@ -142,7 +146,6 @@ export const UsersPage: React.FC = () => {
   const runPending = async ({ kind, user }: PendingAction) => {
     if (kind === 'delete') await deleteMutation.mutateAsync(user.id)
     else if (kind === 'deactivate') await deactivateMutation.mutateAsync(user.id)
-    else await resetPasswordMutation.mutateAsync(user.id)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -203,7 +206,7 @@ export const UsersPage: React.FC = () => {
               <Button
                 size="sm"
                 variant="secondary"
-                onClick={() => setPending({ kind: 'reset', user })}
+                onClick={() => setResetUser(user)}
                 disabled={resetPasswordMutation.isPending}
               >
                 Reset Password
@@ -355,6 +358,7 @@ export const UsersPage: React.FC = () => {
                           type="email"
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          disabled={editingUser?.role === 'Student'}
                           required
                         />
                       </div>
@@ -364,12 +368,14 @@ export const UsersPage: React.FC = () => {
                           label="First Name"
                           value={formData.first_name}
                           onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                          disabled={editingUser?.role === 'Student'}
                         />
 
                         <Input
                           label="Last Name"
                           value={formData.last_name}
                           onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                          disabled={editingUser?.role === 'Student'}
                         />
                       </div>
 
@@ -390,8 +396,9 @@ export const UsersPage: React.FC = () => {
                           label="Role"
                           value={formData.role}
                           onChange={(value) => setFormData({ ...formData, role: value })}
+                          disabled={editingUser?.role === 'Student'}
                           required
-                          options={USER_ROLE_OPTIONS}
+                          options={editingUser ? USER_ROLE_OPTIONS : USER_ROLE_OPTIONS.filter((role) => role.value !== 'STUDENT')}
                         />
 
                         <div className="flex items-center pt-6">
@@ -426,38 +433,30 @@ export const UsersPage: React.FC = () => {
             </Modal>
           )}
 
-          {/* Temporary Password Modal */}
-          {showPasswordModal && tempPassword && (
+          {resetUser && (
             <Modal
-              title="Temporary Password"
+              title={`Reset password for ${resetUser.username}`}
               onClose={() => {
-                setShowPasswordModal(false)
-                setTempPassword(null)
+                setResetUser(null)
+                setTemporaryPassword('')
+                setTemporaryPasswordConfirm('')
               }}
             >
               <p className="text-body-sm text-ink-secondary mb-4">
-                Share this temporary password with the user. They should change it on first login.
+                Enter a temporary password and communicate it through the approved offline channel. It will not be returned by the server.
               </p>
-              <div className="bg-neutral-subtle p-4 rounded mb-4">
-                <code className="text-lg font-mono">{tempPassword}</code>
+              <div className="space-y-4">
+                <Input label="Temporary password" type="password" value={temporaryPassword} onChange={(e) => setTemporaryPassword(e.target.value)} />
+                <Input label="Confirm temporary password" type="password" value={temporaryPasswordConfirm} onChange={(e) => setTemporaryPasswordConfirm(e.target.value)} />
+                {temporaryPasswordConfirm && temporaryPassword !== temporaryPasswordConfirm && <Alert variant="error">Passwords do not match.</Alert>}
               </div>
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 justify-end mt-6">
+                <Button variant="secondary" onClick={() => setResetUser(null)}>Cancel</Button>
                 <Button
-                  variant="secondary"
-                  onClick={() => {
-                    navigator.clipboard.writeText(tempPassword)
-                    toast.success('Password copied to clipboard')
-                  }}
+                  disabled={!temporaryPassword || temporaryPassword !== temporaryPasswordConfirm || resetPasswordMutation.isPending}
+                  onClick={() => resetPasswordMutation.mutate({ id: resetUser.id, password: temporaryPassword })}
                 >
-                  Copy
-                </Button>
-                <Button
-                  onClick={() => {
-                    setShowPasswordModal(false)
-                    setTempPassword(null)
-                  }}
-                >
-                  Close
+                  Set temporary password
                 </Button>
               </div>
             </Modal>
@@ -466,17 +465,15 @@ export const UsersPage: React.FC = () => {
           {pending && (
             <ConfirmDialog
               title={
-                pending.kind === 'delete' ? 'Delete user' : pending.kind === 'deactivate' ? 'Deactivate user' : 'Reset password'
+                pending.kind === 'delete' ? 'Delete user' : 'Deactivate user'
               }
               message={
-                pending.kind === 'reset'
-                  ? `Reset the password for ${pending.user.username}? A temporary password will be generated.`
-                  : pending.kind === 'deactivate'
+                pending.kind === 'deactivate'
                     ? `Deactivate ${pending.user.username}? They will no longer be able to sign in.`
                     : `Delete (deactivate) ${pending.user.username}? This removes their access.`
               }
-              confirmLabel={pending.kind === 'reset' ? 'Reset password' : pending.kind === 'deactivate' ? 'Deactivate' : 'Delete'}
-              variant={pending.kind === 'reset' ? 'primary' : 'danger'}
+              confirmLabel={pending.kind === 'deactivate' ? 'Deactivate' : 'Delete'}
+              variant="danger"
               onConfirm={() => runPending(pending)}
               onClose={() => setPending(null)}
             />

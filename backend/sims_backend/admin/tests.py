@@ -36,7 +36,7 @@ class TestAdminDashboard:
         program = Program.objects.create(name="Test Program", is_active=True)
         batch = Batch.objects.create(program=program, name="2024", start_year=2024)
         group = AcademicGroup.objects.create(batch=batch, name="A")
-        Student.objects.create(
+        make_student(
             reg_no="ST001",
             name="Test Student",
             program=program,
@@ -104,6 +104,7 @@ class TestAdminUsers:
         """Admin can create a new user."""
         api_client.force_authenticate(user=admin_user)
 
+        Group.objects.get_or_create(name="FACULTY")
         data = {
             "username": "newuser",
             "email": "newuser@test.com",
@@ -148,13 +149,13 @@ class TestAdminUsers:
 
         user = User.objects.create_user(username="testuser", password="oldpass")
 
-        response = api_client.post(f"/api/admin/users/{user.id}/reset-password/")
+        response = api_client.post(f"/api/admin/users/{user.id}/reset-password/", {"temporary_password": "Reset-Temporary-9482!", "temporary_password_confirm": "Reset-Temporary-9482!"})
         assert response.status_code == 200
-        assert "temporary_password" in response.json()
+        assert "temporary_password" not in response.json()
 
         # Verify password was changed
         user.refresh_from_db()
-        assert user.check_password(response.json()["temporary_password"])
+        assert user.check_password("Reset-Temporary-9482!")
 
     def test_admin_can_activate_deactivate(self, api_client, admin_user):
         """Admin can activate/deactivate users."""
@@ -195,3 +196,5 @@ class TestAdminUsers:
         assert response.status_code == 200
         data = response.json()
         assert all("FACULTY" in user.get("groups_list", []) for user in data["results"])
+
+from sims_backend.students.test_factories import make_student

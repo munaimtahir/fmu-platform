@@ -29,13 +29,17 @@ interface AuthErrorResponse {
  * Check if error response has the standard auth error shape
  */
 function isAuthError(data: unknown): data is AuthErrorResponse {
+  const error = typeof data === 'object' && data !== null && 'error' in data
+    ? (data as { error?: unknown }).error
+    : undefined
   return (
     typeof data === 'object' &&
     data !== null &&
     'error' in data &&
-    typeof (data as AuthErrorResponse).error === 'object' &&
-    'code' in (data as AuthErrorResponse).error &&
-    'message' in (data as AuthErrorResponse).error
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    'message' in error
   )
 }
 
@@ -156,6 +160,8 @@ export interface PasswordChangeRequest {
  */
 export interface PasswordChangeResponse {
   message: string
+  user: User
+  tokens: { access: string; refresh: string }
 }
 
 /**
@@ -177,6 +183,7 @@ export interface ProfileUpdateRequest {
 export async function changePassword(data: PasswordChangeRequest): Promise<PasswordChangeResponse> {
   try {
     const response = await api.post<PasswordChangeResponse>('/api/auth/change-password/', data)
+    setTokens(response.data.tokens.access, response.data.tokens.refresh)
     return response.data
   } catch (error: unknown) {
     // Handle axios error with standard error shape

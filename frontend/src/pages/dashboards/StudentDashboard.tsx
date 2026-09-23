@@ -4,6 +4,9 @@ import { Spinner } from '@/components/ui/Spinner'
 import { Alert } from '@/components/ui/Alert'
 import { useAuth } from '@/features/auth/useAuth'
 import { dashboardApi } from '@/api/dashboard'
+import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { onboardingService } from '@/services/onboarding'
 
 interface StudentDashboardStats {
   student_name?: string
@@ -23,6 +26,7 @@ export const StudentDashboard = () => {
   const [stats, setStats] = useState<StudentDashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const onboarding = useQuery({ queryKey: ['student-onboarding'], queryFn: onboardingService.get })
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -89,6 +93,33 @@ export const StudentDashboard = () => {
             </p>
           )}
         </div>
+
+        {onboarding.isError && (
+          <div className="rounded-lg border border-danger p-4 text-sm text-danger">Onboarding status could not be loaded. Refresh the page or open Profile Onboarding to retry.</div>
+        )}
+        {onboarding.data?.onboarding.primary_state !== 'complete' && onboarding.data?.onboarding && (
+          <Card>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-h3 text-ink-primary">Complete your student profile</h2>
+                <p className="text-ink-secondary mt-1">
+                  {onboarding.data.onboarding.profile_completion_percentage}% complete
+                  {onboarding.data.onboarding.missing_sections.length > 0
+                    ? ` · Missing sections: ${onboarding.data.onboarding.missing_sections.join(', ')}`
+                    : ''}
+                </p>
+                {onboarding.data.onboarding.missing_documents.length > 0 && (
+                  <p className="text-sm text-ink-muted mt-1">
+                    Required documents remaining: {onboarding.data.onboarding.missing_documents.map((item) => item.title).join(', ')}
+                  </p>
+                )}
+              </div>
+              <Link className="inline-flex px-4 py-2 rounded-lg bg-primary text-white" to="/student/onboarding">
+                Continue profile
+              </Link>
+            </div>
+          </Card>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

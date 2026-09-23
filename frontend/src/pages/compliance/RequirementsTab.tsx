@@ -47,7 +47,7 @@ const RequirementRow: React.FC<{ requirement: RequirementInstance; onDecide: (de
       </div>
       {showHistory && (
         <div className="mt-3 pl-4 border-l-2 border-surface-border">
-          <SubmissionHistory submissions={requirement.submissions} />
+          <SubmissionHistory requirementId={requirement.id} submissions={requirement.submissions} admin />
         </div>
       )}
     </li>

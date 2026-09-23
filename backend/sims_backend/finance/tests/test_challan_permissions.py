@@ -64,7 +64,7 @@ def voucher_setup(db):
 
     student1_user = User.objects.create_user(username="student1", password="password")
     student1_user.groups.add(student_role)
-    student1 = Student.objects.create(
+    student1 = make_student(
         user=student1_user,
         reg_no="REG001",
         name="Student One",
@@ -75,7 +75,7 @@ def voucher_setup(db):
 
     student2_user = User.objects.create_user(username="student2", password="password")
     student2_user.groups.add(student_role)
-    student2 = Student.objects.create(
+    student2 = make_student(
         user=student2_user,
         reg_no="REG002",
         name="Student Two",
@@ -151,3 +151,5 @@ class TestVoucherAccess:
         client.force_authenticate(user=voucher_setup["student1_user"])
         response = client.get(f"/api/finance/vouchers/{voucher_setup['voucher1'].id}/")
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+from sims_backend.students.test_factories import make_student

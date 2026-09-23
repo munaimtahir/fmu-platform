@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/Button'
 import { useCapabilities } from '@/features/auth/useCapabilities'
 import { AssignDialog, DefinitionsTab } from './DefinitionsTab'
 import { AllRequirementsTab, ReviewQueueTab } from './RequirementsTab'
+import { OnboardingRulesTab } from './OnboardingRulesTab'
 
-type TabKey = 'queue' | 'requirements' | 'definitions'
+type TabKey = 'queue' | 'requirements' | 'definitions' | 'onboarding'
 
 const TABS: Array<{ key: TabKey; label: string; tasks: string[] }> = [
   { key: 'queue', label: 'Review queue', tasks: ['compliance.requirements.view'] },
   { key: 'requirements', label: 'All requirements', tasks: ['compliance.requirements.view'] },
   { key: 'definitions', label: 'Definitions', tasks: ['compliance.definitions.view'] },
+  { key: 'onboarding', label: 'Onboarding rules', tasks: ['compliance.definitions.view'] },
 ]
 
 export const ComplianceAdminPage: React.FC = () => {
@@ -51,6 +53,7 @@ export const ComplianceAdminPage: React.FC = () => {
       {current === 'queue' && <ReviewQueueTab />}
       {current === 'requirements' && <AllRequirementsTab />}
       {current === 'definitions' && <DefinitionsTab />}
+      {current === 'onboarding' && <OnboardingRulesTab />}
       {isAssigning && <AssignDialog onClose={() => setIsAssigning(false)} />}
     </PageShell>
   )

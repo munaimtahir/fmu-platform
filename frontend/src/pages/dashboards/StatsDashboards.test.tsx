@@ -113,7 +113,7 @@ describe('backend-driven role dashboards', () => {
   })
 
   it('Coordinator dashboard shows org stats and coordinator links', async () => {
-    signIn('Coordinator', ['Coordinator'], ['timetable.weekly.view', 'students.students.view', 'notifications.admin.view'])
+    signIn('Coordinator', ['Coordinator'], ['timetable.weekly.view', 'students.students.view', 'students.imports.view', 'notifications.admin.view'])
     vi.mocked(dashboardApi.getStats).mockResolvedValue({
       total_students: 300,
       total_programs: 2,

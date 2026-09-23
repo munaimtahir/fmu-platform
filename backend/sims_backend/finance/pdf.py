@@ -21,7 +21,7 @@ def voucher_pdf(voucher: Voucher) -> io.BytesIO:
 
     meta_rows = [
         ["Voucher No:", voucher.voucher_no],
-        ["Student:", f"{voucher.student.name} ({voucher.student.reg_no})"],
+        ["Student:", f"{voucher.student.display_name} ({voucher.student.reg_no})"],
         ["Term:", voucher.term.name],
         ["Issue Date:", voucher.issue_date.strftime("%Y-%m-%d")],
         ["Due Date:", voucher.due_date.strftime("%Y-%m-%d")],
@@ -81,7 +81,7 @@ def payment_receipt_pdf(payment: Payment) -> io.BytesIO:
 
     rows = [
         ["Receipt No:", payment.receipt_no],
-        ["Student:", f"{payment.student.name} ({payment.student.reg_no})"],
+        ["Student:", f"{payment.student.display_name} ({payment.student.reg_no})"],
         ["Term:", payment.term.name],
         ["Amount:", f"{payment.amount:.2f}"],
         ["Method:", payment.get_method_display() if hasattr(payment, "get_method_display") else payment.method],

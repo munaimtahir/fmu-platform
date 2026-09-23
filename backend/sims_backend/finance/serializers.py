@@ -78,7 +78,7 @@ class VoucherItemSerializer(serializers.ModelSerializer):
 
 class VoucherSerializer(serializers.ModelSerializer):
     student_reg_no = serializers.CharField(source="student.reg_no", read_only=True)
-    student_name = serializers.CharField(source="student.name", read_only=True)
+    student_name = serializers.CharField(source="student.display_name", read_only=True)
     term_name = serializers.CharField(source="term.name", read_only=True)
     items = VoucherItemSerializer(many=True)
     balance = serializers.SerializerMethodField()
@@ -162,7 +162,7 @@ class VoucherSerializer(serializers.ModelSerializer):
 
 class PaymentSerializer(serializers.ModelSerializer):
     student_reg_no = serializers.CharField(source="student.reg_no", read_only=True)
-    student_name = serializers.CharField(source="student.name", read_only=True)
+    student_name = serializers.CharField(source="student.display_name", read_only=True)
     term_name = serializers.CharField(source="term.name", read_only=True)
 
     class Meta:
@@ -205,7 +205,7 @@ class PaymentVerifySerializer(serializers.Serializer):
 
 class LedgerEntrySerializer(serializers.ModelSerializer):
     student_reg_no = serializers.CharField(source="student.reg_no", read_only=True)
-    student_name = serializers.CharField(source="student.name", read_only=True)
+    student_name = serializers.CharField(source="student.display_name", read_only=True)
     term_name = serializers.CharField(source="term.name", read_only=True)
 
     class Meta:
@@ -234,7 +234,7 @@ class LedgerEntrySerializer(serializers.ModelSerializer):
 
 class AdjustmentSerializer(serializers.ModelSerializer):
     student_reg_no = serializers.CharField(source="student.reg_no", read_only=True)
-    student_name = serializers.CharField(source="student.name", read_only=True)
+    student_name = serializers.CharField(source="student.display_name", read_only=True)
     term_name = serializers.CharField(source="term.name", read_only=True)
 
     class Meta:

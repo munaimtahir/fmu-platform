@@ -302,7 +302,7 @@ class TickSheetTemplateAPIView(APIView):
                 pdf.showPage()
                 y = height - inch
             pdf.drawString(inch, y, student.reg_no)
-            pdf.drawString(inch + 1.5 * inch, y, student.name[:28])
+            pdf.drawString(inch + 1.5 * inch, y, student.display_name[:28])
             pdf.rect(inch + 4 * inch, y - 0.05 * inch, 0.3 * inch, 0.3 * inch)
             pdf.rect(inch + 5 * inch, y - 0.05 * inch, 0.3 * inch, 0.3 * inch)
             y -= 0.3 * inch
@@ -344,7 +344,7 @@ class TickSheetDryRunAPIView(APIView):
             {
                 "student_id": student.id,
                 "reg_no": student.reg_no,
-                "name": student.name,
+                "name": student.display_name,
                 "detected_status": "UNKNOWN",
                 "confidence": 0.1,
             }

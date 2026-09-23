@@ -5,36 +5,30 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { listImportJobs as listStudentImportJobs } from '@/api/studentImport'
-import { listImportJobs as listFacultyImportJobs } from '@/api/facultyImport'
 import type { ImportJob as StudentImportJob } from '@/types/studentImport'
-import type { ImportJob as FacultyImportJob } from '@/types/facultyImport'
 
 interface ImportHistoryTableProps {
   onDownloadErrors: (jobId: string) => void
   onViewDetails: (jobId: string) => void
-  importType: 'student' | 'faculty'
 }
 
 export function ImportHistoryTable({
   onDownloadErrors,
   onViewDetails,
-  importType,
 }: ImportHistoryTableProps) {
-  const [jobs, setJobs] = useState<(StudentImportJob | FacultyImportJob)[]>([])
+  const [jobs, setJobs] = useState<StudentImportJob[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchJobs()
-  }, [importType])
+  }, [])
 
   const fetchJobs = async () => {
     setLoading(true)
     setError(null)
     try {
-      const data = importType === 'student'
-        ? await listStudentImportJobs()
-        : await listFacultyImportJobs()
+      const data = await listStudentImportJobs()
       setJobs(data)
     } catch (err: any) {
       setError('Failed to load import history')
@@ -47,7 +41,7 @@ export function ImportHistoryTable({
     return new Date(dateString).toLocaleString()
   }
 
-  const columns = useMemo<ColumnDef<StudentImportJob | FacultyImportJob>[]>(
+  const columns = useMemo<ColumnDef<StudentImportJob>[]>(
     () => [
       {
         id: 'date',
@@ -59,11 +53,6 @@ export function ImportHistoryTable({
         id: 'filename',
         header: 'Filename',
         accessorFn: (job) => job.original_filename,
-      },
-      {
-        id: 'mode',
-        header: 'Mode',
-        accessorFn: (job) => job.mode,
       },
       {
         id: 'status',
@@ -102,10 +91,12 @@ export function ImportHistoryTable({
       },
       {
         id: 'updated_count',
-        header: 'Updated',
-        accessorFn: (job) => job.updated_count,
+        header: 'Unchanged',
+        accessorFn: (job) => job.unchanged_count,
         cell: ({ row }) => (
-          <span className="text-purple-600">{row.original.updated_count}</span>
+          <span className="text-purple-600">
+            {row.original.unchanged_count}
+          </span>
         ),
       },
       {
@@ -122,7 +113,7 @@ export function ImportHistoryTable({
               >
                 Details
               </Button>
-              {job.error_report_file && (
+              {job.has_error_report && (
                 <Button
                   size="sm"
                   variant="secondary"

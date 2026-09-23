@@ -1,10 +1,14 @@
 # Student Onboarding Workflow
 
-**Status:** Approved product workflow; implementation not started
+**Status:** Implemented; legacy test-fixture migration and deployed end-to-end acceptance remain
 
 **Date:** 2026-09-21
 
 **Purpose:** Product and engineering contract for agents planning or implementing student onboarding in Vexel MedSIMS.
+
+**Data baseline:** The application does not yet contain real or production student data. Existing development, demo, and test records are disposable. Student onboarding may therefore introduce clean schema changes and reset or rebuild non-production data as needed; backward compatibility with existing student records, import formats, or onboarding behavior is not required.
+
+**Implementation plan:** `STUDENT_ONBOARDING_IMPLEMENTATION_PLAN.md`
 
 ## 1. Goal
 
@@ -12,7 +16,7 @@ Provide a simple, controlled onboarding process in which institutional staff pro
 
 The core invariant is:
 
-> One imported student creates one Student profile and one linked User account. A student profile and its account must never be created independently.
+> One imported student atomically creates one Student profile, one linked Person record, and one linked User account. These records must never be created independently.
 
 There is no public student signup and no separate student-account creation workflow.
 
@@ -23,9 +27,11 @@ There is no public student signup and no separate student-account creation workf
 3. The system validates the entire file and presents a password-safe preview.
 4. On commit, each valid row atomically creates:
    - the Student profile;
+   - the canonical Person identity record;
    - the linked authentication User;
    - membership in the canonical `STUDENT` role/group;
    - the academic placement supplied by the import;
+   - applicable onboarding document requirements;
    - the first-login and profile-completion state.
 5. The student logs in with their registration number and initial password.
 6. Before accessing the rest of the student application, the student must change the initial password. Password change cannot be skipped.
@@ -41,50 +47,56 @@ There is no public student signup and no separate student-account creation workf
 - `first_name`
 - `last_name`
 - `registration_number`
-- `program`
-- `batch`
+- `program_id`
+- `batch_id`
 - `initial_password`
 
-Program and Batch must already exist. The import must not create academic structures during preview or commit.
+Program and Batch IDs must identify existing active records, and the Batch must belong to the Program. The import must not create academic structures during preview or commit.
 
 ### Optional columns
 
-The import may accept known profile information such as:
+The import may accept:
 
-- `group`
+- `middle_name`
+- `group_id`
 - `email`
-- `phone`
+- `mobile_number`
 - `date_of_birth`
 - `gender`
-- other profile fields supported by the final profile schema
 
 Missing optional values do not invalidate an import row. Group is optional at onboarding and may be assigned later by authorized staff.
 
 ### Identity and validation rules
 
-- Registration number is the student's username and immutable institutional identifier.
+- Registration number is normalized using Unicode NFKC, trimmed, uppercased, and validated against `^[A-Z0-9][A-Z0-9._/-]{0,31}$`.
+- The normalized registration number is the student's username and immutable institutional identifier.
 - Registration number must be unique across Student profiles and User accounts.
 - Duplicate registration numbers within the same file are rejected.
 - Existing account/profile mismatches are rejected and reported for manual resolution.
-- Program and Batch names or IDs must resolve unambiguously, and the Batch must belong to the Program.
+- Program and Batch IDs must resolve unambiguously, and the Batch must belong to the Program.
 - If Group is supplied, it must belong to the selected Batch.
 - Import preview performs validation only. It must not create Programs, Batches, Groups, Students, or Users.
-- Commit revalidates the file before writing.
-- Student and User creation is atomic per row. If either side fails, neither record is retained for that row.
+- Commit requires the same file to be uploaded again, verifies its hash against the preview job, and revalidates it before writing.
+- User, Person, Student, role, placement, and requirement creation is atomic per row. If any part fails, none of the row is retained.
 - Import results distinguish created, rejected, and unchanged rows and provide actionable errors.
+- The import is create-only: an exact existing linked record is unchanged, while collisions or differing data are rejected for administrative resolution.
+- Valid rows may commit when other rows are rejected. A committed job is idempotent and cannot write twice.
 
 ### Password handling
 
 - The CSV initial password is temporary.
 - Passwords are accepted only as write-only input and are hashed by Django immediately.
 - Plain-text passwords must never appear in API responses, previews, import history, error reports, audit logs, application logs, or exports.
-- The application must not retain the source CSV longer than required to validate and commit the import. Any temporary file retention policy must be explicit in the implementation plan.
+- The backend must not persist the source CSV. Preview stores only its hash and sanitized metadata; commit receives the same file again and discards it after processing.
 - Every newly provisioned account starts with password change required.
+- Authorized staff communicate the temporary password through the institution's approved offline channel. Automated delivery is outside the first implementation.
+- Password reset accepts a staff-supplied temporary password as write-only input, returns no password, invalidates existing student tokens, and restores password-change-required state.
 
 ## 4. Account and Profile Rules
 
 - A User in the student role must have exactly one linked Student profile.
 - A Student profile must have exactly one linked User account.
+- A Student and its User must share exactly one linked Person record containing canonical identity data.
 - Student account provisioning occurs only through the canonical student import service. Any retained single-student admin UI must call that same service and require the same fields and invariants.
 - Public signup, self-registration, and independent creation of student-role users are outside this workflow.
 - Existing non-student staff user management remains separate.
@@ -127,12 +139,12 @@ The form supports partial updates and must preserve previously saved values. Val
 
 Profile completion and document completion are related but distinct:
 
-- `password_change_required`: the temporary password is still active.
-- `profile_incomplete`: one or more required profile fields are missing.
-- `profile_complete`: all required profile fields are present and valid.
-- `documents_pending`: one or more documents required for the student's Program or Batch are missing.
+- `password_change_required`: a persisted security flag indicating that a temporary password is still active.
+- `profile_status`: a backend-derived value of `incomplete` or `complete`.
+- `documents_status`: a backend-derived value of `pending` or `complete`.
+- `primary_state`: a derived display/filter value using this precedence: `password_change_required`, `profile_incomplete`, `documents_pending`, then `complete`.
 
-`documents_pending` may coexist with `profile_complete`. Missing optional documents do not prevent profile completion.
+Document status may be pending while profile status is complete. Missing optional documents do not prevent profile completion. Password reset changes only the password requirement; it does not erase completed profile or document work.
 
 The implementation plan must define a single backend completion service used by student and admin APIs. The frontend must not independently calculate authoritative status.
 
@@ -149,7 +161,7 @@ Unless the existing canonical person/contact models impose a stronger requiremen
 - guardian or emergency contact name;
 - guardian or emergency contact phone.
 
-Document requirements should be configurable by Program or Batch. The planning agent must inspect the existing compliance/document models before deciding whether to extend them or introduce a dedicated requirement model.
+Document requirements are implemented through the compliance module and may be scoped globally, by Program, or by Batch. Effective requirements are the union of all applicable active scopes. Submitted or verified documents satisfy onboarding presence; pending or rejected requirements remain incomplete.
 
 ## 7. Student Experience
 
@@ -196,13 +208,15 @@ An implementation-planning agent must inspect the current branch before proposin
 - Admin password reset currently returns a temporary password; the target workflow must also restore first-login enforcement.
 - The earlier public intake/admissions surface is not part of this onboarding workflow.
 
+These differences describe code that must be reconciled, not production data that must be preserved. Prefer a clean implementation of this contract over compatibility adapters, legacy import support, or data backfills. Development, demo, and test data may be reset and recreated against the final schema.
+
 Do not assume historical freeze or audit documents describe the current working tree. Use current models, migrations, API routes, frontend routes, and tests as implementation truth.
 
 ## 11. Planning Requirements
 
 Any implementation plan based on this document must cover:
 
-- schema changes and safe migration of existing students/users;
+- schema changes and a clean database initialization/reset path;
 - a single atomic account/profile provisioning service;
 - import template, preview, commit, and error-report changes;
 - first-login enforcement in backend authorization and frontend routing;
@@ -211,7 +225,7 @@ Any implementation plan based on this document must cover:
 - student reminders and admin status/filter interfaces;
 - removal or reconciliation of independent student/user creation paths;
 - audit, permissions, media privacy, and password handling;
-- compatibility treatment for existing linked and unlinked records;
+- removal or replacement of legacy onboarding behavior without backward-compatibility shims;
 - focused backend, frontend, and end-to-end tests;
 - deployment sequencing, migration verification, and rollback considerations.
 
@@ -220,9 +234,9 @@ Any implementation plan based on this document must cover:
 The workflow is complete when all of the following are true:
 
 1. An administrator can import a valid student list after Programs and Batches exist.
-2. Every successful row creates exactly one Student and one linked student User.
-3. Invalid rows create neither record and return a useful error.
-4. No supported path creates an unlinked Student or standalone student-role User.
+2. Every successful row creates exactly one linked Student, Person, and student User.
+3. Invalid rows create none of the linked Student, Person, or User records and return a useful error.
+4. No supported path creates an unlinked Student, an unlinked student Person, or a standalone student-role User.
 5. Registration number is unique and works as the login identifier.
 6. Initial passwords never appear in output, logs, history, or downloadable reports.
 7. A new student cannot access normal student features before changing the initial password.
@@ -232,7 +246,7 @@ The workflow is complete when all of the following are true:
 11. Admins can filter incomplete students and see what is missing.
 12. Required documents can vary by Program or Batch and are reported separately from profile fields.
 13. Password reset re-enables mandatory password change.
-14. Existing students are migrated without losing academic, authentication, or profile data.
+14. A clean database can be initialized with the final schema, permissions, roles, and onboarding configuration without relying on legacy student data or compatibility paths.
 
 ## 13. Out of Scope
 

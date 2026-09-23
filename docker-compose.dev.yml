@@ -41,6 +41,7 @@ services:
     volumes:
       - ./backend/staticfiles:/app/staticfiles
       - ./backend/media:/app/media
+      - ./backend/private_media:/app/private_media
     ports:
       - "127.0.0.1:8010:8000"
     restart: unless-stopped

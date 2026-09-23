@@ -16,6 +16,7 @@ export interface User {
   role: string  // Admin, Registrar, Finance, ExamCell, Faculty, Student, User
   is_active: boolean
   student_id?: number  // Optional student ID for student users
+  password_change_required: boolean
 }
 
 export interface AuthState {
@@ -42,6 +43,10 @@ export interface LoginResponse {
     access: string
     refresh: string
   }
+}
+
+export interface PasswordChangeResult extends LoginResponse {
+  message: string
 }
 
 export interface TokenRefreshResponse {

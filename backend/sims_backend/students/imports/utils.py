@@ -5,7 +5,7 @@ import io
 from typing import Any
 
 
-def parse_csv_file(file) -> list[dict[str, str]]:
+def parse_csv_file_with_headers(file) -> tuple[list[str], list[dict[str, str]]]:
     """
     Parse CSV file safely, handling UTF-8, BOM, and common issues.
     Returns list of dictionaries with column names as keys.
@@ -24,11 +24,16 @@ def parse_csv_file(file) -> list[dict[str, str]]:
 
     # Parse CSV
     reader = csv.DictReader(io.StringIO(text))
+    headers = reader.fieldnames or []
     rows = []
     for row in reader:
         rows.append(row)
 
-    return rows
+    return headers, rows
+
+
+def parse_csv_file(file) -> list[dict[str, str]]:
+    return parse_csv_file_with_headers(file)[1]
 
 
 def normalize_value(value: str | None) -> str | None:

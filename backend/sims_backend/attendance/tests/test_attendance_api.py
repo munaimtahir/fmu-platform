@@ -56,7 +56,7 @@ def academic_setup(db, faculty_user):
         ends_at=f"{today_str} 10:00:00",
     )
 
-    student = Student.objects.create(reg_no="2024-001", name="John Doe", program=program, batch=batch, group=group)
+    student = make_student(reg_no="2024-001", name="John Doe", program=program, batch=batch, group=group)
 
     return {"session": session, "student": student}
 
@@ -141,3 +141,5 @@ class TestAttendanceAPI:
         assert response.data["present"] == 7
         assert response.data["absent"] == 3
         assert response.data["percentage"] == 70.0
+
+from sims_backend.students.test_factories import make_student

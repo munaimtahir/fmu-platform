@@ -38,6 +38,7 @@ export const navigationConfig: NavigationItem[] = [
       { label: 'Students', path: '/students' },
       { label: 'Compliance', path: '/compliance' },
       { label: 'My Compliance', path: '/my-compliance' },
+      { label: 'Profile Onboarding', path: '/student/onboarding' },
     ],
   },
   {

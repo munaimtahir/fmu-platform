@@ -1,24 +1,22 @@
 /**
  * Students directory: server-side search and paging, row links to the student detail page,
- * and task-gated create / edit / delete.
+ * and onboarding visibility. Provisioning is handled only by the import workflow.
  */
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ColumnDef } from '@tanstack/react-table'
-import toast from 'react-hot-toast'
 import { DataTable } from '@/components/ui/DataTable/DataTable'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Badge, type BadgeVariant } from '@/components/ui/Badge'
-import { Can } from '@/components/shared/Can'
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { apiErrorMessage } from '@/lib/apiErrors'
 import { studentsService } from '@/services'
 import { Student } from '@/types'
-import { StudentForm } from './StudentForm'
+import { Select } from '@/components/ui/Select'
+import { Can } from '@/components/shared/Can'
 
 const PAGE_SIZE = 50
 
@@ -32,28 +30,19 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
 
 export function StudentsPage() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
+  const [onboardingState, setOnboardingState] = useState('')
   const [pageIndex, setPageIndex] = useState(0)
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingStudent, setEditingStudent] = useState<Student | null>(null)
-  const [deletingStudent, setDeletingStudent] = useState<Student | null>(null)
   const debouncedSearch = useDebouncedValue(search.trim(), 300)
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['students', debouncedSearch, pageIndex],
-    queryFn: () => studentsService.getAll({ page: pageIndex + 1, search: debouncedSearch || undefined }),
+    queryKey: ['students', debouncedSearch, onboardingState, pageIndex],
+    queryFn: () => studentsService.getAll({
+      page: pageIndex + 1,
+      search: debouncedSearch || undefined,
+      onboarding_state: onboardingState || undefined,
+    }),
   })
-
-  const handleAdd = () => {
-    setEditingStudent(null)
-    setIsFormOpen(true)
-  }
-
-  const handleFormClose = () => {
-    setIsFormOpen(false)
-    setEditingStudent(null)
-  }
 
   const columns = useMemo<ColumnDef<Student>[]>(
     () => [
@@ -74,6 +63,20 @@ export function StudentsPage() {
         ),
       },
       {
+        id: 'onboarding',
+        header: 'Onboarding',
+        cell: ({ row }) => (
+          <div>
+            <Badge variant={row.original.onboarding?.primary_state === 'complete' ? 'success' : 'warning'}>
+              {row.original.onboarding?.primary_state.replace(/_/g, ' ') ?? 'Not provisioned'}
+            </Badge>
+            {row.original.onboarding && (
+              <div className="text-xs text-ink-muted mt-1">{row.original.onboarding.profile_completion_percentage}% profile</div>
+            )}
+          </div>
+        ),
+      },
+      {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => (
@@ -81,24 +84,6 @@ export function StudentsPage() {
             <Button size="sm" variant="ghost" onClick={() => navigate(`/students/${row.original.id}`)} aria-label={`View ${row.original.name}`}>
               View
             </Button>
-            <Can tasks={['students.students.update']}>
-              <Button
-                size="sm"
-                variant="ghost"
-                aria-label={`Edit ${row.original.name}`}
-                onClick={() => {
-                  setEditingStudent(row.original)
-                  setIsFormOpen(true)
-                }}
-              >
-                Edit
-              </Button>
-            </Can>
-            <Can tasks={['students.students.delete']}>
-              <Button size="sm" variant="danger" aria-label={`Delete ${row.original.name}`} onClick={() => setDeletingStudent(row.original)}>
-                Delete
-              </Button>
-            </Can>
           </div>
         ),
       },
@@ -111,18 +96,11 @@ export function StudentsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
         <h1 className="text-h1">Students</h1>
         <div className="flex flex-wrap gap-3">
-          <Can roles={['Admin', 'Coordinator']}>
-            <Button onClick={() => navigate('/system/students/import')} variant="secondary">
-              Bulk Upload
-            </Button>
-          </Can>
-          <Can tasks={['students.students.create']}>
-            <Button onClick={handleAdd}>Add Student</Button>
-          </Can>
+          <Button onClick={() => navigate('/system/students/import')} variant="secondary">Provision students</Button>
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-col sm:flex-row gap-3">
         <Input
           aria-label="Search students"
           placeholder="Search students..."
@@ -133,6 +111,19 @@ export function StudentsPage() {
           }}
           className="max-w-sm"
         />
+        <Can tasks={['students.onboarding.view']}><Select
+          label="Onboarding state"
+          value={onboardingState}
+          onChange={(value) => { setOnboardingState(value); setPageIndex(0) }}
+          options={[
+            { value: '', label: 'All onboarding states' },
+            { value: 'password_change_required', label: 'Password change required' },
+            { value: 'profile_incomplete', label: 'Profile incomplete' },
+            { value: 'profile_complete', label: 'Profile complete' },
+            { value: 'documents_pending', label: 'Documents pending' },
+            { value: 'complete', label: 'Onboarding complete' },
+          ]}
+        /></Can>
       </div>
 
       {isError ? (
@@ -150,32 +141,6 @@ export function StudentsPage() {
           totalCount={data?.count ?? 0}
           pagination={{ pageIndex, pageSize: PAGE_SIZE }}
           onPaginationChange={(next) => setPageIndex(next.pageIndex)}
-        />
-      )}
-
-      {isFormOpen && (
-        <StudentForm
-          student={editingStudent}
-          onClose={handleFormClose}
-          onSuccess={() => {
-            handleFormClose()
-            queryClient.invalidateQueries({ queryKey: ['students'] })
-          }}
-        />
-      )}
-
-      {deletingStudent && (
-        <ConfirmDialog
-          title="Delete student"
-          message={`Delete ${deletingStudent.name} (${deletingStudent.reg_no})? This cannot be undone.`}
-          confirmLabel="Delete student"
-          variant="danger"
-          onConfirm={async () => {
-            await studentsService.delete(deletingStudent.id)
-            toast.success('Student deleted successfully')
-            queryClient.invalidateQueries({ queryKey: ['students'] })
-          }}
-          onClose={() => setDeletingStudent(null)}
         />
       )}
     </div>

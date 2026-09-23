@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from sims_backend.students.models import Student
 
 User = get_user_model()
 
@@ -108,7 +109,14 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate_role(self, value):
-        _role_group(value)
+        group = _role_group(value)
+        if group.name.upper() == "STUDENT":
+            raise serializers.ValidationError("Student accounts must be created through student onboarding")
+        return value
+
+    def validate_username(self, value):
+        if User.objects.filter(username__iexact=value).exists() or Student.objects.filter(reg_no__iexact=value).exists():
+            raise serializers.ValidationError("This username conflicts with an existing account or registration number")
         return value
 
     def create(self, validated_data):
@@ -142,8 +150,29 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def validate_role(self, value):
-        _role_group(value)
+        group = _role_group(value)
+        linked_student = hasattr(self.instance, "student")
+        if linked_student and group.name.upper() != "STUDENT":
+            raise serializers.ValidationError("A linked student must retain the Student role")
+        if group.name.upper() == "STUDENT" and not linked_student:
+            raise serializers.ValidationError("Student role requires a linked student provisioned through onboarding")
         return value
+
+    def validate_username(self, value):
+        if hasattr(self.instance, "student") and value != self.instance.username:
+            raise serializers.ValidationError("A linked student's username is immutable")
+        if User.objects.filter(username__iexact=value).exclude(pk=self.instance.pk).exists():
+            raise serializers.ValidationError("This username is already in use")
+        return value
+
+    def validate(self, attrs):
+        if hasattr(self.instance, "student"):
+            forbidden = {"email", "first_name", "last_name"}.intersection(attrs)
+            if forbidden:
+                raise serializers.ValidationError(
+                    {field: "Use the student profile correction action" for field in forbidden}
+                )
+        return attrs
 
     def update(self, instance, validated_data):
         """Update user and role."""

@@ -58,6 +58,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({ roles: EMPTY_ACCESS.roles, tasks: EMPTY_ACCESS.tasks, accessLoaded: true })
       return
     }
+    if (user.password_change_required) {
+      set({ roles: normalizeRoles([user.role]), tasks: [], accessLoaded: true })
+      return
+    }
     try {
       const access = await getAccessContext()
       set({ roles: access.roles, tasks: access.tasks, accessLoaded: true })

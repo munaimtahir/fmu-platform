@@ -1,0 +1,46 @@
+name: Student Onboarding Acceptance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  onboarding:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DJANGO_SECRET_KEY: isolated-onboarding-ci-secret-not-for-deployment
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install backend dependencies
+        run: |
+          python -m venv backend/.venv
+          backend/.venv/bin/pip install -r backend/requirements.txt
+      - name: Backend onboarding integration tests
+        working-directory: backend
+        run: .venv/bin/python -m pytest tests/test_student_imports_extended.py sims_backend/students/tests sims_backend/admin/tests.py --no-cov
+      - name: Install frontend and browser
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Isolated real-backend browser acceptance
+        working-directory: frontend
+        run: npm run e2e:onboarding
+      - name: Preserve acceptance screenshots and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: onboarding-acceptance
+          path: frontend/test-results
+          if-no-files-found: warn

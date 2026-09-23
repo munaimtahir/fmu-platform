@@ -40,8 +40,8 @@ def generate_and_email_transcript(student_id: int, recipient_email: str | None =
         if recipient_email:
             try:
                 send_mail(
-                    subject=f"Transcript for {student.name}",
-                    message=f"Please find attached your academic transcript.\n\nStudent: {student.name}\nRegistration No: {student.reg_no}",
+                    subject=f"Transcript for {student.display_name}",
+                    message=f"Please find attached your academic transcript.\n\nStudent: {student.display_name}\nRegistration No: {student.reg_no}",
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[recipient_email],
                     fail_silently=False,

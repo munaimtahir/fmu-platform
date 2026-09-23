@@ -290,7 +290,7 @@ class Command(BaseCommand):
                 login = next((s for s in student_logins if s["reg_no"] == student.reg_no), None)
                 if login:
                     self.stdout.write(
-                        f"     • {student.reg_no} - {student.name} ({login['username']} / {login['password']})"
+                        f"     • {student.reg_no} - {student.display_name} ({login['username']} / {login['password']})"
                     )
 
         self.stdout.write("\n" + "=" * 80)

@@ -19,7 +19,7 @@ from sims_backend.faculty.imports.utils import (
     parse_csv_file,
     safe_csv_export,
 )
-from sims_backend.students.imports.validators import (
+from sims_backend.faculty.imports.validators import (
     validate_email_format,
     validate_field_lengths,
 )

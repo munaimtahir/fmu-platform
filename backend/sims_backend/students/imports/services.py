@@ -1,564 +1,312 @@
-"""Student CSV import service - core business logic"""
+"""Secure, create-only student onboarding CSV import."""
 
-import io
-import re
-from datetime import datetime
+from __future__ import annotations
+
+import hashlib
+from datetime import datetime, timedelta
 from typing import Any
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.validators import validate_email
 from django.db import transaction
 from django.utils import timezone
 
-from core.branding import INSTITUTION_EMAIL_DOMAIN
+from sims_backend.academics.models import Batch, Group, Program
+from sims_backend.people.models import ContactInfo, Person
 from sims_backend.students.imports.models import ImportJob
-from sims_backend.students.imports.templates import get_expected_columns
-from sims_backend.students.imports.utils import (
-    normalize_row,
-    parse_csv_file,
-    parse_date_strict,
-    safe_csv_export,
-)
-from sims_backend.students.imports.validators import (
-    check_duplicate_in_file,
-    check_existing_in_db,
-    normalize_status,
-    resolve_batch,
-    resolve_group,
-    resolve_program,
-    validate_date_format,
-    validate_email_format,
-    validate_field_lengths,
-    validate_required_fields,
-    validate_status_choice,
-)
+from sims_backend.students.imports.templates import REQUIRED_COLUMNS, get_expected_columns
+from sims_backend.students.imports.utils import normalize_row, parse_csv_file_with_headers, safe_csv_export
 from sims_backend.students.models import Student
+from sims_backend.students.onboarding import ProvisioningData, normalize_registration_number, provision_student
 
 User = get_user_model()
+REDACTED = "[REDACTED]"
+
+
+def _file_hash(file) -> str:
+    file.seek(0)
+    digest = hashlib.sha256()
+    for chunk in file.chunks():
+        digest.update(chunk)
+    file.seek(0)
+    return digest.hexdigest()
+
+
+def _parse_iso_date(value: str | None):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError as exc:
+        raise ValidationError("date_of_birth must use YYYY-MM-DD") from exc
+
+
+def _sanitize(row: dict[str, Any]) -> dict[str, Any]:
+    return {key: (REDACTED if key == "initial_password" and value else value) for key, value in row.items()}
+
+
+def _validate_file_contract(headers, rows):
+    if not rows:
+        raise ValidationError("CSV must include a header and at least one student row")
+    if len(headers) != len(set(headers)):
+        duplicates = sorted({header for header in headers if headers.count(header) > 1})
+        raise ValidationError(f"Duplicate columns: {', '.join(duplicates)}")
+    columns = set(headers)
+    missing = set(REQUIRED_COLUMNS) - columns
+    unknown = columns - set(get_expected_columns())
+    if missing:
+        raise ValidationError(f"Missing required columns: {', '.join(sorted(missing))}")
+    if unknown:
+        raise ValidationError(f"Unsupported columns: {', '.join(sorted(str(item) for item in unknown))}")
+    expected_order = [column for column in get_expected_columns() if column in columns]
+    if headers != expected_order:
+        raise ValidationError("CSV columns must follow the downloaded template order")
+
+
+def _error_messages(exc: Exception) -> list[dict[str, str]]:
+    messages = exc.messages if isinstance(exc, ValidationError) else [str(exc)]
+    return [{"column": "row", "message": message} for message in messages]
+
+
+def _validated_row(row: dict[str, Any]) -> tuple[ProvisioningData, dict[str, Any]]:
+    required = ["first_name", "last_name", "registration_number", "program_id", "batch_id", "initial_password"]
+    missing = [field for field in required if not row.get(field)]
+    if missing:
+        raise ValidationError([f"Required field '{field}' is missing or empty" for field in missing])
+
+    reg_no = normalize_registration_number(str(row["registration_number"]))
+    try:
+        program = Program.objects.get(pk=int(row["program_id"]), is_active=True)
+        batch = Batch.objects.get(pk=int(row["batch_id"]), is_active=True)
+    except (TypeError, ValueError, Program.DoesNotExist, Batch.DoesNotExist) as exc:
+        raise ValidationError("Program and Batch IDs must identify active records") from exc
+    if batch.program_id != program.id:
+        raise ValidationError("Batch does not belong to Program")
+
+    group = None
+    if row.get("group_id"):
+        try:
+            group = Group.objects.get(pk=int(row["group_id"]), batch=batch)
+        except (TypeError, ValueError, Group.DoesNotExist) as exc:
+            raise ValidationError("Group must identify a record in the selected Batch") from exc
+
+    email = str(row.get("email") or "").strip()
+    if email:
+        validate_email(email)
+    gender = str(row.get("gender") or "").strip().lower()
+    valid_genders = {choice[0] for choice in Person.GENDER_CHOICES}
+    if gender and gender not in valid_genders:
+        raise ValidationError(f"gender must be one of: {', '.join(sorted(valid_genders))}")
+    password = str(row["initial_password"])
+    validate_password(
+        password,
+        user=User(
+            username=reg_no, first_name=row["first_name"], last_name=row["last_name"], email=row.get("email", "")
+        ),
+    )
+
+    data = ProvisioningData(
+        registration_number=reg_no,
+        first_name=str(row["first_name"]).strip(),
+        middle_name=str(row.get("middle_name") or "").strip(),
+        last_name=str(row["last_name"]).strip(),
+        initial_password=password,
+        program=program,
+        batch=batch,
+        group=group,
+        email=email,
+        mobile_number=str(row.get("mobile_number") or "").strip(),
+        date_of_birth=_parse_iso_date(row.get("date_of_birth")),
+        gender=gender,
+    )
+    if not data.first_name or not data.last_name:
+        raise ValidationError("First and last name are required")
+    for field in ("first_name", "middle_name", "last_name"):
+        if len(getattr(data, field)) > 100:
+            raise ValidationError(f"{field} exceeds 100 characters")
+    if len(data.mobile_number) > 20:
+        raise ValidationError("mobile_number exceeds 20 characters")
+    return data, _sanitize(row)
+
+
+def _matches_existing(student: Student, data: ProvisioningData) -> bool:
+    if not student.user_id or not student.person_id or student.user.username != data.registration_number:
+        return False
+    person = student.person
+    email = person.contact_info.filter(type=ContactInfo.TYPE_EMAIL).order_by("-is_primary", "id").first()
+    phone = person.contact_info.filter(type=ContactInfo.TYPE_PHONE).order_by("-is_primary", "id").first()
+    return all(
+        [
+            person.first_name == data.first_name,
+            person.middle_name == data.middle_name,
+            person.last_name == data.last_name,
+            person.date_of_birth == data.date_of_birth,
+            person.gender == data.gender,
+            (email.value if email else "") == data.email,
+            (phone.value if phone else "") == data.mobile_number,
+            student.program_id == data.program.id,
+            student.batch_id == data.batch.id,
+            student.group_id == (data.group.id if data.group else None),
+        ]
+    )
 
 
 class StudentImportService:
-    """Service for handling Student CSV imports"""
-
     @staticmethod
-    def _extract_name_parts(name: str) -> tuple[str, str]:
-        """Extract first name and last name from full name."""
-        parts = name.strip().split()
-        if not parts:
-            return "student", "user"
-        first_name = parts[0].lower()
-        last_name = " ".join(parts[1:]).lower() if len(parts) > 1 else "user"
-        return first_name, last_name
-
-    @staticmethod
-    def _format_batch_year(graduation_year: int | None) -> str:
-        """Format graduation year as 2-digit batch code (e.g., 2031 -> 'b31')."""
-        if not graduation_year:
-            return "b00"
-        # Get last 2 digits of year
-        year_2_digits = str(graduation_year)[-2:]
-        return f"b{year_2_digits}"
-
-    @staticmethod
-    def _generate_username(name: str, graduation_year: int | None = None) -> str:
-        """
-        Generate username in format: firstname.b{year}
-        Example: 'john.b31' for John graduating in 2031
-        """
-        first_name, _ = StudentImportService._extract_name_parts(name)
-        # Remove special characters and spaces, keep only alphanumeric
-        first_name_clean = re.sub(r"[^a-zA-Z0-9]", "", first_name)
-        batch_code = StudentImportService._format_batch_year(graduation_year)
-        return f"{first_name_clean}.{batch_code}"
-
-    @staticmethod
-    def _generate_email(name: str, graduation_year: int | None = None, provided_email: str | None = None) -> str:
-        """
-        Generate email in format: firstname.lastname.b{year}@<institution-domain>
-        The domain comes from INSTITUTION_EMAIL_DOMAIN.
-        """
-        if provided_email:
-            return provided_email.strip()
-
-        first_name, last_name = StudentImportService._extract_name_parts(name)
-        # Remove special characters and spaces, keep only alphanumeric
-        first_name_clean = re.sub(r"[^a-zA-Z0-9]", "", first_name)
-        last_name_clean = re.sub(r"[^a-zA-Z0-9]", "", last_name.replace(" ", ""))
-        batch_code = StudentImportService._format_batch_year(graduation_year)
-        return f"{first_name_clean}.{last_name_clean}.{batch_code}@{INSTITUTION_EMAIL_DOMAIN}"
-
-    @staticmethod
-    def _generate_password(graduation_year: int | None = None) -> str:
-        """
-        Generate a default password for student account.
-        Format: student{graduation_year} (e.g., student2031)
-        """
-        if graduation_year:
-            return f"student{graduation_year}"
-        # Fallback: generic password
-        return "student123"
-
-    @staticmethod
-    def _create_student_user(
-        student: Student, graduation_year: int | None = None, password: str | None = None
-    ) -> tuple[User, bool]:
-        """
-        Create a user account for a student.
-
-        Args:
-            student: Student record
-            graduation_year: Graduation year (from batch.start_year, which represents graduation year)
-            password: Optional custom password. If not provided, auto-generates password.
-
-        Returns:
-            Tuple[User, bool]: (user_object, created_flag)
-        """
-        # Extract name parts for username/email generation
-        first_name, last_name = StudentImportService._extract_name_parts(student.name)
-
-        # Generate username: firstname.b{year}
-        username = StudentImportService._generate_username(student.name, graduation_year)
-
-        # Generate email using the configured institution domain.
-        email = StudentImportService._generate_email(student.name, graduation_year, student.email)
-
-        # Use provided password or generate one: student{graduation_year}
-        if not password or not password.strip():
-            password = StudentImportService._generate_password(graduation_year)
-
-        # Check if user already exists
-        user, created = User.objects.get_or_create(
-            username=username,
-            defaults={
-                "email": email,
-                "first_name": first_name.capitalize(),
-                "last_name": last_name.title(),
-            },
-        )
-
-        # Set password if user was just created
-        if created:
-            user.set_password(password)
-            user.save()
-        else:
-            # Update email if it changed
-            if user.email != email:
-                user.email = email
-                user.save(update_fields=["email"])
-
-        # Ensure user is in Student group
-        student_group, _ = Group.objects.get_or_create(name="STUDENT")
-        user.groups.add(student_group)
-
-        # Link user to student if not already linked
-        if not student.user:
-            student.user = user
-            student.save(update_fields=["user"])
-
-        # Update student email if it was auto-generated
-        if not student.email or student.email.endswith("@sims.edu"):
-            student.email = email
-            student.save(update_fields=["email"])
-
-        return user, created
-
-    @staticmethod
-    def preview(file, user, mode: str = ImportJob.MODE_CREATE_ONLY, auto_create: bool = False) -> dict[str, Any]:
-        """
-        Phase 1: Parse and validate CSV file without writing to database.
-        Returns preview results with validation summary.
-        """
-        # Create ImportJob
-        import_job = ImportJob.objects.create(
+    def preview(file, user) -> dict[str, Any]:
+        headers, rows = parse_csv_file_with_headers(file)
+        _validate_file_contract(headers, rows)
+        file_hash = _file_hash(file)
+        job = ImportJob.objects.create(
             created_by=user,
-            mode=mode,
-            auto_create=auto_create,
             original_filename=file.name,
+            file_hash=file_hash,
             status=ImportJob.STATUS_PENDING,
+            expires_at=timezone.now() + timedelta(hours=24),
         )
+        preview_rows: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        counts = {"create_count": 0, "unchanged_count": 0, "reject_count": 0}
 
-        # Compute file hash
-        file_hash = ImportJob.compute_file_hash(file)
-        import_job.file_hash = file_hash
-
-        # Check for duplicate file hash (warn but don't block)
-        duplicate_job = (
-            ImportJob.objects.filter(file_hash=file_hash, mode=mode, status=ImportJob.STATUS_COMMITTED)
-            .exclude(id=import_job.id)
-            .first()
-        )
-
-        # Save file
-        import_job.file.save(file.name, file, save=True)
-
-        # Parse CSV
-        try:
-            rows = parse_csv_file(import_job.file)
-        except Exception as e:
-            import_job.status = ImportJob.STATUS_FAILED
-            import_job.save()
-            raise ValueError(f"Failed to parse CSV file: {str(e)}")
-
-        # Validate rows
-        preview_rows = []
-        seen_reg_nos = {}
-        total_rows = len(rows)
-        valid_count = 0
-        invalid_count = 0
-
-        for idx, row in enumerate(rows):
-            row_num = idx + 2  # +2 because row 1 is header, and we're 0-indexed
-            normalized_row = normalize_row(row)
-
-            # Collect all errors for this row
-            errors = []
-
-            # Validate required fields
-            errors.extend(validate_required_fields(normalized_row, row_num))
-
-            # If required fields are missing, skip other validations
-            if errors:
-                invalid_count += 1
-                preview_rows.append(
-                    {
-                        "row_number": row_num,
-                        "action": "SKIP",
-                        "errors": errors,
-                        "data": normalized_row,
-                    }
+        for index, raw in enumerate(rows, start=2):
+            row = normalize_row(raw)
+            try:
+                data, sanitized = _validated_row(row)
+                if data.registration_number in seen:
+                    raise ValidationError("Duplicate registration number in file")
+                seen.add(data.registration_number)
+                student = (
+                    Student.objects.filter(reg_no__iexact=data.registration_number)
+                    .select_related("user", "person")
+                    .first()
                 )
-                continue
-
-            reg_no = normalized_row.get("reg_no", "").strip()
-
-            # Check duplicates in file
-            errors.extend(check_duplicate_in_file(reg_no, idx, seen_reg_nos))
-
-            # Validate status choice
-            status_raw = normalized_row.get("status", "").strip()
-            errors.extend(validate_status_choice(status_raw, row_num))
-
-            # Resolve FK relationships (with auto-create if enabled)
-            program, program_errors = resolve_program(
-                normalized_row.get("program_name"), row_num, auto_create=auto_create
-            )
-            errors.extend(program_errors)
-
-            batch, batch_errors = resolve_batch(
-                normalized_row.get("batch_name"), program, row_num, auto_create=auto_create
-            )
-            errors.extend(batch_errors)
-
-            group, group_errors = resolve_group(
-                normalized_row.get("group_name"), batch, row_num, auto_create=auto_create
-            )
-            errors.extend(group_errors)
-
-            # Validate field lengths
-            errors.extend(validate_field_lengths(normalized_row, row_num))
-
-            # Validate email format
-            errors.extend(validate_email_format(normalized_row.get("email"), row_num))
-
-            # Validate date format
-            errors.extend(validate_date_format(normalized_row.get("date_of_birth"), row_num))
-
-            # Check existing in DB (for create_only mode)
-            if mode == ImportJob.MODE_CREATE_ONLY:
-                exists, existing_student = check_existing_in_db(reg_no, mode)
-                if exists:
-                    errors.append(
-                        {
-                            "column": "reg_no",
-                            "message": f"Student with reg_no '{reg_no}' already exists. Use UPSERT mode to update.",
-                        }
-                    )
-
-            # Determine action
-            if errors:
-                invalid_count += 1
-                action = "SKIP"
-            else:
-                valid_count += 1
-                # Check if will be created or updated
-                exists, existing_student = check_existing_in_db(reg_no, mode)
-                if exists and mode == ImportJob.MODE_UPSERT:
-                    action = "UPDATE"
+                user_exists = User.objects.filter(username__iexact=data.registration_number).exists()
+                if student and _matches_existing(student, data):
+                    action = "UNCHANGED"
+                    counts["unchanged_count"] += 1
+                elif student or user_exists:
+                    raise ValidationError("Registration number collides with existing or mismatched records")
                 else:
                     action = "CREATE"
-
-            # Add generated fields to preview data (for valid rows or rows with batch/program resolved)
-            preview_data = normalized_row.copy()
-            if batch and not errors:  # Only add generated fields if batch is resolved and no critical errors
-                graduation_year = batch.start_year if batch else None
-                name = normalized_row.get("name", "")
-
-                # Generate username
-                username = StudentImportService._generate_username(name, graduation_year)
-                preview_data["_generated_username"] = username
-
-                # Generate email (use provided email if available, otherwise generate)
-                provided_email = normalized_row.get("email", "").strip()
-                email = StudentImportService._generate_email(
-                    name, graduation_year, provided_email if provided_email else None
+                    counts["create_count"] += 1
+                preview_rows.append({"row_number": index, "action": action, "errors": [], "data": sanitized})
+            except Exception as exc:
+                counts["reject_count"] += 1
+                preview_rows.append(
+                    {"row_number": index, "action": "REJECT", "errors": _error_messages(exc), "data": _sanitize(row)}
                 )
-                preview_data["_generated_email"] = email
 
-                # Generate password (use provided password if available, otherwise generate)
-                provided_password = normalized_row.get("password", "").strip()
-                password = (
-                    provided_password if provided_password else StudentImportService._generate_password(graduation_year)
-                )
-                preview_data["_generated_password"] = password
-
-            preview_rows.append(
-                {
-                    "row_number": row_num,
-                    "action": action,
-                    "errors": errors,
-                    "data": preview_data,
-                }
-            )
-
-        # Update ImportJob with preview results
-        import_job.total_rows = total_rows
-        import_job.valid_rows = valid_count
-        import_job.invalid_rows = invalid_count
-        import_job.status = ImportJob.STATUS_PREVIEWED
-        import_job.save()
-
-        # Prepare response
-        response = {
-            "import_job_id": str(import_job.id),
-            "total_rows": total_rows,
-            "valid_rows": valid_count,
-            "invalid_rows": invalid_count,
-            "duplicate_file_warning": duplicate_job is not None,
-            "preview_rows": preview_rows,  # Return all rows for preview
-            "summary": {
-                "create_count": sum(1 for r in preview_rows if r["action"] == "CREATE"),
-                "update_count": sum(1 for r in preview_rows if r["action"] == "UPDATE"),
-                "skip_count": sum(1 for r in preview_rows if r["action"] == "SKIP"),
-            },
+        job.total_rows = len(rows)
+        job.valid_rows = counts["create_count"] + counts["unchanged_count"]
+        job.invalid_rows = counts["reject_count"]
+        job.status = ImportJob.STATUS_PREVIEWED
+        job.summary = counts
+        job.save()
+        return {
+            "import_job_id": str(job.id),
+            "total_rows": job.total_rows,
+            "valid_rows": job.valid_rows,
+            "invalid_rows": job.invalid_rows,
+            "duplicate_file_warning": ImportJob.objects.filter(file_hash=file_hash, status=ImportJob.STATUS_COMMITTED)
+            .exclude(id=job.id)
+            .exists(),
+            "preview_rows": preview_rows,
+            "summary": counts,
         }
 
-        return response
+    @staticmethod
+    def commit(import_job_id: str, file, user) -> dict[str, Any]:
+        # Persist expiry outside the row-commit transaction: raising a validation
+        # error inside that transaction would otherwise roll this state back.
+        ImportJob.objects.filter(
+            id=import_job_id,
+            created_by=user,
+            status=ImportJob.STATUS_PREVIEWED,
+            expires_at__lte=timezone.now(),
+        ).update(status=ImportJob.STATUS_FAILED, finished_at=timezone.now(), summary={"error": "Preview expired"})
+        return StudentImportService._commit(import_job_id, file, user)
 
     @staticmethod
     @transaction.atomic
-    def commit(import_job_id: str, user, auto_create: bool = False) -> dict[str, Any]:
-        """
-        Phase 2: Commit validated rows to database.
-        Only processes rows that were marked as valid in preview.
-        """
+    def _commit(import_job_id: str, file, user) -> dict[str, Any]:
         try:
-            import_job = ImportJob.objects.get(id=import_job_id)
-        except ImportJob.DoesNotExist:
-            raise ValueError(f"ImportJob {import_job_id} not found")
+            job = ImportJob.objects.select_for_update().get(id=import_job_id, created_by=user)
+        except ImportJob.DoesNotExist as exc:
+            raise ValidationError("Import job not found") from exc
+        if job.status == ImportJob.STATUS_COMMITTED:
+            return StudentImportService._commit_response(job)
+        if job.status != ImportJob.STATUS_PREVIEWED:
+            raise ValidationError("Import job must be previewed before commit")
+        if timezone.now() >= job.expires_at:
+            job.status = ImportJob.STATUS_FAILED
+            job.finished_at = timezone.now()
+            job.summary = {"error": "Preview expired"}
+            job.save(update_fields=["status", "finished_at", "summary", "updated_at"])
+            raise ValidationError("Import preview expired; upload the file for a new preview")
+        if _file_hash(file) != job.file_hash:
+            raise ValidationError("Uploaded file does not match the previewed file")
 
-        # Ensure job is in PREVIEWED status
-        if import_job.status != ImportJob.STATUS_PREVIEWED:
-            raise ValueError(f"ImportJob must be in PREVIEWED status. Current status: {import_job.status}")
-
-        # Use auto_create setting from import_job (or override if provided)
-        if auto_create is None:
-            auto_create = import_job.auto_create
-
-        # Re-parse and re-validate (for safety)
-        rows = parse_csv_file(import_job.file)
-
-        created_count = 0
-        updated_count = 0
-        failed_count = 0
-        error_rows = []
-        seen_reg_nos = {}
-
-        for idx, row in enumerate(rows):
-            row_num = idx + 2
-            normalized_row = normalize_row(row)
-
-            # Quick validation (same as preview)
-            errors = []
-            errors.extend(validate_required_fields(normalized_row, row_num))
-
-            if errors:
-                failed_count += 1
-                error_rows.append(
-                    {
-                        **normalized_row,
-                        "error_message": "; ".join([e["message"] for e in errors]),
-                    }
-                )
-                continue
-
-            reg_no = normalized_row.get("reg_no", "").strip()
-            errors.extend(check_duplicate_in_file(reg_no, idx, seen_reg_nos))
-
-            # Resolve FKs (with auto-create if enabled)
-            program, program_errors = resolve_program(
-                normalized_row.get("program_name"), row_num, auto_create=auto_create
-            )
-            errors.extend(program_errors)
-
-            batch, batch_errors = resolve_batch(
-                normalized_row.get("batch_name"), program, row_num, auto_create=auto_create
-            )
-            errors.extend(batch_errors)
-
-            group, group_errors = resolve_group(
-                normalized_row.get("group_name"), batch, row_num, auto_create=auto_create
-            )
-            errors.extend(group_errors)
-
-            # Additional validations
-            status_raw = normalized_row.get("status", "").strip()
-            errors.extend(validate_status_choice(status_raw, row_num))
-            status = normalize_status(status_raw)  # Normalize to exact choice value
-            # Safety: use default if status is None (shouldn't happen if validation passed)
-            if not status:
-                status = Student.STATUS_ACTIVE
-            errors.extend(validate_field_lengths(normalized_row, row_num))
-            errors.extend(validate_email_format(normalized_row.get("email"), row_num))
-
-            # Parse date
-            date_of_birth = None
-            if normalized_row.get("date_of_birth"):
-                date_of_birth_str = parse_date_strict(normalized_row.get("date_of_birth"))
-                if date_of_birth_str:
-                    try:
-                        date_of_birth = datetime.strptime(date_of_birth_str, "%Y-%m-%d").date()
-                    except ValueError:
-                        errors.append({"column": "date_of_birth", "message": "Invalid date format"})
-
-            if errors:
-                failed_count += 1
-                error_rows.append(
-                    {
-                        **normalized_row,
-                        "error_message": "; ".join([e["message"] for e in errors]),
-                    }
-                )
-                continue
-
-            # Create or update Student
+        headers, rows = parse_csv_file_with_headers(file)
+        _validate_file_contract(headers, rows)
+        created = unchanged = failed = 0
+        errors: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for index, raw in enumerate(rows, start=2):
+            row = normalize_row(raw)
             try:
-                exists, existing_student = check_existing_in_db(reg_no, import_job.mode)
-
-                if exists and import_job.mode == ImportJob.MODE_UPSERT:
-                    # Update existing
-                    existing_student.name = normalized_row.get("name")
-                    existing_student.program = program
-                    existing_student.batch = batch
-                    existing_student.group = group
-                    existing_student.status = status
-                    if normalized_row.get("email"):
-                        existing_student.email = normalized_row.get("email")
-                    if normalized_row.get("phone"):
-                        existing_student.phone = normalized_row.get("phone")
-                    if date_of_birth:
-                        existing_student.date_of_birth = date_of_birth
-                    existing_student.save()
-
-                    # Create user account if it doesn't exist
-                    if not existing_student.user:
-                        try:
-                            # batch.start_year represents graduation year
-                            graduation_year = batch.start_year if hasattr(batch, "start_year") else None
-                            # Get password from CSV if provided
-                            custom_password = normalized_row.get("password", "").strip() or None
-                            StudentImportService._create_student_user(
-                                student=existing_student, graduation_year=graduation_year, password=custom_password
-                            )
-                        except Exception as user_error:
-                            import logging
-
-                            logger = logging.getLogger(__name__)
-                            logger.warning(
-                                f"Failed to create user account for existing student {reg_no}: {str(user_error)}"
-                            )
-
-                    updated_count += 1
-                elif not exists:
-                    # Create new
-                    # Use provided email or it will be auto-generated in _create_student_user
-                    student_email = normalized_row.get("email") or ""
-
-                    student = Student.objects.create(
-                        reg_no=reg_no,
-                        name=normalized_row.get("name"),
-                        program=program,
-                        batch=batch,
-                        group=group,
-                        status=status,
-                        email=student_email,
-                        phone=normalized_row.get("phone") or "",
-                        date_of_birth=date_of_birth,
+                data, _ = _validated_row(row)
+                if data.registration_number in seen:
+                    raise ValidationError("Duplicate registration number in file")
+                seen.add(data.registration_number)
+                with transaction.atomic():
+                    student = (
+                        Student.objects.filter(reg_no__iexact=data.registration_number)
+                        .select_related("user", "person")
+                        .first()
                     )
-
-                    # Create user account for the student
-                    try:
-                        # batch.start_year represents graduation year
-                        graduation_year = batch.start_year if hasattr(batch, "start_year") else None
-                        # Get password from CSV if provided
-                        custom_password = normalized_row.get("password", "").strip() or None
-                        user, user_created = StudentImportService._create_student_user(
-                            student=student, graduation_year=graduation_year, password=custom_password
-                        )
-                    except Exception as user_error:
-                        # Log error but don't fail the import
-                        # Student record is created, user can be created later
-                        import logging
-
-                        logger = logging.getLogger(__name__)
-                        logger.warning(f"Failed to create user account for student {reg_no}: {str(user_error)}")
-
-                    created_count += 1
-                else:
-                    # CREATE_ONLY mode but student exists
-                    failed_count += 1
-                    error_rows.append(
-                        {
-                            **normalized_row,
-                            "error_message": f"Student with reg_no '{reg_no}' already exists. Use UPSERT mode to update.",
-                        }
-                    )
-            except Exception as e:
-                failed_count += 1
-                error_rows.append(
+                    user_exists = User.objects.filter(username__iexact=data.registration_number).exists()
+                    if student and _matches_existing(student, data):
+                        unchanged += 1
+                    elif student or user_exists:
+                        raise ValidationError("Registration number collides with existing or mismatched records")
+                    else:
+                        provision_student(data, actor=user, import_job_id=str(job.id))
+                        created += 1
+            except Exception as exc:
+                failed += 1
+                errors.append(
                     {
-                        **normalized_row,
-                        "error_message": f"Database error: {str(e)}",
+                        **{key: value for key, value in _sanitize(row).items() if key != "initial_password"},
+                        "row_number": index,
+                        "error_message": "; ".join(item["message"] for item in _error_messages(exc)),
                     }
                 )
 
-        # Generate error CSV if there are errors
-        error_report_file = None
-        if error_rows:
-            error_fieldnames = get_expected_columns() + ["error_message"]
-            error_csv_content = safe_csv_export(error_rows, error_fieldnames)
-            error_filename = f"errors_{import_job.id}.csv"
-            error_report_file = io.BytesIO(error_csv_content)
-            import_job.error_report_file.save(error_filename, error_report_file, save=False)
+        if errors:
+            fields = [field for field in get_expected_columns() if field != "initial_password"] + [
+                "row_number",
+                "error_message",
+            ]
+            job.error_report_file.save(f"errors_{job.id}.csv", ContentFile(safe_csv_export(errors, fields)), save=False)
+        job.created_count = created
+        job.unchanged_count = unchanged
+        job.failed_count = failed
+        job.status = ImportJob.STATUS_COMMITTED
+        job.finished_at = timezone.now()
+        job.summary = {"created": created, "unchanged": unchanged, "failed": failed}
+        job.save()
+        return StudentImportService._commit_response(job)
 
-        # Update ImportJob
-        import_job.created_count = created_count
-        import_job.updated_count = updated_count
-        import_job.failed_count = failed_count
-        import_job.status = ImportJob.STATUS_COMMITTED
-        import_job.finished_at = timezone.now()
-        import_job.summary = {
-            "created": created_count,
-            "updated": updated_count,
-            "failed": failed_count,
-            "total_processed": created_count + updated_count + failed_count,
-        }
-        import_job.save()
-
+    @staticmethod
+    def _commit_response(job: ImportJob) -> dict[str, Any]:
         return {
-            "import_job_id": str(import_job.id),
-            "status": import_job.status,
-            "created_count": created_count,
-            "updated_count": updated_count,
-            "failed_count": failed_count,
-            "has_error_report": error_report_file is not None,
+            "import_job_id": str(job.id),
+            "status": job.status,
+            "created_count": job.created_count,
+            "unchanged_count": job.unchanged_count,
+            "failed_count": job.failed_count,
+            "has_error_report": bool(job.error_report_file),
         }

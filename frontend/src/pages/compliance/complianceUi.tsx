@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/Input'
 import { LabeledSelect } from '@/components/shared/LabeledSelect'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { useDownload } from '@/lib/download'
-import { fileNameFromUrl, sameOriginPath } from '@/lib/mediaUrl'
+import { complianceService } from '@/services/compliance'
 import { studentsService } from '@/services/students'
 import type { RequirementInstance, RequirementStatus, RequirementSubmission } from '@/services/compliance'
 
@@ -25,7 +25,7 @@ export const RequirementStatusBadge: React.FC<{ status: RequirementStatus }> = (
 export const formatDateTime = (value: string | null | undefined) => (value ? new Date(value).toLocaleString() : '—')
 
 /** One line per past submission, newest first, with authenticated file download. */
-export const SubmissionHistory: React.FC<{ submissions: RequirementSubmission[] }> = ({ submissions }) => {
+export const SubmissionHistory: React.FC<{ requirementId: number; submissions: RequirementSubmission[]; admin?: boolean }> = ({ requirementId, submissions, admin = false }) => {
   const { download, error, isDownloading } = useDownload()
   if (submissions.length === 0) return <p className="text-sm text-ink-muted">No submissions yet.</p>
   const ordered = [...submissions].sort((a, b) => b.created_at.localeCompare(a.created_at))
@@ -33,19 +33,21 @@ export const SubmissionHistory: React.FC<{ submissions: RequirementSubmission[] 
     <div>
       <ul className="space-y-2">
         {ordered.map((submission) => {
-          const path = sameOriginPath(submission.file)
+          const path = admin
+            ? complianceService.adminSubmissionDownloadPath(requirementId, submission.id)
+            : complianceService.studentSubmissionDownloadPath(requirementId, submission.id)
           return (
             <li key={submission.id} className="text-sm flex flex-wrap items-center gap-2">
               <span className="text-ink-muted">{formatDateTime(submission.created_at)}</span>
               {submission.submitted_by_name && <span className="text-ink-muted">by {submission.submitted_by_name}</span>}
               {submission.value && <span className="text-ink-primary">“{submission.value}”</span>}
-              {path && (
+              {submission.has_file && (
                 <Button
                   size="sm"
                   variant="ghost"
                   disabled={isDownloading}
                   aria-label={`Download file submitted ${formatDateTime(submission.created_at)}`}
-                  onClick={() => download(path, { filename: fileNameFromUrl(submission.file, 'submission') })}
+                  onClick={() => download(path, { filename: submission.file_name || 'submission' })}
                 >
                   Download file
                 </Button>

@@ -121,3 +121,28 @@ class TestSyllabusItem:
         response = api_client.post("/api/admin/syllabus/", data, format="json")
         assert response.status_code == 400
         assert "anchor" in str(response.json()).lower()
+
+    def test_model_clean_rejects_invalid_order_and_hierarchy(self):
+        program_a = Program.objects.create(name="Program A", is_active=True)
+        program_b = Program.objects.create(name="Program B", is_active=True)
+        period = Period.objects.create(program=program_a, name="Year 1", order=1)
+        invalid_order = SyllabusItem(program=program_a, title="Bad", order_no=0)
+        with pytest.raises(Exception, match="order_no"):
+            invalid_order.full_clean()
+        mismatch = SyllabusItem(program=program_b, period=period, title="Mismatch", order_no=1)
+        with pytest.raises(Exception, match="Period must belong"):
+            mismatch.full_clean()
+
+    def test_serializer_rejects_zero_order(self):
+        from sims_backend.syllabus.serializers import SyllabusItemSerializer
+
+        program = Program.objects.create(name="Program", is_active=True)
+        serializer = SyllabusItemSerializer(data={"program": program.id, "title": "Bad", "order_no": 0})
+        assert not serializer.is_valid()
+        assert "order_no" in str(serializer.errors)
+
+    def test_reorder_empty_list_and_missing_item(self, api_client, admin_user):
+        api_client.force_authenticate(user=admin_user)
+        assert api_client.post("/api/admin/syllabus/reorder/", {"items": []}, format="json").data == {"success": True, "updated": 0}
+        response = api_client.post("/api/admin/syllabus/reorder/", {"items": [{"id": 99999, "order_no": 1}]}, format="json")
+        assert response.status_code == 404

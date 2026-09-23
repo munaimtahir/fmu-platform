@@ -35,7 +35,7 @@ class ResultHeaderViewSetTestCase(APITestCase):
         self.period = AcademicPeriod.objects.create(period_type="YEAR", name="Year 1")
 
         # Create Students
-        self.student = Student.objects.create(
+        self.student = make_student(
             user=self.student_user,
             reg_no="REG001",
             name="Student 1",
@@ -44,7 +44,7 @@ class ResultHeaderViewSetTestCase(APITestCase):
             group=self.group,
         )
 
-        self.other_student = Student.objects.create(
+        self.other_student = make_student(
             user=self.other_student_user,
             reg_no="REG002",
             name="Student 2",
@@ -130,3 +130,5 @@ class ResultHeaderViewSetTestCase(APITestCase):
 
         # Admin should see all 3 results
         self.assertEqual(len(results), 3)
+
+from sims_backend.students.test_factories import make_student

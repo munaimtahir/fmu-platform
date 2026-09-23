@@ -1,4 +1,30 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserChangeForm
+from django import forms
+
+
+class StaffUserChangeForm(UserChangeForm):
+    def clean_groups(self):
+        groups = self.cleaned_data["groups"]
+        if groups.filter(name__iexact="STUDENT").exists():
+            raise forms.ValidationError("Student accounts are managed through student onboarding")
+        return groups
+
+
+class OnboardingAwareUserAdmin(UserAdmin):
+    form = StaffUserChangeForm
+
+    def has_change_permission(self, request, obj=None):
+        return not (obj and hasattr(obj, "student")) and super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return not (obj and hasattr(obj, "student")) and super().has_delete_permission(request, obj)
+
+
+admin.site.unregister(get_user_model())
+admin.site.register(get_user_model(), OnboardingAwareUserAdmin)
 
 from core.models import (
     FacultyProfile,

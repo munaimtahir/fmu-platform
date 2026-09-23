@@ -15,9 +15,10 @@ import { Can } from '@/components/shared/Can'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { LabeledSelect } from '@/components/shared/LabeledSelect'
 import { apiErrorMessage, parseApiError } from '@/lib/apiErrors'
-import { batchesService } from '@/services/batches'
-import { academicsService } from '@/services/academics'
-import { programsService } from '@/services/programs'
+import type { Batch } from '@/services/batches'
+import type { Group } from '@/services/academics'
+import type { Program } from '@/types'
+import { allPages } from '@/lib/allPages'
 import { resultsService } from '@/services/results'
 import { complianceService, type RequirementStatus } from '@/services/compliance'
 import {
@@ -64,21 +65,25 @@ const PlacementForm: React.FC<{ student: StudentDetail; onClose: () => void }> =
   const [group, setGroup] = useState(String(student.group ?? ''))
   const [error, setError] = useState<string | null>(null)
 
-  const programs = useQuery({ queryKey: ['placement-programs'], queryFn: () => programsService.getAll({ is_active: true }) })
+  const programs = useQuery({ queryKey: ['placement-programs'], queryFn: async () => ({ results: await allPages<Program>('/api/academics/programs/', { is_active: true }) }) })
   const batches = useQuery({
     queryKey: ['placement-batches', program],
-    queryFn: () => batchesService.getAll({ program: Number(program) }),
+    queryFn: async () => ({ results: await allPages<Batch>('/api/academics/batches/', { program: Number(program), is_active: true }) }),
     enabled: !!program,
   })
   const groups = useQuery({
     queryKey: ['placement-groups', batch],
-    queryFn: () => academicsService.getGroups({ batch: Number(batch) }),
+    queryFn: () => allPages<Group>('/api/academics/groups/', { batch: Number(batch) }),
     enabled: !!batch,
   })
 
   const mutation = useMutation({
     mutationFn: () =>
-      studentsService.updatePlacement(student.id, { program: Number(program), batch: Number(batch), group: Number(group) }),
+      studentsService.updatePlacement(student.id, {
+        program: Number(program),
+        batch: Number(batch),
+        group: group ? Number(group) : null,
+      }),
     onSuccess: () => {
       toast.success('Placement updated')
       queryClient.invalidateQueries({ queryKey: ['student', student.id] })
@@ -91,8 +96,8 @@ const PlacementForm: React.FC<{ student: StudentDetail; onClose: () => void }> =
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
     setError(null)
-    if (!program || !batch || !group) {
-      setError('Choose a program, batch and group.')
+    if (!program || !batch) {
+      setError('Choose a program and batch.')
       return
     }
     mutation.mutate()
@@ -101,6 +106,7 @@ const PlacementForm: React.FC<{ student: StudentDetail; onClose: () => void }> =
   return (
     <Modal title="Change placement" onClose={onClose}>
       <form onSubmit={submit} className="space-y-4" noValidate>
+        {(programs.isError || batches.isError || groups.isError) && <Alert variant="error">Could not load placement choices. <Button type="button" onClick={() => { programs.refetch(); if (program) batches.refetch(); if (batch) groups.refetch() }}>Retry</Button></Alert>}
         {error && <Alert variant="error">{error}</Alert>}
         <LabeledSelect
           id="placement-program"
@@ -131,9 +137,8 @@ const PlacementForm: React.FC<{ student: StudentDetail; onClose: () => void }> =
         <LabeledSelect
           id="placement-group"
           label="Group"
-          required
           value={group}
-          placeholder="Select a group"
+          placeholder="No group assigned"
           disabled={!batch}
           options={(groups.data ?? []).map((g) => ({ value: g.id, label: g.name }))}
           onChange={setGroup}
@@ -142,7 +147,7 @@ const PlacementForm: React.FC<{ student: StudentDetail; onClose: () => void }> =
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" isLoading={mutation.isPending}>
+          <Button type="submit" isLoading={mutation.isPending} disabled={programs.isFetching || batches.isFetching || groups.isFetching || programs.isError || batches.isError || groups.isError}>
             Save placement
           </Button>
         </div>

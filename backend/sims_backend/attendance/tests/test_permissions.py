@@ -43,10 +43,10 @@ def setup_data(db):
     academic_period = AcademicPeriod.objects.create(period_type=AcademicPeriod.PERIOD_TYPE_YEAR, name="2024-2025")
 
     # Create students
-    student1 = Student.objects.create(
+    student1 = make_student(
         user=student_user, reg_no="S1", name="Student 1", program=prog, batch=batch, group=group
     )
-    student2 = Student.objects.create(
+    student2 = make_student(
         user=other_student_user, reg_no="S2", name="Student 2", program=prog, batch=batch, group=group
     )
 
@@ -121,3 +121,5 @@ def test_student_cannot_edit_attendance(api_client, setup_data):
 
     # Expect 403 Forbidden
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+from sims_backend.students.test_factories import make_student

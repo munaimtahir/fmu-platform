@@ -45,7 +45,7 @@ def setup_notification_data(db):
     batch = Batch.objects.create(name="2024", program=program, start_year=2024)
     group = AcademicGroup.objects.create(name="A", batch=batch)
 
-    student_one = Student.objects.create(
+    student_one = make_student(
         user=student_user,
         reg_no="S1",
         name="Student One",
@@ -53,7 +53,7 @@ def setup_notification_data(db):
         batch=batch,
         group=group,
     )
-    student_two = Student.objects.create(
+    student_two = make_student(
         user=student_user_two,
         reg_no="S2",
         name="Student Two",
@@ -288,3 +288,5 @@ def test_send_email_enqueues_batches(setup_notification_data):
         expand_audience_and_create_inbox(notification.id)
 
         assert mock_queue.enqueue.called
+
+from sims_backend.students.test_factories import make_student

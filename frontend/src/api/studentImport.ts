@@ -3,10 +3,8 @@
  */
 import api from './axios'
 import type {
-  CommitRequest,
   CommitResponse,
   ImportJob,
-  ImportMode,
   PreviewResponse,
 } from '@/types/studentImport'
 
@@ -14,14 +12,10 @@ import type {
  * Upload CSV file and get preview
  */
 export async function previewImport(
-  file: File,
-  mode: ImportMode = 'CREATE_ONLY',
-  autoCreate: boolean = false
+  file: File
 ): Promise<PreviewResponse> {
   const formData = new FormData()
   formData.append('file', file)
-  formData.append('mode', mode)
-  formData.append('auto_create', String(autoCreate))
 
   const response = await api.post<PreviewResponse>(
     '/api/admin/students/import/preview/',
@@ -41,20 +35,18 @@ export async function previewImport(
  */
 export async function commitImport(
   importJobId: string,
-  confirm: boolean = true,
-  autoCreate?: boolean
+  file: File,
+  confirm: boolean = true
 ): Promise<CommitResponse> {
-  const payload: CommitRequest = {
-    import_job_id: importJobId,
-    confirm,
-  }
-  if (autoCreate !== undefined) {
-    payload.auto_create = autoCreate
-  }
+  const payload = new FormData()
+  payload.append('import_job_id', importJobId)
+  payload.append('confirm', String(confirm))
+  payload.append('file', file)
 
   const response = await api.post<CommitResponse>(
     '/api/admin/students/import/commit/',
-    payload
+    payload,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
   )
 
   return response.data

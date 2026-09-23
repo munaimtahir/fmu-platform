@@ -27,4 +27,6 @@ class ImpersonationAccessToken(AccessToken):
         # Generate unique JTI for this impersonation session
         alphabet = string.ascii_letters + string.digits
         token["impersonation_jti"] = "".join(secrets.choice(alphabet) for _ in range(32))
+        if hasattr(user, "student"):
+            token["student_credential_version"] = user.student.credential_version
         return token

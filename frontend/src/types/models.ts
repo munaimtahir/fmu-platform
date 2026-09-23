@@ -21,18 +21,32 @@ export interface Student {
   id: number
   reg_no: string
   name: string
+  first_name?: string
+  middle_name?: string
+  last_name?: string
+  gender?: string
   program: number
   program_name?: string
   program_full_name?: string
   batch: number
   batch_name?: string
-  group: number
+  group: number | null
   group_name?: string
   status: 'active' | 'inactive' | 'graduated' | 'suspended' | 'on_leave'
   status_display?: string
   email?: string
   phone?: string
   date_of_birth?: string
+  onboarding?: {
+    password_change_required: boolean
+    profile_status: 'incomplete' | 'complete'
+    documents_status: 'pending' | 'complete'
+    primary_state: 'password_change_required' | 'profile_incomplete' | 'documents_pending' | 'complete'
+    profile_completion_percentage: number
+    missing_fields: string[]
+    missing_sections: string[]
+    missing_documents: Array<{ requirement_id: number; title: string }>
+  } | null
   created_at?: string
   updated_at?: string
 }

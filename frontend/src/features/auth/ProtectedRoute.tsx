@@ -35,6 +35,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, path }
   const { isAuthenticated, isLoading, initialize } = useAuth()
   const roles = useAuthStore((state) => state.roles)
   const tasks = useAuthStore((state) => state.tasks)
+  const user = useAuthStore((state) => state.user)
   const accessLoaded = useAuthStore((state) => state.accessLoaded)
   const location = useLocation()
 
@@ -57,6 +58,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, path }
   if (!isAuthenticated) {
     // 401: Redirect to login page with return URL
     return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  if (user?.password_change_required && path !== '/change-password-required') {
+    return <Navigate to="/change-password-required" replace />
+  }
+
+  if (!user?.password_change_required && path === '/change-password-required') {
+    return <Navigate to="/student/onboarding" replace />
   }
 
   const access = getRouteAccess(path)

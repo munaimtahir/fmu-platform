@@ -21,7 +21,6 @@ from rest_framework.views import APIView
 from core.metrics import metrics_view
 from core.views import (
     ChangePasswordView,
-    EmailTokenObtainPairView,
     LogoutView,
     MeView,
     TokenRefreshView,
@@ -175,13 +174,6 @@ urlpatterns = [
     path("api/auth/refresh/", TokenRefreshView.as_view(), name="auth_refresh"),
     path("api/auth/me/", MeView.as_view(), name="auth_me"),
     path("api/auth/change-password/", ChangePasswordView.as_view(), name="auth_change_password"),
-    # Legacy auth endpoints (deprecated, kept for backward compatibility)
-    path("api/auth/token/", EmailTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path(
-        "api/auth/token/refresh/",
-        TokenRefreshView.as_view(),
-        name="token_refresh_legacy",
-    ),
     path("api/dashboard/stats/", dashboard_stats, name="dashboard_stats"),
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path(

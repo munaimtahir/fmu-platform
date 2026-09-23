@@ -6,6 +6,7 @@
  * Tasks: compliance.requirements.view|assign|review, compliance.definitions.*
  */
 import api from '@/api/axios'
+import { allPages } from '@/lib/allPages'
 import { postMultipart } from '@/lib/multipart'
 import { resultsOf, type Paginated } from '@/lib/pagination'
 
@@ -25,7 +26,8 @@ export const REQUIREMENT_TYPE_OPTIONS: Array<{ value: RequirementType; label: st
 
 export interface RequirementSubmission {
   id: number
-  file: string | null
+  has_file: boolean
+  file_name: string
   value: string
   submitted_by: number | null
   submitted_by_name: string | null
@@ -44,6 +46,8 @@ export interface RequirementInstance {
   completed_at: string | null
   notes: string
   is_locked: boolean
+  is_active: boolean
+  assignment_source: 'onboarding_scope' | 'manual'
   submissions: RequirementSubmission[]
   updated_at: string
 }
@@ -54,18 +58,32 @@ export interface RequirementDefinition {
   description: string
   requirement_type: RequirementType
   is_mid_session: boolean
+  is_active: boolean
+  is_onboarding_required: boolean
   created_at?: string
   updated_at?: string
 }
 
 export type RequirementDefinitionPayload = Pick<
   RequirementDefinition,
-  'title' | 'description' | 'requirement_type' | 'is_mid_session'
+  'title' | 'description' | 'requirement_type' | 'is_mid_session' | 'is_active' | 'is_onboarding_required'
 >
+
+export type RequirementScopeType = 'global' | 'program' | 'batch'
+export interface RequirementScope {
+  id: number
+  definition: number
+  scope_type: RequirementScopeType
+  program: number | null
+  batch: number | null
+  is_active: boolean
+}
+export type RequirementScopePayload = Omit<RequirementScope, 'id'>
 
 const MINE = '/api/compliance/my-compliance'
 const ADMIN = '/api/compliance/admin-compliance'
 const DEFINITIONS = '/api/compliance/definitions'
+const SCOPES = '/api/compliance/requirement-scopes'
 
 export const complianceService = {
   // --- Student self-service
@@ -85,6 +103,14 @@ export const complianceService = {
       value: submission.value?.trim() || undefined,
       file: submission.file ?? undefined,
     })
+  },
+
+  studentSubmissionDownloadPath(requirementId: number, submissionId: number): string {
+    return `${MINE}/${requirementId}/submissions/${submissionId}/download/`
+  },
+
+  adminSubmissionDownloadPath(requirementId: number, submissionId: number): string {
+    return `${ADMIN}/${requirementId}/submissions/${submissionId}/download/`
   },
 
   // --- Admin / Registrar review
@@ -146,6 +172,21 @@ export const complianceService = {
 
   async deleteDefinition(id: number): Promise<void> {
     await api.delete(`${DEFINITIONS}/${id}/`)
+  },
+
+  async listScopes(): Promise<RequirementScope[]> {
+    return allPages<RequirementScope>(`${SCOPES}/`)
+  },
+  async createScope(payload: RequirementScopePayload): Promise<RequirementScope> {
+    const response = await api.post<RequirementScope>(`${SCOPES}/`, payload)
+    return response.data
+  },
+  async updateScope(id: number, payload: Partial<RequirementScopePayload>): Promise<RequirementScope> {
+    const response = await api.patch<RequirementScope>(`${SCOPES}/${id}/`, payload)
+    return response.data
+  },
+  async archiveScope(id: number): Promise<void> {
+    await api.delete(`${SCOPES}/${id}/`)
   },
 }
 

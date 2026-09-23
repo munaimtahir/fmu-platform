@@ -1,7 +1,12 @@
 import { useState, useMemo } from 'react'
 import { SimpleTable } from '@/components/ui/SimpleTable'
 import { Badge } from '@/components/ui/Badge'
-import type { PreviewRow } from '@/types/studentImport'
+type PreviewRow = {
+  row_number: number
+  action: 'CREATE' | 'UPDATE' | 'SKIP' | 'UNCHANGED' | 'REJECT'
+  errors: Array<{ column: string; message: string }>
+  data: Record<string, string>
+}
 
 interface ImportPreviewTableProps {
   previewRows: PreviewRow[]
@@ -12,7 +17,7 @@ export function ImportPreviewTable({
 }: ImportPreviewTableProps) {
   const [filter, setFilter] = useState<'all' | 'valid' | 'invalid'>('all')
   const [actionFilter, setActionFilter] = useState<
-    'all' | 'CREATE' | 'UPDATE' | 'SKIP'
+    'all' | PreviewRow['action']
   >('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState<number | 'all'>(50)
@@ -55,9 +60,12 @@ export function ImportPreviewTable({
     switch (action) {
       case 'CREATE':
         return 'success'
-      case 'UPDATE':
-        return 'primary'
+      case 'UNCHANGED':
       case 'SKIP':
+        return 'primary'
+      case 'UPDATE':
+        return 'warning'
+      case 'REJECT':
         return 'danger'
       default:
         return 'default'
@@ -165,7 +173,7 @@ export function ImportPreviewTable({
             value={actionFilter}
             onChange={(e) => {
               setActionFilter(
-                e.target.value as 'all' | 'CREATE' | 'UPDATE' | 'SKIP'
+                e.target.value as 'all' | PreviewRow['action']
               )
               setCurrentPage(1) // Reset to first page when filter changes
             }}
@@ -175,6 +183,8 @@ export function ImportPreviewTable({
             <option value="CREATE">Create</option>
             <option value="UPDATE">Update</option>
             <option value="SKIP">Skip</option>
+            <option value="UNCHANGED">Unchanged</option>
+            <option value="REJECT">Reject</option>
           </select>
         </div>
         <div>

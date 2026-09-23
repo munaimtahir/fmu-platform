@@ -33,7 +33,7 @@ class StudentHomeViewTestCase(APITestCase):
         self.group = Group.objects.create(batch=self.batch, name="Group A")
         self.period = AcademicPeriod.objects.create(period_type="YEAR", name="Year 1")
 
-        self.student = Student.objects.create(
+        self.student = make_student(
             user=self.student_user,
             reg_no="MOB-001",
             name="Mobile Student",
@@ -41,7 +41,7 @@ class StudentHomeViewTestCase(APITestCase):
             batch=self.batch,
             group=self.group,
         )
-        self.other_student = Student.objects.create(
+        self.other_student = make_student(
             user=self.other_student_user,
             reg_no="MOB-002",
             name="Other Mobile Student",
@@ -184,3 +184,5 @@ class StudentHomeViewTestCase(APITestCase):
         generator = SchemaGenerator()
         schema = generator.get_schema(request=None, public=True)
         self.assertIn("/api/mobile/student/home/", schema["paths"])
+
+from sims_backend.students.test_factories import make_student

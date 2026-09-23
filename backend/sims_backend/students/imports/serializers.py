@@ -11,14 +11,6 @@ class PreviewRequestSerializer(serializers.Serializer):
     """Serializer for preview request"""
 
     file = serializers.FileField(help_text="CSV file to import")
-    mode = serializers.ChoiceField(
-        choices=ImportJob.MODE_CHOICES,
-        default=ImportJob.MODE_CREATE_ONLY,
-        help_text="Import mode: CREATE_ONLY or UPSERT",
-    )
-    auto_create = serializers.BooleanField(
-        default=False, required=False, help_text="Automatically create missing Programs, Batches, and Groups"
-    )
 
 
 class RowErrorSerializer(serializers.Serializer):
@@ -33,7 +25,7 @@ class PreviewRowSerializer(serializers.Serializer):
     """Serializer for preview row result"""
 
     row_number = serializers.IntegerField()
-    action = serializers.CharField()  # CREATE, UPDATE, SKIP
+    action = serializers.CharField()  # CREATE, UNCHANGED, REJECT
     errors = RowErrorSerializer(many=True)
     data = serializers.DictField()
 
@@ -57,11 +49,7 @@ class CommitRequestSerializer(serializers.Serializer):
 
     import_job_id = serializers.UUIDField(help_text="ID of the previewed import job")
     confirm = serializers.BooleanField(help_text="Must be True to confirm commit")
-    auto_create = serializers.BooleanField(
-        default=False,
-        required=False,
-        help_text="Automatically create missing Programs, Batches, and Groups (must match preview setting)",
-    )
+    file = serializers.FileField(help_text="The same CSV file used for preview")
 
 
 @extend_schema_serializer(component_name="StudentImportCommitResponse")
@@ -71,7 +59,7 @@ class CommitResponseSerializer(serializers.Serializer):
     import_job_id = serializers.UUIDField()
     status = serializers.CharField()
     created_count = serializers.IntegerField()
-    updated_count = serializers.IntegerField()
+    unchanged_count = serializers.IntegerField()
     failed_count = serializers.IntegerField()
     has_error_report = serializers.BooleanField()
 
@@ -80,6 +68,10 @@ class ImportJobSerializer(serializers.ModelSerializer):
     """Serializer for ImportJob model"""
 
     created_by_username = serializers.CharField(source="created_by.username", read_only=True)
+    has_error_report = serializers.SerializerMethodField()
+
+    def get_has_error_report(self, obj) -> bool:
+        return bool(obj.error_report_file)
 
     class Meta:
         model = ImportJob
@@ -88,19 +80,18 @@ class ImportJobSerializer(serializers.ModelSerializer):
             "created_by",
             "created_by_username",
             "created_at",
+            "expires_at",
             "finished_at",
             "status",
-            "mode",
-            "auto_create",
             "original_filename",
             "file_hash",
             "total_rows",
             "valid_rows",
             "invalid_rows",
             "created_count",
-            "updated_count",
+            "unchanged_count",
             "failed_count",
-            "error_report_file",
+            "has_error_report",
             "summary",
         ]
         read_only_fields = [
@@ -113,8 +104,7 @@ class ImportJobSerializer(serializers.ModelSerializer):
             "valid_rows",
             "invalid_rows",
             "created_count",
-            "updated_count",
+            "unchanged_count",
             "failed_count",
-            "error_report_file",
             "summary",
         ]

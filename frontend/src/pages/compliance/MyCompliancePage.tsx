@@ -137,7 +137,7 @@ const RequirementCard: React.FC<{ requirement: RequirementInstance; onSubmit: ()
 
       <div className="mt-4">
         <h3 className="text-sm font-medium text-ink-primary mb-2">Submission history</h3>
-        <SubmissionHistory submissions={requirement.submissions} />
+        <SubmissionHistory requirementId={requirement.id} submissions={requirement.submissions} />
       </div>
 
       <div className="mt-4 flex justify-end">

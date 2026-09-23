@@ -189,6 +189,18 @@ api.interceptors.response.use(
       _retry?: boolean
     }
 
+    const responseData = error.response?.data as {
+      error?: { code?: string }
+      detail?: { error?: { code?: string } }
+    } | undefined
+    const errorCode = responseData?.error?.code ?? responseData?.detail?.error?.code
+    if (errorCode === 'PASSWORD_CHANGE_REQUIRED') {
+      if (window.location.pathname !== '/change-password-required') {
+        window.location.assign('/change-password-required')
+      }
+      return Promise.reject(error)
+    }
+
     // If error is not 401 or request already retried, reject
     if (error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error)

@@ -88,7 +88,7 @@ class TestLearningMaterials:
         batch = Batch.objects.create(program=program, name="B", start_year=2024)
         group = StudentGroup.objects.create(batch=batch, name="G")
         student_user = make_user("lm_student", ["Student"])
-        Student.objects.create(
+        make_student(
             user=student_user, reg_no="L-1", name="L", program=program, batch=batch, group=group, email="l@e.edu"
         )
         assert status_for(api_client, student_user, "get", FEED) == 200
@@ -164,7 +164,7 @@ class TestTranscriptTasks:
         program = Program.objects.create(name="TP")
         batch = Batch.objects.create(program=program, name="TB", start_year=2024)
         group = StudentGroup.objects.create(batch=batch, name="TG")
-        return Student.objects.create(
+        return make_student(
             user=make_user("tr_student", ["STUDENT"]),
             reg_no="T-1",
             name="T",
@@ -217,3 +217,5 @@ class TestBiometricIngestion:
         user = make_user("bio_assigned", ["FACULTY"])
         grant(user, "attendance.biometric.ingest")
         assert status_for(api_client, user, "post", self.URL, data={"punches": []}) == 200
+
+from sims_backend.students.test_factories import make_student

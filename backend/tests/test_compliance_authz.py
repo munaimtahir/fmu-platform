@@ -26,7 +26,7 @@ def world(db):
 
     def make_student(username, reg_no):
         user = _user_in_group(username, "STUDENT")
-        student = Student.objects.create(
+        student = canonical_student(
             user=user, reg_no=reg_no, name=username, program=program, batch=batch, group=group
         )
         return user, student
@@ -131,7 +131,8 @@ class TestStudentOwnershipIsolation:
         instance.status = RequirementInstance.STATUS_PENDING
         instance.save()
         api_client.force_authenticate(user=world["owner_user"])
-        resp = api_client.post(f"{MY}{instance.id}/submit/", {"value": "mine"}, format="json")
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        resp = api_client.post(f"{MY}{instance.id}/submit/", {"file": SimpleUploadedFile("identity.pdf", b"%PDF-1.4\n%%EOF", content_type="application/pdf")}, format="multipart")
         assert resp.status_code == 200
 
 
@@ -178,3 +179,5 @@ class TestTranscriptEnqueueAuthorization:
         api_client.force_authenticate(user=world["other_user"])
         other = api_client.post("/api/transcripts/enqueue/", {"student_id": world["owner"].id}, format="json")
         assert other.status_code == 403
+
+from sims_backend.students.test_factories import make_student as canonical_student

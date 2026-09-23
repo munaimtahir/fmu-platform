@@ -56,7 +56,7 @@ class TestCoreViewsExtended:
         student_user = User.objects.create_user(username="stu1", password="pass")
         student_group, _ = Group.objects.get_or_create(name="STUDENT")
         student_user.groups.add(student_group)
-        Student.objects.create(user=student_user, reg_no="S1", name="Stu", program=program, batch=batch, group=group)
+        make_student(user=student_user, reg_no="S1", name="Stu", program=program, batch=batch, group=group)
 
         api_client.force_authenticate(user=student_user)
         response = api_client.get("/api/dashboard/stats/")
@@ -83,3 +83,5 @@ class TestCoreViewsExtended:
         assert response.status_code == 200
         assert "message" in response.data
         assert "No student record linked" in response.data["message"]
+
+from sims_backend.students.test_factories import make_student

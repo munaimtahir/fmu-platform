@@ -33,7 +33,7 @@ def learning_context(db):
 
     student_user = User.objects.create_user(username="student1", password="pass")
     student_user.groups.add(Group.objects.get(name="STUDENT"))
-    student = Student.objects.create(
+    student = make_student(
         user=student_user,
         reg_no="REG-001",
         name="Student One",
@@ -187,3 +187,5 @@ def test_faculty_can_delete_own_audiences(api_client, learning_context):
 
     # Verify audience is deleted
     assert not LearningMaterialAudience.objects.filter(id=audience.id).exists()
+
+from sims_backend.students.test_factories import make_student

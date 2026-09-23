@@ -60,7 +60,7 @@ def student2_user(db):
 @pytest.fixture
 def student1(db, student1_user, setup_academic_structure):
     """Create first student"""
-    return Student.objects.create(
+    return make_student(
         user=student1_user,
         reg_no="MBBS2401",
         name="Student One",
@@ -74,7 +74,7 @@ def student1(db, student1_user, setup_academic_structure):
 @pytest.fixture
 def student2(db, student2_user, setup_academic_structure):
     """Create second student"""
-    return Student.objects.create(
+    return make_student(
         user=student2_user,
         reg_no="MBBS2402",
         name="Student Two",
@@ -306,3 +306,5 @@ class TestRoleBasedAPIAccess:
         assert api_client.get("/api/auth/me/").status_code == status.HTTP_200_OK
         assert api_client.get("/api/students/").status_code == status.HTTP_200_OK
         assert api_client.get("/api/attendance/").status_code == status.HTTP_200_OK
+
+from sims_backend.students.test_factories import make_student

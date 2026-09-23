@@ -274,7 +274,7 @@ def student(db, student_user, program, batch):
     """Create a test student with associated user."""
     from sims_backend.students.models import Student
 
-    return Student.objects.create(
+    return make_student(
         user=student_user,
         student_id="STU-2023-001",
         program=program,
@@ -293,7 +293,7 @@ def another_student(db, program, batch):
     user.groups.add(Group.objects.get(name="STUDENT"))
     user.save()
 
-    return Student.objects.create(
+    return make_student(
         user=user,
         student_id="STU-2023-002",
         program=program,
@@ -361,7 +361,7 @@ def multi_year_student_data(db):
         start_year=2022,
         is_active=True,
     )
-    student = Student.objects.create(
+    student = make_student(
         user=user,
         student_id="STU-2022-MULTI",
         program=program,
@@ -551,7 +551,7 @@ def populated_students(db, populated_academic_structure):
         user.groups.add(Group.objects.get(name="STUDENT"))
         user.save()
 
-        student = Student.objects.create(
+        student = make_student(
             user=user,
             student_id=f"STU-2023-{i:03d}",
             program=populated_academic_structure["program"],
@@ -671,3 +671,5 @@ def faculty_csv_dataset():
         ),
     }
 
+
+from sims_backend.students.test_factories import make_student

@@ -32,7 +32,7 @@ def academic_structure(db):
 def student_with_result(db, academic_structure):
     user = User.objects.create_user(username="student_result", password="pass")
     user.groups.add(Group.objects.get(name="STUDENT"))
-    student = Student.objects.create(
+    student = make_student(
         user=user,
         reg_no="MBBS2601",
         name="Student Result",
@@ -107,3 +107,5 @@ def test_registrar_with_legacy_admin_group_serializes_as_registrar():
 
     assert UserSerializer(user).data["role"] == "Registrar"
     assert AdminUserSerializer(user).data["role"] == "Registrar"
+
+from sims_backend.students.test_factories import make_student

@@ -46,7 +46,7 @@ def learning_feed_setup(db):
 
     student_user = User.objects.create_user(username="student1", password="pass")
     student_user.groups.add(Group.objects.get(name="STUDENT"))
-    student = Student.objects.create(
+    student = make_student(
         user=student_user,
         reg_no="REG-001",
         name="Student One",
@@ -171,7 +171,7 @@ def test_student_feed_multi_field_audience_filtering(api_client, learning_feed_s
     other_group = AcadGroup.objects.create(name="Group C", batch=other_batch)
     other_student_user = User.objects.create_user(username="student2", password="pass")
     other_student_user.groups.add(Group.objects.get(name="STUDENT"))
-    Student.objects.create(
+    make_student(
         user=other_student_user,
         reg_no="REG-002",
         name="Student Two",
@@ -294,3 +294,5 @@ def test_student_feed_excludes_published_materials_without_audiences(api_client,
     assert material_with_audience.id in ids, "Should see material with matching audience"
     # Should NOT see material without audience
     assert material_no_audience.id not in ids, "Should NOT see material without audiences"
+
+from sims_backend.students.test_factories import make_student

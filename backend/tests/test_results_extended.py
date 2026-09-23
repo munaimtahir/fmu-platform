@@ -18,7 +18,7 @@ def student_profile(db, student_user):
     program = Program.objects.create(name="MBBS", is_active=True)
     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
     group = AcadGroup.objects.create(batch=batch, name="A")
-    return Student.objects.create(
+    return make_student(
         user=student_user, reg_no="REG001", name="Test Student", program=program, batch=batch, group=group
     )
 
@@ -219,7 +219,7 @@ class TestResultsExtended:
         exam = Exam.objects.create(title="Test Exam", academic_period=period)
         other_user = User.objects.create_user(username="other", password="password")
         other_user.groups.add(Group.objects.get(name="STUDENT"))
-        other_student = Student.objects.create(user=other_user, reg_no="OTHER001", name="Other", program=student_profile.program, batch=student_profile.batch, group=student_profile.group)
+        other_student = make_student(user=other_user, reg_no="OTHER001", name="Other", program=student_profile.program, batch=student_profile.batch, group=student_profile.group)
         other_result = ResultHeader.objects.create(exam=exam, student=other_student, status=ResultHeader.STATUS_PUBLISHED, total_obtained=50, total_max=100)
 
         api_client.force_authenticate(user=student_user)
@@ -259,3 +259,5 @@ class TestResultsExtended:
 
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
+
+from sims_backend.students.test_factories import make_student

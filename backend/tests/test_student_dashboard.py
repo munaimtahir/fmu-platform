@@ -31,7 +31,7 @@ def test_dashboard_stats_student_linked(api_client, student_user):
     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
     group = StudentGroup.objects.create(batch=batch, name="A")
 
-    student = Student.objects.create(
+    student = make_student(
         user=student_user, reg_no="REG-123", name="Test Student", program=program, batch=batch, group=group
     )
 
@@ -80,3 +80,5 @@ def test_dashboard_stats_student_linked(api_client, student_user):
     assert data["classes_attended"] == 1
     # assert data["pending_dues"] == 1 # This might fail if logic is broken
     assert data["published_results"] == 1
+
+from sims_backend.students.test_factories import make_student

@@ -49,6 +49,15 @@ export default defineConfig({
     },
   },
   test: {
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/**/*.d.ts', 'src/types/**', 'src/main.tsx'],
+      reporter: ['text', 'json', 'html', 'lcov'],
+      reportsDirectory: 'coverage',
+    },
+    maxWorkers: 2,
+    testTimeout: 15000,
     globals: true,
     environment: 'jsdom',
     reporters: 'default',

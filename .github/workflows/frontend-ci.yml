@@ -1,6 +1,11 @@
 name: Frontend CI
 
 on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 2 * * *'
   workflow_dispatch:
 
 jobs:
@@ -25,7 +30,16 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Test
-        run: npm test -- --run
+        run: npm run test:coverage
+      - name: Enforce coverage by area
+        run: python3 ../scripts/check_coverage.py web --report coverage/coverage-final.json --output coverage/areas.json
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-coverage
+          path: frontend/coverage
+          if-no-files-found: error
       - name: Build
         run: npm run build
         env:

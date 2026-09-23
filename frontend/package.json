@@ -37,7 +37,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "parity": "python3 scripts/check_web_parity.py",
-    "parity:strict": "python3 scripts/check_web_parity.py --strict"
+    "parity:strict": "python3 scripts/check_web_parity.py --strict",
+    "test:coverage": "vitest run --coverage",
+    "e2e:onboarding": "playwright test --config=playwright.onboarding.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -63,6 +65,7 @@
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
+    "@vitest/coverage-v8": "4.0.16",
     "autoprefixer": "^10.4.21",
     "baseline-browser-mapping": "^2.9.11",
     "eslint": "^9.36.0",

@@ -24,7 +24,7 @@ def notification_setup(db):
     group = AcadGroup.objects.create(batch=batch, name="A")
 
     student_user = User.objects.create_user(username="stu_notif", password="pass", email="stu@test.com")
-    student = Student.objects.create(user=student_user, reg_no="N1", name="Stu", program=program, batch=batch, group=group)
+    student = make_student(user=student_user, reg_no="N1", name="Stu", program=program, batch=batch, group=group)
 
     notification = Notification.objects.create(
         title="Test Notif",
@@ -117,3 +117,5 @@ class TestNotificationJobs:
         log = NotificationDeliveryLog.objects.filter(notification=notif, channel="EMAIL").first()
         assert log.status == "FAILED"
         assert log.error_sample == "Exception"
+
+from sims_backend.students.test_factories import make_student

@@ -41,7 +41,7 @@ def finance_api_setup(db):
     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
     group = AcadGroup.objects.create(batch=batch, name="Group A")
     from sims_backend.students.models import Student
-    student = Student.objects.create(
+    student = make_student(
         reg_no="EXT-001", name="Ext Student", program=program,
         batch=batch, group=group,
         status=Student.STATUS_ACTIVE
@@ -238,3 +238,5 @@ class TestFinanceActions:
         response = client.get(url)
         assert response.status_code == 200
         assert response["Content-Type"] == "application/pdf"
+
+from sims_backend.students.test_factories import make_student

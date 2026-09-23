@@ -1,3 +1,5 @@
+import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import java.util.Properties
 
 plugins {
@@ -81,4 +83,40 @@ dependencies {
     testImplementation(libs.junit); testImplementation(libs.mockwebserver); testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit); androidTestImplementation(libs.espresso); androidTestImplementation(platform(libs.compose.bom)); androidTestImplementation(libs.compose.ui.test)
     androidTestImplementation(libs.hilt.android.testing); kspAndroidTest(libs.hilt.compiler)
+}
+
+// Merge local and device execution against the same debug class files.
+// Keep authored UI/repository code in scope; JaCoCo filters compiler-generated branches.
+apply(plugin = "jacoco")
+configure<JacocoPluginExtension> { toolVersion = "0.8.14" }
+android {
+    buildTypes.getByName("debug") {
+        enableUnitTestCoverage = true
+        enableAndroidTestCoverage = true
+    }
+    testCoverage { jacocoVersion = "0.8.14" }
+}
+
+tasks.register<JacocoReport>("coverageDebugReport") {
+    dependsOn("testDebugUnitTest", "connectedDebugAndroidTest")
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/coverage/debug.xml"))
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/coverage/html"))
+    }
+    sourceDirectories.setFrom(files("src/main/java"))
+    val generated = listOf("**/R.class", "**/R\$*.class", "**/BuildConfig.class", "**/Hilt_*.class", "**/*_Factory.class", "**/*_MembersInjector.class", "**/Dagger*.class", "**/*_HiltModules*.class", "**/*_GeneratedInjector.class")
+    classDirectories.setFrom(
+        fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) { exclude(generated) },
+        fileTree(layout.buildDirectory.dir("intermediates/javac/debug/compileDebugJavaWithJavac/classes")) { exclude(generated) },
+    )
+    executionData.setFrom(fileTree(layout.buildDirectory) {
+        include("outputs/unit_test_code_coverage/debugUnitTest/*.exec")
+        include("outputs/code_coverage/debugAndroidTest/connected/**/*.ec")
+    })
+    doFirst {
+        check(executionData.files.any { it.extension == "exec" }) { "Missing debug unit-test coverage" }
+        check(executionData.files.any { it.extension == "ec" }) { "Missing debug device-test coverage" }
+    }
 }

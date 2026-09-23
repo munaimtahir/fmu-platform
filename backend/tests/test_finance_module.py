@@ -42,7 +42,7 @@ def finance_setup(db):
     student_user = User.objects.create_user(username="student_fin", password="pass")
     student_group, _ = Group.objects.get_or_create(name="STUDENT")
     student_user.groups.add(student_group)
-    student = Student.objects.create(
+    student = make_student(
         user=student_user,
         reg_no="FIN-001",
         name="Finance Student",
@@ -241,3 +241,5 @@ def test_finance_policy_blocks_results(finance_setup):
     gating = gate.get("gating", {})
     assert gating.get("can_view_results") is False, "Results should be blocked when dues exist"
     assert len(gating.get("reasons", [])) > 0
+
+from sims_backend.students.test_factories import make_student

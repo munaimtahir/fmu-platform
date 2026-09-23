@@ -50,7 +50,7 @@ def student1_user(db):
 @pytest.fixture
 def student1(db, student1_user, setup_academic_structure):
     """Create first student"""
-    return Student.objects.create(
+    return make_student(
         user=student1_user,
         reg_no="MBBS2401",
         name="Student One",
@@ -235,3 +235,5 @@ class TestPendingChangeApproval:
             status.HTTP_400_BAD_REQUEST,
             status.HTTP_201_CREATED,  # If change request is created
         ]
+
+from sims_backend.students.test_factories import make_student

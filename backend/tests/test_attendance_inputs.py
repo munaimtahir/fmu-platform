@@ -31,14 +31,14 @@ def session_with_students(db, admin_user):
     )
 
     students = [
-        Student.objects.create(
+        make_student(
             reg_no="REG-001",
             name="Alice",
             program=program,
             batch=batch,
             group=group,
         ),
-        Student.objects.create(
+        make_student(
             reg_no="REG-002",
             name="Bob",
             program=program,
@@ -148,3 +148,5 @@ def test_tick_sheet_commit(api_client, admin_user, session_with_students):
     response = api_client.post("/api/attendance-input/sheet/commit/", {"job_id": job.id}, format="json")
     assert response.status_code == 200
     assert Attendance.objects.filter(session=session, student=students[0]).exists()
+
+from sims_backend.students.test_factories import make_student

@@ -1,19 +1,22 @@
 [run]
+branch = true
+source =
+    sims_backend
+    core
 omit =
     */management/commands/*
     */migrations/*
     */tests/*
+    */tests.py
+    */conftest.py
     */test_*.py
-    venv/*
+    */wsgi.py
+    */asgi.py
     */venv/*
+    */.venv/*
     */site-packages/*
 
 [report]
-exclude_lines =
-    pragma: no cover
-    def __repr__
-    raise AssertionError
-    raise NotImplementedError
-    if __name__ == .__main__.:
+include_namespace_packages = true
+exclude_also =
     if TYPE_CHECKING:
-    @abstractmethod

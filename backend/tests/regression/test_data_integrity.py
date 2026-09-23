@@ -66,7 +66,7 @@ def student1_user(db):
 @pytest.fixture
 def student1(db, student1_user, setup_academic_structure):
     """Create first student"""
-    return Student.objects.create(
+    return make_student(
         user=student1_user,
         reg_no="MBBS2401",
         name="Student One",
@@ -149,3 +149,5 @@ class TestAttendanceUniqueness:
 
 # Legacy enrollment tests removed - enrollment module has been removed
 # Enrollment tracking should be handled via students app if needed
+
+from sims_backend.students.test_factories import make_student

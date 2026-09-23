@@ -1,6 +1,11 @@
 name: E2E Tests
 
 on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 2 * * *'
   workflow_dispatch:
     inputs:
       suite:

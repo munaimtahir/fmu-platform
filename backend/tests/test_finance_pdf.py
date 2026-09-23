@@ -17,7 +17,7 @@ def finance_pdf_setup(db):
     batch = Batch.objects.create(program=program, name="2024", start_year=2024)
     group = AcadGroup.objects.create(batch=batch, name="A")
     term = AcademicPeriod.objects.create(name="PDF Term", period_type="YEAR")
-    student = Student.objects.create(reg_no="PDF-001", name="PDF Student", program=program, batch=batch, group=group)
+    student = make_student(reg_no="PDF-001", name="PDF Student", program=program, batch=batch, group=group)
     fee_type = FeeType.objects.create(code="TUI", name="Tuition")
 
     voucher = Voucher.objects.create(
@@ -64,3 +64,5 @@ def test_student_statement_pdf(finance_pdf_setup):
     pdf = student_statement_pdf(statement)
     assert isinstance(pdf, io.BytesIO)
     assert len(pdf.getvalue()) > 0
+
+from sims_backend.students.test_factories import make_student

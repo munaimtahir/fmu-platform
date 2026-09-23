@@ -14,7 +14,7 @@ from sims_backend.students.models import Student
 @pytest.mark.parametrize(
     "role,task",
     [
-        ("REGISTRAR", "students.students.create"),
+        ("REGISTRAR", "students.imports.execute"),
         ("REGISTRAR", "people.persons.update"),
         ("REGISTRAR", "academics.programs.manage"),
         ("COORDINATOR", "students.students.manage_placement"),
@@ -90,10 +90,10 @@ def faculty_gradebook_contract(db):
         faculty=other_faculty,
         group=other_group,
     )
-    taught_student = Student.objects.create(
+    taught_student = make_student(
         reg_no="ANDROID-001", name="Taught Student", program=program, batch=batch, group=taught_group
     )
-    other_student = Student.objects.create(
+    other_student = make_student(
         reg_no="ANDROID-002", name="Other Student", program=program, batch=batch, group=other_group
     )
     exam = Exam.objects.create(title="Android Midterm", academic_period=period, department=department)
@@ -186,3 +186,5 @@ def test_faculty_material_upload_scope_and_lifecycle(faculty_gradebook_contract)
     assert audience.status_code == 201
     assert client.post(f"/api/learning/materials/{material_id}/publish/", {}, format="json").status_code == 200
     assert client.post(f"/api/learning/materials/{material_id}/archive/", {}, format="json").status_code == 200
+
+from sims_backend.students.test_factories import make_student

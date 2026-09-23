@@ -29,7 +29,7 @@ def attendance_setup(db, faculty_user):
         ends_at="2024-01-01 10:00:00",
     )
 
-    student = Student.objects.create(reg_no="2024-001", name="John Doe", program=program, batch=batch, group=group)
+    student = make_student(reg_no="2024-001", name="John Doe", program=program, batch=batch, group=group)
 
     return {
         "session": session,
@@ -97,3 +97,5 @@ class TestAttendanceExtended:
         response = api_client.get("/api/attendance/eligibility/")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["error"]["code"] == "MISSING_PARAMS"
+
+from sims_backend.students.test_factories import make_student

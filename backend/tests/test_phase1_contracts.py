@@ -91,7 +91,7 @@ def finance_world(db):
         frequency=FeePlan.FREQ_PER_TERM,
     )
     student_user = make_user("stu_fin", ["STUDENT"])
-    student = Student.objects.create(
+    student = make_student(
         user=student_user,
         reg_no="F-1",
         name="Fin Student",
@@ -217,7 +217,7 @@ class TestDashboardStatsByRole:
         batch = Batch.objects.create(program=program, name="DB", start_year=2024)
         group = StudentGroup.objects.create(batch=batch, name="DG")
         for i, status in enumerate([Student.STATUS_ACTIVE, Student.STATUS_ACTIVE, Student.STATUS_ON_LEAVE]):
-            Student.objects.create(
+            make_student(
                 user=make_user(f"dash_s{i}", ["STUDENT"]),
                 reg_no=f"D-{i}",
                 name=f"S{i}",
@@ -237,3 +237,5 @@ class TestDashboardStatsByRole:
         assert "total_students" in coordinator and "total_sessions" in coordinator
         assistant = self.stats(api_client, "dash_oa", ["OFFICE_ASSISTANT"])
         assert set(assistant) == {"total_sessions", "draft_results", "total_exams"}
+
+from sims_backend.students.test_factories import make_student

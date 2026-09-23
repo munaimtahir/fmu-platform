@@ -51,7 +51,7 @@ class TestFacultyImportPreview:
             {"file": file},
             format="multipart"
         )
-        assert response.status_code == status.HTTP_200_OK
+        assert response.status_code == status.HTTP_200_OK, response.data
         data = response.json()
         assert "import_job_id" in data
         assert "valid_rows" in data

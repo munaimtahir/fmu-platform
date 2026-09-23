@@ -62,8 +62,8 @@ def test_bulk_upsert_logic(db):
     dept = Department.objects.create(name="D")
 
     from sims_backend.students.models import Student
-    s1 = Student.objects.create(reg_no="S1", name="Stu 1", program=program, batch=batch, group=group)
-    s2 = Student.objects.create(reg_no="S2", name="Stu 2", program=program, batch=batch, group=group)
+    s1 = make_student(reg_no="S1", name="Stu 1", program=program, batch=batch, group=group)
+    s2 = make_student(reg_no="S2", name="Stu 2", program=program, batch=batch, group=group)
 
     session = Session.objects.create(
         academic_period=period, department=dept, group=group, faculty=admin,
@@ -93,3 +93,5 @@ def test_bulk_upsert_logic(db):
     # Since it was ABSENT before, it counts as updated to PRESENT.
     assert Attendance.objects.get(session=session, student=s1).status == "ABSENT"
     assert Attendance.objects.get(session=session, student=s2).status == "PRESENT"
+
+from sims_backend.students.test_factories import make_student

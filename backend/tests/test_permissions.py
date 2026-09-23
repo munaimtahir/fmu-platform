@@ -72,7 +72,7 @@ def student2_user(db):
 @pytest.fixture
 def student1(db, student1_user, setup_academic_structure):
     """Create first student linked to user"""
-    return Student.objects.create(
+    return make_student(
         user=student1_user,
         reg_no="MBBS2401",
         name="Student One",
@@ -86,7 +86,7 @@ def student1(db, student1_user, setup_academic_structure):
 @pytest.fixture
 def student2(db, student2_user, setup_academic_structure):
     """Create second student linked to user"""
-    return Student.objects.create(
+    return make_student(
         user=student2_user,
         reg_no="MBBS2402",
         name="Student Two",
@@ -395,3 +395,5 @@ class TestFinancePermissions:
             results = data
 
         assert len(results) == 2
+
+from sims_backend.students.test_factories import make_student

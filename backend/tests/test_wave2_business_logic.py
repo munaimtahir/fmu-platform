@@ -32,7 +32,7 @@ def _finance_context(suffix):
     group = AcademicGroup.objects.create(batch=batch, name=f"Group {suffix}")
     user = User.objects.create_user(username=f"stu-wave2-{suffix}", password="pass")
     user.groups.add(Group.objects.get(name="STUDENT"))
-    student = Student.objects.create(
+    student = make_student(
         user=user,
         reg_no=f"WAVE2-{suffix}",
         name="Test Student",
@@ -63,7 +63,7 @@ def _result_context(suffix, status):
     batch = Batch.objects.create(program=program, name=f"Result Batch {suffix}", start_year=2024)
     group = AcademicGroup.objects.create(batch=batch, name=f"Result Group {suffix}")
     student_user = User.objects.create_user(username=f"result-student-{suffix}", password="pass")
-    student = Student.objects.create(
+    student = make_student(
         user=student_user,
         reg_no=f"RESULT-{suffix}",
         name="Result Student",
@@ -212,3 +212,5 @@ class TestResultsRBAC:
             status.HTTP_403_FORBIDDEN,
             status.HTTP_404_NOT_FOUND
         ]
+
+from sims_backend.students.test_factories import make_student

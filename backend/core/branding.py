@@ -9,8 +9,8 @@ def _env(name: str, default: str = "") -> str:
 
 PLATFORM_PROVIDER = _env("PLATFORM_PROVIDER", "Vexel")
 PLATFORM_NAME = _env("PLATFORM_NAME", "Vexel MedSIMS")
-INSTITUTION_NAME = _env("INSTITUTION_NAME", "Example Medical College")
-INSTITUTION_SHORT_NAME = _env("INSTITUTION_SHORT_NAME", "Example Medical College")
+INSTITUTION_NAME = _env("INSTITUTION_NAME", "Punjab Medical College")
+INSTITUTION_SHORT_NAME = _env("INSTITUTION_SHORT_NAME", "Punjab Medical College")
 INSTITUTION_LOGO = _env("INSTITUTION_LOGO")
 INSTITUTION_ADDRESS = _env("INSTITUTION_ADDRESS")
 INSTITUTION_EMAIL = _env("INSTITUTION_EMAIL", "registrar@examplemedical.edu")

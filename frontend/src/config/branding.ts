@@ -2,8 +2,8 @@
 export const branding = {
   platformProvider: import.meta.env.VITE_PLATFORM_PROVIDER || 'Vexel',
   platformName: import.meta.env.VITE_PLATFORM_NAME || 'Vexel MedSIMS',
-  institutionName: import.meta.env.VITE_INSTITUTION_NAME || 'Example Medical College',
-  institutionShortName: import.meta.env.VITE_INSTITUTION_SHORT_NAME || 'Example Medical College',
+  institutionName: import.meta.env.VITE_INSTITUTION_NAME || 'Punjab Medical College',
+  institutionShortName: import.meta.env.VITE_INSTITUTION_SHORT_NAME || 'Punjab Medical College',
   institutionLogo: import.meta.env.VITE_INSTITUTION_LOGO || '',
   institutionAddress: import.meta.env.VITE_INSTITUTION_ADDRESS || '',
   institutionEmail: import.meta.env.VITE_INSTITUTION_EMAIL || 'registrar@examplemedical.edu',
